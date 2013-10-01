@@ -38,6 +38,9 @@
 #include <OpenMS/DATASTRUCTURES/Compomer.h>
 #include <OpenMS/DATASTRUCTURES/ListUtils.h>
 #include <OpenMS/CONCEPT/Constants.h>
+
+#include <OpenMS/MATH/gsl_wrapper.h>
+
 #include <cmath>
 
 #ifdef _OPENMP
@@ -246,7 +249,7 @@ public:
 
     // we need to do this locally to avoid memory leaks (copying this stuff in C'tors is not wise)
     // (this GSL function does normalization to sum=1 internally)
-    gsl_ran_discrete_t * gsl_ran_lookup_esi_charge_impurity = gsl_ran_discrete_preproc(esi_impurity_probabilities_.size(), &esi_impurity_probabilities_[0]);
+    deprecated_gsl_ran_discrete_t * ran_lookup_esi_charge_impurity = deprecated_gsl_ran_discrete_preproc(esi_impurity_probabilities_.size(), &esi_impurity_probabilities_[0]);
 
     try
     {
@@ -309,7 +312,7 @@ public:
         {
           for (Int j = 0; j < abundance; ++j)
           {
-            prec_rndbin[j] = gsl_ran_binomial(rnd_gen_->technical_rng, esi_probability_, basic_residues_c);
+            prec_rndbin[j] = deprecated_gsl_ran_binomial(rnd_gen_->technical_rng, esi_probability_, basic_residues_c);
           }
         }
 
@@ -356,7 +359,7 @@ public:
                 {
                   for (Size i_rnd = 0; i_rnd < prec_rnduni.size(); ++i_rnd)
                   {
-                    prec_rnduni[i_rnd] = gsl_ran_discrete(rnd_gen_->technical_rng, gsl_ran_lookup_esi_charge_impurity);
+                    prec_rnduni[i_rnd] = deprecated_gsl_ran_discrete(rnd_gen_->technical_rng, ran_lookup_esi_charge_impurity);
                   }
                   prec_rnduni_remaining = prec_rnduni.size();
                 }
@@ -454,13 +457,13 @@ public:
     catch (std::exception & e)
     {
       // before leaving: free
-      gsl_ran_discrete_free(gsl_ran_lookup_esi_charge_impurity);
+      deprecated_gsl_ran_discrete_free(ran_lookup_esi_charge_impurity);
       LOG_WARN << "Exception (" << e.what() << ") caught in " << __FILE__ << "\n";
       throw;
     }
 
     // all ok: free
-    gsl_ran_discrete_free(gsl_ran_lookup_esi_charge_impurity);
+    deprecated_gsl_ran_discrete_free(ran_lookup_esi_charge_impurity);
 
     features.applyMemberFunction(&UniqueIdInterface::ensureUniqueId);
     charge_consensus.applyMemberFunction(&UniqueIdInterface::ensureUniqueId);
@@ -483,7 +486,7 @@ public:
 
   void IonizationSimulation::ionizeMaldi_(FeatureMapSim & features, ConsensusMap & charge_consensus)
   {
-    gsl_ran_discrete_t * gsl_ran_lookup_maldi = gsl_ran_discrete_preproc(maldi_probabilities_.size(), &maldi_probabilities_[0]);
+    deprecated_gsl_ran_discrete_t * ran_lookup_maldi = deprecated_gsl_ran_discrete_preproc(maldi_probabilities_.size(), &maldi_probabilities_[0]);
 
     try
     {
@@ -506,7 +509,7 @@ public:
         for (Int j = 0; j < abundance; ++j)
         {
           // sample charge from discrete distribution
-          Size charge = gsl_ran_discrete(rnd_gen_->technical_rng, gsl_ran_lookup_maldi) + 1;
+          Size charge = deprecated_gsl_ran_discrete(rnd_gen_->technical_rng, ran_lookup_maldi) + 1;
 
           // add 1 to abundance of sampled charge state
           ++charge_states[charge];
@@ -559,13 +562,13 @@ public:
     catch (std::exception & e)
     {
       // before leaving: free
-      gsl_ran_discrete_free(gsl_ran_lookup_maldi);
+      deprecated_gsl_ran_discrete_free(ran_lookup_maldi);
       LOG_WARN << "Exception (" << e.what() << ") caught in " << __FILE__ << "\n";
       throw;
     }
 
     // all ok: free
-    gsl_ran_discrete_free(gsl_ran_lookup_maldi);
+    deprecated_gsl_ran_discrete_free(ran_lookup_maldi);
 
     features.applyMemberFunction(&UniqueIdInterface::ensureUniqueId);
     charge_consensus.applyMemberFunction(&UniqueIdInterface::ensureUniqueId);
