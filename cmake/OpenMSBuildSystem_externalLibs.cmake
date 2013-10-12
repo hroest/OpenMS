@@ -168,6 +168,15 @@ else()
   message(FATAL_ERROR "bzip2 not found!")
 endif()
 
+# Find eigen3
+FIND_PACKAGE(Eigen3 REQUIRED)
+if (EIGEN3_FOUND)
+  include_directories(${EIGEN3_INCLUDE_DIR})
+  message(STATUS "Found eigen3 version ${EIGEN3_VERSION}")
+else()
+  message(FATAL_ERROR "eigen3 not found!")
+endif()
+
 if(MSVC)
 	## needed to locate libs (put this above ADD_LIBRARY() - otherwise it will not work)
 	link_directories(${CONTRIB_LIB_DIR})
