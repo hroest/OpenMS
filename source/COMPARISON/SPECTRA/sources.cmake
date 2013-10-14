@@ -8,7 +8,6 @@ BinnedSpectralContrastAngle.C
 BinnedSpectrum.C
 BinnedSpectrumCompareFunctor.C
 BinnedSumAgreeingIntensities.C
-CompareFouriertransform.C
 PeakAlignment.C
 PeakSpectrumCompareFunctor.C
 SpectraSTSimilarityScore.C
