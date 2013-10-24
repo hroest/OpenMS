@@ -383,7 +383,8 @@ set(OPENMS_DEP_LIBRARIES  ${CONTRIB_CBC}
                           ${Boost_LIBRARIES} 
                           ${BZIP2_LIBRARIES} 
                           ${ZLIB_LIBRARIES} 
-                          ${GLPK_LIBRARIES})
+                          ${GLPK_LIBRARIES}
+                          ${WM5_LIBRARIES})
                           
 if (TBB_FOUND)
 	list(APPEND OPENMS_DEP_LIBRARIES ${TBB_LIBRARIES})
