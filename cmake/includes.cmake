@@ -5,7 +5,6 @@ set(OpenMSVisual_sources  CACHE INTERNAL "This variable should hold all OpenMS s
 include(source/INTERFACES_IMPL/sources.cmake)
 include(source/CONCEPT/sources.cmake)
 include(source/SYSTEM/sources.cmake)
-include(source/MATH/GSL_WRAPPER/sources.cmake)
 include(source/MATH/STATISTICS/sources.cmake)
 include(source/MATH/MISC/sources.cmake)
 include(source/MATH/MISC/NNLS/sources.cmake)
