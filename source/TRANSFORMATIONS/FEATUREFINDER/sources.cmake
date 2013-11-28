@@ -33,10 +33,6 @@ IsotopeModel.C
 IsotopeWavelet.C
 IsotopeWaveletTransform.C
 LevMarqFitter1D.C
-LmaGaussFitter1D.C
-LmaGaussModel.C
-LmaIsotopeFitter1D.C
-LmaIsotopeModel.C
 MaxLikeliFitter1D.C
 ModelDescription.C
 ModelFitter.C
