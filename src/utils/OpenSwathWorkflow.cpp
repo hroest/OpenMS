@@ -50,6 +50,7 @@
 #include <OpenMS/FORMAT/TransformationXMLFile.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/TransitionTSVReader.h>
 #include <OpenMS/FORMAT/CachedMzML.h>
+#define OPENMS_FORMAT_SWATHFILE_MZXMLSUPPORT
 #ifdef OPENMS_FORMAT_SWATHFILE_MZXMLSUPPORT
 #include "MSDataReader.h"
 #endif
