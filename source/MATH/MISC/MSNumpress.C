@@ -252,16 +252,16 @@ size_t encodeLinear(
 
 	if (dataSize == 0) return 8;
 
-	ints[1] = data[0] * fixedPoint + 0.5;
+	ints[1] = (unsigned long long) data[0] * fixedPoint + 0.5;
 	for (i=0; i<4; i++) {
-		result[8+i] = (ints[1] >> (i*8)) & 0xff;
+		result[8+i] = (char) (ints[1] >> (i*8)) & 0xff;
 	}
 
 	if (dataSize == 1) return 12;
 
-	ints[2] = data[1] * fixedPoint + 0.5;
+	ints[2] = (unsigned long long) data[1] * fixedPoint + 0.5;
 	for (i=0; i<4; i++) {
-		result[12+i] = (ints[2] >> (i*8)) & 0xff;
+		result[12+i] = (char) (ints[2] >> (i*8)) & 0xff;
 	}
 
 	halfByteCount = 0;
@@ -270,9 +270,9 @@ size_t encodeLinear(
 	for (i=2; i<dataSize; i++) {
 		ints[0] = ints[1];
 		ints[1] = ints[2];
-		ints[2] = data[i] * fixedPoint + 0.5;
+		ints[2] = (unsigned long long) data[i] * fixedPoint + 0.5;
 		extrapol = ints[1] + (ints[1] - ints[0]);
-		diff = ints[2] - extrapol;
+		diff = (int) ints[2] - extrapol;
 		//printf("%lu %lu %lu,   extrapol: %ld    diff: %d \n", ints[0], ints[1], ints[2], extrapol, diff);
 		encodeInt(diff, &halfBytes[halfByteCount], &halfByteCount);
 		/*
@@ -426,7 +426,7 @@ size_t encodePic(
 	ri = 0;
 
 	for (i=0; i<dataSize; i++) {
-		count = data[i] + 0.5;
+		count = (size_t) data[i] + 0.5;
 		//printf("%d %d %d,   extrapol: %d    diff: %d \n", ints[0], ints[1], ints[2], extrapol, diff);
 		encodeInt(count, &halfBytes[halfByteCount], &halfByteCount);
 		/*
@@ -563,7 +563,7 @@ size_t encodeSlof(
 
 	ri = 8;
 	for (i=0; i<dataSize; i++) {
-		x = log(data[i]+1) * fixedPoint + 0.5;
+		x = (unsigned short) log(data[i]+1) * fixedPoint + 0.5;
 		result[ri++] = x & 0xff;
 		result[ri++] = x >> 8;
 	}

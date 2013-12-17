@@ -81,9 +81,9 @@ namespace OpenMS
 
       // compute a vandermonde matrix whose columns are powers of the vector [-nL,...,nR]
       Eigen::MatrixXd A (frame_size_, order_ + 1);
-      for (int i = -nl; i <= nr; i++)
+      for (double i = -nl; i <= nr; i++)
       {
-        for (UInt j = 0; j <= order_; j++)
+        for (int j = 0; j <= order_; j++)
         {
           A(i + nl, j) = std::pow(i, j);
         }
