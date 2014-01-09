@@ -157,7 +157,7 @@ private:
     /**
      @brief Discrete distribution of impure charge adducts like Na+, K+, Ca++ etc besides the usual H+
     */
-    // important: leave that as vector<double> because gsl expects 'double' and not 'DoubleReal' (which might be something different)
+    // important: leave that as vector<double> because expects 'double' and not 'DoubleReal' (which might be something different)
     std::vector<double> esi_impurity_probabilities_;
 
 
@@ -174,7 +174,7 @@ private:
     /**
      @brief Preprocessed table of discrete distribution (MALDI charges)
     */
-    // important: leave that as vector<double> because gsl expects 'double' and not 'DoubleReal' (which might be something different)
+    // important: leave that as vector<double> because expects 'double' and not 'DoubleReal' (which might be something different)
     std::vector<double> maldi_probabilities_;
 
     /// Maximum m/z detected by mass analyser
