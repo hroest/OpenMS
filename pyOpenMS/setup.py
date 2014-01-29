@@ -147,6 +147,7 @@ if OPEN_MS_CONTRIB_BUILD_DIRS.endswith(";"):
     OPEN_MS_CONTRIB_BUILD_DIRS = OPEN_MS_CONTRIB_BUILD_DIRS[:-1]
 
 for OPEN_MS_CONTRIB_BUILD_DIR in OPEN_MS_CONTRIB_BUILD_DIRS.split(";"):
+    # TODO try all paths in the order as they appeared here ...
     if os.path.exists(os.path.join(OPEN_MS_CONTRIB_BUILD_DIR, "lib")):
         break
 
@@ -209,28 +210,30 @@ else:
     print
     exit()
 
+import numpy
+# Setup library and include directories
 library_dirs = [OPEN_MS_BUILD_DIR,
                 j(OPEN_MS_BUILD_DIR, "lib"),
                 j(OPEN_MS_BUILD_DIR, "bin"),
                 j(OPEN_MS_BUILD_DIR, "bin", "Release"),
                 j(OPEN_MS_BUILD_DIR, "Release"),
-                j(OPEN_MS_CONTRIB_BUILD_DIR, "lib"),
                 QT_LIBRARY_DIR,
                 ]
-
-import numpy
-
 include_dirs = [
     QT_HEADERS_DIR,
     QT_QTCORE_INCLUDE_DIR,
-    j(OPEN_MS_CONTRIB_BUILD_DIR, "include"),
-    j(OPEN_MS_CONTRIB_BUILD_DIR, "include", "libsvm"),
-    # j(OPEN_MS_CONTRIB_BUILD_DIR, "src", "boost_1_52_0")
-    j(OPEN_MS_CONTRIB_BUILD_DIR, "include", "boost"),
     j(OPEN_MS_BUILD_DIR, "include"),
     j(OPEN_MS_SRC, "include"),
     j(numpy.core.__path__[0], "include"),
 ]
+
+for OPEN_MS_CONTRIB_BUILD_DIR in OPEN_MS_CONTRIB_BUILD_DIRS.split(";"):
+    library_dirs.append(j(OPEN_MS_CONTRIB_BUILD_DIR, "lib") )
+    include_dirs.append(j(OPEN_MS_CONTRIB_BUILD_DIR, "include") )
+    include_dirs.append(j(OPEN_MS_CONTRIB_BUILD_DIR, "include", "boost") )
+    include_dirs.append(j(OPEN_MS_CONTRIB_BUILD_DIR, "include", "libsvm") )
+    include_dirs.append(j(OPEN_MS_CONTRIB_BUILD_DIR, "include", "WildMagic") )
+    include_dirs.append(j(OPEN_MS_CONTRIB_BUILD_DIR, "include", "eigen3") )
 
 include_dirs.extend(LIBRARIES_EXTEND)
 libraries.extend(LIBRARIES_EXTEND)
