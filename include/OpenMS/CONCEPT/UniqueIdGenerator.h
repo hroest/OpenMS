@@ -38,7 +38,8 @@
 #include <OpenMS/CONCEPT/Types.h>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
+//#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_int.hpp>
 
 namespace OpenMS
 {
@@ -76,8 +77,8 @@ protected:
 private:
     static UInt64 seed_;
     static UniqueIdGenerator* instance_;
-    static boost::random::mt19937_64* rng_;
-    static boost::random::uniform_int_distribution<UInt64>* dist_;
+    // static boost::random::mt19937_64* rng_;
+    // static boost::random::uniform_int_distribution<UInt64>* dist_;
 
     static UniqueIdGenerator& getInstance_();
     void init_();

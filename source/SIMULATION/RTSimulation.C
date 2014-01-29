@@ -46,7 +46,7 @@
 
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/cauchy_distribution.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
+//#include <boost/random/uniform_real_distribution.hpp>
 
 using std::vector;
 using std::cout;
@@ -259,6 +259,7 @@ namespace OpenMS
         predicted_retention_times[i] = features[i].getMetaValue("rt");
       }
       // add variation
+      /*
       boost::random::normal_distribution<SimCoordinateType> ndist (rt_offset,rt_ft_stddev);
       SimCoordinateType rt_error = ndist(rnd_gen_->getTechnicalRng());
       predicted_retention_times[i] = predicted_retention_times[i] * rt_scale + rt_error;
@@ -267,6 +268,7 @@ namespace OpenMS
       {
         predicted_retention_times[i] = features[i].getMetaValue("RT");
       }
+      */
 
       // remove invalid peptides & (later) display removed ones
       if (
@@ -287,26 +289,32 @@ namespace OpenMS
       DoubleReal variance = egh_variance_location_;
       if(egh_variance_scale_ != 0)
       {
+        /*
         boost::random::cauchy_distribution<DoubleReal> cdist (0,egh_variance_scale_);
         variance += cdist( rnd_gen_->getTechnicalRng() );
+        */
       }
       DoubleReal tau = egh_tau_location_;
       if(egh_tau_scale_ != 0)
       {
+        /*
         boost::random::cauchy_distribution<DoubleReal> cdist (0,egh_tau_scale_);
         tau += cdist( rnd_gen_->getTechnicalRng() );
+        */
       }
 
       // resample variance if it is below 0
       // try this only 10 times to avoid endless loop in case of
       // a bad parameter combination
       Size retry_variance_sampling = 0;
+      /*
       boost::random::cauchy_distribution<DoubleReal> cdistVar (0.0, egh_variance_scale_);
       while ((variance <= 0 || (fabs(variance - egh_variance_location_) > 10 * egh_variance_scale_)) && retry_variance_sampling < 9)
       {
         variance = egh_variance_location_ + cdistVar(rnd_gen_->getTechnicalRng());
         ++retry_variance_sampling;
       }
+      */
 
       if (variance <= 0 || (fabs(variance - egh_variance_location_) > 10 * egh_variance_scale_))
       {
@@ -318,12 +326,14 @@ namespace OpenMS
       // try this only 10 times to avoid endless loop in case of
       // a bad parameter combination
       Size retry_tau_sampling = 0;
+      /*
       boost::random::cauchy_distribution<DoubleReal> cdistTau (0.0, egh_tau_scale_);
       while (fabs(tau - egh_tau_location_) > 10 * egh_tau_scale_  && retry_tau_sampling < 9)
       {
         tau = egh_tau_location_ + cdistTau(rnd_gen_->getTechnicalRng());
         ++retry_tau_sampling;
       }
+      */
 
       if (fabs(tau - egh_tau_location_) > 10 * egh_tau_scale_)
       {
@@ -584,6 +594,7 @@ namespace OpenMS
   void RTSimulation::predictContaminantsRT(FeatureMapSim& contaminants)
   {
     // iterate of feature map
+    /*
     boost::random::uniform_real_distribution<SimCoordinateType> udist (0,total_gradient_time_);
     for (Size i = 0; i < contaminants.size(); ++i)
     {
@@ -592,6 +603,7 @@ namespace OpenMS
       SimCoordinateType retention_time = udist(rnd_gen_->getTechnicalRng());
       contaminants[i].setRT(retention_time);
     }
+    */
   }
 
   bool RTSimulation::isRTColumnOn() const
@@ -664,6 +676,7 @@ namespace OpenMS
     {
       // initialize the previous value on position 0
       previous = (DoubleReal) experiment[0].getMetaValue("distortion");
+      /*
       boost::random::uniform_real_distribution<DoubleReal> udist (1.0 - std::pow(fi + 1.0, 2) * 0.01, 1.0 + std::pow(fi + 1.0, 2) * 0.01);// distortion gets worse round by round
 #ifdef MSSIM_DEBUG_MOV_AVG_FILTER
       LOG_WARN << "d <- c(" << previous << ", ";
@@ -695,6 +708,7 @@ namespace OpenMS
       }
       LOG_WARN << next << ");" << endl;
 #endif
+      */
     }
   }
 

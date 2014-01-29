@@ -44,7 +44,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/random/binomial_distribution.hpp>
-#include <boost/random/discrete_distribution.hpp>
+//#include <boost/random/discrete_distribution.hpp>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -274,6 +274,7 @@ public:
         boost::bind( std::multiplies<double>(), _1, 10 ) );
     for(size_t i=0; i<weights.size(); ++i )
       std::cout << "weights[" << i << "]: " << weights.at(i) << std::endl;
+#if 0
     boost::random::discrete_distribution<Size, double> ddist (weights.begin(), weights.end());
 //    deprecated_gsl_ran_discrete_t * ran_lookup_esi_charge_impurity = deprecated_gsl_ran_discrete_preproc(esi_impurity_probabilities_.size(), &esi_impurity_probabilities_[0]);
 
@@ -489,6 +490,7 @@ public:
       LOG_WARN << "Exception (" << e.what() << ") caught in " << __FILE__ << "\n";
       throw;
     }
+#endif
 
     features.applyMemberFunction(&UniqueIdInterface::ensureUniqueId);
     charge_consensus.applyMemberFunction(&UniqueIdInterface::ensureUniqueId);
@@ -516,6 +518,7 @@ public:
         maldi_probabilities_.end(),
         std::back_inserter( weights ),
         boost::bind( std::multiplies<double>(), _1, 10 ) );
+#if 0
     boost::random::discrete_distribution<Size, double> ddist (weights.begin(), weights.end());
 
     try
@@ -595,6 +598,7 @@ public:
       throw;
     }
 
+#endif
     features.applyMemberFunction(&UniqueIdInterface::ensureUniqueId);
     charge_consensus.applyMemberFunction(&UniqueIdInterface::ensureUniqueId);
   }

@@ -41,14 +41,14 @@ namespace OpenMS
 {
   UInt64 UniqueIdGenerator::seed_ = 0;
   UniqueIdGenerator* UniqueIdGenerator::instance_ = NULL;
-  boost::random::mt19937_64* UniqueIdGenerator::rng_ = NULL;
-  boost::random::uniform_int_distribution<UInt64>* UniqueIdGenerator::dist_ = NULL;
+  // boost::random::mt19937_64* UniqueIdGenerator::rng_ = NULL;
+  // boost::random::uniform_int_distribution<UInt64>* UniqueIdGenerator::dist_ = NULL;
 
   UInt64
   UniqueIdGenerator::getUniqueId()
   {
     UniqueIdGenerator& instance = getInstance_();
-    return (*instance.dist_)(*instance.rng_);
+    // return (*instance.dist_)(*instance.rng_);
   }
 
   UInt64
@@ -62,8 +62,8 @@ namespace OpenMS
   {
     UniqueIdGenerator& instance = getInstance_();
     instance.seed_ = seed;
-    instance.rng_->seed( instance.seed_ );
-    instance.dist_->reset();
+    // instance.rng_->seed( instance.seed_ );
+    // instance.dist_->reset();
   }
 
   UniqueIdGenerator::UniqueIdGenerator()
@@ -86,14 +86,14 @@ namespace OpenMS
   UniqueIdGenerator::init_()
   {
     seed_ = std::time(0);
-    rng_ = new boost::random::mt19937_64 (seed_);
-    dist_ = new boost::random::uniform_int_distribution<UInt64> (0,std::numeric_limits<UInt64>::max());
+    // rng_ = new boost::random::mt19937_64 (seed_);
+    // dist_ = new boost::random::uniform_int_distribution<UInt64> (0,std::numeric_limits<UInt64>::max());
   }
 
   UniqueIdGenerator::~UniqueIdGenerator()
   {
-    delete rng_;
-    delete dist_;
+    // delete rng_;
+    // delete dist_;
   }
 
 }

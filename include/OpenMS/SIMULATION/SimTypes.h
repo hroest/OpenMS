@@ -42,6 +42,9 @@
 #include <boost/shared_ptr.hpp>
 
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
 
 #include <OpenMS/KERNEL/Peak2D.h>
 #include <OpenMS/KERNEL/RichPeak1D.h>
@@ -106,12 +109,12 @@ namespace OpenMS
   {
   public:
 
-    boost::random::mt19937_64& getBiologicalRng()
+    boost::mt19937& getBiologicalRng()
     {
       return biological_rng_;
     }
 
-    boost::random::mt19937_64& getTechnicalRng()
+    boost::mt19937& getTechnicalRng()
     {
       return technical_rng_;
     }
@@ -132,27 +135,27 @@ namespace OpenMS
       // use 0 as default seed to get reproducible experiments
       if (biological_random)
       {
-        biological_rng_ = boost::random::mt19937_64(std::time(0));
+        biological_rng_ = boost::mt19937(std::time(0));
       }
       else
       {
-        biological_rng_ = boost::random::mt19937_64(0);
+        biological_rng_ = boost::mt19937(0);
       }
 
       if (technical_random)
       {
-        technical_rng_ = boost::random::mt19937_64(std::time(0));
+        technical_rng_ = boost::mt19937(std::time(0));
       }
       else
       {
-          technical_rng_ = boost::random::mt19937_64(0);
+          technical_rng_ = boost::mt19937(0);
       }
     }
   private:
     /// random number generator for biological variability
-    boost::random::mt19937_64 biological_rng_;
+    boost::mt19937 biological_rng_;
     /// random number generator for technical variability
-    boost::random::mt19937_64 technical_rng_;
+    boost::mt19937 technical_rng_;
 
   };
 

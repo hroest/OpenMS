@@ -43,7 +43,7 @@
 #include <iterator>
 
 #include <boost/bind.hpp>
-#include <boost/random/discrete_distribution.hpp>
+// #include <boost/random/discrete_distribution.hpp>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -730,7 +730,7 @@ namespace OpenMS
     }
   }
 
-  void SvmTheoreticalSpectrumGenerator::simulate(RichPeakSpectrum & spectrum, const AASequence & peptide, boost::random::mt19937_64& rng, Size precursor_charge)
+  void SvmTheoreticalSpectrumGenerator::simulate(RichPeakSpectrum & spectrum, const AASequence & peptide, boost::mt19937& rng, Size precursor_charge)
   {
     RichPeak1D p_;
     // just in case someone wants the ion names;
@@ -926,13 +926,14 @@ namespace OpenMS
             std::vector<double>& props = mp_.conditional_prob[std::make_pair(*it, region)][bin];
             std::vector<double> weights;
             std::transform( props.begin(), props.end(), std::back_inserter(weights), boost::bind( std::multiplies<double>(), _1, 10 ) );
+            /*
             boost::random::discrete_distribution<Size> ddist (weights.begin(), weights.end());
             Size binned_int = ddist(rng);
-
             if (binned_int != 0)
             {
               peaks_to_generate.push_back(std::make_pair(std::make_pair(*it, mp_.intensity_bin_values[binned_int - 1]), i));
             }
+            */
           }
         }
       }
