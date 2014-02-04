@@ -3,6 +3,7 @@ from ChromatogramPeak cimport *
 from Peak1D cimport *
 from ProgressLogger cimport *
 from TargetedExperiment cimport *
+from LightTargetedExperiment cimport *
 from TransformationDescription cimport *
 from libcpp cimport bool
 
@@ -15,7 +16,17 @@ cdef extern from "<OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>" namespace "Open
                                 TargetedExperiment & targeted_exp,
                                 TargetedExperiment & transition_exp_used,
                                 double min_upper_edge_dist
-                                )
+                                ) nogil except +
 
+        void selectSwathTransitions(TargetedExperiment targeted_exp,
+                                    TargetedExperiment& transition_exp_used, 
+                                    double min_upper_edge_dist, double lower, double upper) nogil except +
+
+        void selectSwathTransitions(LightTargetedExperiment targeted_exp,
+                                    LightTargetedExperiment& transition_exp_used,
+                                    double min_upper_edge_dist, double lower, double upper) nogil except +
+
+        void checkSwathMap(MSExperiment[Peak1D, ChromatogramPeak] swath_map,
+                              double& lower, double& upper) nogil except +
 
 

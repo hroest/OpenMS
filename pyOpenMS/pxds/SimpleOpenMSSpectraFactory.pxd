@@ -13,7 +13,5 @@ cdef extern from "<OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SimpleOpenMSSpectraAcces
 
         SimpleOpenMSSpectraFactory() nogil except +
 
-        # shared_ptr[ISpectrumAccess] getSpectrumAccessOpenMSPtr(MSExperiment[Peak1D,ChromatogramPeak] exp) # wrap-ignore
-        # OPENSWATHALGO_DLLAPI typedef boost::shared_ptr<ISpectrumAccess> SpectrumAccessPtr;
-
+        shared_ptr[ISpectrumAccess] getSpectrumAccessOpenMSPtr(MSExperiment[Peak1D,ChromatogramPeak] exp) # wrap-ignore
 

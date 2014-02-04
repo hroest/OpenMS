@@ -4,6 +4,7 @@ from libcpp cimport bool
 from Types cimport *
 
 from TargetedExperiment cimport *
+from LightTargetedExperiment cimport *
 
 cdef extern from "<OpenMS/ANALYSIS/OPENSWATH/TransitionTSVReader.h>" namespace "OpenMS":
 
@@ -17,6 +18,8 @@ cdef extern from "<OpenMS/ANALYSIS/OPENSWATH/TransitionTSVReader.h>" namespace "
         void convertTargetedExperimentToTSV(char * filename, TargetedExperiment& targeted_exp)
     
         void convertTSVToTargetedExperiment(char * filename, TargetedExperiment& targeted_exp)
+
+        void convertTSVToTargetedExperiment(char * filename, LightTargetedExperiment& targeted_exp)
     
         void validateTargetedExperiment(TargetedExperiment targeted_exp)
 
