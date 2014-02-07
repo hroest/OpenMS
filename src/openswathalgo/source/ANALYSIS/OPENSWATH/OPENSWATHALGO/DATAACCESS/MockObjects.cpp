@@ -78,6 +78,11 @@ namespace OpenSwath
     return boost::static_pointer_cast<OpenSwath::IFeature>(m_features[nativeID]);
   }
 
+  boost::shared_ptr<OpenSwath::IFeature> MockMRMFeature::getMS1Feature()
+  {
+    return boost::static_pointer_cast<OpenSwath::IFeature>(m_ms1_feature);
+  }
+
   float MockMRMFeature::getIntensity()
   {
     return m_intensity;

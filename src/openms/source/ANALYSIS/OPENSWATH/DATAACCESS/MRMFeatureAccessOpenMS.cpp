@@ -51,6 +51,8 @@ namespace OpenMS
       boost::shared_ptr<FeatureOpenMS> ptr = boost::shared_ptr<FeatureOpenMS>(new FeatureOpenMS(mrmfeature.getFeature(*it)));
       features_[*it] = ptr;
     }
+
+    ms1_feature_ = boost::shared_ptr<FeatureOpenMS>(new FeatureOpenMS(mrmfeature.getMS1Feature()));
   }
 
   FeatureOpenMS::FeatureOpenMS(Feature& feature)
@@ -99,6 +101,11 @@ namespace OpenMS
   boost::shared_ptr<OpenSwath::IFeature> MRMFeatureOpenMS::getFeature(std::string nativeID)
   {
     return boost::static_pointer_cast<OpenSwath::IFeature>(features_[nativeID]);
+  }
+
+  boost::shared_ptr<OpenSwath::IFeature> MRMFeatureOpenMS::getMS1Feature()
+  {
+    return boost::static_pointer_cast<OpenSwath::IFeature>(ms1_feature_);
   }
 
   float MRMFeatureOpenMS::getIntensity()

@@ -61,6 +61,7 @@ public:
     virtual float getIntensity() = 0;
     virtual double getRT() = 0;
     virtual size_t size() = 0;
+    virtual boost::shared_ptr<OpenSwath::IFeature> getMS1Feature() = 0;
   };
 
   struct OPENSWATHALGO_DLLAPI ITransitionGroup
