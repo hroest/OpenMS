@@ -95,14 +95,25 @@ public:
     /// Adds an feature from a single chromatogram into the feature.
     void addFeature(Feature & feature, const String& key);
 
+    /// get a list of features
     const std::vector<Feature> & getFeatures() const;
 
+    /// get a list of IDs of available features
     void getFeatureIDs(std::vector<String> & result) const;
+
+    /// get the MS1 feature
+    const Feature & getMS1Feature() const;
+
+    /// set the MS1 feature
+    void setMS1Feature(Feature & f);
+
     //@}
 
 protected:
 
     FeatureListType features_;
+
+    Feature ms1_feature_;
 
     /// peak group scores
     PGScoresType pg_scores_;

@@ -180,5 +180,24 @@ START_SECTION (void getFeatureIDs(std::vector<String> & result) const)
 }
 END_SECTION
 
+START_SECTION (Feature & getMS1Feature())
+{
+  MRMFeature mrmfeature;
+  TEST_EQUAL(mrmfeature.getMS1Feature().getConvexHulls().empty(), true);
+}
+END_SECTION
+
+START_SECTION (void setMS1Feature(Feature & feature))
+{
+  MRMFeature mrmfeature;
+  Feature f1;
+  f1.setOverallQuality(42);
+  f1.setMetaValue("dummy", 1);
+  mrmfeature.setMS1Feature(f1);
+  TEST_EQUAL(mrmfeature.getMS1Feature().getOverallQuality(), 42);
+  TEST_EQUAL(mrmfeature.getMS1Feature().getMetaValue("dummy"), 1);
+}
+END_SECTION
+
 /////////////////////////////////////////////////////////////
 END_TEST

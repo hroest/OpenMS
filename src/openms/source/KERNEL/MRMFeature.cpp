@@ -49,6 +49,7 @@ namespace OpenMS
   MRMFeature::MRMFeature(const MRMFeature & rhs) :
     Feature(rhs),
     features_(rhs.features_),
+    ms1_feature_(rhs.ms1_feature_),
     pg_scores_(rhs.pg_scores_),
     feature_map_(rhs.feature_map_)
   {
@@ -65,6 +66,7 @@ namespace OpenMS
     setScores(rhs.getScores());
     feature_map_ = rhs.feature_map_;
     features_ = rhs.features_;
+    ms1_feature_ = rhs.ms1_feature_;
 
     return *this;
   }
@@ -122,6 +124,17 @@ namespace OpenMS
       result.push_back(it->first);
     }
   }
+
+  const Feature & MRMFeature::getMS1Feature() const
+  {
+    return ms1_feature_;
+  }
+
+  void MRMFeature::setMS1Feature(Feature & f)
+  {
+    ms1_feature_ = f;
+  }
+
 }
 
 #endif
