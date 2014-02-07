@@ -125,7 +125,7 @@ namespace OpenMS
     }
   }
 
-  const Feature & MRMFeature::getMS1Feature() const
+  Feature & MRMFeature::getMS1Feature()
   {
     return ms1_feature_;
   }

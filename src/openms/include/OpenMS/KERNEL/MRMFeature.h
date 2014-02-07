@@ -102,7 +102,7 @@ public:
     void getFeatureIDs(std::vector<String> & result) const;
 
     /// get the MS1 feature
-    const Feature & getMS1Feature() const;
+    Feature & getMS1Feature();
 
     /// set the MS1 feature
     void setMS1Feature(Feature & f);
