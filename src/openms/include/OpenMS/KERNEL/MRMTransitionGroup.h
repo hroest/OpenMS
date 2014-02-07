@@ -166,9 +166,19 @@ public:
       return chromatograms_[chromatogram_map_[key]];
     }
 
-    inline bool hasChromatogram(String key)
+    inline bool hasChromatogram(String key) const
     {
       return chromatogram_map_.find(key) != chromatogram_map_.end();
+    }
+
+    inline SpectrumType & getMS1Chromatogram()
+    {
+      return ms1_chromatogram_;
+    }
+
+    inline void setMS1Chromatogram(SpectrumType & chromatogram)
+    {
+      ms1_chromatogram_ = chromatogram;
     }
 
     inline const std::vector<MRMFeature> & getFeatures() const
@@ -212,6 +222,8 @@ protected:
 
     /// chromatogram list
     std::vector<SpectrumType> chromatograms_;
+
+    SpectrumType ms1_chromatogram_;
 
     /// feature list
     MRMFeatureListType cons_features_;
