@@ -107,13 +107,24 @@ public:
     /// set the MS1 feature
     void setMS1Feature(Feature & f);
 
+    /// set whether MS1 feature is present
+    void setMS1FeaturePresence(bool ms1);
+
+    /// get whether MS1 feature is present
+    bool getMS1FeaturePresence() const;
+
     //@}
 
 protected:
 
+    /// list of Features (one for each transition)
     FeatureListType features_;
 
+    /// MS1 level Feature
     Feature ms1_feature_;
+
+    /// presence of the MS1 level Feature
+    bool ms1_feature_present_;
 
     /// peak group scores
     PGScoresType pg_scores_;

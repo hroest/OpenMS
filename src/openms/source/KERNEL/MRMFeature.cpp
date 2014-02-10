@@ -41,7 +41,8 @@ namespace OpenMS
 {
 
   MRMFeature::MRMFeature() :
-    Feature()
+    Feature(),
+    ms1_feature_present_(false)
   {
   }
 
@@ -50,6 +51,7 @@ namespace OpenMS
     Feature(rhs),
     features_(rhs.features_),
     ms1_feature_(rhs.ms1_feature_),
+    ms1_feature_present_(rhs.ms1_feature_present_),
     pg_scores_(rhs.pg_scores_),
     feature_map_(rhs.feature_map_)
   {
@@ -64,9 +66,10 @@ namespace OpenMS
 
     Feature::operator = (rhs);
     setScores(rhs.getScores());
-    feature_map_ = rhs.feature_map_;
     features_ = rhs.features_;
     ms1_feature_ = rhs.ms1_feature_;
+    ms1_feature_present_ = rhs.ms1_feature_present_;
+    feature_map_ = rhs.feature_map_;
 
     return *this;
   }
@@ -132,7 +135,18 @@ namespace OpenMS
 
   void MRMFeature::setMS1Feature(Feature & f)
   {
+    setMS1FeaturePresence(true);
     ms1_feature_ = f;
+  }
+
+  void MRMFeature::setMS1FeaturePresence(bool ms1)
+  {
+    ms1_feature_present_ = ms1;
+  }
+
+  bool MRMFeature::getMS1FeaturePresence() const
+  {
+    return ms1_feature_present_;
   }
 
 }

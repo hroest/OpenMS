@@ -199,5 +199,29 @@ START_SECTION (void setMS1Feature(Feature & feature))
 }
 END_SECTION
 
+START_SECTION (void setMS1FeaturePresence(bool ms1))
+{
+  MRMFeature mrmfeature;
+  TEST_EQUAL(mrmfeature.getMS1FeaturePresence(), false);
+  mrmfeature.setMS1FeaturePresence(true);
+  TEST_EQUAL(mrmfeature.getMS1FeaturePresence(), true);
+}
+END_SECTION
+
+START_SECTION (bool getMS1FeaturePresence())
+{
+  MRMFeature mrmfeature;
+  Feature f1;
+  TEST_EQUAL(mrmfeature.getMS1FeaturePresence(), false);
+  mrmfeature.setMS1FeaturePresence(true);
+  TEST_EQUAL(mrmfeature.getMS1FeaturePresence(), true);
+  mrmfeature.setMS1FeaturePresence(false);
+  TEST_EQUAL(mrmfeature.getMS1FeaturePresence(), false);
+
+  mrmfeature.setMS1Feature(f1); // this should set the MS1FeaturePresence to true
+  TEST_EQUAL(mrmfeature.getMS1FeaturePresence(), true);
+}
+END_SECTION
+
 /////////////////////////////////////////////////////////////
 END_TEST
