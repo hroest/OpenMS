@@ -100,6 +100,8 @@ public:
 
     size_t size();
 
+    bool hasMS1Feature();
+
 private:
     const MRMFeature& mrmfeature_;
     std::map<std::string, boost::shared_ptr<FeatureOpenMS> > features_;
@@ -184,3 +186,4 @@ private:
 }
 
 #endif
+

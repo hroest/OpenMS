@@ -56,11 +56,12 @@ public:
   class OPENSWATHALGO_DLLAPI IMRMFeature
   {
 public:
-    virtual ~IMRMFeature(){}
+    virtual ~IMRMFeature() {}
     virtual boost::shared_ptr<OpenSwath::IFeature> getFeature(std::string nativeID) = 0;
     virtual float getIntensity() = 0;
     virtual double getRT() = 0;
     virtual size_t size() = 0;
+    virtual bool hasMS1Feature() {return false;}
     virtual boost::shared_ptr<OpenSwath::IFeature> getMS1Feature() = 0;
   };
 
