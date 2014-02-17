@@ -313,7 +313,7 @@ protected:
           {
             ms1_counter++;
           }
-          else if (ms2_counter == swath_counter.size() && parsed_full_cycle)
+          else if (ms2_counter == (int)swath_counter.size() && parsed_full_cycle)
           {
             ms2_counter = 0;
             swath_counter[ms2_counter]++;
