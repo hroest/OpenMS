@@ -171,7 +171,7 @@ namespace OpenMS
         }
         else
         {
-          addSpectrum(this->dummy_spectra_.back());
+          this->addSpectrum(this->dummy_spectra_.back());
           this->dummy_spectra_.clear();
           this->dummy_spectra_.push_back(MSSpectrum<PeakT>());
         }
