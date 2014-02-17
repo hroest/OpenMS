@@ -104,6 +104,7 @@ public:
     FullSwathFileConsumer() :
       ms1_counter_(0),
       ms2_counter_(0),
+      parsed_full_cycle_(false),
       ms1_map_(), // initialize to null
       consuming_possible_(true)
     {}
@@ -189,28 +190,58 @@ public:
         throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__,
           "FullSwathFileConsumer cannot consume any more spectra after retrieveSwathMaps has been called already");
       }
+
       if (s.getMSLevel() == 1)
       {
-        // append a new MS1 scan, set the MS2 counter to zero and proceed
         consumeMS1Spectrum_(s);
-        ms2_counter_ = 0;
         ms1_counter_++;
       }
-      else
+      else if (ms2_counter_ == swath_maps_.size() && parsed_full_cycle_)
       {
-        // If this is the first encounter of this SWATH map, try to read the
+        ms2_counter_ = 0;
+        consumeSwathSpectrum_(s, ms2_counter_);
+        ms2_counter_++;
+      }
+      else 
+      {
+        // This is the first encounter of this SWATH map, try to read the
         // isolation windows
-        if (ms2_counter_ == swath_maps_.size())
+        if (!parsed_full_cycle_)
         {
           if (!s.getPrecursors().empty())
           {
             const std::vector<Precursor> prec = s.getPrecursors();
-            double lower = prec[0].getMZ() - prec[0].getIsolationWindowLowerOffset();
-            double upper = prec[0].getMZ() + prec[0].getIsolationWindowUpperOffset();
-            if (prec[0].getIsolationWindowLowerOffset() > 0.0) swath_prec_lower_.push_back(lower);
-            if (prec[0].getIsolationWindowUpperOffset() > 0.0) swath_prec_upper_.push_back(upper);
-            swath_prec_center_.push_back(prec[0].getMZ());
-            LOG_DEBUG << "Adding Swath centered at " << swath_prec_center_.back() << " m/z with an isolation window of " << lower << " to " << upper << " m/z." << std::endl;
+            double center = prec[0].getMZ();
+            for (std::vector<double>::iterator it = swath_prec_center_.begin(); it != swath_prec_center_.end(); it++)
+            {
+              if (std::fabs(center - *it) < 0.01)
+              {
+                // We have seen this SWATH before -> for all acquisition
+                // methods that acquire SWATHs in the same order, this means
+                // that we have seen all SWATHs
+                parsed_full_cycle_ = true;
+                ms2_counter_ = 0;
+                LOG_DEBUG << " I assume I am done with parsing since a Swath centered at "
+                    << center << " was already encountered." << std::endl;
+              }
+            }
+
+            if (!parsed_full_cycle_)
+            {
+              double lower = prec[0].getMZ() - prec[0].getIsolationWindowLowerOffset();
+              double upper = prec[0].getMZ() + prec[0].getIsolationWindowUpperOffset();
+              if (prec[0].getIsolationWindowLowerOffset() > 0.0) swath_prec_lower_.push_back(lower);
+              if (prec[0].getIsolationWindowUpperOffset() > 0.0) swath_prec_upper_.push_back(upper);
+              swath_prec_center_.push_back(center);
+              LOG_DEBUG << "Adding Swath centered at " << swath_prec_center_.back() 
+                << " m/z with an isolation window of " << lower << " to " << upper 
+                << " m/z." << std::endl;
+            }
+          }
+          else
+          {
+            throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__,
+              "No precursor information available, cannot parse file.");
           }
         }
         else if (ms2_counter_ > swath_prec_center_.size() && ms2_counter_ > swath_prec_lower_.size())
@@ -249,6 +280,7 @@ protected:
 
     size_t ms1_counter_;
     size_t ms2_counter_;
+    bool parsed_full_cycle_;
 
     /// A list of SWATH maps and the MS1 map
     std::vector<boost::shared_ptr<MSExperiment<> > > swath_maps_;

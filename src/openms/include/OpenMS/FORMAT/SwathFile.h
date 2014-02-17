@@ -302,20 +302,51 @@ protected:
     {
       int ms1_counter = 0;
       int ms2_counter = 0;
+      bool parsed_full_cycle = false;
+      std::vector<double> swath_prec_center_;
+
       for (Size i = 0; i < exp.size(); i++)
       {
         const MSSpectrum<>& s = exp[i];
         {
           if (s.getMSLevel() == 1)
           {
-            ms2_counter = 0;
             ms1_counter++;
+          }
+          else if (ms2_counter == swath_counter.size() && parsed_full_cycle)
+          {
+            ms2_counter = 0;
+            swath_counter[ms2_counter]++;
+            ms2_counter++;
           }
           else
           {
-            if (ms2_counter == (int)swath_counter.size())
+            // This is the first encounter of this SWATH map, try to read the
+            // isolation windows
+            if (!parsed_full_cycle)
             {
-              swath_counter.push_back(0);
+              if (!s.getPrecursors().empty())
+              {
+                const std::vector<Precursor> prec = s.getPrecursors();
+                double center = prec[0].getMZ();
+                for (std::vector<double>::iterator it = swath_prec_center_.begin(); it != swath_prec_center_.end(); it++)
+                {
+                  if (std::fabs(center - *it) < 0.01)
+                  {
+                    // We have seen this SWATH before -> for all acquisition
+                    // methods that acquire SWATHs in the same order, this means
+                    // that we have seen all SWATHs
+                    parsed_full_cycle = true;
+                    ms2_counter = 0;
+                  }
+                }
+
+                if (!parsed_full_cycle)
+                {
+                  swath_counter.push_back(0);
+                  swath_prec_center_.push_back(center);
+                }
+              }
             }
             swath_counter[ms2_counter]++;
             ms2_counter++;
