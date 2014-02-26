@@ -162,13 +162,15 @@ public:
         maps.push_back(map);
       }
 
-      // Handle error condition if the lower/upper window could not be determined ...
-      if (correct_window_counter_ != swath_maps_.size())
+      // Print warning if the lower/upper window could not be determined and we
+      // required manual determination of the boundaries.
+      if (!use_external_boundaries_ && correct_window_counter_ != swath_maps_.size())
       {
-        std::cout << "Could not correctly read the upper/lower limits of the SWATH windows from your input file. Read " <<
+        std::cout << "WARNING: Could not correctly read the upper/lower limits of the SWATH windows from your input file. Read " <<
           correct_window_counter_ << " correct (non-zero) window limits (expected " << swath_maps_.size() << " windows)." << std::endl;
       }
 
+      size_t nonempty_maps = 0;
       for (Size i = 0; i < swath_maps_.size(); i++)
       {
         OpenSwath::SwathMap map;
@@ -178,7 +180,16 @@ public:
         map.center = swath_map_boundaries_[i].center;
         map.ms1 = false;
         maps.push_back(map);
+        if (map.sptr->getNrSpectra() > 0) {nonempty_maps++;}
       }
+
+      if (nonempty_maps != swath_map_boundaries_.size())
+      {
+        std::cout << "WARNING: The number nonempty maps found in the input file (" << nonempty_maps << ") is not equal to the number of provided swath window boundaries (" << 
+            swath_map_boundaries_.size() << "). Please check your input." << std::endl;
+      }
+
+
     }
 
     /// Consume a chromatogram -> should not happen when dealing with SWATH maps

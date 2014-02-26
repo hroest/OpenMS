@@ -46,7 +46,6 @@
 
 using namespace OpenMS;
 
-
 static bool SortSwathMapByLower(const OpenSwath::SwathMap left, const OpenSwath::SwathMap right)
 {
   if (left.ms1 && right.ms1) return left.center < right.center;
@@ -216,6 +215,94 @@ START_SECTION(([EXTRA] consumeAndRetrieve_scrambled))
     TEST_REAL_SIMILAR(maps[i+1].sptr->getSpectrumById(0)->getIntensityArray()->data[0], 201.0+i)
     TEST_REAL_SIMILAR(maps[i+1].lower, 400+i*25.0)
     TEST_REAL_SIMILAR(maps[i+1].upper, 425+i*25.0)
+  }
+  delete regular_sfc_ptr;
+}
+END_SECTION
+
+START_SECTION(([EXTRA] consumeAndRetrieve_scrambled_known_boundaries))
+{
+  // Using the second constructor
+  std::vector< OpenSwath::SwathMap > boundaries;
+  MSExperiment<> exp;
+  getSwathFile(exp);
+  // add some extra windows for confusion
+  for (int i = 0; i < 2; i++)
+  {
+    OpenSwath::SwathMap m;
+    m.center = 100 + i*25 + 12.5;
+    m.lower = m.center - 5;
+    m.upper = m.center + 5;
+    boundaries.push_back(m);
+  }
+
+  for (int i = 0; i < 32; i++)
+  {
+    OpenSwath::SwathMap m;
+    m.center = 400 + i*25 + 12.5;
+    // enforce slightly different windows than the one in the file
+    m.lower = m.center - 5;
+    m.upper = m.center + 5;
+    boundaries.push_back(m);
+  }
+
+  // add some extra windows for confusion
+  for (int i = 0; i < 2; i++)
+  {
+    OpenSwath::SwathMap m;
+    m.center = 5000 + i*25 + 12.5;
+    m.lower = m.center - 5;
+    m.upper = m.center + 5;
+    boundaries.push_back(m);
+  }
+  regular_sfc_ptr = new RegularSwathFileConsumer(boundaries);
+
+
+  // Feed the SWATH maps to the consumer in a scrambled fashion:
+  // Consume an MS2 spectrum, then an MS1 spectrum, then 5 more MS2, then an MS1, skip 5
+  // of the MS2 spectra and consumer another 5 MS2 spectra.
+
+  regular_sfc_ptr->consumeSpectrum(exp.getSpectra()[6]);   // MS2
+  regular_sfc_ptr->consumeSpectrum(exp.getSpectra()[0]);   // MS1
+  for (Size i = 1; i < 5; i++)
+  {
+    regular_sfc_ptr->consumeSpectrum(exp.getSpectra()[i]); // MS2
+  }
+  regular_sfc_ptr->consumeSpectrum(exp.getSpectra()[0]);   // MS1
+  for (Size i = 10; i < 15; i++)
+  {
+    regular_sfc_ptr->consumeSpectrum(exp.getSpectra()[i]); // MS2
+  }
+
+  // Consume all spectra again to make sure we have "seen" them all (1 MS1 + 32 MS2)
+  for (Size i = 0; i < exp.getSpectra().size(); i++)
+  {
+    regular_sfc_ptr->consumeSpectrum(exp.getSpectra()[i]);
+  }
+
+  std::vector< OpenSwath::SwathMap > maps;
+  regular_sfc_ptr->retrieveSwathMaps(maps);
+
+  TEST_EQUAL(maps.size(), 33+2)
+  std::sort(maps.begin(), maps.end(), SortSwathMapByLower);
+  TEST_EQUAL(maps[0].ms1, true)
+  TEST_EQUAL(maps[0].sptr->getNrSpectra(), 3)
+
+  // two empty ones
+  TEST_EQUAL(maps[1].ms1, false)
+  TEST_EQUAL(maps[1].sptr->getNrSpectra(), 0)
+  TEST_EQUAL(maps[2].ms1, false)
+  TEST_EQUAL(maps[2].sptr->getNrSpectra(), 0)
+
+  for (Size i = 2; i< 32+2; i++)
+  {
+    TEST_EQUAL(maps[i+1].ms1, false)
+    TEST_EQUAL(maps[i+1].sptr->getNrSpectra() > 0, true)
+    TEST_EQUAL(maps[i+1].sptr->getSpectrumById(0)->getMZArray()->data.size(), 1)
+    TEST_REAL_SIMILAR(maps[i+1].sptr->getSpectrumById(0)->getMZArray()->data[0], 101.0+(i-2))
+    TEST_REAL_SIMILAR(maps[i+1].sptr->getSpectrumById(0)->getIntensityArray()->data[0], 201.0+(i-2))
+    TEST_REAL_SIMILAR(maps[i+1].lower, 400+(i-2)*25.0 + 12.5 - 5.0)
+    TEST_REAL_SIMILAR(maps[i+1].upper, 400+(i-2)*25.0 + 12.5 + 5.0)
   }
   delete regular_sfc_ptr;
 }
