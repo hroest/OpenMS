@@ -167,25 +167,24 @@ public:
       exp_meta = experiment_metadata;
       endProgress();
 
+      std::cout << "Will analyze the metadata first to determine the number of SWATH windows and the window sizes." << std::endl;
+      std::vector<int> swath_counter;
+      int nr_ms1_spectra;
+      std::vector<OpenSwath::SwathMap> known_window_boundaries;
+      countScansInSwath_(experiment_metadata->getSpectra(), swath_counter, nr_ms1_spectra, known_window_boundaries);
+
       startProgress(0, 1, "Loading data file " + file);
       if (readoptions == "normal")
       {
         startProgress(0, 1, "Loading data for file " + file);
-        dataConsumer = new RegularSwathFileConsumer();
+        dataConsumer = new RegularSwathFileConsumer(known_window_boundaries);
         MzMLFile().transform(file, dataConsumer, *exp.get());
         endProgress();
       }
       else if (readoptions == "cache")
       {
-        std::cout << "Will analyze the metadata first to determine the number of SWATH windows and the window sizes." << std::endl;
-        std::vector<int> swath_counter;
-        int nr_ms1_spectra;
-        countScansInSwath_(experiment_metadata->getSpectra(), swath_counter, nr_ms1_spectra);
-
-        std::cout << "Determined there to be " << swath_counter.size() <<
-          " SWATH windows and in total " << nr_ms1_spectra << " MS1 spectra" << std::endl;
         startProgress(0, 1, "Loading SWATH raw data for file " + file);
-        dataConsumer = new CachedSwathFileConsumer(tmp, tmp_fname, nr_ms1_spectra, swath_counter);
+        dataConsumer = new CachedSwathFileConsumer(known_window_boundaries, tmp, tmp_fname, nr_ms1_spectra, swath_counter);
         MzMLFile().transform(file, dataConsumer, *exp.get());
         endProgress();
       }
@@ -224,38 +223,35 @@ public:
       OpenSwath::SpectrumAccessPtr spectra_ptr;
       OpenSwath::SwathMap swath_map;
 
+      // First pass through the file -> get the meta data
+      std::cout << "Will analyze the metadata first to determine the number of SWATH windows and the window sizes." << std::endl;
+      boost::shared_ptr<MSExperiment<Peak1D> > experiment_metadata(new MSExperiment<Peak1D>);
+      std::vector<int> swath_counter;
+      std::vector<OpenSwath::SwathMap> known_window_boundaries;
+      int nr_ms1_spectra;
+      {
+        boost::shared_ptr<MSDataTransformingConsumer> noopConsumer =
+          boost::shared_ptr<MSDataTransformingConsumer>(new MSDataTransformingConsumer());
+        Internal::MSMzXMLDataReader<MSDataTransformingConsumer> datareader;
+        datareader.setConsumer(noopConsumer);
+        MzXMLFile f;
+        f.getOptions().setFillData(false);
+        f.load(file, datareader);
+        countScansInSwath_(datareader.getRealSpectra(), swath_counter, nr_ms1_spectra, known_window_boundaries);
+        *exp_meta = datareader;
+      }
+
       if (readoptions == "normal")
       {
-        dataConsumer = boost::shared_ptr<RegularSwathFileConsumer>(new RegularSwathFileConsumer());
+        dataConsumer = boost::shared_ptr<RegularSwathFileConsumer>(new RegularSwathFileConsumer(known_window_boundaries));
         Internal::MSMzXMLDataReader<FullSwathFileConsumer> datareader;
         datareader.setConsumer(dataConsumer);
         MzXMLFile().load(file, datareader);
-        *exp_meta = datareader;
       }
       else if (readoptions == "cache")
       {
-
-        // First pass through the file -> get the meta data
-        std::cout << "Will analyze the metadata first to determine the number of SWATH windows and the window sizes." << std::endl;
-        boost::shared_ptr<MSExperiment<Peak1D> > experiment_metadata(new MSExperiment<Peak1D>);
-        std::vector<int> swath_counter;
-        int nr_ms1_spectra;
-        {
-          boost::shared_ptr<MSDataTransformingConsumer> noopConsumer =
-            boost::shared_ptr<MSDataTransformingConsumer>(new MSDataTransformingConsumer());
-          Internal::MSMzXMLDataReader<MSDataTransformingConsumer> datareader;
-          datareader.setConsumer(noopConsumer);
-          MzXMLFile f;
-          f.getOptions().setFillData(false);
-          f.load(file, datareader);
-          countScansInSwath_(datareader.getRealSpectra(), swath_counter, nr_ms1_spectra);
-          *exp_meta = datareader;
-        }
-
-        std::cout << "Determined there to be " << swath_counter.size() <<
-          " SWATH windows and in total " << nr_ms1_spectra << " MS1 spectra" << std::endl;
         dataConsumer = boost::shared_ptr<CachedSwathFileConsumer>(
-          new CachedSwathFileConsumer(tmp, tmp_fname, nr_ms1_spectra, swath_counter));
+          new CachedSwathFileConsumer(known_window_boundaries, tmp, tmp_fname, nr_ms1_spectra, swath_counter));
         Internal::MSMzXMLDataReader<FullSwathFileConsumer> datareader;
         datareader.setConsumer(dataConsumer);
         MzXMLFile().load(file, datareader);
@@ -306,13 +302,10 @@ protected:
 
     /// Counts the number of scans in a full Swath file (e.g. concatenated non-split file)
     void countScansInSwath_(const std::vector<MSSpectrum<> > exp,
-                            std::vector<int>& swath_counter, int& nr_ms1_spectra)
+                            std::vector<int>& swath_counter, int& nr_ms1_spectra, 
+                            std::vector<OpenSwath::SwathMap>& known_window_boundaries)
     {
       int ms1_counter = 0;
-      int ms2_counter = 0;
-      bool parsed_full_cycle = false;
-      std::vector<double> swath_prec_center_;
-
       for (Size i = 0; i < exp.size(); i++)
       {
         const MSSpectrum<>& s = exp[i];
@@ -321,47 +314,48 @@ protected:
           {
             ms1_counter++;
           }
-          else if (ms2_counter == (int)swath_counter.size() && parsed_full_cycle)
+          else 
           {
-            ms2_counter = 0;
-            swath_counter[ms2_counter]++;
-            ms2_counter++;
-          }
-          else
-          {
-            // This is the first encounter of this SWATH map, try to read the
-            // isolation windows
-            if (!parsed_full_cycle)
+            if (s.getPrecursors().empty())
             {
-              if (!s.getPrecursors().empty())
+              throw Exception::InvalidParameter(__FILE__, __LINE__, __PRETTY_FUNCTION__, "Swath scan needs to have a precursor set.");
+            }
+            const std::vector<Precursor> prec = s.getPrecursors();
+            double center = prec[0].getMZ();
+            bool found = false;
+            for (Size i = 0; i < known_window_boundaries.size();  i++)
+            {
+              // We group by the precursor mz (center of the window) since this
+              // should be present
+              if (std::fabs(center - known_window_boundaries[i].center) < 1e-6)
               {
-                const std::vector<Precursor> prec = s.getPrecursors();
-                double center = prec[0].getMZ();
-                for (std::vector<double>::iterator it = swath_prec_center_.begin(); it != swath_prec_center_.end(); it++)
-                {
-                  if (std::fabs(center - *it) < 0.01)
-                  {
-                    // We have seen this SWATH before -> for all acquisition
-                    // methods that acquire SWATHs in the same order, this means
-                    // that we have seen all SWATHs
-                    parsed_full_cycle = true;
-                    ms2_counter = 0;
-                  }
-                }
-
-                if (!parsed_full_cycle)
-                {
-                  swath_counter.push_back(0);
-                  swath_prec_center_.push_back(center);
-                }
+                found = true;
+                swath_counter[i]++;
               }
             }
-            swath_counter[ms2_counter]++;
-            ms2_counter++;
+            if (!found)
+            {
+              // we found a new SWATH scan
+              swath_counter.push_back(1);
+              double lower = prec[0].getMZ() - prec[0].getIsolationWindowLowerOffset();
+              double upper = prec[0].getMZ() + prec[0].getIsolationWindowUpperOffset();
+              OpenSwath::SwathMap boundary;
+              boundary.lower = lower;
+              boundary.upper = upper;
+              boundary.center = center;
+              known_window_boundaries.push_back(boundary);
+
+              LOG_DEBUG << "Adding Swath centered at " << center 
+                << " m/z with an isolation window of " << lower << " to " << upper 
+                << " m/z." << std::endl;
+            }
           }
         }
       }
       nr_ms1_spectra = ms1_counter;
+
+      std::cout << "Determined there to be " << swath_counter.size() <<
+        " SWATH windows and in total " << nr_ms1_spectra << " MS1 spectra" << std::endl;
     }
 
   };
