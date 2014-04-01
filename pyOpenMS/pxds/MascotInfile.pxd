@@ -37,10 +37,10 @@ cdef extern from "<OpenMS/FORMAT/MascotInfile.h>" namespace "OpenMS":
         void setInstrument(String & instrument) nogil except +
         UInt getMissedCleavages() nogil except +
         void setMissedCleavages(UInt missed_cleavages) nogil except +
-        Real getPrecursorMassTolerance() nogil except +
-        void setPrecursorMassTolerance(Real precursor_mass_tolerance) nogil except +
-        Real getPeakMassTolerance() nogil except +
-        void setPeakMassTolerance(Real ion_mass_tolerance) nogil except +
+        float getPrecursorMassTolerance() nogil except +
+        void setPrecursorMassTolerance(float precursor_mass_tolerance) nogil except +
+        float getPeakMassTolerance() nogil except +
+        void setPeakMassTolerance(float ion_mass_tolerance) nogil except +
         String  getTaxonomy() nogil except +
         void setTaxonomy(String & taxonomy) nogil except +
         String  getFormVersion() nogil except +

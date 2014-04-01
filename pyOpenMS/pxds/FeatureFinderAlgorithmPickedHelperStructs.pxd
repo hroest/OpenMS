@@ -56,7 +56,7 @@ cdef extern from "<OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmPi
         Seed(Seed) nogil except + #wrap-ignore
         Size spectrum
         Size peak
-        Real intensity
+        float intensity
         bool operator<(Seed & rhs) nogil except +
 
 cdef extern from "<OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmPickedHelperStructs.h>" namespace "OpenMS::FeatureFinderAlgorithmPickedHelperStructs":

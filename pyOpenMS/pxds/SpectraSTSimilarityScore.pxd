@@ -16,7 +16,7 @@ cdef extern from "<OpenMS/COMPARISON/SPECTRA/SpectraSTSimilarityScore.h>" namesp
         # double operator()(MSSpectrum[Peak1D] & spec1, MSSpectrum[Peak1D] & spec2) nogil except +
         # double operator()(BinnedSpectrum & bin1, BinnedSpectrum & bin2) nogil except +
         # double operator()(MSSpectrum[Peak1D] & spec) nogil except +
-        bool preprocess(MSSpectrum[Peak1D] & spec, Real remove_peak_intensity_threshold, UInt cut_peaks_below, Size min_peak_number, Size max_peak_number) nogil except +
+        bool preprocess(MSSpectrum[Peak1D] & spec, float remove_peak_intensity_threshold, UInt cut_peaks_below, Size min_peak_number, Size max_peak_number) nogil except +
         BinnedSpectrum transform(MSSpectrum[Peak1D] & spec) nogil except +
         double dot_bias(BinnedSpectrum & bin1, BinnedSpectrum & bin2, double dot_product) nogil except +
         double delta_D(double top_hit, double runner_up) nogil except +

@@ -2,7 +2,7 @@ from Types cimport *
 from libcpp.vector cimport vector as libcpp_vector
 from DefaultParamHandler cimport *
 from MassDecomposition cimport *
-# from RealMassDecomposer cimport *
+# from floatMassDecomposer cimport *
 # from IMSAlphabet cimport *
 # from Weights cimport *
 
