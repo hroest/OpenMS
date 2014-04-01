@@ -80,7 +80,7 @@ cdef extern from "<OpenMS/KERNEL/ConsensusFeature.h>" namespace "OpenMS::Consens
       Ratio() nogil except +
       Ratio(Ratio rhs) nogil except +
 
-      DoubleReal ratio_value_
+      double ratio_value_
       String denominator_ref_
       String numerator_ref_
       libcpp_vector[String] description_

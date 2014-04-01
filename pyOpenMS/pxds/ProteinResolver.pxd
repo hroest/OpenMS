@@ -101,7 +101,7 @@ cdef extern from "<OpenMS/ANALYSIS/QUANTITATION/ProteinResolver.h>" namespace "O
         bool traversed
         # NAMESPACE # # POINTER # FASTAFile::FASTAEntry * fasta_entry
         ProteinEntry_type protein_type
-        DoubleReal weight
+        double weight
         Real coverage
         # NAMESPACE # # POINTER # std::list[ ProteinEntry * ] indis
         Size index
