@@ -414,7 +414,7 @@ namespace OpenMS
 
           //double midpoint_deriv_val = peak_spline.derivatives(mid, 1);
           //double midpoint_deriv_val = interpolator(1,mid);
-          double midpoint_deriv_val = (sp[mid + 2*threshold] - sp[mid])/(2*threshold);
+          double midpoint_deriv_val = sp.firstDerivative(mid);
 
           // if deriv nearly zero then maximum already found
           if (!(std::fabs(midpoint_deriv_val) > eps))
