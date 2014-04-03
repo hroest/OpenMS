@@ -376,7 +376,8 @@ namespace OpenMS
           continue;
 
         //Spline2d<double> peak_spline (3, raw_mz_values, raw_int_values);
-        Wm5::IntpAkimaNonuniform1<double> interpolator (raw_mz_values.size(), &raw_mz_values[0], &raw_int_values[0]);
+        // Wm5::IntpAkimaNonuniform1<double> interpolator (raw_mz_values.size(), &raw_mz_values[0], &raw_int_values[0]);
+        shiftedbits::Spline<double, double > sp(raw_mz_values, raw_int_values);
 
         // calculate maximum by evaluating the spline's 1st derivative
         // (bisection method)
@@ -395,7 +396,8 @@ namespace OpenMS
           double mid = (lefthand + righthand) / 2;
 
           //double midpoint_deriv_val = peak_spline.derivatives(mid, 1);
-          double midpoint_deriv_val = interpolator(1,mid);
+          //double midpoint_deriv_val = interpolator(1,mid);
+          double midpoint_deriv_val = (sp[mid + 2*threshold] - sp[mid])/(2*threshold);
 
           // if deriv nearly zero then maximum already found
           if (!(std::fabs(midpoint_deriv_val) > eps))
@@ -419,7 +421,8 @@ namespace OpenMS
         // sanity check?
         max_peak_mz = (lefthand + righthand) / 2;
         //max_peak_int = peak_spline.eval( max_peak_mz );
-        max_peak_int = interpolator(0, max_peak_mz );
+        //max_peak_int = interpolator(0, max_peak_mz );
+        max_peak_int = sp[max_peak_mz];
 
         // save picked pick into output spectrum
         pc[j].mz_max = max_peak_mz;
