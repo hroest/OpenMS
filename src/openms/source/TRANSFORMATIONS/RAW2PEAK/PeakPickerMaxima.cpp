@@ -122,6 +122,18 @@ public:
             
         return it->eval(x);
     }
+
+    Y firstDerivative(const X&x) const {
+        if (mElements.size() == 0) return Y();
+        
+        typename std::vector<element_type>::const_iterator it;
+        it = std::lower_bound(mElements.begin(), mElements.end(), element_type(x));
+        if (it != mElements.begin()) {
+            it--;
+        }   
+            
+        return it->evalFirstDeriv(x);
+    }
     
     std::vector<Y> operator[](const std::vector<X>& xx) const {
         return interpolate(xx);
@@ -158,6 +170,11 @@ protected:
         Y eval(const X& xx) const {
             X xix(xx - x);
             return a + b * xix + c * (xix * xix) + d * (xix * xix * xix);
+        }
+
+        Y evalFirstDeriv(const X& xx) const {
+            X xix(xx - x);
+            return b + 2 * c * xix + 3 * d * (xix * xix);
         }
         
         bool operator<(const Element& e) const {
