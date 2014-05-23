@@ -761,14 +761,16 @@ namespace OpenMS
             double this_prob = exp(-(-gb_i - gb_j + COULOMB_REPULSION / r_ij) * 1000 / (Constants::R * T) -500) / q;
             bb_charge_[i] += this_prob;
 
-            double add_E = exp(gb_i * 1000 / Constants::R / T);
-            if (i < fixed_site - 1)
             {
-              sum_E_n_term += add_E;
-            }
-            else
-            {
-              sum_E_c_term += add_E;
+              double add_E = exp(gb_i * 1000 / Constants::R / T);
+              if (i < fixed_site - 1)
+              {
+                sum_E_n_term += add_E;
+              }
+              else
+              {
+                sum_E_c_term += add_E;
+              }
             }
 
             double gb_i_sc(0);
@@ -1095,11 +1097,13 @@ namespace OpenMS
             // distance of the protons
             Int r_ij(abs((Int)i - (Int)j));
             // calc probability
-            double prob = exp(-(-gb_i - gb_j + COULOMB_REPULSION / r_ij) * 1000 / (Constants::R * T) -500) / q;
-            // add prob to site of first proton
-            bb_charge_[i] += prob;
-            // add to apperent GB
-            bb_charge_[j] += prob;
+            {
+              double prob = exp(-(-gb_i - gb_j + COULOMB_REPULSION / r_ij) * 1000 / (Constants::R * T) -500) / q;
+              // add prob to site of first proton
+              bb_charge_[i] += prob;
+              // add to apperent GB
+              bb_charge_[j] += prob;
+            }
 
             // side chains
             double gb_i_sc(0), gb_j_sc(0);
@@ -1121,9 +1125,11 @@ namespace OpenMS
               {
                 //gb_j_sc = gb_sc_[peptide[j].getOneLetterCode()];
                 gb_j_sc = peptide[j].getSideChainBasicity();
-                double prob = exp(-(-gb_i - gb_j_sc + COULOMB_REPULSION / (r_ij + 1)) * 1000 / (Constants::R * T) -500) / q;
-                bb_charge_[i] += prob;
-                sc_charge_[j] += prob;
+                {
+                  double prob = exp(-(-gb_i - gb_j_sc + COULOMB_REPULSION / (r_ij + 1)) * 1000 / (Constants::R * T) -500) / q;
+                  bb_charge_[i] += prob;
+                  sc_charge_[j] += prob;
+                }
 
                 // both protons at sidechains
                 if (gb_i_sc != 0)

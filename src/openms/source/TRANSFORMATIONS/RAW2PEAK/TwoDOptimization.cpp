@@ -171,8 +171,6 @@ namespace OpenMS
     // Params might contain any additional parameters. We handle these using class members
     // instead.
     // The vector f is supposed to contain the result when we return from this function.
-    double computed_signal, current_position, experimental_signal, step, last_position;
-    double p_height, p_position, p_width;
     Int count = 0;
     Int counter_posf = 0;
     const std::vector<std::pair<SignedSize, SignedSize> > & signal2D = m_data->signal2D;
@@ -190,6 +188,9 @@ namespace OpenMS
     //iterate over all scans
     for (Size current_scan = 0; current_scan < num_scans; ++current_scan)
     {
+      double p_height, p_position, p_width;
+      double computed_signal, current_position, experimental_signal, step, last_position;
+
       Size curr_scan_idx = current_scan + iso_map_iter->second.peaks.begin()->first;
       current_position = ((raw_data_first
                            + signal2D[2 * current_scan].first)->begin()
