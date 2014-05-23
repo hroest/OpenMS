@@ -55,6 +55,9 @@ namespace OpenMS
   {
 public:
 
+    /// Virtual destructor (as base class)
+    virtual ~BaseVisualizer() {}
+
     /// Loads the object that is to be edited.
     void load(ObjectType & o)
     {
