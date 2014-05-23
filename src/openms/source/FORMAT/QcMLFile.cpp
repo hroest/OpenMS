@@ -308,17 +308,17 @@ namespace OpenMS
   void QcMLFile::addRunQualityParameter(String run_id, QualityParameter qp)
   {
     // TODO warn that run has to be registered!
-    std::map<String, std::vector<QcMLFile::QualityParameter> >::const_iterator qpsit = runQualityQPs_.find(run_id); //if 'filename is a ID:'
-    if (qpsit != runQualityQPs_.end())
+    std::map<String, std::vector<QcMLFile::QualityParameter> >::const_iterator qps_it = runQualityQPs_.find(run_id); //if 'filename is a ID:'
+    if (qps_it != runQualityQPs_.end())
     {
       runQualityQPs_[run_id].push_back(qp);
     }
     else
     {
-      std::map<String, String>::const_iterator qpsit = run_Name_ID_map_.find(run_id); //if 'filename' is a name
-      if (qpsit != run_Name_ID_map_.end())
+      std::map<String, String>::const_iterator tmp_qps_it = run_Name_ID_map_.find(run_id); //if 'filename' is a name
+      if (tmp_qps_it != run_Name_ID_map_.end())
       {
-        runQualityQPs_[qpsit->second].push_back(qp);
+        runQualityQPs_[tmp_qps_it->second].push_back(qp);
       }
     }
     //TODO redundancy check
@@ -327,17 +327,17 @@ namespace OpenMS
   void QcMLFile::addSetQualityParameter(String set_id, QualityParameter qp)
   {
     // TODO warn that set has to be registered!
-    std::map<String, std::vector<QcMLFile::QualityParameter> >::const_iterator qpsit = setQualityQPs_.find(set_id); //if 'filename is a ID:'
-    if (qpsit != setQualityQPs_.end())
+    std::map<String, std::vector<QcMLFile::QualityParameter> >::const_iterator qps_it = setQualityQPs_.find(set_id); //if 'filename is a ID:'
+    if (qps_it != setQualityQPs_.end())
     {
       setQualityQPs_[set_id].push_back(qp);
     }
     else
     {
-      std::map<String, String>::const_iterator qpsit = set_Name_ID_map_.find(set_id); //if 'filename' is a name
-      if (qpsit != set_Name_ID_map_.end())
+      std::map<String, String>::const_iterator tmp_qps_it = set_Name_ID_map_.find(set_id); //if 'filename' is a name
+      if (tmp_qps_it != set_Name_ID_map_.end())
       {
-        setQualityQPs_[qpsit->second].push_back(qp);
+        setQualityQPs_[tmp_qps_it->second].push_back(qp);
       }
     }
     //TODO redundancy check
@@ -367,15 +367,15 @@ namespace OpenMS
 
   bool QcMLFile::existsRun(const String filename, bool checkname) const
   {
-    std::map<String, std::vector<QcMLFile::QualityParameter> >::const_iterator qpsit = runQualityQPs_.find(filename); //if 'filename is a ID:'
-    if (qpsit != runQualityQPs_.end()) //NO, do not!: permit AT without a QP
+    std::map<String, std::vector<QcMLFile::QualityParameter> >::const_iterator qps_it = runQualityQPs_.find(filename); //if 'filename is a ID:'
+    if (qps_it != runQualityQPs_.end()) //NO, do not!: permit AT without a QP
     {
       return true;
     }
     else if (checkname)
     {
-      std::map<String, String>::const_iterator qpsit = run_Name_ID_map_.find(filename); //if 'filename' is a name
-      if (qpsit != run_Name_ID_map_.end()) //NO, do not!: permit AT without a QP
+      std::map<String, String>::const_iterator tmp_qps_it = run_Name_ID_map_.find(filename); //if 'filename' is a name
+      if (tmp_qps_it != run_Name_ID_map_.end()) //NO, do not!: permit AT without a QP
       {
         return true;
       }
@@ -386,15 +386,15 @@ namespace OpenMS
 
   bool QcMLFile::existsSet(const String filename, bool checkname) const
   {
-    std::map<String, std::vector<QcMLFile::QualityParameter> >::const_iterator qpsit = setQualityQPs_.find(filename); //if 'filename is a ID:'
-    if (qpsit != setQualityQPs_.end()) //NO, do not!: permit AT without a QP
+    std::map<String, std::vector<QcMLFile::QualityParameter> >::const_iterator qps_it = setQualityQPs_.find(filename); //if 'filename is a ID:'
+    if (qps_it != setQualityQPs_.end()) //NO, do not!: permit AT without a QP
     {
       return true;
     }
     else if (checkname)
     {
-      std::map<String, String>::const_iterator qpsit = set_Name_ID_map_.find(filename); //if 'filename' is a name
-      if (qpsit != set_Name_ID_map_.end()) //NO, do not!: permit AT without a QP
+      std::map<String, String>::const_iterator tmp_qps_it = set_Name_ID_map_.find(filename); //if 'filename' is a name
+      if (tmp_qps_it != set_Name_ID_map_.end()) //NO, do not!: permit AT without a QP
       {
         return true;
       }

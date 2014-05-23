@@ -1356,11 +1356,11 @@ namespace OpenMS
     PeakIterator it_max_pos;
 
     // start the peak picking until no more maxima can be found in the wavelet transform
-    UInt number_of_peaks = 0;
+    UInt found_number_of_peaks = 0;
 
     do
     {
-      number_of_peaks = 0;
+      found_number_of_peaks = 0;
       Int peak_left_index, peak_right_index;
 
       // compute the continious wavelet transform with resolution 1
@@ -1429,7 +1429,7 @@ namespace OpenMS
           {
             shape.signal_to_noise = sne.getSignalToNoise(area.max);
             peak_shapes.push_back(shape);
-            ++number_of_peaks;
+            ++found_number_of_peaks;
           }
           else
           {
@@ -1454,7 +1454,7 @@ namespace OpenMS
       }               //end while (getMaxPosition_(it_pick_begin, it_pick_end, wt, area, distance_from_scan_border, ms_level, direction))
       it_pick_begin = raw_peak_array.begin();
     }
-    while (number_of_peaks != 0);
+    while (found_number_of_peaks != 0);
 
     // start the nonlinear optimization for all peaks in split
 #ifdef DEBUG_PEAK_PICKING
@@ -1600,15 +1600,15 @@ namespace OpenMS
 
       //reserve space in the output container
       {
-        Size number_of_peaks = peak_shapes.size() - peaks_to_skip.size(); // local variable
-        output.reserve(number_of_peaks);
-        output.getFloatDataArrays()[0].reserve(number_of_peaks);
-        output.getFloatDataArrays()[1].reserve(number_of_peaks);
-        output.getFloatDataArrays()[2].reserve(number_of_peaks);
-        output.getFloatDataArrays()[3].reserve(number_of_peaks);
-        output.getFloatDataArrays()[4].reserve(number_of_peaks);
-        output.getFloatDataArrays()[5].reserve(number_of_peaks);
-        output.getFloatDataArrays()[6].reserve(number_of_peaks);
+        Size local_number_of_peaks = peak_shapes.size() - peaks_to_skip.size(); // local variable
+        output.reserve(local_number_of_peaks);
+        output.getFloatDataArrays()[0].reserve(local_number_of_peaks);
+        output.getFloatDataArrays()[1].reserve(local_number_of_peaks);
+        output.getFloatDataArrays()[2].reserve(local_number_of_peaks);
+        output.getFloatDataArrays()[3].reserve(local_number_of_peaks);
+        output.getFloatDataArrays()[4].reserve(local_number_of_peaks);
+        output.getFloatDataArrays()[5].reserve(local_number_of_peaks);
+        output.getFloatDataArrays()[6].reserve(local_number_of_peaks);
       }
 
       // write the picked peaks to the output container
@@ -1727,19 +1727,19 @@ namespace OpenMS
 #ifdef DEBUG_PEAK_PICKING
       std::cout << "m_min: " << m_min << std::endl;
 #endif
-      for (Size s = 0; s < slopes.size(); ++s)
+      for (Size tmp_s = 0; tmp_s < slopes.size(); ++tmp_s)
       {
 #ifdef DEBUG_PEAK_PICKING
-        std::cout << slopes[s] << std::endl;
+        std::cout << slopes[tmp_s] << std::endl;
 #endif
-        if (fabs(slopes[s] - m_min) < 0.01)
+        if (fabs(slopes[tmp_s] - m_min) < 0.01)
           min_found = true;
-        if (min_found && slopes[s] / m_min < 0.5)
+        if (min_found && slopes[tmp_s] / m_min < 0.5)
         {
 #ifdef DEBUG_PEAK_PICKING
-          std::cout << "peak_width = " << (m_min_width + (widths[s] + widths[s + 1]) / 2) / 2 << std::endl;
+          std::cout << "peak_width = " << (m_min_width + (widths[tmp_s] + widths[tmp_s + 1]) / 2) / 2 << std::endl;
 #endif
-          estimated_widths.push_back((m_min_width + (widths[s] + widths[s + 1]) / 2) / 2);
+          estimated_widths.push_back((m_min_width + (widths[tmp_s] + widths[tmp_s + 1]) / 2) / 2);
           break;
         }
       }
