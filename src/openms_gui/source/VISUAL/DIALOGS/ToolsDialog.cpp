@@ -307,11 +307,11 @@ namespace OpenMS
     }
 
     //set tool combo
+    Param::ParamIterator p_iter = arg_param_.begin();
     String str;
-    string = iter.getName().substr(0, iter.getName().find(":")).c_str();
+    string = p_iter.getName().substr(0, p_iter.getName().find(":")).c_str();
     Int pos = tools_combo_->findText(string);
     {
-      Param::ParamIterator iter = arg_param_.begin(); // local iter
       if (pos == -1)
       {
         QMessageBox::critical(this, "Error", (String("Cannot apply '") + string + "' tool to this layer type. Aborting!").c_str());
