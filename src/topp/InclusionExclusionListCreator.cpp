@@ -233,14 +233,14 @@ protected:
         {
 
           String raw_data_path = getStringOption_("raw_data");
-          MSExperiment<> exp, ms2;
+          MSExperiment<> tmp_exp, ms2;
           FeatureMap<> out_map;
-          MzMLFile().load(raw_data_path, exp);
+          MzMLFile().load(raw_data_path, tmp_exp);
           IntList levels;
           levels.push_back(1);
-          exp.getSpectra().erase(remove_if(exp.begin(), exp.end(),
-                                           InMSLevelRange<MSSpectrum<> >(levels, true)), exp.end());
-          exp.sortSpectra(true);
+          tmp_exp.getSpectra().erase(remove_if(tmp_exp.begin(), tmp_exp.end(),
+                                           InMSLevelRange<MSSpectrum<> >(levels, true)), tmp_exp.end());
+          tmp_exp.sortSpectra(true);
           OfflinePrecursorIonSelection opis;
           Param param = getParam_().copy("algorithm:PrecursorSelection:", true);
           param.removeAll("feature_based:");
@@ -260,17 +260,17 @@ protected:
           ilp_wrapper.setParameters(param2.copy("feature_based"));
           // get the mass ranges for each features for each scan it occurs in
           std::vector<std::vector<std::pair<Size, Size> > >  indices;
-          opis.getMassRanges(map, exp, indices);
+          opis.getMassRanges(map, tmp_exp, indices);
 
           std::vector<PSLPFormulation::IndexTriple> variable_indices;
           std::vector<int> solution_indices;
-          ilp_wrapper.createAndSolveILPForKnownLCMSMapFeatureBased(map, exp, variable_indices, indices, charges_set, spot_cap, solution_indices);
+          ilp_wrapper.createAndSolveILPForKnownLCMSMapFeatureBased(map, tmp_exp, variable_indices, indices, charges_set, spot_cap, solution_indices);
 
           sort(variable_indices.begin(), variable_indices.end(), PSLPFormulation::IndexLess());
 #ifdef DEBUG_OPS
           std::cout << "best_solution " << std::endl;
 #endif
-          std::vector<Int> rt_sizes(exp.size(), 0);
+          std::vector<Int> rt_sizes(tmp_exp.size(), 0);
           // print best solution
           // create inclusion list
           for (Size i = 0; i < solution_indices.size(); ++i)
