@@ -192,11 +192,11 @@ protected:
       ConsensusMap out;
       ConsensusXMLFile fh;
       fh.load(file_list[0], out);
+
       //skip first file
       for (Size i = 1; i < file_list.size(); ++i)
       {
         ConsensusMap map;
-        ConsensusXMLFile fh;
         fh.load(file_list[i], map);
 
         if (annotate_file_origin)

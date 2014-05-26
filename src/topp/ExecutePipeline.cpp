@@ -123,9 +123,11 @@ protected:
 
     //set & create temporary path -- make sure its a new subdirectory, as it will be deleted later
     QString new_tmp_dir = File::getUniqueName().toQString();
-    QDir qd(File::getTempDirectory().toQString());
-    qd.mkdir(new_tmp_dir);
-    qd.cd(new_tmp_dir);
+    {
+      QDir qd(File::getTempDirectory().toQString()); // local qd
+      qd.mkdir(new_tmp_dir);
+      qd.cd(new_tmp_dir);
+    }
     QString tmp_path = qd.absolutePath();
 
     TOPPASScene ts(0, tmp_path, false);

@@ -228,7 +228,6 @@ protected:
     delete sapf;
 
     map<double, vector<pair<pair<String, String>, String> > > sorted_candidates;
-    UInt count(0);
     for (Size count = 0; count != candidates.size(); ++count)
     {
       sorted_candidates[pre_weights[count]] = candidates[count];
@@ -354,8 +353,7 @@ protected:
     //now.get(date_string); // @todo Fix it (Andreas)
     String identifier("PILIS_" + date_string);
 
-    //UInt count(0);
-    count = 0;
+    UInt count(0);
     for (RichPeakMap::ConstIterator it = exp.begin(); it != exp.end(); ++it)
     {
       if (it->getMSLevel() == 2)

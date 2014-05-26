@@ -236,43 +236,45 @@ protected:
     qcmlfile.addRunQualityParameter(base_name, qp);
 
     //---precursors at
-    QcMLFile::Attachment at;
-    at.cvRef = "QC"; ///< cv reference
-    at.cvAcc = "QC:0000044";
-    at.qualityRef = msaq_ref;
-    at.id = base_name + "_precursors"; ///< Identifier
-    try
     {
-      const ControlledVocabulary::CVTerm& term = cv.getTerm(at.cvAcc);
-      at.name = term.name; ///< Name
-    }
-    catch (...)
-    {
-      at.name = "precursors"; ///< Name
-    }
-
-    at.colTypes.push_back("MS:1000894_[sec]"); //RT
-    at.colTypes.push_back("MS:1000040"); //MZ
-    for (Size i = 0; i < exp.size(); ++i)
-    {
-      mslevelcounts[exp[i].getMSLevel()]++;
-      if (exp[i].getMSLevel() == 2)
+      QcMLFile::Attachment at; // local attachment
+      at.cvRef = "QC"; ///< cv reference
+      at.cvAcc = "QC:0000044";
+      at.qualityRef = msaq_ref;
+      at.id = base_name + "_precursors"; ///< Identifier
+      try
       {
-        if (exp[i].getPrecursors().front().getMZ() < min_mz)
-        {
-          min_mz = exp[i].getPrecursors().front().getMZ();
-        }
-        if (exp[i].getPrecursors().front().getMZ() > max_mz)
-        {
-          max_mz = exp[i].getPrecursors().front().getMZ();
-        }
-        std::vector<String> row;
-        row.push_back(exp[i].getRT());
-        row.push_back(exp[i].getPrecursors().front().getMZ());
-        at.tableRows.push_back(row);
+        const ControlledVocabulary::CVTerm& term = cv.getTerm(at.cvAcc);
+        at.name = term.name; ///< Name
       }
+      catch (...)
+      {
+        at.name = "precursors"; ///< Name
+      }
+
+      at.colTypes.push_back("MS:1000894_[sec]"); //RT
+      at.colTypes.push_back("MS:1000040"); //MZ
+      for (Size i = 0; i < exp.size(); ++i)
+      {
+        mslevelcounts[exp[i].getMSLevel()]++;
+        if (exp[i].getMSLevel() == 2)
+        {
+          if (exp[i].getPrecursors().front().getMZ() < min_mz)
+          {
+            min_mz = exp[i].getPrecursors().front().getMZ();
+          }
+          if (exp[i].getPrecursors().front().getMZ() > max_mz)
+          {
+            max_mz = exp[i].getPrecursors().front().getMZ();
+          }
+          std::vector<String> row;
+          row.push_back(exp[i].getRT());
+          row.push_back(exp[i].getPrecursors().front().getMZ());
+          at.tableRows.push_back(row);
+        }
+      }
+      qcmlfile.addRunAttachment(base_name, at);
     }
-    qcmlfile.addRunAttachment(base_name, at);
 
     //---aquisition results qp
     qp = QcMLFile::QualityParameter();
@@ -478,11 +480,13 @@ protected:
       at.colTypes.push_back("MS:1001013"); //MS:1001013 db name  MS:1001016 version  MS:1001020 taxonomy
       at.colTypes.push_back("MS:1001016");
       at.colTypes.push_back("MS:1001020");
-      std::vector<String> row;
-      row.push_back(String(prot_ids.front().getSearchParameters().db));
-      row.push_back(String(prot_ids.front().getSearchParameters().db_version));
-      row.push_back(String(prot_ids.front().getSearchParameters().taxonomy));
-      at.tableRows.push_back(row);
+      {
+        std::vector<String> row; // local row
+        row.push_back(String(prot_ids.front().getSearchParameters().db));
+        row.push_back(String(prot_ids.front().getSearchParameters().db_version));
+        row.push_back(String(prot_ids.front().getSearchParameters().taxonomy));
+        at.tableRows.push_back(row);
+      }
       qcmlfile.addRunAttachment(base_name, at);
 
 

@@ -205,11 +205,13 @@ protected:
     {
       vector<String> temp_peptides;
       vector<double> temp_labels;
-      UInt i = 0;
-      while (i <= max_number_of_peptides && it_to != peptides.end())
       {
-        ++it_to;
-        ++i;
+        UInt i = 0; // local i
+        while (i <= max_number_of_peptides && it_to != peptides.end())
+        {
+          ++it_to;
+          ++i;
+        }
       }
 
       temp_peptides.insert(temp_peptides.end(), it_from, it_to);
