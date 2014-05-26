@@ -496,7 +496,7 @@ namespace OpenMS
 #endif
         {
           LOG_DEBUG << "Extracted "  << tmp_chromatograms.size() << " chromatograms from SWATH map " <<
-            i << " with m/z " << swath_maps[k].lower << " to " << swath_maps[k].upper << ":" << std::endl;
+            k << " with m/z " << swath_maps[k].lower << " to " << swath_maps[k].upper << ":" << std::endl;
           for (Size j = 0; j < tmp_chromatograms.size(); j++)
           {
             // Check TIC and remove empty chromatograms (can happen if the
