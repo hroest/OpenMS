@@ -141,16 +141,16 @@ protected:
     {
       if (ms1_only_ && (s.getMSLevel() != 1)) {return;}
 
-      MapType::SpectrumType sout;
-      pp_.pick(s, sout);
-      s = sout;  // todo: swap? (requires implementation)
+      MapType::SpectrumType spec_out;
+      pp_.pick(s, spec_out);
+      s = spec_out;  // todo: swap? (requires implementation)
     }
 
     void processChromatogram_(MapType::ChromatogramType & c) 
     {
-      MapType::ChromatogramType cout;
-      pp_.pick(c, cout);
-      c = cout;
+      MapType::ChromatogramType chrom_out;
+      pp_.pick(c, chrom_out);
+      c = chrom_out;
     }
 
   private:

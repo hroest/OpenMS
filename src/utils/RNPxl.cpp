@@ -331,8 +331,8 @@ protected:
 
     vector<String> file_list_variants_mzML;
 
-    PeakMap exp;
-    MzMLFile().load(in_mzml, exp);
+    PeakMap my_exp;
+    MzMLFile().load(in_mzml, my_exp);
 
     String tmp_path = File::getTempDirectory();
     tmp_path.substitute('\\', '/');
@@ -340,7 +340,7 @@ protected:
     //REPORT:
     cout << "Theoretical precursor variants: " << mm.mod_masses.size() << endl;
     Size count_MS2 = 0;
-    for (PeakMap::ConstIterator it = exp.begin(); it != exp.end(); ++it)
+    for (PeakMap::ConstIterator it = my_exp.begin(); it != my_exp.end(); ++it)
     {
       if (it->getMSLevel() == 2)
       {
@@ -354,12 +354,12 @@ protected:
     Size precursor_variant_mz_filtered = 0;
 
     Size count(0);
-    for (PeakMap::ConstIterator it = exp.begin(); it != exp.end(); ++it)
+    for (PeakMap::ConstIterator it = my_exp.begin(); it != my_exp.end(); ++it)
     {
       ++count;
       if (count % 100 == 0)
       {
-        cout << (double) count / exp.size() * 100.0 << "%" << endl;
+        cout << (double) count / my_exp.size() * 100.0 << "%" << endl;
       }
 
       PeakMap new_exp;
@@ -573,20 +573,20 @@ protected:
       */
 
       // load map with all precursor variations (originating from one single precursor) that corresponds to this identification run
-      PeakMap exp;
-      MzMLFile().load(mzml_string, exp);
+      PeakMap tmp_exp;
+      MzMLFile().load(mzml_string, tmp_exp);
 
       // find marker ions
       marker_ions.clear();
-      MarkerIonExtractor::extractMarkerIons(marker_ions, *exp.begin(), marker_tolerance);
+      MarkerIonExtractor::extractMarkerIons(marker_ions, *tmp_exp.begin(), marker_tolerance);
 
       // case 1: no peptide identification
       RNPxlReportRow row;
       if (pep_ids.size() == 0)
       {
         row.no_id = true;
-        row.rt = exp.begin()->getRT() / (double)RT_FACTOR;
-        row.original_mz = exp.begin()->getPrecursors().begin()->getMZ();
+        row.rt = tmp_exp.begin()->getRT() / (double)RT_FACTOR;
+        row.original_mz = tmp_exp.begin()->getPrecursors().begin()->getMZ();
         row.marker_ions = marker_ions;
         csv_rows.push_back(row);
         continue;
@@ -685,11 +685,11 @@ protected:
         whole_experiment_filtered_peptide_ids.back().setMetaValue("RNA mass", DataValue(rna_weight));
         whole_experiment_filtered_peptide_ids.back().setMetaValue("cross link mass", (double)pep_weight + rna_weight);
 
-        for (Map<String, vector<pair<double, double> > >::const_iterator it = marker_ions.begin(); it != marker_ions.end(); ++it)
+        for (Map<String, vector<pair<double, double> > >::const_iterator it2 = marker_ions.begin(); it2 != marker_ions.end(); ++it2)
         {
-          for (Size i = 0; i != it->second.size(); ++i)
+          for (Size i = 0; i != it2->second.size(); ++i)
           {
-            whole_experiment_filtered_peptide_ids.back().setMetaValue(it->first + "_" + it->second[i].first, (double)it->second[i].second * 100.0);
+            whole_experiment_filtered_peptide_ids.back().setMetaValue(it2->first + "_" + it2->second[i].first, (double)it2->second[i].second * 100.0);
           }
         }
 

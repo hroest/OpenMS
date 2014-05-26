@@ -911,7 +911,7 @@ protected:
                                                 output_flag,
                                                 "performances_" + digest + ".txt");
       }
-      String debug_string = "Best parameters found in cross validation:";
+      debug_string = "Best parameters found in cross validation:";
 
       for (parameters_iterator = optimized_parameters.begin();
            parameters_iterator != optimized_parameters.end();

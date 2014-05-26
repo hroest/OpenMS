@@ -197,7 +197,6 @@ protected:
 
       if (csv_file.size()>1)
       {
-        StringList li;
         for (Size i = 1; i < csv_file.size(); ++i)
         {
           StringList li;

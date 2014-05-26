@@ -391,9 +391,9 @@ namespace OpenMS
 #endif
           {
             // write chromatograms to output if so desired
-            for (Size j = 0; j < chromatograms.size(); j++)
+            for (Size k = 0; k < chromatograms.size(); k++)
             {
-              chromConsumer->consumeChromatogram(chromatograms[j]);
+              chromConsumer->consumeChromatogram(chromatograms[k]);
             }
             // write features to output if so desired
             if (!out.empty())
@@ -473,20 +473,20 @@ namespace OpenMS
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-      for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
+      for (SignedSize k = 0; k < boost::numeric_cast<SignedSize>(swath_maps.size()); ++k)
       {
         std::vector< OpenMS::MSChromatogram<> > tmp_chromatograms;
-        if (!swath_maps[i].ms1) { // continue 1 (if MS1)
+        if (!swath_maps[k].ms1) { // continue 1 (if MS1)
         TargetedExperiment transition_exp_used;
         OpenSwathHelper::selectSwathTransitions(irt_transitions, transition_exp_used,
-            cp.min_upper_edge_dist, swath_maps[i].lower, swath_maps[i].upper);
+            cp.min_upper_edge_dist, swath_maps[k].lower, swath_maps[k].upper);
         if (transition_exp_used.getTransitions().size() > 0) { // continue 2 (if no transitions found)
 
         std::vector< OpenSwath::ChromatogramPtr > tmp_out;
         std::vector< ChromatogramExtractor::ExtractionCoordinates > coordinates;
         ChromatogramExtractor extractor;
         extractor.prepare_coordinates(tmp_out, coordinates, transition_exp_used,  cp.rt_extraction_window, false);
-        extractor.extractChromatograms(swath_maps[i].sptr, tmp_out, coordinates, cp.mz_extraction_window,
+        extractor.extractChromatograms(swath_maps[k].sptr, tmp_out, coordinates, cp.mz_extraction_window,
             cp.ppm, cp.extraction_function);
         extractor.return_chromatogram(tmp_out, coordinates,
             transition_exp_used, SpectrumSettings(), tmp_chromatograms, false);
@@ -496,23 +496,23 @@ namespace OpenMS
 #endif
         {
           LOG_DEBUG << "Extracted "  << tmp_chromatograms.size() << " chromatograms from SWATH map " <<
-            i << " with m/z " << swath_maps[i].lower << " to " << swath_maps[i].upper << ":" << std::endl;
-          for (Size i = 0; i < tmp_chromatograms.size(); i++)
+            i << " with m/z " << swath_maps[k].lower << " to " << swath_maps[k].upper << ":" << std::endl;
+          for (Size j = 0; j < tmp_chromatograms.size(); j++)
           {
             // Check TIC and remove empty chromatograms (can happen if the
             // extraction window is outside the mass spectrometric acquisition
             // window).
-            double tic = std::accumulate(tmp_out[i]->getIntensityArray()->data.begin(),tmp_out[i]->getIntensityArray()->data.end(),0);
-            LOG_DEBUG << "Chromatogram "  << coordinates[i].id << " with size "
-              << tmp_out[i]->getIntensityArray()->data.size() << " and TIC " << tic  << std::endl;
+            double tic = std::accumulate(tmp_out[j]->getIntensityArray()->data.begin(),tmp_out[j]->getIntensityArray()->data.end(),0);
+            LOG_DEBUG << "Chromatogram "  << coordinates[j].id << " with size "
+              << tmp_out[j]->getIntensityArray()->data.size() << " and TIC " << tic  << std::endl;
             if (tic > 0.0)
             {
               // add the chromatogram to the output
-              chromatograms.push_back(tmp_chromatograms[i]);
+              chromatograms.push_back(tmp_chromatograms[j]);
             }
             else
             {
-              std::cerr  << " - Warning: Empty chromatogram " << coordinates[i].id << " detected. Will skip it!" << std::endl;
+              std::cerr  << " - Warning: Empty chromatogram " << coordinates[j].id << " detected. Will skip it!" << std::endl;
             }
           }
         }

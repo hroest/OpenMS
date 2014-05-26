@@ -230,21 +230,21 @@ protected:
         CsvFile csv_file(tab);
         if (csv_file.size()>1)
         {
-          StringList li;
-          csv_file.getRow(0, li);
-          for (Size i = 0; i < li.size(); ++i)
+          StringList li_outer;
+          csv_file.getRow(0, li_outer);
+          for (Size i = 0; i < li_outer.size(); ++i)
           {
-            at.colTypes.push_back(li[i]);
+            at.colTypes.push_back(li_outer[i]);
           }
           for (UInt i = 1; i < csv_file.size(); ++i)
           {
-            StringList li;
+            StringList li_inner;
             std::vector<String> v;
-            csv_file.getRow(i, li);
-            //TODO throw error if li.size() != at.colTypes.size()
-            for (Size i = 0; i < li.size(); ++i)
+            csv_file.getRow(i, li_inner);
+            //TODO throw error if li_inner.size() != at.colTypes.size()
+            for (Size j = 0; j < li_inner.size(); ++j)
             {
-              v.push_back(li[i]);
+              v.push_back(li_inner[j]);
             }
             at.tableRows.push_back(v);
           }

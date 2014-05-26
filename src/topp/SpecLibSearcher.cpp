@@ -174,7 +174,7 @@ protected:
 
     time_t prog_time = time(NULL);
     MSPFile spectral_library;
-    RichPeakMap query, library;
+    RichPeakMap query, library_map;
     //spectrum which will be identified
     MzMLFile spectra;
     spectra.setLogType(log_type_);
@@ -186,14 +186,14 @@ protected:
 
     //library containing already identified peptide spectra
     vector<PeptideIdentification> ids;
-    spectral_library.load(in_lib, ids, library);
+    spectral_library.load(in_lib, ids, library_map);
 
     map<Size, vector<PeakSpectrum> > MSLibrary;
     {
       RichPeakMap::iterator s;
       vector<PeptideIdentification>::iterator i;
       ModificationsDB * mdb = ModificationsDB::getInstance();
-      for (s = library.begin(), i = ids.begin(); s < library.end(); ++s, ++i)
+      for (s = library_map.begin(), i = ids.begin(); s < library_map.end(); ++s, ++i)
       {
         double precursor_MZ = (*s).getPrecursors()[0].getMZ();
         Size MZ_multi = (Size)precursor_MZ * precursor_mass_multiplier;
@@ -207,12 +207,12 @@ protected:
         //variable fixed modifications
         if (!fixed_modifications.empty())
         {
-          for (Size i = 0; i < aaseq.size(); ++i)
+          for (Size j = 0; j < aaseq.size(); ++j)
           {
-            const   Residue & mod  = aaseq.getResidue(i);
-            for (Size s = 0; s < fixed_modifications.size(); ++s)
+            const Residue & mod = aaseq.getResidue(j);
+            for (Size mod_idx = 0; mod_idx < fixed_modifications.size(); ++mod_idx)
             {
-              if (mod.getOneLetterCode() == mdb->getModification(fixed_modifications[s]).getOrigin() && fixed_modifications[s] != mod.getModification())
+              if (mod.getOneLetterCode() == mdb->getModification(fixed_modifications[mod_idx]).getOrigin() && fixed_modifications[mod_idx] != mod.getModification())
               {
                 fixed_modifications_ok = false;
                 break;
@@ -223,14 +223,14 @@ protected:
         //variable modifications
         if (aaseq.isModified() && (!variable_modifications.empty()))
         {
-          for (Size i = 0; i < aaseq.size(); ++i)
+          for (Size j = 0; j < aaseq.size(); ++j)
           {
-            if (aaseq.isModified(i))
+            if (aaseq.isModified(j))
             {
-              const   Residue & mod  = aaseq.getResidue(i);
-              for (Size s = 0; s < variable_modifications.size(); ++s)
+              const Residue & mod = aaseq.getResidue(j);
+              for (Size mod_idx = 0; mod_idx < variable_modifications.size(); ++mod_idx)
               {
-                if (mod.getOneLetterCode() == mdb->getModification(variable_modifications[s]).getOrigin() && variable_modifications[s] != mod.getModification())
+                if (mod.getOneLetterCode() == mdb->getModification(variable_modifications[mod_idx]).getOrigin() && variable_modifications[mod_idx] != mod.getModification())
                 {
                   variable_modifications_ok = false;
                   break;
