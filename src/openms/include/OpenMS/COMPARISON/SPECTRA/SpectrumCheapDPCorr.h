@@ -116,9 +116,6 @@ private:
     /// consensus spectrum of the last comparison
     mutable PeakSpectrum lastconsensus_;
 
-    /// should peaks with no alignment partner be kept in the consensus?
-    bool keeppeaks_;
-
     /// weighting factor for the next consensus spectrum
     mutable double factor_;
 

@@ -108,6 +108,7 @@ namespace OpenMS
   {
     double var = (double)param_.getValue("variation");
     double score(0);
+    /// should peaks with no alignment partner be kept in the consensus?
     bool local_keeppeaks_ = (int)param_.getValue("keeppeaks");
 
     lastconsensus_ = PeakSpectrum();
@@ -226,6 +227,7 @@ namespace OpenMS
 #ifdef SPECTRUMCHEAPDPCORR_DEBUG
     cerr << "SpectrumCheapDPCorr::dynprog_(const DDiscreteSpectrum<1>& x, const DDiscreteSpectrum<1>& y, " << xstart << ", " << xend << ", " <<  ystart << ", " << yend << ")" <<  endl;
 #endif
+    /// should peaks with no alignment partner be kept in the consensus?
     bool local_keeppeaks_ = (int)param_.getValue("keeppeaks");
     double var = (double)param_.getValue("variation");
     vector<vector<double> > dparray(xend - xstart + 2, vector<double>(yend - ystart + 2));
