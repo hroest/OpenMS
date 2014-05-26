@@ -86,9 +86,9 @@ namespace OpenMS
       QString key = (substrings[0]).toQString();
       StringList url_list = (it->value);
       QList<TOPPASResource> resource_list;
-      for (StringList::const_iterator it = url_list.begin(); it != url_list.end(); ++it)
+      for (StringList::const_iterator it2 = url_list.begin(); it2 != url_list.end(); ++it2)
       {
-        resource_list << TOPPASResource(QUrl(it->toQString()));
+        resource_list << TOPPASResource(QUrl(it2->toQString()));
       }
 
       add(key, resource_list);

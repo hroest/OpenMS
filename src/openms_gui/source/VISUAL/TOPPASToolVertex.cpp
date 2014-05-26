@@ -381,8 +381,8 @@ namespace OpenMS
     {
       QString text = QString::number(round_counter_) + " / " + QString::number(round_total_);
 
-      QRectF text_boundings = painter->boundingRect(QRectF(0, 0, 0, 0), Qt::AlignCenter, text);
-      painter->drawText((int)(62.0 - text_boundings.width()), 48, text);
+      QRectF tmp_text_boundings = painter->boundingRect(QRectF(0, 0, 0, 0), Qt::AlignCenter, text);
+      painter->drawText((int)(62.0 - tmp_text_boundings.width()), 48, text);
     }
 
     // progress light
@@ -455,8 +455,8 @@ namespace OpenMS
           {
             last_capital_index = i;
           }
-          QRectF text_boundings = painter->boundingRect(QRectF(0, 0, 0, 0), Qt::AlignCenter | Qt::TextWordWrap, tmp_str);
-          if (text_boundings.width() > max_width)
+          QRectF tmp_text_boundings = painter->boundingRect(QRectF(0, 0, 0, 0), Qt::AlignCenter | Qt::TextWordWrap, tmp_str);
+          if (tmp_text_boundings.width() > max_width)
           {
             //break line at next capital letter before this position
             new_parts.append(part.left(last_capital_index - 1) + "-");

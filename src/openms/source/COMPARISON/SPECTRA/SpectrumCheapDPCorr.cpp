@@ -108,7 +108,7 @@ namespace OpenMS
   {
     double var = (double)param_.getValue("variation");
     double score(0);
-    bool keeppeaks_ = (int)param_.getValue("keeppeaks");
+    keeppeaks_ = (int)param_.getValue("keeppeaks");
 
     lastconsensus_ = PeakSpectrum();
     Precursor p1, p2;
@@ -217,7 +217,7 @@ namespace OpenMS
         }
       }
     }
-    factor_ = 0.5;
+    factor_ = 0.5; // TODO why do we set factor here? there is a setFactor method to change the factor ...
     return score;
   }
 
@@ -226,6 +226,7 @@ namespace OpenMS
 #ifdef SPECTRUMCHEAPDPCORR_DEBUG
     cerr << "SpectrumCheapDPCorr::dynprog_(const DDiscreteSpectrum<1>& x, const DDiscreteSpectrum<1>& y, " << xstart << ", " << xend << ", " <<  ystart << ", " << yend << ")" <<  endl;
 #endif
+    keeppeaks_ = (int)param_.getValue("keeppeaks");
     double var = (double)param_.getValue("variation");
     vector<vector<double> > dparray(xend - xstart + 2, vector<double>(yend - ystart + 2));
     vector<vector<int> > trace(xend - xstart + 2, vector<int>(yend - ystart + 2));

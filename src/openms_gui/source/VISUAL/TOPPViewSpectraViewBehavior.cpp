@@ -135,7 +135,7 @@ namespace OpenMS
     }
 
     // basic behavior 2
-    String caption = layer.name;
+    caption = layer.name;
     w->canvas()->setLayerName(w->canvas()->activeLayerIndex(), caption);
 
     tv_->showSpectrumWidgetInWindow(w, caption);
@@ -227,12 +227,12 @@ namespace OpenMS
   {
     Spectrum1DWidget * widget_1d = tv_->getActive1DWidget();
     widget_1d->canvas()->activateSpectrum(index);
-    const LayerData & layer = tv_->getActiveCanvas()->getCurrentLayer();
+    const LayerData & tmp_layer = tv_->getActiveCanvas()->getCurrentLayer();
 
     // If we have a chromatogram, we cannot just simply activate this spectrum.
     // we have to do much more work, e.g. creating a new experiment with the
     // new spectrum.
-    if (layer.chromatogram_flag_set())
+    if (tmp_layer.chromatogram_flag_set())
     {
       // first get chromatogram data
       ExperimentSharedPtrType exp_sptr = widget_1d->canvas()->getCurrentLayer().getChromatogramData();
