@@ -551,8 +551,8 @@ START_SECTION(([EXTRA] String getDoubleList_(const String& name) const))
 	const char* string_cl[3]={a1, a19, a20}; //commandline:"TOPPBaseTest -doublelist 0.411"
 	TOPPBaseTest tmp2(3, string_cl);
 	TEST_EQUAL(tmp2.getDoubleList("doublelist") == ListUtils::create<double>("0.411"), true)
-	const char* a21 = "4.0";
-	const char* string_cl2[5]={a1,a19,a20,a13,a21};//commandline :"TOPPBaseTest -doublelist 0.411 4.5 4.0
+	const char* tmp_a21 = "4.0";
+	const char* string_cl2[5]={a1,a19,a20,a13,tmp_a21};//commandline :"TOPPBaseTest -doublelist 0.411 4.5 4.0
 	TOPPBaseTest tmp3(5,string_cl2);
 	TEST_EQUAL(tmp3.getDoubleList("doublelist") == ListUtils::create<double>("0.411,4.5,4.0"), true)
 

@@ -268,7 +268,7 @@ START_SECTION((bool divideByGCD()))
   // weights are 3, 5, 8 with precision 1.0 (since the gcd of 30, 50, and 80
   //  is 10).
 
-  Weights::alphabet_masses_type masses;
+  masses.clear();
   masses.push_back(3.0);
   masses.push_back(5.0);
   masses.push_back(8.0);

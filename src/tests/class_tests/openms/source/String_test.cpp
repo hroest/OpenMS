@@ -221,72 +221,81 @@ START_SECTION((template<class InputIterator> String(InputIterator first, InputIt
 	TEST_EQUAL(s2.size(),0U)
 END_SECTION
 
-String s("ACDEFGHIKLMNPQRSTVWY");
 START_SECTION((bool hasPrefix(const String& string) const))
-	TEST_EQUAL(s.hasPrefix(""), true);
-	TEST_EQUAL(s.hasPrefix("ACDEF"), true);
-	TEST_EQUAL(s.hasPrefix("ACDEFGHIKLMNPQRSTVWY"), true);
-	TEST_EQUAL(s.hasPrefix("ABCDEF"), false);
-	TEST_EQUAL(s.hasPrefix("ACDEFGHIKLMNPQRSTVWYACDEF"), false);
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.hasPrefix(""), true);
+  TEST_EQUAL(s.hasPrefix("ACDEF"), true);
+  TEST_EQUAL(s.hasPrefix("ACDEFGHIKLMNPQRSTVWY"), true);
+  TEST_EQUAL(s.hasPrefix("ABCDEF"), false);
+  TEST_EQUAL(s.hasPrefix("ACDEFGHIKLMNPQRSTVWYACDEF"), false);
 END_SECTION
 
 START_SECTION((bool hasSuffix(const String& string) const))
-	TEST_EQUAL(s.hasSuffix(""), true);
-	TEST_EQUAL(s.hasSuffix("TVWY"), true);
-	TEST_EQUAL(s.hasSuffix("ACDEFGHIKLMNPQRSTVWY"), true);
-	TEST_EQUAL(s.hasSuffix("WXYZ"), false);
-	TEST_EQUAL(s.hasSuffix("ACDEFACDEFGHIKLMNPQRSTVWY"), false);
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.hasSuffix(""), true);
+  TEST_EQUAL(s.hasSuffix("TVWY"), true);
+  TEST_EQUAL(s.hasSuffix("ACDEFGHIKLMNPQRSTVWY"), true);
+  TEST_EQUAL(s.hasSuffix("WXYZ"), false);
+  TEST_EQUAL(s.hasSuffix("ACDEFACDEFGHIKLMNPQRSTVWY"), false);
 END_SECTION
 
 START_SECTION((bool hasSubstring(const String& string) const))
-	TEST_EQUAL(s.hasSubstring(""), true);
-	TEST_EQUAL(s.hasSubstring("GHIKLM"), true);
-	TEST_EQUAL(s.hasSubstring("ACDEFGHIKLMNPQRSTVWY"), true);
-	TEST_EQUAL(s.hasSubstring("MLKIGH"), false);
-	TEST_EQUAL(s.hasSubstring("ACDEFGHIKLMNPQRSTVWYACDEF"), false);
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.hasSubstring(""), true);
+  TEST_EQUAL(s.hasSubstring("GHIKLM"), true);
+  TEST_EQUAL(s.hasSubstring("ACDEFGHIKLMNPQRSTVWY"), true);
+  TEST_EQUAL(s.hasSubstring("MLKIGH"), false);
+  TEST_EQUAL(s.hasSubstring("ACDEFGHIKLMNPQRSTVWYACDEF"), false);
 END_SECTION
 
 START_SECTION((bool has(Byte byte) const))
-	TEST_EQUAL(s.has('A'), true);
-	TEST_EQUAL(s.has('O'), false);
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.has('A'), true);
+  TEST_EQUAL(s.has('O'), false);
 END_SECTION
 
 START_SECTION((String prefix(Int length) const))
-	TEST_EQUAL(s.prefix((Int)4), "ACDE");
-	TEST_EQUAL(s.prefix((Int)0), "");
-	TEST_EXCEPTION(Exception::IndexOverflow, s.prefix(s.size()+1));
-	TEST_EXCEPTION(Exception::IndexUnderflow, s.prefix(-1));
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.prefix((Int)4), "ACDE");
+  TEST_EQUAL(s.prefix((Int)0), "");
+  TEST_EXCEPTION(Exception::IndexOverflow, s.prefix(s.size()+1));
+  TEST_EXCEPTION(Exception::IndexUnderflow, s.prefix(-1));
 END_SECTION
 
 START_SECTION((String suffix(Int length) const))
-	TEST_EQUAL(s.suffix((Int)4), "TVWY");
-	TEST_EQUAL(s.suffix((Int)0), "");
-	TEST_EXCEPTION(Exception::IndexOverflow, s.suffix(s.size()+1));
-	TEST_EXCEPTION(Exception::IndexUnderflow, s.suffix(-1));
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.suffix((Int)4), "TVWY");
+  TEST_EQUAL(s.suffix((Int)0), "");
+  TEST_EXCEPTION(Exception::IndexOverflow, s.suffix(s.size()+1));
+  TEST_EXCEPTION(Exception::IndexUnderflow, s.suffix(-1));
 END_SECTION
 
 START_SECTION((String prefix(SizeType length) const))
-	TEST_EQUAL(s.prefix((String::SizeType)4), "ACDE");
-	TEST_EQUAL(s.prefix((String::SizeType)0), "");
-	TEST_EXCEPTION(Exception::IndexOverflow, s.prefix(s.size()+1));
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.prefix((String::SizeType)4), "ACDE");
+  TEST_EQUAL(s.prefix((String::SizeType)0), "");
+  TEST_EXCEPTION(Exception::IndexOverflow, s.prefix(s.size()+1));
 END_SECTION
 
 START_SECTION((String suffix(SizeType length) const))
-	TEST_EQUAL(s.suffix((String::SizeType)4), "TVWY");
-	TEST_EQUAL(s.suffix((String::SizeType)0), "");
-	TEST_EXCEPTION(Exception::IndexOverflow, s.suffix(s.size()+1));
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.suffix((String::SizeType)4), "TVWY");
+  TEST_EQUAL(s.suffix((String::SizeType)0), "");
+  TEST_EXCEPTION(Exception::IndexOverflow, s.suffix(s.size()+1));
 END_SECTION
 
 START_SECTION((String prefix(char delim) const))
-	TEST_EQUAL(s.prefix('F'), "ACDE");
-	TEST_EQUAL(s.prefix('A'), "");
-	TEST_EXCEPTION(Exception::ElementNotFound, s.prefix('Z'));
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.prefix('F'), "ACDE");
+  TEST_EQUAL(s.prefix('A'), "");
+  TEST_EXCEPTION(Exception::ElementNotFound, s.prefix('Z'));
 END_SECTION
 
 START_SECTION((String suffix(char delim) const))
-	TEST_EQUAL(s.suffix('S'), "TVWY");
-	TEST_EQUAL(s.suffix('Y'), "");
-	TEST_EXCEPTION(Exception::ElementNotFound, s.suffix('Z'));
+  String s("ACDEFGHIKLMNPQRSTVWY");
+  TEST_EQUAL(s.suffix('S'), "TVWY");
+  TEST_EQUAL(s.suffix('Y'), "");
+  TEST_EXCEPTION(Exception::ElementNotFound, s.suffix('Z'));
 END_SECTION
 
 START_SECTION((String substr(size_t pos=0, size_t n=npos) const))
@@ -325,6 +334,7 @@ START_SECTION((String chop(Size n) const))
 END_SECTION
 
 START_SECTION((String& reverse()))
+  String s("ACDEFGHIKLMNPQRSTVWY");
 	s.reverse();
 	TEST_EQUAL(s, "YWVTSRQPNMLKIHGFEDCA");
 	s = "";

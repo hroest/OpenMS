@@ -57,13 +57,11 @@ using namespace std;
 
 
 double peptide_significance_threshold = 42.3;
-std::vector<PeptideHit> peptide_hits;
 PeptideHit peptide_hit;
 ProteinIdentification protein_identification;
 vector<PeptideIdentification> identifications;
 MascotXMLFile xml_file;
 
-peptide_hits.push_back(peptide_hit);
 
 
 PeptideIdentification* ptr = 0;
@@ -79,6 +77,8 @@ START_SECTION((virtual ~PeptideIdentification()))
 END_SECTION
 
 START_SECTION((PeptideIdentification(const PeptideIdentification& source)))
+  std::vector<PeptideHit> peptide_hits;
+  peptide_hits.push_back(peptide_hit);
   PeptideIdentification hits;
   hits.setSignificanceThreshold(peptide_significance_threshold);
   hits.setHits(peptide_hits);
@@ -99,6 +99,8 @@ START_SECTION((PeptideIdentification(const PeptideIdentification& source)))
 END_SECTION
 
 START_SECTION((PeptideIdentification& operator=(const PeptideIdentification& source)))
+  std::vector<PeptideHit> peptide_hits;
+  peptide_hits.push_back(peptide_hit);
   PeptideIdentification hits;
   hits.setSignificanceThreshold(peptide_significance_threshold);
   hits.setHits(peptide_hits);
@@ -206,6 +208,8 @@ START_SECTION((void insertHit(const PeptideHit &hit)))
 END_SECTION
 
 START_SECTION((void setHits(const std::vector< PeptideHit > &hits)))
+  std::vector<PeptideHit> peptide_hits;
+  peptide_hits.push_back(peptide_hit);
   PeptideIdentification hits;
   hits.setHits(peptide_hits);
   TEST_EQUAL(hits.getHits() == peptide_hits, true)

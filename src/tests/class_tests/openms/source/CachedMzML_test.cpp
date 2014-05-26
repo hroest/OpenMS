@@ -193,15 +193,8 @@ START_SECTION(( void writeMetadata(MapType exp, String out_meta, bool addCacheMe
 }
 END_SECTION
 
-// Create a single CachedMzML file and use it for the following computations
-// (may be somewhat faster)
-std::string tmp_filename;
-MSExperiment<> exp;
-CachedmzML cache_ = cacheFile(tmp_filename, exp);
-
 START_SECTION(( void readMemdump(MapType& exp_reading, String filename) const ))
 {
-
   std::string tmp_filename;
   MSExperiment<> exp;
   CachedmzML cache = cacheFile(tmp_filename, exp);
@@ -245,6 +238,12 @@ START_SECTION(( void createMemdumpIndex(String filename) ))
   TEST_EXCEPTION(Exception::ParseError, cache.createMemdumpIndex(OPENMS_GET_TEST_DATA_PATH("MzMLFile_1.mzML") ) )
 }
 END_SECTION
+
+// Create a single CachedMzML file and use it for the following computations
+// (may be somewhat faster)
+std::string tmp_filename;
+MSExperiment<> exp;
+CachedmzML cache_ = cacheFile(tmp_filename, exp);
 
 START_SECTION(( const std::vector<std::streampos>& getSpectraIndex() const ))
 {

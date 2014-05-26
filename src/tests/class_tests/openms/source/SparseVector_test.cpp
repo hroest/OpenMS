@@ -177,30 +177,30 @@ START_SECTION((void erase(SparseVectorIterator it)))
 	TEST_EQUAL(sv.size(),7)
 
 	//real test
-	SparseVector<double> sv2;
-	sv2.push_back(1.0);
-	sv2.push_back(1.1);
-	sv2.push_back(1.2);
-	sv2.push_back(1.3);
-	sv2.push_back(1.4);
+	SparseVector<double> sv3;
+	sv3.push_back(1.0);
+	sv3.push_back(1.1);
+	sv3.push_back(1.2);
+	sv3.push_back(1.3);
+	sv3.push_back(1.4);
 
-	sv2.erase(sv2.begin());
-	TEST_EQUAL(sv2.size(),4)
-	TEST_EQUAL(sv2.at(0),1.1)
-	TEST_EQUAL(sv2.at(1),1.2)
-	TEST_EQUAL(sv2.at(2),1.3)
-	TEST_EQUAL(sv2.at(3),1.4)
+	sv3.erase(sv3.begin());
+	TEST_EQUAL(sv3.size(),4)
+	TEST_EQUAL(sv3.at(0),1.1)
+	TEST_EQUAL(sv3.at(1),1.2)
+	TEST_EQUAL(sv3.at(2),1.3)
+	TEST_EQUAL(sv3.at(3),1.4)
 
-	sv2.erase(sv2.begin()+2);
-	TEST_EQUAL(sv2.size(),3)
-	TEST_EQUAL(sv2.at(0),1.1)
-	TEST_EQUAL(sv2.at(1),1.2)
-	TEST_EQUAL(sv2.at(2),1.4)
+	sv3.erase(sv3.begin()+2);
+	TEST_EQUAL(sv3.size(),3)
+	TEST_EQUAL(sv3.at(0),1.1)
+	TEST_EQUAL(sv3.at(1),1.2)
+	TEST_EQUAL(sv3.at(2),1.4)
 
-	sv2.erase(sv2.end()-1);
-	TEST_EQUAL(sv2.size(),2)
-	TEST_EQUAL(sv2.at(0),1.1)
-	TEST_EQUAL(sv2.at(1),1.2)
+	sv3.erase(sv3.end()-1);
+	TEST_EQUAL(sv3.size(),2)
+	TEST_EQUAL(sv3.at(0),1.1)
+	TEST_EQUAL(sv3.at(1),1.2)
 }
 END_SECTION
 
@@ -211,35 +211,35 @@ START_SECTION((void erase(SparseVectorIterator first, SparseVectorIterator last)
 	TEST_EQUAL(sv.size(),5)
 
 	//real test
-	SparseVector<double> sv2;
-	sv2.push_back(1.0);
-	sv2.push_back(1.1);
-	sv2.push_back(1.2);
-	sv2.push_back(1.3);
-	sv2.push_back(1.4);
-	sv2.push_back(1.5);
-	sv2.push_back(1.6);
-	sv2.push_back(1.7);
+	SparseVector<double> sv3;
+	sv3.push_back(1.0);
+	sv3.push_back(1.1);
+	sv3.push_back(1.2);
+	sv3.push_back(1.3);
+	sv3.push_back(1.4);
+	sv3.push_back(1.5);
+	sv3.push_back(1.6);
+	sv3.push_back(1.7);
 
-	sv2.erase(sv2.begin(),sv2.begin()+2);
-	TEST_EQUAL(sv2.size(),6)
-	TEST_EQUAL(sv2.at(0),1.2)
-	TEST_EQUAL(sv2.at(1),1.3)
-	TEST_EQUAL(sv2.at(2),1.4)
-	TEST_EQUAL(sv2.at(3),1.5)
-	TEST_EQUAL(sv2.at(4),1.6)
-	TEST_EQUAL(sv2.at(5),1.7)
+	sv3.erase(sv3.begin(),sv3.begin()+2);
+	TEST_EQUAL(sv3.size(),6)
+	TEST_EQUAL(sv3.at(0),1.2)
+	TEST_EQUAL(sv3.at(1),1.3)
+	TEST_EQUAL(sv3.at(2),1.4)
+	TEST_EQUAL(sv3.at(3),1.5)
+	TEST_EQUAL(sv3.at(4),1.6)
+	TEST_EQUAL(sv3.at(5),1.7)
 
-	sv2.erase(sv2.begin()+1,sv2.begin()+3);
-	TEST_EQUAL(sv2.size(),4)
-	TEST_EQUAL(sv2.at(0),1.2)
-	TEST_EQUAL(sv2.at(1),1.5)
-	TEST_EQUAL(sv2.at(2),1.6)
-	TEST_EQUAL(sv2.at(3),1.7)
+	sv3.erase(sv3.begin()+1,sv3.begin()+3);
+	TEST_EQUAL(sv3.size(),4)
+	TEST_EQUAL(sv3.at(0),1.2)
+	TEST_EQUAL(sv3.at(1),1.5)
+	TEST_EQUAL(sv3.at(2),1.6)
+	TEST_EQUAL(sv3.at(3),1.7)
 
-	sv2.erase(sv2.end()-3,sv2.end());
-	TEST_EQUAL(sv2.size(),1)
-	TEST_EQUAL(sv2.at(0),1.2)
+	sv3.erase(sv3.end()-3,sv3.end());
+	TEST_EQUAL(sv3.size(),1)
+	TEST_EQUAL(sv3.at(0),1.2)
 }
 END_SECTION
 
