@@ -108,7 +108,7 @@ namespace OpenMS
   {
     double var = (double)param_.getValue("variation");
     double score(0);
-    keeppeaks_ = (int)param_.getValue("keeppeaks");
+    bool local_keeppeaks_ = (int)param_.getValue("keeppeaks");
 
     lastconsensus_ = PeakSpectrum();
     Precursor p1, p2;
@@ -137,7 +137,7 @@ namespace OpenMS
           Peak1D consensuspeak;
           consensuspeak.setMZ(xit->getMZ());
           consensuspeak.setIntensity((xit->getIntensity()) * (1 - factor_));
-          if (keeppeaks_)
+          if (local_keeppeaks_)
             lastconsensus_.push_back(consensuspeak);
           ++xit;
           ++xpos;
@@ -147,7 +147,7 @@ namespace OpenMS
           Peak1D consensuspeak;
           consensuspeak.setMZ(yit->getMZ());
           consensuspeak.setIntensity((yit->getIntensity()) * (factor_));
-          if (keeppeaks_)
+          if (local_keeppeaks_)
             lastconsensus_.push_back(consensuspeak);
           ++yit;
           ++ypos;
@@ -226,7 +226,7 @@ namespace OpenMS
 #ifdef SPECTRUMCHEAPDPCORR_DEBUG
     cerr << "SpectrumCheapDPCorr::dynprog_(const DDiscreteSpectrum<1>& x, const DDiscreteSpectrum<1>& y, " << xstart << ", " << xend << ", " <<  ystart << ", " << yend << ")" <<  endl;
 #endif
-    keeppeaks_ = (int)param_.getValue("keeppeaks");
+    bool local_keeppeaks_ = (int)param_.getValue("keeppeaks");
     double var = (double)param_.getValue("variation");
     vector<vector<double> > dparray(xend - xstart + 2, vector<double>(yend - ystart + 2));
     vector<vector<int> > trace(xend - xstart + 2, vector<int>(yend - ystart + 2));
@@ -294,7 +294,7 @@ namespace OpenMS
         Peak1D consensuspeak;
         consensuspeak.setMZ(x[xstart + i - 1].getMZ());
         consensuspeak.setIntensity((x[xstart + i - 1].getIntensity()) * (1 - factor_));
-        if (keeppeaks_)
+        if (local_keeppeaks_)
           lastconsensus_.push_back(consensuspeak);
         i--;
       }
@@ -303,7 +303,7 @@ namespace OpenMS
         Peak1D consensuspeak;
         consensuspeak.setMZ(y[ystart + j - 1].getMZ());
         consensuspeak.setIntensity((y[ystart + j - 1].getIntensity()) * factor_);
-        if (keeppeaks_)
+        if (local_keeppeaks_)
           lastconsensus_.push_back(consensuspeak);
         j--;
       }
