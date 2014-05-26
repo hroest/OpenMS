@@ -519,8 +519,8 @@ namespace OpenMS
       } // continue 2
       else
       {
-        LOG_DEBUG << "Extracted no transitions from SWATH map " << i << " with m/z " <<
-            swath_maps[i].lower << " to " << swath_maps[i].upper << ":" << std::endl;
+        LOG_DEBUG << "Extracted no transitions from SWATH map " << k << " with m/z " <<
+            swath_maps[k].lower << " to " << swath_maps[k].upper << ":" << std::endl;
       }
       } // continue 1
       }
