@@ -84,7 +84,7 @@ namespace OpenMS
       throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, "Argument out of range of spline interpolation.");
     }
 
-    int i = std::lower_bound(x_.begin(), x_.end(), x) - x_.begin() - 1;
+    size_t i = std::lower_bound(x_.begin(), x_.end(), x) - x_.begin() - 1;
     double xx = x - x_[i];
 
     return ((d_[i] * xx + c_[i]) * xx + b_[i]) * xx + a_[i];
@@ -102,7 +102,7 @@ namespace OpenMS
       throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, "Only first, second and third derivative defined on cubic spline");
     }
 
-    int i = std::lower_bound(x_.begin(), x_.end(), x) - x_.begin() - 1;
+    size_t i = std::lower_bound(x_.begin(), x_.end(), x) - x_.begin() - 1;
     double xx = x - x_[i];
 
     if (order == 1)
@@ -141,7 +141,7 @@ namespace OpenMS
     std::vector<double> b(n, 0.0);
     std::vector<double> c(n + 1, 0.0);
     std::vector<double> d(n, 0.0);
-    for (int j = n - 1; j >= 0; --j)
+    for (size_t j = n - 1; j >= 0; --j)
     {
       c[j] = z[j] - mu[j] * c[j + 1];
       b[j] = (y[j + 1] - y[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;

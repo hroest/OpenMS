@@ -668,7 +668,7 @@ protected:
 
         row.no_id = false;
         row.rt = rt;
-        row.original_mz = exp.begin()->getPrecursors().begin()->getMZ();
+        row.original_mz = tmp_exp.begin()->getPrecursors().begin()->getMZ();
         row.accessions = protein_accessions;
         row.RNA = xlink_name;
         row.peptide = hit->getSequence().toString();

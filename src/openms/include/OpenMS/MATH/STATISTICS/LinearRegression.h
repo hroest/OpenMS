@@ -252,7 +252,7 @@ private:
       // Compute the unweighted linear fit.
       // Get the intercept and the slope of the regression Y_hat=intercept_+slope_*X
       // and the value of Chi squared (sum( (y - evel(x))^2)
-      bool pass = Wm5::HeightLineFit2<double>(points.size(), &points.front(), slope_, intercept_);
+      bool pass = Wm5::HeightLineFit2<double>(static_cast<int>(points.size()), &points.front(), slope_, intercept_);
       chi_squared_ = computeChiSquare(x_begin, x_end, y_begin, slope_, intercept_);
 
       if (pass)
@@ -274,13 +274,13 @@ private:
       std::vector<Wm5::Vector2d> points = iteratorRange2Wm5Vectors(x_begin, x_end, y_begin);
       // Compute sums for linear system. copy&paste from GeometricTools Wm5ApprLineFit2.cpp
       // and modified to allow weights
-      int numPoints = points.size();
+      Size numPoints = points.size();
       double sumX = 0, sumY = 0;
       double sumXX = 0, sumXY = 0;
       double sumW = 0;
       Iterator wIter = w_begin;
 
-      for (int i=0; i<numPoints; ++i, ++wIter)
+      for (Size i=0; i<numPoints; ++i, ++wIter)
       {
           sumX += (*wIter)*points[i].X();
           sumY += (*wIter)*points[i].Y();
@@ -288,6 +288,7 @@ private:
           sumXY += (*wIter)*points[i].X()*points[i].Y();
           sumW += (*wIter);
       }
+
       //create matrixes to solve Ax = B
       double A[2][2] =
       {

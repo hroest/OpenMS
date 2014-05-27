@@ -119,13 +119,13 @@ namespace OpenMS
       std::vector<Wm5::Vector2d> points = iteratorRange2Wm5Vectors(x_begin, x_end, y_begin);
       // Compute sums for linear system. copy&paste from GeometricTools Wm5ApprLineFit2.cpp
       // and modified to allow quadratic functions
-      int numPoints = points.size();
+      Size numPoints = points.size();
       double sumX=0, sumXX=0, sumXXX=0, sumXXXX=0;
       double sumY=0, sumXY=0, sumXXY=0;
       double sumW=0;
 
       Iterator wIter = w_begin;
-      for (int i=0; i<numPoints; ++i, ++wIter)
+      for (Size i=0; i<numPoints; ++i, ++wIter)
       {
 
           double x = points[i].X();

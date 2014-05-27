@@ -397,7 +397,7 @@ public:
     typedef MapType::SpectrumType SpectrumType;
     typedef MapType::ChromatogramType ChromatogramType;
 
-    CachedSwathFileConsumer(String cachedir, String basename, Size nr_ms1_spectra, std::vector<int> nr_ms2_spectra) :
+    CachedSwathFileConsumer(String cachedir, String basename, int nr_ms1_spectra, std::vector<int> nr_ms2_spectra) :
       ms1_consumer_(NULL),
       swath_consumers_(),
       cachedir_(cachedir),
@@ -407,7 +407,7 @@ public:
     {}
 
     CachedSwathFileConsumer(std::vector<OpenSwath::SwathMap> known_window_boundaries,
-            String cachedir, String basename, Size nr_ms1_spectra, std::vector<int> nr_ms2_spectra) :
+            String cachedir, String basename, int nr_ms1_spectra, std::vector<int> nr_ms2_spectra) :
       FullSwathFileConsumer(known_window_boundaries),
       ms1_consumer_(NULL),
       swath_consumers_(),

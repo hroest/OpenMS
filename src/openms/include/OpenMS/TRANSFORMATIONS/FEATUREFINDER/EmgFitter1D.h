@@ -90,8 +90,10 @@ protected:
     class EgmFitterFunctor : public LevMarqFitter1D::GenericFunctor
     {
       public:
-        EgmFitterFunctor(int dimensions, const EmgFitter1D::Data * data)
-      : LevMarqFitter1D::GenericFunctor(dimensions, data->n), m_data(data) {}
+        EgmFitterFunctor(int dimensions, const EmgFitter1D::Data * data) : 
+          LevMarqFitter1D::GenericFunctor(dimensions, static_cast<int>(data->n)), 
+          m_data(data) 
+      {}
 
       int operator()(const Eigen::VectorXd &x, Eigen::VectorXd &fvec);
       // compute Jacobian matrix for the different parameters

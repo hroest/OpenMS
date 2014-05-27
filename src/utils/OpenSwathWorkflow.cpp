@@ -1261,7 +1261,7 @@ protected:
     // Set up chrom.mzML output
     ///////////////////////////////////
     MSDataWritingConsumer * chromConsumer;
-    int expected_chromatograms = 0;
+    Size expected_chromatograms = 0;
     if (!out_chrom.empty())
     {
       chromConsumer = new PlainMSDataWritingConsumer(out_chrom);

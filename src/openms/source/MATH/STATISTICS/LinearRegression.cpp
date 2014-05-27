@@ -107,10 +107,10 @@ namespace OpenMS
 
     void LinearRegression::computeGoodness_(const std::vector<Wm5::Vector2d>& points, double confidence_interval_P)
     {
-      unsigned N = points.size();
+      Size N = points.size();
       std::vector<double> X; X.reserve(N);
       std::vector<double> Y; Y.reserve(N);
-      for(unsigned i=0; i<N; ++i)
+      for(Size i=0; i<N; ++i)
       {
         X.push_back(points.at(i).X());
         Y.push_back(points.at(i).Y());
@@ -126,7 +126,7 @@ namespace OpenMS
 
       // S_xx
       double s_XX = 0;
-      for (unsigned i = 0; i < N; ++i)
+      for (Size i = 0; i < N; ++i)
       {
         double d = (X[i] - x_mean);
         s_XX += d * d;
@@ -137,7 +137,7 @@ namespace OpenMS
 
       // The standard deviation of the residuals
       double sum = 0;
-      for (unsigned i = 0; i < N; ++i)
+      for (Size i = 0; i < N; ++i)
       {
         double x_i = fabs(Y[i] - (intercept_ + slope_ * X[i]));
         sum += x_i;
@@ -173,7 +173,7 @@ namespace OpenMS
       }
 
       double tmp = 0;
-      for (unsigned i = 0; i < N; ++i)
+      for (Size i = 0; i < N; ++i)
       {
         tmp += (X[i] - x_mean) * (X[i] - x_mean);
       }
