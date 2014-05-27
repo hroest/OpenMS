@@ -39,7 +39,6 @@ using namespace std;
 
 namespace OpenMS
 {
-  MSChromatogram<> default_mschromatogram_chromatogrampeak;
-
-  MSChromatogram<Peak1D> peak1D_mschromatogram_chromatogrampeak;
+  static MSChromatogram<> default_mschromatogram_chromatogrampeak;
+  static MSChromatogram<Peak1D> peak1D_mschromatogram_chromatogrampeak;
 }

@@ -141,7 +141,7 @@ namespace OpenMS
     std::vector<double> b(n, 0.0);
     std::vector<double> c(n + 1, 0.0);
     std::vector<double> d(n, 0.0);
-    for (size_t j = n - 1; j >= 0; --j)
+    for (int j = static_cast<int>(n - 1); j >= 0; --j)
     {
       c[j] = z[j] - mu[j] * c[j + 1];
       b[j] = (y[j + 1] - y[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;

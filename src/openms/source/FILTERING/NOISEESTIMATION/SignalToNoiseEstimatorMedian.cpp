@@ -37,5 +37,5 @@
 
 namespace OpenMS
 {
-  SignalToNoiseEstimatorMedian<> default_sn_median2;
+  static SignalToNoiseEstimatorMedian<> default_sn_median2;
 }

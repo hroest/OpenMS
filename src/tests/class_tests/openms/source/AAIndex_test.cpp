@@ -42,9 +42,9 @@ using namespace std;
 
 ///////////////////////////
 
-AASequence seq1 = AASequence::fromString("ALEGDEK");
-AASequence seq2 = AASequence::fromString("GTVVTGR");
-AASequence seq3 = AASequence::fromString("EHVLLAR");
+static AASequence seq1 = AASequence::fromString("ALEGDEK");
+static AASequence seq2 = AASequence::fromString("GTVVTGR");
+static AASequence seq3 = AASequence::fromString("EHVLLAR");
 
 
 START_TEST(AASequenceIndeces, "$Id$")

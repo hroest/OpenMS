@@ -36,7 +36,7 @@
 
 namespace OpenMS
 {
-  FeatureMap<Feature> default_dfeaturemap_2;
+  static FeatureMap<Feature> default_dfeaturemap_2;
 
   std::ostream & operator<<(std::ostream & os, const AnnotationStatistics& ann)
   {

@@ -37,5 +37,5 @@
 
 namespace OpenMS
 {
-  Math::LinearInterpolation<> default_linint_;
+  static Math::LinearInterpolation<> default_linint_;
 }

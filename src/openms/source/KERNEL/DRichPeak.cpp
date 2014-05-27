@@ -36,8 +36,8 @@
 
 namespace OpenMS
 {
-  DRichPeak<1> default_drichpeak_1;
-  DRichPeak<1>::Type default_drichpeak_1_type;
-  DRichPeak<2> default_drichpeak_2;
-  DRichPeak<2>::Type default_drichpeak_2_type;
+  static DRichPeak<1> default_drichpeak_1;
+  static DRichPeak<1>::Type default_drichpeak_1_type;
+  static DRichPeak<2> default_drichpeak_2;
+  static DRichPeak<2>::Type default_drichpeak_2_type;
 }

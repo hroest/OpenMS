@@ -39,7 +39,7 @@
 
 using namespace OpenMS;
 
-bool intentionally_failed_tests_okay = true;
+static bool intentionally_failed_tests_okay = true;
 
 /*  This macro turns a previous failure into success.  This is used for
 testing the test macros.  It should follow the subtest immediately; preferably

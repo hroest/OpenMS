@@ -59,8 +59,8 @@ namespace OpenMS
 {
 
   // test data
-  double dvector_data[] =
-    { 142.99623, 71.69667, 140.45532, 78.81924, 57.99051, 19.66125, 29.71268,
+  static double dvector_data[] =
+  {   142.99623, 71.69667, 140.45532, 78.81924, 57.99051, 19.66125, 29.71268,
       63.73135, 65.07940, 27.78494, 127.22279, 67.27982, 29.50484, 54.54108,
       30.53517, 86.44319, 67.76178, 18.95834, 123.73745, 77.66034, 30.29570,
       60.94120, 142.92731, 82.77405, 141.99247, 76.17666, 157.02459, 78.28177,
@@ -75,7 +75,7 @@ namespace OpenMS
       29.84631, 47.59564, 118.73823, 77.77458, 72.75859, 18.41622
     };
 
-  size_t num_numbers = sizeof (dvector_data) / sizeof (*dvector_data);
+  static size_t num_numbers = sizeof (dvector_data) / sizeof (*dvector_data);
 
 } // namespace OpenMS
 

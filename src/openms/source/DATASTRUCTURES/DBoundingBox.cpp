@@ -36,6 +36,6 @@
 
 namespace OpenMS
 {
-  DBoundingBox<1> default_boundingbox_1;
-  DBoundingBox<2> default_boundingbox_2;
+  static DBoundingBox<1> default_boundingbox_1;
+  static DBoundingBox<2> default_boundingbox_2;
 }

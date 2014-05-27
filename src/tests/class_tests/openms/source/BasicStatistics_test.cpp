@@ -58,7 +58,7 @@ namespace OpenMS
 {
 
 	// extra stuff required for this test
-	double dvector_data[] =
+	static double dvector_data[] =
 	{
 		82.70033, 18.53697, 130.43985, 71.42455, 50.63099, 20.31581, 30.19521,
 		36.79161, 135.08596, 84.68491, 124.30681, 71.33620, 126.07538, 73.61598,
@@ -90,7 +90,7 @@ namespace OpenMS
 		29.84631, 47.59564, 118.73823, 77.77458, 72.75859, 18.41622
 	};
 
-	size_t num_numbers = sizeof (dvector_data) / sizeof (*dvector_data);
+	static size_t num_numbers = sizeof (dvector_data) / sizeof (*dvector_data);
 
 } // namespace OpenMS
 

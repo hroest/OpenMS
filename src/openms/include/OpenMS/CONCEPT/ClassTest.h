@@ -244,6 +244,9 @@ namespace OpenMS
       /// List of all failed lines for summary at the end of the test
       extern OPENMS_DLLAPI std::vector<UInt> failed_lines_list;
 
+      /// Whitelist which contains elements that are skipped during comparison
+      extern OPENMS_DLLAPI StringList whitelist;
+
       /// Questionable file tested by #TEST_FILE_EQUAL
       extern OPENMS_DLLAPI std::ifstream infile;
 

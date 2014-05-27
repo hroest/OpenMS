@@ -37,6 +37,6 @@
 
 namespace OpenMS
 {
-  LinearResampler default_linear_resampler;
-  LinearResampler default_linear_resampler2;
+  static LinearResampler default_linear_resampler;
+  static LinearResampler default_linear_resampler2;
 }

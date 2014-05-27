@@ -43,5 +43,5 @@ namespace OpenMS
     return os;
   }
 
-  MSSpectrum<ChromatogramPeak> spec_cp; // required for VS to avoid missing symbols in DLL (hard to see why)  
+  static MSSpectrum<ChromatogramPeak> spec_cp; // required for VS to avoid missing symbols in DLL (hard to see why)  
 }

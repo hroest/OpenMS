@@ -50,7 +50,7 @@
 
 #ifndef SINETRAINVECS
 #define SINETRAINVECS
-double avec[] =
+static double avec[] =
 {
   1.00729092576906387,
   8.47021314902288758,
@@ -64,7 +64,7 @@ double avec[] =
   0.000803390368142344806
 };
 
-double bvec[] =
+static double bvec[] =
 {
   0.999413854502327892,
   0.999402216792031672,
@@ -78,7 +78,7 @@ double bvec[] =
   1.00047277354586983
 };
 
-double cvec[] =
+static double cvec[] =
 {
   -1.82357924751654536e-7,
   0.0000617158396180752893,
@@ -92,7 +92,7 @@ double cvec[] =
   0.372090375255612713e-3
 };
 
-double dvec[] =
+static double dvec[] =
 {
   1.00134499727445,
   0.000655514660572,

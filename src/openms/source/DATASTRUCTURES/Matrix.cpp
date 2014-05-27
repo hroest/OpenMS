@@ -36,6 +36,6 @@
 
 namespace OpenMS
 {
-  Matrix<int>    default_matrix_int;
-  Matrix<double> default_matrix_double;
+  static Matrix<int>    default_matrix_int;
+  static Matrix<double> default_matrix_double;
 }

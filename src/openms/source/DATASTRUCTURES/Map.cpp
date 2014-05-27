@@ -37,5 +37,5 @@
 
 namespace OpenMS
 {
-  Map<String, UInt> default_hashmap;
+  static Map<String, UInt> default_hashmap;
 }

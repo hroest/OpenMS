@@ -40,6 +40,6 @@ using namespace std;
 
 namespace OpenMS
 {
-  MSSpectrum<> default_msspectrum_peak1d;
-  MSSpectrum<ChromatogramPeak> default_msspectrum_chromatogrampeak;
+  static MSSpectrum<> default_msspectrum_peak1d;
+  static MSSpectrum<ChromatogramPeak> default_msspectrum_chromatogrampeak;
 }

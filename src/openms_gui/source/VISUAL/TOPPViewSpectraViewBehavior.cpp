@@ -51,7 +51,7 @@ namespace OpenMS
   {
   }
 
-  String caption;
+  static String caption;
 
   void TOPPViewSpectraViewBehavior::showSpectrumAs1D(int index)
   {

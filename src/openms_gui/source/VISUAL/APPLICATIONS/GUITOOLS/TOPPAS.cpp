@@ -89,7 +89,7 @@ using namespace std;
 //-------------------------------------------------------------
 // command line name of this tool
 //-------------------------------------------------------------
-const char* tool_name = "TOPPAS";
+static const char* tool_name = "TOPPAS";
 
 //-------------------------------------------------------------
 // description of the usage of this TOPP tool

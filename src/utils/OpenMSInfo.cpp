@@ -52,9 +52,9 @@ namespace OpenMS
   {
 
     enum OpenMS_OS {OS_UNKNOWN, OS_MACOS, OS_WINDOWS, OS_LINUX};
-    std::string OpenMS_OSNames[] = {"unkown", "MacOS", "Windows", "Linux"};
+    static std::string OpenMS_OSNames[] = {"unkown", "MacOS", "Windows", "Linux"};
     enum OpenMS_Architecture {ARCH_UNKOWN, ARCH_32BIT, ARCH_64BIT};
-    std::string OpenMS_ArchNames[] = {"unkown", "32bit", "64bit"};
+    static std::string OpenMS_ArchNames[] = {"unkown", "32bit", "64bit"};
 
 #if WIN32
     OpenMS_Architecture getArchOnWin();

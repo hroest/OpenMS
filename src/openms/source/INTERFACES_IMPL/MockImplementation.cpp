@@ -79,8 +79,9 @@ public:
       return spectrum_meta;
     }
   };
+
   // create an instance of the mock object to test
-  MockISpectraReader test_mock_spectra_reader;
+  static MockISpectraReader test_mock_spectra_reader;
 
   class OPENMS_DLLAPI MockIChromatogramsReader :
     public IChromatogramsReader
@@ -117,8 +118,9 @@ public:
       return chromatogram_meta;
     }
   };
+
   // create an instance of the mock object to test
-  MockIChromatogramsReader test_mock_chromatograms_reader;
+  static MockIChromatogramsReader test_mock_chromatograms_reader;
 
   class OPENMS_DLLAPI MockISpectraWriter :
     public ISpectraWriter
@@ -137,8 +139,9 @@ public:
       // do nothing
     }
   };
+
   // create an instance of the mock object to test
-  MockISpectraWriter test_mock_specrta_writer;
+  static MockISpectraWriter test_mock_specrta_writer;
 
   class OPENMS_DLLAPI MockIChromatogramsWriter :
     public IChromatogramsWriter
@@ -157,8 +160,9 @@ public:
       // do nothing
     }
   };
+
   // create an instance of the mock object to test
-  MockIChromatogramsWriter test_mock_chromatograms_writer;
+  static MockIChromatogramsWriter test_mock_chromatograms_writer;
 
 }
 }

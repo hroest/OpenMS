@@ -38,6 +38,6 @@
 
 namespace OpenMS
 {
-  ModelDescription<1> default_modeldescription_1;
-  ModelDescription<2> default_modeldescription_2;
+  static ModelDescription<1> default_modeldescription_1;
+  static ModelDescription<2> default_modeldescription_2;
 }

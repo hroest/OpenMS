@@ -39,8 +39,7 @@
 namespace OpenMS
 {
 
-  EGHTraceFitter<Peak1D> default_egh_trace_fitter_peak1D;
-
-  EGHTraceFitter<RichPeak1D> default_egh_trace_fitter_richpeak1D;
+  static EGHTraceFitter<Peak1D> default_egh_trace_fitter_peak1D;
+  static EGHTraceFitter<RichPeak1D> default_egh_trace_fitter_richpeak1D;
 
 }  // namespace OpenMS

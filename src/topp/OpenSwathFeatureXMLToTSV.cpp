@@ -80,7 +80,7 @@ using namespace OpenMS;
 // We do not want this class to show up in the docu:
 /// @cond TOPPCLASSES
 
-std::map<String, std::vector<const ReactionMonitoringTransition *> > peptide_transition_map;
+static std::map<String, std::vector<const ReactionMonitoringTransition *> > peptide_transition_map;
 
 void write_out_header(std::ostream &os, FeatureMap<Feature> &feature_map, /* String main_var_name,  */ std::vector<String> &meta_value_names, bool short_format)
 {

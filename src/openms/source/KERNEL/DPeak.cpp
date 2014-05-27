@@ -36,8 +36,8 @@
 
 namespace OpenMS
 {
-  DPeak<1> default_dpeak_1;
-  DPeak<1>::Type default_dpeak_1_type;
-  DPeak<2> default_dpeak_2;
-  DPeak<2>::Type default_dpeak_2_type;
+  static DPeak<1> default_dpeak_1;
+  static DPeak<1>::Type default_dpeak_1_type;
+  static DPeak<2> default_dpeak_2;
+  static DPeak<2>::Type default_dpeak_2_type;
 }

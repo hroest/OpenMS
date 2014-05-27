@@ -37,8 +37,7 @@
 
 namespace OpenMS
 {
-  FeatureFinderAlgorithmPickedHelperStructs::MassTrace<Peak1D> default_masstrace;
-  FeatureFinderAlgorithmPickedHelperStructs::MassTraces<Peak1D> default_masstraces;
+  static FeatureFinderAlgorithmPickedHelperStructs::MassTraces<Peak1D> default_masstraces;
 
   FeatureFinderAlgorithmPickedHelperStructs::IsotopePattern::IsotopePattern(Size size) :
     peak(size, -1),

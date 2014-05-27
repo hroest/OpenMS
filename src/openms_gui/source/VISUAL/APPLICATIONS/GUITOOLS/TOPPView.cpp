@@ -76,7 +76,7 @@ using namespace std;
 //-------------------------------------------------------------
 // command line name of this tool
 //-------------------------------------------------------------
-const char* tool_name = "TOPPView";
+static const char* tool_name = "TOPPView";
 
 //-------------------------------------------------------------
 // description of the usage of this TOPP tool

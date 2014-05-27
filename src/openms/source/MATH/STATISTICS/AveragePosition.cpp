@@ -38,7 +38,7 @@ namespace OpenMS
 {
   namespace Math
   {
-    AveragePosition<1> default_averageposition_1;
-    AveragePosition<2> default_averageposition_2;
+    static AveragePosition<1> default_averageposition_1;
+    static AveragePosition<2> default_averageposition_2;
   }
 }

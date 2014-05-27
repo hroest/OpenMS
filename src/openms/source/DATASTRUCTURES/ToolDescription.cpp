@@ -183,6 +183,6 @@ namespace OpenMS
 
   }
 
-  Internal::ToolDescription bla;
+  static Internal::ToolDescription bla;
 
 } // namespace OpenMS

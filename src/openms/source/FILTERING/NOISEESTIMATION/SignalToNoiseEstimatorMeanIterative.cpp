@@ -37,5 +37,5 @@
 
 namespace OpenMS
 {
-  SignalToNoiseEstimatorMeanIterative<> default_sn_meanit2;
+  static SignalToNoiseEstimatorMeanIterative<> default_sn_meanit2;
 }

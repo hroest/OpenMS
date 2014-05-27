@@ -36,6 +36,6 @@
 
 namespace OpenMS
 {
-  DRange<1> default_drange_1;
-  DRange<2> default_drange_2;
+  static DRange<1> default_drange_1;
+  static DRange<2> default_drange_2;
 }

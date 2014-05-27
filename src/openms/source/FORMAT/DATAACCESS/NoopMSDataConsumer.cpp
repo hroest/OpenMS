@@ -36,6 +36,6 @@
 
 namespace OpenMS
 {
-  NoopMSDataConsumer default_noop_consumer;
+  static NoopMSDataConsumer default_noop_consumer;
 } //end namespace OpenMS
 

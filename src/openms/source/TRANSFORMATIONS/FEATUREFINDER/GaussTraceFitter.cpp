@@ -38,6 +38,6 @@
 namespace OpenMS
 {
 
-  GaussTraceFitter<Peak1D> default_gauss_trace_fitter_peak1D;
+  static GaussTraceFitter<Peak1D> default_gauss_trace_fitter_peak1D;
 
 }  // namespace OpenMS
