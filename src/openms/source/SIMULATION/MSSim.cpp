@@ -52,7 +52,7 @@ using namespace std;
 namespace OpenMS
 {
 
-  void verbosePrintFeatureMap(FeatureMapSimVector feature_maps, String stage)
+  inline void verbosePrintFeatureMap(FeatureMapSimVector feature_maps, String stage)
   {
 #ifdef OPENMS_DEBUG_SIM_
     cout << "############## DEBUG (" << stage << ") -- FEATURE MAPS ##############" << endl;

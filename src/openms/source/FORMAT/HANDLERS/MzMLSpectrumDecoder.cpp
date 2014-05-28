@@ -49,7 +49,7 @@ namespace OpenMS
 {
 
   /// Small internal function to check the default data vectors
-  void checkData_(std::vector<Internal::MzMLHandlerHelper::BinaryData>& data_, 
+  inline void checkData_(std::vector<Internal::MzMLHandlerHelper::BinaryData>& data_, 
       SignedSize x_index, SignedSize int_index, 
       bool x_precision_64, bool int_precision_64)
   {

@@ -52,7 +52,7 @@ namespace OpenMS
 
   namespace StringUtils
   {
-    std::streampos stringToStreampos(std::string s)
+    inline std::streampos stringToStreampos(std::string s)
     {
       // Try to cast the string to a type that can hold the integer value
       // stored in the std::streampos type (which can vary from 32 to 128 bits

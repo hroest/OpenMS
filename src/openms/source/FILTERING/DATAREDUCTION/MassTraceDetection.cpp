@@ -127,7 +127,7 @@ void MassTraceDetection::run(MSExperiment<Peak1D>::ConstAreaIterator & begin, MS
 
 // update function for FTL method
 
-void updateMeanEstimate(const double & x_t, double & mean_t, Size t)
+inline void updateMeanEstimate(const double & x_t, double & mean_t, Size t)
 {
     double tmp(mean_t);
 
@@ -136,7 +136,7 @@ void updateMeanEstimate(const double & x_t, double & mean_t, Size t)
     mean_t = tmp;
 }
 
-void updateSDEstimate(const double & x_t, const double & mean_t, double & sd_t, Size t)
+inline void updateSDEstimate(const double & x_t, const double & mean_t, double & sd_t, Size t)
 {
     double tmp(sd_t);
     double i(t);
@@ -148,7 +148,7 @@ void updateSDEstimate(const double & x_t, const double & mean_t, double & sd_t, 
     // std::cerr << "func:  " << tmp << " " << i << std::endl;
 }
 
-void updateWeightedSDEstimate(PeakType p, const double & mean_t1, double & sd_t, double & last_weights_sum)
+inline void updateWeightedSDEstimate(PeakType p, const double & mean_t1, double & sd_t, double & last_weights_sum)
 {
     double denom(0.0), weights_sum(0.0);
 
@@ -165,7 +165,7 @@ void updateWeightedSDEstimate(PeakType p, const double & mean_t1, double & sd_t,
     last_weights_sum = weights_sum;
 }
 
-void updateWeightedSDEstimateRobust(PeakType p, const double & mean_t1, double & sd_t, double & last_weights_sum)
+inline void updateWeightedSDEstimateRobust(PeakType p, const double & mean_t1, double & sd_t, double & last_weights_sum)
 {
     double denom(0.0), denom1(0.0), denom2(0.0), weights_sum(0.0);
 
@@ -185,7 +185,7 @@ void updateWeightedSDEstimateRobust(PeakType p, const double & mean_t1, double &
     last_weights_sum = weights_sum;
 }
 
-void computeWeightedSDEstimate(std::list<PeakType> tmp, const double & mean_t, double & sd_t, const double & /* lower_sd_bound */)
+inline void computeWeightedSDEstimate(std::list<PeakType> tmp, const double & mean_t, double & sd_t, const double & /* lower_sd_bound */)
 {
     double denom(0.0), weights_sum(0.0);
 
@@ -207,7 +207,7 @@ void computeWeightedSDEstimate(std::list<PeakType> tmp, const double & mean_t, d
     return;
 }
 
-double computeLoss(const double & x_t, const double & mean_t, const double & sd_t)
+inline double computeLoss(const double & x_t, const double & mean_t, const double & sd_t)
 {
     return ((x_t - mean_t) * (x_t - mean_t)) / (2 * sd_t * sd_t) + 0.5 * std::log(sd_t * sd_t);
 }
