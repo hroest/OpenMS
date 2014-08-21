@@ -168,6 +168,15 @@ namespace OpenMS
           if (group_label.empty()) group_label = id;
           if (group_label == "light") group_label = id; // legacy fix since there are many TraMLs floating around which have "light" in there
 
+#ifdef _OPENMP
+#pragma omp critical (OPENMS_OpenSwathWorkflow_uniqueIDGeneration)
+#endif
+          {
+            // try again with unique ID
+            feature->clearUniqueId();
+            feature->ensureUniqueId();
+          }
+
           String line = "";
           line += id + "_run0"
             + "\t" + group_label
