@@ -41,6 +41,7 @@
 #include <OpenMS/FORMAT/ConsensusXMLFile.h>
 #include <OpenMS/FORMAT/IBSpectraFile.h>
 #include <OpenMS/DATASTRUCTURES/StringListUtils.h>
+#include <OpenMS/FORMAT/CachedMzML.h>
 #include <OpenMS/APPLICATIONS/TOPPBase.h>
 #include <OpenMS/KERNEL/ConversionHelper.h>
 
@@ -173,12 +174,12 @@ protected:
   {
     registerInputFile_("in", "<file>", "", "Input file to convert.");
     registerStringOption_("in_type", "<type>", "", "Input file type -- default: determined from file extension or content\n", false);
-    String formats("mzData,mzXML,mzML,dta,dta2d,mgf,featureXML,consensusXML,ms2,fid,tsv,peplist,kroenik,edta");
+    String formats("mzData,mzXML,mzML,cachedMzML,dta,dta2d,mgf,featureXML,consensusXML,ms2,fid,tsv,peplist,kroenik,edta");
     setValidFormats_("in", ListUtils::create<String>(formats));
     setValidStrings_("in_type", ListUtils::create<String>(formats));
     
     registerStringOption_("read_method", "<method>", "regular", "Method to read the file", false);
-    String method("regular,indexed,streaming");
+    String method("regular,indexed,streaming,cached");
     setValidStrings_("read_method", ListUtils::create<String>(method));
   }
 
@@ -245,7 +246,6 @@ protected:
       OnDiscMSExperiment<> map;
       imzml.load(in, map);
       // Get the first spectrum in memory, do some constant (non-changing) data processing
-      MSSpectrum<> s = map.getSpectrum(0);
       double TIC = 0.0;
       int nr_peaks = 0;
       for (Size i =0; i < map.getNrSpectra(); i++)
@@ -259,6 +259,74 @@ protected:
       }
 
       std::cout << "There are " << map.getNrSpectra() << " spectra and " << nr_peaks << " peaks in the input file." << std::endl;
+      std::cout << "The total ion current is " << TIC << std::endl;
+      size_t after;
+      SysInfo::getProcessMemoryConsumption(after);
+      std::cout << " Memory consumption after " << after << std::endl;
+    }
+    else if (read_method == "cached")
+    {
+      std::cout << "Read method: cached" << std::endl;
+
+
+      // Special handling of cached mzML as input types: 
+      // we expect two paired input files which we should read into exp
+      std::vector<String> split_out;
+      in.split(".cachedMzML", split_out);
+      if (split_out.size() != 2)
+      {
+        LOG_ERROR << "Cannot deduce base path from input '" << in << "' (note that '.cachedMzML' should only occur once as the final ending)" << std::endl;
+        return ILLEGAL_PARAMETERS;
+      }
+      String in_meta = split_out[0] + ".mzML";
+
+      MzMLFile f;
+      f.setLogType(log_type_);
+      CachedmzML cacher;
+      cacher.setLogType(log_type_);
+      //MSExperiment<> tmp_exp;
+      //MSExperiment<> exp;
+
+      //f.load(in_meta, exp);
+      // cacher.readMemdump(tmp_exp, in);
+
+      CachedmzML cache;
+      cache.createMemdumpIndex(in);
+      const std::vector<std::streampos> spectra_index = cache.getSpectraIndex();
+      const std::vector<std::streampos> chrom_index = cache.getChromatogramIndex();;
+
+      std::ifstream ifs_;
+      ifs_.open(in.c_str(), std::ios::binary);
+
+      // Sanity check
+      /*
+      if (exp.size() != spectra_index.size())
+      {
+        LOG_ERROR << "Paired input files do not match, cannot convert: " << in_meta << " and " << in << std::endl;
+        return ILLEGAL_PARAMETERS;
+      }
+      */
+
+      double TIC = 0.0;
+      int nr_peaks = 0;
+      for (Size i=0; i < spectra_index.size(); ++i)
+      {
+
+        OpenSwath::BinaryDataArrayPtr mz_array(new OpenSwath::BinaryDataArray);
+        OpenSwath::BinaryDataArrayPtr intensity_array(new OpenSwath::BinaryDataArray);
+        int ms_level = -1;
+        double rt = -1.0;
+        ifs_.seekg(spectra_index[i]);
+        CachedmzML::readSpectrumFast(mz_array, intensity_array, ifs_, ms_level, rt);
+
+        nr_peaks += intensity_array->data.size();
+        for (Size j = 0; j < intensity_array->data.size(); j++)
+        {
+          TIC += intensity_array->data[j];
+        }
+      }
+
+      std::cout << "There are " << spectra_index.size() << " spectra and " << nr_peaks << " peaks in the input file." << std::endl;
       std::cout << "The total ion current is " << TIC << std::endl;
       size_t after;
       SysInfo::getProcessMemoryConsumption(after);
