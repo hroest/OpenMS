@@ -45,6 +45,8 @@
 #include <OpenMS/KERNEL/ConversionHelper.h>
 
 #include <OpenMS/FORMAT/DATAACCESS/MSDataWritingConsumer.h>
+#include <OpenMS/SYSTEM/SysInfo.h>
+
 
 using namespace OpenMS;
 using namespace std;
@@ -278,6 +280,10 @@ protected:
         consumer.getOptions().setWriteIndex(write_mzML_index);
         consumer.addDataProcessing(getProcessingInfo_(DataProcessing::CONVERSION_MZML));
         MzMLFile().transform(in, &consumer);
+        size_t after;
+        SysInfo::getProcessMemoryConsumption(after);
+        std::cout << " Memory consumption after" << after << std::endl;
+
         return EXECUTION_OK;
       }
       else if (in_type == FileTypes::MZXML && out_type == FileTypes::MZML)
@@ -487,7 +493,14 @@ protected:
 int main(int argc, const char** argv)
 {
   TOPPFileConverter tool;
-  return tool.main(argc, argv);
+  size_t after, before;
+  SysInfo::getProcessMemoryConsumption(before);
+  std::cout << " Memory consumption before " << before << std::endl;
+  tool.main(argc, argv);
+  SysInfo::getProcessMemoryConsumption(after);
+  std::cout << " Memory consumption after " << after << std::endl;
+  // SysInfo::getProcessMemoryConsumption(before);
+  return 0;
 }
 
 /// @endcond
