@@ -138,6 +138,7 @@ public:
     template <typename MapType>
     void transform(const String& filename_in, Interfaces::IMSDataConsumer<MapType> * consumer, bool skip_full_count = false)
     {
+      // First pass through the file -> get the meta-data and hand it to the consumer
       transformFirstPass_(filename_in, consumer, skip_full_count);
       
       // Second pass through the data, now read the spectra!
@@ -167,6 +168,7 @@ public:
     template <typename MapType>
     void transform(const String& filename_in, Interfaces::IMSDataConsumer<MapType> * consumer, MapType& map, bool skip_full_count = false)
     {
+      // First pass through the file -> get the meta-data and hand it to the consumer
       transformFirstPass_(filename_in, consumer, skip_full_count);
 
       // Second pass through the data, now read the spectra!
@@ -201,29 +203,28 @@ public:
 
 protected:
 
+
+    /// Perform first pass through the file and retrieve the meta-data to initialize the consumer
     template <typename MapType>
     void transformFirstPass_(const String& filename_in, Interfaces::IMSDataConsumer<MapType> * consumer, bool skip_full_count)
     {
-      // First pass through the file -> get the meta-data and hand it to the consumer
-      {
-        // Create temporary objects and counters
-        PeakFileOptions tmp_options(options_);
-        Size scount = 0, ccount = 0;
-        MapType experimental_settings;
-        Internal::MzMLHandler<MapType> handler(experimental_settings, filename_in, getVersion(), *this);
+      // Create temporary objects and counters
+      PeakFileOptions tmp_options(options_);
+      Size scount = 0, ccount = 0;
+      MapType experimental_settings;
+      Internal::MzMLHandler<MapType> handler(experimental_settings, filename_in, getVersion(), *this);
 
-        // set temporary options for handler
-        tmp_options.setSizeOnly(true);
-        tmp_options.setMetadataOnly( skip_full_count );
-        handler.setOptions(tmp_options);
+      // set temporary options for handler
+      tmp_options.setSizeOnly(true);
+      tmp_options.setMetadataOnly( skip_full_count );
+      handler.setOptions(tmp_options);
 
-        safeParse_(filename_in, &handler);
+      safeParse_(filename_in, &handler);
 
-        // After parsing, collect information
-        handler.getCounts(scount, ccount);
-        consumer->setExpectedSize(scount, ccount);
-        consumer->setExperimentalSettings(experimental_settings);
-      }
+      // After parsing, collect information
+      handler.getCounts(scount, ccount);
+      consumer->setExpectedSize(scount, ccount);
+      consumer->setExperimentalSettings(experimental_settings);
     }
 
     /// Safe parse that catches exceptions and handles them accordingly
