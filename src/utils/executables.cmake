@@ -38,6 +38,7 @@ SimpleSearchEngine
 SpecLibCreator
 SvmTheoreticalSpectrumGeneratorTrainer
 TransformationEvaluation
+ExampleApp
 XMLValidator
 QCCalculator
 QCImporter
