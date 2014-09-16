@@ -136,7 +136,7 @@ class TICConsumer :
 public:
   double TIC;
   int nr_spectra;
-  int nr_peaks;
+  long int nr_peaks;
 
   // Create new consumer, set TIC to zero
   TICConsumer() :
@@ -219,7 +219,7 @@ protected:
       MSExperiment<> map;
       mzml.load(in, map);
       double TIC = 0.0;
-      int nr_peaks = 0;
+      long int nr_peaks = 0;
       for (Size i =0; i < map.size(); i++)
       {
         nr_peaks += map[i].size();
@@ -247,7 +247,7 @@ protected:
       imzml.load(in, map);
       // Get the first spectrum in memory, do some constant (non-changing) data processing
       double TIC = 0.0;
-      int nr_peaks = 0;
+      long int nr_peaks = 0;
       for (Size i =0; i < map.getNrSpectra(); i++)
       {
         OpenMS::Interfaces::SpectrumPtr sptr = map.getSpectrumById(i);
@@ -298,17 +298,8 @@ protected:
       std::ifstream ifs_;
       ifs_.open(in.c_str(), std::ios::binary);
 
-      // Sanity check
-      /*
-      if (exp.size() != spectra_index.size())
-      {
-        LOG_ERROR << "Paired input files do not match, cannot convert: " << in_meta << " and " << in << std::endl;
-        return ILLEGAL_PARAMETERS;
-      }
-      */
-
       double TIC = 0.0;
-      int nr_peaks = 0;
+      long int nr_peaks = 0;
       for (Size i=0; i < spectra_index.size(); ++i)
       {
 
