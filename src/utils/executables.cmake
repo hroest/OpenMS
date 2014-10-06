@@ -27,6 +27,7 @@ MRMPairFinder
 MSSimulator
 OpenMSInfo
 PeakPickerIterative
+PeakPickerIterative2
 QCCalculator
 QCEmbedder
 QCExporter
