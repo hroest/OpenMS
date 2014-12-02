@@ -92,6 +92,7 @@ namespace OpenMS
     String input_filename_;
     bool doWrite_;
     bool use_ms1_traces_;
+    UInt64 line_cnt; 
 
   public:
 
@@ -99,7 +100,8 @@ namespace OpenMS
       ofs(output_filename.c_str()),
       input_filename_(input_filename),
       doWrite_(!output_filename.empty()),
-      use_ms1_traces_(ms1_scores)
+      use_ms1_traces_(ms1_scores),
+      line_cnt(1)
       {}
 
     bool isActive() {return doWrite_;}
@@ -141,7 +143,6 @@ namespace OpenMS
 
         for (FeatureMap::iterator feature_it = output.begin(); feature_it != output.end(); ++feature_it)
         {
-
           char intensity_char[40];
           String aggr_Peak_Area = "";
           String aggr_Peak_Apex = "";
@@ -204,7 +205,7 @@ namespace OpenMS
             + "\t" + "0"
             + "\t" + input_filename_
             + "\t" + (String)feature_it->getRT()
-            + "\t" + "f_" + feature_it->getUniqueId()  // TODO might not be unique!!!
+            + "\t" + "f_" + String(line_cnt) + "_" + feature_it->getUniqueId()  // ensure uniqueness
             + "\t" + pep.sequence
             + "\t" + full_peptide_name
             + "\t" + (String)pep.charge
@@ -265,6 +266,7 @@ namespace OpenMS
             }
             line += "\t" + aggr_Peak_Area + "\t" + aggr_Peak_Apex + "\t" + aggr_Fragment_Annotation + "\n";
           result += line;
+          line_cnt++;
         } // end of iteration
       return result;
     }
