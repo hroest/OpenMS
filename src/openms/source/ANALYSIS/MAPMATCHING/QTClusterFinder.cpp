@@ -158,6 +158,14 @@ namespace OpenMS
       }
     }
 
+    // ensure that all cluster centers are in the list
+    for (list<QTCluster>::iterator it = clustering.begin();
+         it != clustering.end(); ++it)
+    {   
+      OpenMS::GridFeature* center_feature = it->getCenterPoint();
+      element_mapping[center_feature].push_back(&(*it));
+    }   
+
     ProgressLogger logger;
     logger.setLogType(ProgressLogger::CMD);
     logger.startProgress(0, size, "linking features");
