@@ -168,6 +168,8 @@ namespace OpenMS
           }
           // else: removed neighbor doesn't have optimal annotation, so it can't
           // be a "true" cluster element => no need to recompute the quality
+          //  -> this is false, it could for example be that the removed neighbor has no annotation ... 
+          changed_ = true;
           pos->second.erase(feat_it);
           break;
         }
