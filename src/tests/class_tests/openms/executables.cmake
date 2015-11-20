@@ -479,6 +479,7 @@ set(analysis_executables_list
   TransformationDescription_test
   TransformationModel_test
   TransformationModelBSpline_test
+  TransformationModelLowess_test
   TransformationModelInterpolated_test
   TransformationModelLinear_test
 )
