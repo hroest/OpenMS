@@ -67,14 +67,8 @@ cdef extern from "<OpenMS/ANALYSIS/OPENSWATH/OpenSwathScoring.h>" namespace "Ope
         OpenSwath_Scores() nogil except +
         OpenSwath_Scores(OpenSwath_Scores) nogil except + # wrap-ignore
 
-        double get_quick_lda_score(double library_corr_, double
-                                   library_norm_manhattan_, double
-                                   norm_rt_score_, double
-                                   xcorr_coelution_score_, double
-                                   xcorr_shape_score_, double log_sn_score_) nogil except +
-
-        double calculate_lda_prescore(OpenSwath_Scores scores) nogil except +
-        double calculate_swath_lda_prescore(OpenSwath_Scores scores) nogil except +
+        double calculate_lda_prescore(OpenSwath_Scores scores, int mode) nogil except +
+        double calculate_swath_lda_prescore(OpenSwath_Scores scores, int mode) nogil except +
 
         double elution_model_fit_score
         double library_corr
