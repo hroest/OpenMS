@@ -97,6 +97,9 @@ namespace OpenMS
     defaults_.setValue("uis_threshold_sn", -1, "S/N threshold to consider identification transition (set to -1 to consider all)");
     defaults_.setValue("uis_threshold_peak_area", 0, "Peak area threshold to consider identification transition (set to -1 to consider all)");
 
+    defaults_.setValue("scoring_model", "legacy", "Which scoring model to use (legacy or a trained one on more than 4000 peptides with iRTs)");
+    defaults_.setValidStrings("scoring_model", ListUtils::create<String>("legacy,trained"));
+
     defaults_.insert("TransitionGroupPicker:", MRMTransitionGroupPicker().getDefaults());
 
     defaults_.insert("DIAScoring:", DIAScoring().getDefaults());
@@ -377,6 +380,12 @@ namespace OpenMS
     std::vector<OpenSwath::ISignalToNoisePtr> signal_noise_estimators;
     std::vector<MRMFeature> feature_list;
 
+    int scoring_model = 0;
+    if (param_.getValue("scoring_model") == "trained")
+    {
+      scoring_model = 1;
+    }
+
     double sn_win_len_ = (double)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_win_len");
     unsigned int sn_bin_count_ = (unsigned int)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_bin_count");
     bool write_log_messages = (bool)param_.getValue("TransitionGroupPicker:PeakPickerMRM:write_sn_log_messages").toBool();
@@ -518,7 +527,7 @@ namespace OpenMS
         mrmfeature->addScore("var_elution_model_fit_score", scores.elution_model_fit_score);
       }
 
-      double xx_lda_prescore = -scores.calculate_lda_prescore(scores);
+      double xx_lda_prescore = -scores.calculate_lda_prescore(scores, scoring_model);
       bool swath_present = (swath_map->getNrSpectra() > 0);
       if (!swath_present)
       {
@@ -553,7 +562,7 @@ namespace OpenMS
           mrmfeature->addScore("var_ms1_isotope_overlap", scores.ms1_isotope_overlap);
         }
 
-        double xx_swath_prescore = -scores.calculate_swath_lda_prescore(scores);
+        double xx_swath_prescore = -scores.calculate_swath_lda_prescore(scores, scoring_model);
         mrmfeature->addScore("main_var_xx_swath_prelim_score", xx_swath_prescore);
         mrmfeature->setOverallQuality(xx_swath_prescore);
       }
