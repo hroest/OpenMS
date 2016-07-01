@@ -135,6 +135,7 @@ namespace OpenMS
     /*
      * required fields:
      *
+     * TODO: PeptideSequence and ProteinName dont make sense with metabolites ... 
 
       "PrecursorMz",
       "ProductMz",
@@ -936,8 +937,14 @@ namespace OpenMS
     peptide.sequence = tr_it->PeptideSequence;
 
     // TODO not really a peptide ... 
-    peptide.setMetaValue("SumFormula", tr_it->SumFormula);
-    peptide.setMetaValue("CompoundName", tr_it->CompoundName);
+    if (!tr_it->SumFormula.empty())
+    {
+      peptide.setMetaValue("SumFormula", tr_it->SumFormula);
+    }
+    if (!tr_it->CompoundName.empty())
+    {
+      peptide.setMetaValue("CompoundName", tr_it->CompoundName);
+    }
 
     // per peptide user params
     peptide.setMetaValue("full_peptide_name", tr_it->FullPeptideName);
