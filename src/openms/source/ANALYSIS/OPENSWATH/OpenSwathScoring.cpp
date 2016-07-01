@@ -85,24 +85,33 @@ namespace OpenMS
     OpenSwath::SpectrumPtr spectrum_ = getAddedSpectra_(swath_map, imrmfeature->getRT(), add_up_spectra_);
     OpenSwath::SpectrumPtr* spectrum = &spectrum_;
 
-    // Isotope correlation / overlap score: Is this peak part of an
-    // isotopic pattern or is it the monoisotopic peak in an isotopic
-    // pattern?
-    diascoring.dia_isotope_scores(transitions, (*spectrum), imrmfeature, scores.isotope_correlation, scores.isotope_overlap);
     // Mass deviation score
     diascoring.dia_massdiff_score(transitions, (*spectrum), normalized_library_intensity,
         scores.massdev_score, scores.weighted_massdev_score);
 
-    // Presence of b/y series score
-    OpenMS::AASequence aas;
-    OpenSwathDataAccessHelper::convertPeptideToAASequence(pep, aas);
-    diascoring.dia_by_ion_score((*spectrum), aas, by_charge_state, scores.bseries_score, scores.yseries_score);
+    // Peptide-specific scores
+    if (pep.isPeptide())
+    {
+      // Isotope correlation / overlap score: Is this peak part of an
+      // isotopic pattern or is it the monoisotopic peak in an isotopic
+      // pattern?
+      diascoring.dia_isotope_scores(transitions, (*spectrum), imrmfeature, scores.isotope_correlation, scores.isotope_overlap);
+
+      // Presence of b/y series score
+      OpenMS::AASequence aas;
+      OpenSwathDataAccessHelper::convertPeptideToAASequence(pep, aas);
+      diascoring.dia_by_ion_score((*spectrum), aas, by_charge_state, scores.bseries_score, scores.yseries_score);
+
+      // DIA dotproduct and manhattan score
+      diascoring.score_with_isotopes((*spectrum), transitions, scores.dotprod_score_dia, scores.manhatt_score_dia);
+    }
+    else
+    {
+      // its a metabolite
+    }
 
     // FEATURE we should not punish so much when one transition is missing!
     scores.massdev_score = scores.massdev_score / transitions.size();
-
-    // DIA dotproduct and manhattan score
-    diascoring.score_with_isotopes((*spectrum), transitions, scores.dotprod_score_dia, scores.manhatt_score_dia);
 
     // MS1 ppm score : check that the map is not NULL and contains spectra
     if (ms1_map && ms1_map->getNrSpectra() > 0) 
