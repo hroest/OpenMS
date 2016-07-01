@@ -145,8 +145,7 @@ public:
     std::string sum_formula;
     std::string compound_name;
 
-    // If there is no (metabolic) compound name, it is a peptide 
-    // maybe change this in the future, add a true flag?
+    // By convention, if there is no (metabolic) compound name, it is a peptide 
     bool isPeptide() const
     {
       return compound_name.empty();
