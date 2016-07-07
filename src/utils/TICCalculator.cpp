@@ -54,6 +54,7 @@
 
 using namespace OpenMS;
 using namespace std;
+using namespace OpenSwath;
 
 //-------------------------------------------------------------
 //Doxygen docu
@@ -164,7 +165,7 @@ class TOPPFileConverter :
 {
 public:
   TOPPFileConverter() :
-    TOPPBase("FileConverter", "Converts between different MS file formats.")
+    TOPPBase("TICCalculator", "Calculates the TIC from a mass spectrometric raw file")
   {
   }
 
@@ -268,14 +269,14 @@ protected:
     {
       std::cout << "Read method: cached" << std::endl;
 
-
       // Special handling of cached mzML as input types: 
       // we expect two paired input files which we should read into exp
       std::vector<String> split_out;
       in.split(".cachedMzML", split_out);
       if (split_out.size() != 2)
       {
-        LOG_ERROR << "Cannot deduce base path from input '" << in << "' (note that '.cachedMzML' should only occur once as the final ending)" << std::endl;
+        LOG_ERROR << "Cannot deduce base path from input '" << in << 
+          "' (note that '.cachedMzML' should only occur once as the final ending)" << std::endl;
         return ILLEGAL_PARAMETERS;
       }
       String in_meta = split_out[0] + ".mzML";
@@ -284,11 +285,6 @@ protected:
       f.setLogType(log_type_);
       CachedmzML cacher;
       cacher.setLogType(log_type_);
-      //MSExperiment<> tmp_exp;
-      //MSExperiment<> exp;
-
-      //f.load(in_meta, exp);
-      // cacher.readMemdump(tmp_exp, in);
 
       CachedmzML cache;
       cache.createMemdumpIndex(in);
@@ -303,8 +299,8 @@ protected:
       for (Size i=0; i < spectra_index.size(); ++i)
       {
 
-        OpenSwath::BinaryDataArrayPtr mz_array(new OpenSwath::BinaryDataArray);
-        OpenSwath::BinaryDataArrayPtr intensity_array(new OpenSwath::BinaryDataArray);
+        BinaryDataArrayPtr mz_array(new BinaryDataArray);
+        BinaryDataArrayPtr intensity_array(new BinaryDataArray);
         int ms_level = -1;
         double rt = -1.0;
         ifs_.seekg(spectra_index[i]);
