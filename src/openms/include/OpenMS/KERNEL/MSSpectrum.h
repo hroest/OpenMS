@@ -264,7 +264,7 @@ public:
     /// Sets the absolute retention time (is seconds)
     inline void setDriftTime(double dt)
     {
-      drift_time_ = rt;
+      drift_time_ = dt;
     }
 
     /**
