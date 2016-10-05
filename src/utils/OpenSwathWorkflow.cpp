@@ -1189,8 +1189,7 @@ namespace OpenMS
 
       FeatureMap featureFile; // for results
       OpenMS::MRMFeatureFinderScoring::TransitionGroupMapType transition_group_map; // for results
-      boost::shared_ptr<MSExperiment<Peak1D> > empty_swath_map(new MSExperiment<Peak1D>); // empty map 
-      OpenSwath::SpectrumAccessPtr empty_swath_ptr = SimpleOpenMSSpectraFactory::getSpectrumAccessOpenMSPtr(empty_swath_map);
+      std::vector<OpenSwath::SwathMap> empty_swath_maps;
       TransformationDescription empty_trafo; // empty transformation
 
       // Prepare the data with the chromatograms
@@ -1199,7 +1198,7 @@ namespace OpenMS
       OpenSwath::SpectrumAccessPtr chromatogram_ptr = OpenSwath::SpectrumAccessPtr(new OpenMS::SpectrumAccessOpenMS(xic_map));
 
       featureFinder.setStrictFlag(false); // TODO remove this, it should be strict (e.g. all transitions need to be present for RT norm)
-      featureFinder.pickExperiment(chromatogram_ptr, featureFile, transition_exp_used, empty_trafo, empty_swath_ptr, transition_group_map);
+      featureFinder.pickExperiment(chromatogram_ptr, featureFile, transition_exp_used, empty_trafo, empty_swath_maps, transition_group_map);
 
       // find most likely correct feature for each group and add it to the
       // "pairs" vector by computing pairs of iRT and real RT. 
@@ -1431,7 +1430,7 @@ namespace OpenMS
 
         // Process the MRMTransitionGroup: find peakgroups and score them
         trgroup_picker.pickTransitionGroup(transition_group);
-        featureFinder.scorePeakgroups(transition_group, trafo, swath_maps[0].sptr, output); // TODO ! 
+        featureFinder.scorePeakgroups(transition_group, trafo, swath_maps, output);
 
         // Add to the output tsv if given
         if (tsv_writer.isActive())
@@ -1442,7 +1441,7 @@ namespace OpenMS
         }
       }
 
-      // Only write at the very end since this is a step needs a barrier
+      // Only write at the very end since this is a step that needs a barrier
       if (tsv_writer.isActive())
       {
 #ifdef _OPENMP
