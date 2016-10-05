@@ -545,7 +545,7 @@ namespace OpenMS
       // total number of windows
       int sonar_total_win = int((sonar_end - sonar_start) / sonar_winsize) + 1;
 
-#if OPENSWATH_WORKFLOW_DEBUG
+#ifndef OPENSWATH_WORKFLOW_DEBUG
       std::cout << " will use  a total of " << sonar_total_win << " windows " << std::endl;
       for (int kk = 0; kk < sonar_total_win; kk++)
       {
@@ -630,7 +630,7 @@ namespace OpenMS
             // Step 2.2: prepare the extraction coordinates & extract chromatograms
             prepare_coordinates_wrap(chrom_list, coordinates, transition_exp_used, false, trafo_inverse, cp);
 
-#if OPENSWATH_WORKFLOW_DEBUG
+#ifndef OPENSWATH_WORKFLOW_DEBUG
             std::cout << " prepared coordinates ... " << std::endl;
             for (size_t kk = 0; kk < coordinates.size() ; kk++)
             {
@@ -691,7 +691,7 @@ namespace OpenMS
               }
             }
 
-#if OPENSWATH_WORKFLOW_DEBUG
+#ifndef OPENSWATH_WORKFLOW_DEBUG
             // debug output ...
             std::cout << " done with extraction of all coordiantes!!!" << std::endl;
             size_t chrom_idx = 0;
