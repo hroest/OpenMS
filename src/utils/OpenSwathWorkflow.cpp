@@ -884,7 +884,7 @@ namespace OpenMS
           {
             // This creates an InMemory object that keeps all data in memory
             // but provides the same access functionality to the raw data as
-            // any object implementing ISpectrumAccess 
+            // any object implementing ISpectrumAccess
             current_swath_map = boost::shared_ptr<SpectrumAccessOpenMSInMemory>( new SpectrumAccessOpenMSInMemory(*current_swath_map) );
             std::cout << " loading all data completely into memory !!! " << std::endl;
           }
@@ -949,7 +949,7 @@ namespace OpenMS
               dummy_map.sptr = current_swath_map;
               dummy_maps.push_back(dummy_map);
               scoreAllChromatograms(chromatogram_ptr, dummy_maps, transition_exp_used,
-                  feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, 
+                  feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer,
                   ms1_chromatograms);
 
               // Step 4: write all chromatograms and features out into an output object / file
@@ -1105,7 +1105,7 @@ namespace OpenMS
                 }
                 else
                 {
-                  std::cerr << " - Warning: Empty chromatogram " << coordinates[chrom_idx].id << 
+                  std::cerr << " - Warning: Empty chromatogram " << coordinates[chrom_idx].id <<
                     " detected. Will skip it!" << std::endl;
                 }
               }
@@ -1120,13 +1120,13 @@ namespace OpenMS
       }
     }
 
-    /** @brief Perform RT normalization using the MRMFeatureFinderScoring 
+    /** @brief Perform RT normalization using the MRMFeatureFinderScoring
      *
      * @param transition_exp_ The transitions for the normalization peptides
      * @param chromatograms The extracted chromatograms
      * @param min_rsq Minimal R^2 value that is expected for the RT regression
      * @param min_coverage Minimal coverage of the chromatographic space that needs to be achieved
-     * @param feature_finder_param Parameter set for the feature finding in chromatographic dimension 
+     * @param feature_finder_param Parameter set for the feature finding in chromatographic dimension
      * @param irt_detection_param Parameter set for the detection of the iRTs (outlier detection, peptides per bin etc)
      * @param swath_maps The raw data for the m/z correction
      * @param mz_correction_function If correction in m/z is desired, which function should be used
@@ -1136,7 +1136,7 @@ namespace OpenMS
     */
     TransformationDescription RTNormalization(TargetedExperiment transition_exp_,
             std::vector< OpenMS::MSChromatogram<> > chromatograms, double min_rsq, double min_coverage,
-            Param feature_finder_param, const Param& irt_detection_param, 
+            Param feature_finder_param, const Param& irt_detection_param,
             std::vector< OpenSwath::SwathMap > & swath_maps, const String & mz_correction_function)
     {
       LOG_DEBUG << "Start of RTNormalization method" << std::endl;
@@ -1190,7 +1190,7 @@ namespace OpenMS
       TransformationDescription empty_trafo; // empty transformation
 
       // Prepare the data with the chromatograms
-      boost::shared_ptr<MSExperiment<Peak1D> > xic_map(new MSExperiment<Peak1D>); 
+      boost::shared_ptr<MSExperiment<Peak1D> > xic_map(new MSExperiment<Peak1D>);
       xic_map->setChromatograms(chromatograms);
       OpenSwath::SpectrumAccessPtr chromatogram_ptr = OpenSwath::SpectrumAccessPtr(new OpenMS::SpectrumAccessOpenMS(xic_map));
 
@@ -1198,11 +1198,11 @@ namespace OpenMS
       featureFinder.pickExperiment(chromatogram_ptr, featureFile, transition_exp_used, empty_trafo, empty_swath_maps, transition_group_map);
 
       // find most likely correct feature for each group and add it to the
-      // "pairs" vector by computing pairs of iRT and real RT. 
+      // "pairs" vector by computing pairs of iRT and real RT.
       // Note that the quality threshold will only be applied if
       // estimateBestPeptides is true
       std::vector<std::pair<double, double> > pairs; // store the RT pairs to write the output trafoXML
-      std::map<std::string, double> res = OpenSwathHelper::simpleFindBestFeature(transition_group_map, 
+      std::map<std::string, double> res = OpenSwathHelper::simpleFindBestFeature(transition_group_map,
         estimateBestPeptides, irt_detection_param.getValue("OverallQualityCutoff"));
 
       for (std::map<std::string, double>::iterator it = res.begin(); it != res.end(); ++it)
@@ -1233,11 +1233,11 @@ namespace OpenMS
           irt_detection_param.getValue("RANSACMaxIterations"), max_rt_threshold,
           irt_detection_param.getValue("RANSACSamplingSize"));
       }
-      else if (outlier_method == "none") 
+      else if (outlier_method == "none")
       {
         pairs_corrected = pairs;
       }
-      else 
+      else
       {
         throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__,
           String("Illegal argument '") + outlier_method + "' used for outlierMethod (valid: 'iter_residual', 'iter_jackknife', 'ransac', 'none').");
@@ -1273,8 +1273,8 @@ namespace OpenMS
 
     /// Function to compute the coverage of the iRT peptides across the gradient
     ///   Cmp with RTNormalizer
-    bool computeBinnedCoverage(const std::pair<double,double> & rtRange, 
-        const std::vector<std::pair<double, double> > & pairs, int nrBins, 
+    bool computeBinnedCoverage(const std::pair<double,double> & rtRange,
+        const std::vector<std::pair<double, double> > & pairs, int nrBins,
         int minPeptidesPerBin, int minBinsFilled)
     {
       std::vector<int> binCounter(nrBins, 0);
@@ -1286,7 +1286,7 @@ namespace OpenMS
         if (bin >= nrBins)
         {
           // this should never happen, but just to make sure
-          std::cerr << "OpenSwathWorkflow::countPeptidesInBins : computed bin was too large (" << 
+          std::cerr << "OpenSwathWorkflow::countPeptidesInBins : computed bin was too large (" <<
             bin << "), setting it to the maximum of " << nrBins << std::endl;
           bin = nrBins - 1;
         }
@@ -1296,9 +1296,9 @@ namespace OpenMS
       int binsFilled = 0;
       for (Size i = 0; i < binCounter.size(); i++)
       {
-        LOG_DEBUG <<" In bin " << i << " out of " << binCounter.size() << 
+        LOG_DEBUG <<" In bin " << i << " out of " << binCounter.size() <<
           " we have " << binCounter[i] << " peptides " << std::endl;
-        if (binCounter[i] >= minPeptidesPerBin) 
+        if (binCounter[i] >= minPeptidesPerBin)
         {
           binsFilled++;
         }
@@ -1317,7 +1317,7 @@ namespace OpenMS
         OpenSwath::LightTargetedExperiment& transition_exp,
         const Param& feature_finder_param,
         TransformationDescription trafo, const double rt_extraction_window,
-        FeatureMap& output, OpenSwathTSVWriter & tsv_writer, 
+        FeatureMap& output, OpenSwathTSVWriter & tsv_writer,
         std::map< std::string, OpenSwath::ChromatogramPtr > & ms1_chromatograms
         )
     {
@@ -1692,7 +1692,7 @@ namespace OpenMS
   -out_chrom parameter.
 
   <h4> Feature list output format </h4>
- 
+
   The tab-separated feature output contains the following information:
 
 <CENTER>
