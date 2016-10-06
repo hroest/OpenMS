@@ -70,11 +70,11 @@ namespace OpenMS
 
 
   void sonar_scores(OpenSwath::IMRMFeature* imrmfeature,
-                                            const std::vector<TransitionType> & transitions,
+                                            const std::vector<OpenSwath::LightTransition> & transitions,
                                             std::vector<OpenSwath::SwathMap> swath_maps,
                                             OpenSwath::SpectrumAccessPtr ms1_map,
                                             OpenMS::DIAScoring & diascoring, 
-                                            const CompoundType& compound, OpenSwath_Scores & scores)
+                                            const OpenSwath::LightCompound& compound, OpenSwath_Scores & scores)
   {
   }
 
@@ -184,12 +184,12 @@ namespace OpenMS
     OPENMS_PRECONDITION(swath_maps.size() > 0, "There needs to be at least one swath map.");
 
     std::vector<OpenSwath::SwathMap> used_swath_maps;
-    if (swath_maps.size() > 1 || transitions.empty())
+    if (swath_maps.size() > 1)
     {
       std::cout << " dia scores1 , sonar " << std::endl;
 
 
-      double precursor_mz = transitions[0].getPrecursorMZ();
+      double precursor_mz = transition.getPrecursorMZ();
       for (size_t i = 0; i < swath_maps.size(); ++i)
       {
         if (swath_maps[i].ms1) {continue;} // skip MS1

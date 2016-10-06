@@ -585,6 +585,21 @@ var_yseries_score   -0.0327896378737766
     OpenSwath::SpectrumPtr getAddedSpectra_(OpenSwath::SpectrumAccessPtr swath_map, 
         double RT, int nr_spectra_to_add);
 
+    /** @brief Returns an averaged spectrum
+     *
+     * This function will sum up (add) the intensities of multiple spectra from
+     * multiple swath maps (assuming these are SONAR maps of shifted precursor
+     * isolation windows) around the given retention time and return an
+     * "averaged" spectrum which may contain less noise.
+     *
+     * @param swath_maps The maps containing the spectra
+     * @param RT The target retention time
+     * @param nr_spectra_to_add How many spectra to add up
+     *
+    */
+    OpenSwath::SpectrumPtr getAddedSpectra_(std::vector<OpenSwath::SwathMap> swath_maps,
+                                            double RT, int nr_spectra_to_add);
+
   };
 }
 
