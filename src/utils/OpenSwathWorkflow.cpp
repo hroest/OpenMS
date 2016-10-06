@@ -77,7 +77,7 @@
 #include <assert.h>
 #include <limits>
 
-#define OPENSWATH_WORKFLOW_DEBUG
+// #define OPENSWATH_WORKFLOW_DEBUG
 
 using namespace OpenMS;
 
@@ -549,7 +549,7 @@ namespace OpenMS
       std::cout << " will use  a total of " << sonar_total_win << " windows " << std::endl;
       for (int kk = 0; kk < sonar_total_win; kk++)
       {
-      std::cout << " sonar window " << kk << " from " << sonar_start + kk * sonar_winsize << " to " << sonar_start + (kk+1) * sonar_winsize << std::endl;
+        std::cout << " sonar window " << kk << " from " << sonar_start + kk * sonar_winsize << " to " << sonar_start + (kk+1) * sonar_winsize << std::endl;
       }
 #endif
 
@@ -557,6 +557,12 @@ namespace OpenMS
       // Iterate through all SONAR windows
       for (int sonar_idx = 0; sonar_idx < sonar_total_win; sonar_idx++)
       {
+
+#ifdef OPENSWATH_WORKFLOW_DEBUG
+        // TODO
+        if (sonar_idx > 2) {return;}
+#endif
+
         double currwin_start = sonar_start + sonar_idx * sonar_winsize;
         double currwin_end = currwin_start + sonar_winsize;
         LOG_DEBUG << "   ====  sonar window " << sonar_idx << " from " << currwin_start << " to " << currwin_end << std::endl;
@@ -579,9 +585,11 @@ namespace OpenMS
             if (  (currwin_start >= swath_maps[i].lower && currwin_start <= swath_maps[i].upper  ) ||
                   (currwin_end >= swath_maps[i].lower && currwin_end <= swath_maps[i].upper  ) )
             {
+#ifdef OPENSWATH_WORKFLOW_DEBUG
               std::cout << " will use curr window  " << i << " : " << swath_maps[i].lower << "-" << 
                                                                       swath_maps[i].upper << std::endl;
               used_maps.push_back(swath_maps[i]);
+#endif
             }
 
 
@@ -589,7 +597,15 @@ namespace OpenMS
 
           // TODO
           if (load_into_memory)
-          {}
+          {
+            // This creates an InMemory object that keeps all data in memory
+            // but provides the same access functionality to the raw data as
+            // any object implementing ISpectrumAccess
+            for (Size i = 0; i < used_maps.size(); i++)
+            {
+              used_maps[i].sptr = boost::shared_ptr<SpectrumAccessOpenMSInMemory>( new SpectrumAccessOpenMSInMemory(*used_maps[i].sptr) );
+            }
+          }
 
           int batch_size;
           if (batchSize <= 0 || batchSize >= (int)transition_exp_used_all.getCompounds().size())
@@ -656,8 +672,10 @@ namespace OpenMS
                 }
               }
 
+#ifdef OPENSWATH_WORKFLOW_DEBUG
               std::cout << " in used maps, extract " << coordinates_used.size() 
                 << " coordinates from " << used_maps[map_idx].lower << "-" << used_maps[map_idx].upper << std::endl;
+#endif
 
               extractor.extractChromatograms(used_maps[map_idx].sptr,
                   tmp_chromatogram_list, coordinates_used,
