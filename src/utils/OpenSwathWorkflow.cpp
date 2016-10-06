@@ -588,8 +588,8 @@ namespace OpenMS
 #ifdef OPENSWATH_WORKFLOW_DEBUG
               std::cout << " will use curr window  " << i << " : " << swath_maps[i].lower << "-" << 
                                                                       swath_maps[i].upper << std::endl;
-              used_maps.push_back(swath_maps[i]);
 #endif
+              used_maps.push_back(swath_maps[i]);
             }
 
 
@@ -681,7 +681,9 @@ namespace OpenMS
                   tmp_chromatogram_list, coordinates_used,
                   cp.mz_extraction_window, cp.ppm, cp.extraction_function);
 
-              // simple solution: just add all the chromatograms up ...
+              // In order to reach maximal sensitivity and identify peaks in
+              // the data, we will aggregate the data by adding all
+              // chromatograms from different SONAR scans up 
               size_t chrom_idx = 0;
               for (size_t c_idx = 0; c_idx < coordinates.size(); c_idx++)
               {
@@ -691,15 +693,6 @@ namespace OpenMS
 
                   OpenSwath::ChromatogramPtr s = tmp_chromatogram_list[chrom_idx]; 
                   OpenSwath::ChromatogramPtr base_chrom = chrom_list[c_idx]; 
-
-                  /*
-                     std::cout << " coordinate  : " << coordinates[c_idx].id << " (" << coordinates[c_idx].mz << ")"<< std::endl;
-                     for (size_t kk = 0; kk < base_chrom->getIntensityArray()->data.size(); kk++)
-                     {
-                     std::cout << " base chrom: " << base_chrom->getTimeArray()->data[kk] << " / "   <<
-                     base_chrom->getIntensityArray()->data[kk] << std::endl;
-                     }
-                  */
 
                   /// add the new chromatogram to the the one that we already have (the base chromatogram)
                   chrom_list[c_idx] = addChromatograms(chrom_list[c_idx], tmp_chromatogram_list[chrom_idx]);
@@ -712,7 +705,6 @@ namespace OpenMS
 #ifdef OPENSWATH_WORKFLOW_DEBUG
             // debug output ...
             std::cout << " done with extraction of all coordiantes!!!" << std::endl;
-            size_t chrom_idx = 0;
             for (size_t c_idx = 0; c_idx < coordinates.size(); c_idx++)
             {
               {
@@ -721,7 +713,9 @@ namespace OpenMS
                 std::cout << " coordinate  : " << coordinates[c_idx].id << " (" << coordinates[c_idx].mz << ")"<< std::endl;
                 for (size_t kk = 0; kk < base_chrom->getIntensityArray()->data.size(); kk++)
                 {
-                  std::cout << " base chrom: " << base_chrom->getTimeArray()->data[kk] << " / "   << base_chrom->getIntensityArray()->data[kk] << std::endl;
+                  std::cout << " base chrom: " <<
+                      base_chrom->getTimeArray()->data[kk] << " / "   <<
+                      base_chrom->getIntensityArray()->data[kk] << std::endl;
                 }
               }
             }
