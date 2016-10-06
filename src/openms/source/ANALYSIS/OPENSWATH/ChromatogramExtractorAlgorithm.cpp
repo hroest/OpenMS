@@ -196,7 +196,7 @@ namespace OpenMS
         if (used_filter == 1)
         {
           extract_value_tophat(mz_start, mz_it, mz_end, int_it,
-                               extraction_coordinates[k].mz, integrated_intensity, mz_extraction_window, ppm, verb && scan_idx == 1);
+                               extraction_coordinates[k].mz, integrated_intensity, mz_extraction_window, ppm);
         }
         else if (used_filter == 2)
         {
