@@ -40,7 +40,15 @@
 
 // auxiliary
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
+#include <OpenMS/MATH/STATISTICS/StatisticFunctions.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/SpectrumAddition.h>
+
+#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/SpectrumHelpers.h> // integrateWindow
+
+
+// basic file operations
+#include <iostream>
+#include <fstream>
 
 namespace OpenMS
 {
@@ -76,6 +84,181 @@ namespace OpenMS
                                             OpenMS::DIAScoring & diascoring, 
                                             const OpenSwath::LightCompound& compound, OpenSwath_Scores & scores)
   {
+      double precursor_mz = transitions[0].getPrecursorMZ();
+
+    std::ofstream debug_file;
+    debug_file.open("debug_sonar_profiles.tsv",  std::fstream::in | std::fstream::out | std::fstream::app);
+
+    // idea 1: check the elution profile of each SONAR scan ...
+    for (int kk = 0; kk < imrmfeature->getNativeIDs().size(); kk++)
+    {
+      std::vector<double> rt;
+      imrmfeature->getFeature(imrmfeature->getNativeIDs()[kk])->getRT(rt);
+      // std::cout << " for feathre  " << imrmfeature->getNativeIDs()[kk] << " st: " << rt[0] << " to " << rt.back() << std::endl;
+    }
+
+
+
+    // idea 2: check the SONAR profile (e.g. in the dimension of) of the best scan (RT apex)
+    double RT = imrmfeature->getRT();
+
+    double dia_extract_window_ = 0.1;
+    bool dia_centroided_ = false;
+
+    std::vector<double> sn_score;
+    std::vector<double> diff_score;
+    std::vector<double> trend_score;
+    for (Size k = 0; k < transitions.size(); k++)
+    {
+      String native_id = transitions[k].getNativeID();
+      // double rel_intensity = intensities[native_id];
+      // If no charge is given, we assume it to be 1
+      int putative_fragment_charge = 1;
+      if (transitions[k].fragment_charge > 0)
+      {
+        putative_fragment_charge = transitions[k].fragment_charge;
+      }
+
+      // std::cout << " transition " << native_id << " will analyze with " << swath_maps.size() << " maps" << std::endl;
+
+      // Gather profiles 
+      std::vector<double> sonar_profile;
+      std::vector<double> sonar_mz_profile;
+      std::vector<bool> signal_exp;
+      for (int swath_idx = 0; swath_idx < swath_maps.size(); swath_idx++)
+      {
+        OpenSwath::SpectrumAccessPtr swath_map = swath_maps[swath_idx].sptr;
+        // std::cout << " swath_idx " << swath_idx << std::endl;
+        
+        bool expect_signal = false;
+        if (swath_maps[swath_idx].ms1) {continue;} // skip MS1
+        if (precursor_mz > swath_maps[swath_idx].lower && precursor_mz < swath_maps[swath_idx].upper) 
+        {
+          // std::cout << " expect signal... " << std::endl;
+          expect_signal = true;
+        }
+        else
+        {
+          // std::cout << " expect no signal... " << std::endl;
+        }
+
+        // find closest 
+        std::vector<std::size_t> indices = swath_map->getSpectraByRT(RT, 0.0);
+        // std::cout << " try to find RT " << RT << " found nr indices " << indices.size() << std::endl;
+        if (indices.empty() )  {continue;}
+        int closest_idx = boost::numeric_cast<int>(indices[0]);
+        if (indices[0] != 0 &&
+            std::fabs(swath_map->getSpectrumMetaById(boost::numeric_cast<int>(indices[0]) - 1).RT - RT) <
+            std::fabs(swath_map->getSpectrumMetaById(boost::numeric_cast<int>(indices[0])).RT - RT))
+        {
+          closest_idx--;
+        }
+        OpenSwath::SpectrumPtr spectrum_ = swath_map->getSpectrumById(closest_idx);
+        double left = transitions[k].getProductMZ() - dia_extract_window_ / 2.0;
+        double right = transitions[k].getProductMZ() + dia_extract_window_ / 2.0; 
+        double mz, intensity;
+        integrateWindow(spectrum_, left, right, mz, intensity, dia_centroided_);
+
+        sonar_profile.push_back(intensity);
+        sonar_mz_profile.push_back(mz);
+        signal_exp.push_back(expect_signal);
+
+        // std::cout << swath_idx << " integrated data " << mz << " int : " << intensity << std::endl;
+      }
+
+
+      debug_file << native_id << "\t" << imrmfeature->getRT() << "\tint";
+      for (Size it = 0; it < sonar_profile.size(); it++)
+      {
+        debug_file << "\t" << sonar_profile[it];
+      }
+      debug_file << "\n";
+      debug_file << native_id << "\t" << imrmfeature->getRT() << "\tmz";
+      for (Size it = 0; it < sonar_mz_profile.size(); it++)
+      {
+        debug_file << "\t" << sonar_mz_profile[it];
+      }
+      debug_file << "\n";
+
+      // Analyze profiles 
+      std::vector<double> sonar_profile_pos;
+      std::vector<double> sonar_mz_profile_pos;
+      std::vector<double> sonar_profile_neg;
+      std::vector<double> sonar_mz_profile_neg;
+      for (Size it = 0; it < sonar_profile.size(); it++)
+      {
+        if (signal_exp[it])
+        {
+          sonar_profile_pos.push_back(sonar_profile[it]);
+          sonar_mz_profile_pos.push_back(sonar_mz_profile[it]);
+        }
+        else
+        {
+          sonar_profile_neg.push_back(sonar_profile[it]);
+          sonar_mz_profile_neg.push_back(sonar_mz_profile[it]);
+        }
+      }
+
+      // try to find diff between first and last 
+      double sonar_trend = 1.0;
+      if (sonar_profile_pos.size() > 1)
+      {
+        double int_end = sonar_profile_pos[sonar_profile_pos.size()-1] + sonar_profile_pos[sonar_profile_pos.size()-2];
+        double int_start = sonar_profile_pos[0] + sonar_profile_pos[1];
+        if (int_end > 0.0)
+        {
+          sonar_trend = int_start / int_end;
+        }
+        else
+        {
+          sonar_trend = 0.0;
+        }
+      }
+
+      // try to find largest diff
+      double sonar_largediff = 0.0;
+      for (int pr_idx = 0; pr_idx < sonar_profile_pos.size()-1; pr_idx++)
+      {
+        double diff = std::fabs(sonar_profile_pos[pr_idx] - sonar_profile_pos[pr_idx+1]);
+        if (diff < sonar_largediff) {sonar_largediff = diff;}
+      }
+
+      double sonar_sn = 1.0;
+      // from here on, its not sorted any more !!
+      if (!sonar_profile_pos.empty() && !sonar_profile_neg.empty())
+      {
+        double pos_med = Math::medianFast(sonar_profile_pos.begin(), sonar_profile_pos.end()); 
+        double neg_med = Math::medianFast(sonar_profile_neg.begin(), sonar_profile_neg.end()); 
+
+        // std::cout << " median positive " << pos_med << " vs median neg " << neg_med << std::endl;
+
+        // compute the relative difference between the medians (or if the
+        // medians are zero, compute the difference to the max element)
+        if (neg_med > 0.0)
+        {
+          sonar_sn = pos_med / neg_med;
+        }
+        else if (*std::max_element(sonar_profile_neg.begin(), sonar_profile_neg.end()) > 0.0)
+        {
+          sonar_sn = pos_med / *std::max_element(sonar_profile_neg.begin(), sonar_profile_neg.end());
+        }
+
+      }
+
+      /// std::cout << " computed SN: " << sonar_sn << " large diff: "  << sonar_largediff << " trend " << sonar_trend << std::endl;
+      sn_score.push_back(sonar_sn);
+      diff_score.push_back(sonar_largediff);
+      trend_score.push_back(sonar_trend);
+    }
+    double sn_av = std::accumulate(sn_score.begin(), sn_score.end(), 0.0) / sn_score.size();
+    double diff_av = std::accumulate(diff_score.begin(), diff_score.end(), 0.0) / diff_score.size();
+    double trend_av = std::accumulate(trend_score.begin(), trend_score.end(), 0.0) / trend_score.size();
+
+
+    // TODO return scores
+     
+
+    debug_file.close();
   }
 
   void OpenSwathScoring::calculateDIAScores(OpenSwath::IMRMFeature* imrmfeature,
@@ -91,8 +274,7 @@ namespace OpenMS
     std::vector<OpenSwath::SwathMap> used_swath_maps;
     if (swath_maps.size() > 1 || transitions.empty())
     {
-      std::cout << " dia scores1 , sonar " << std::endl;
-
+      // std::cout << " dia scores1 , sonar1 " << std::endl;
 
       double precursor_mz = transitions[0].getPrecursorMZ();
       for (size_t i = 0; i < swath_maps.size(); ++i)
@@ -101,12 +283,13 @@ namespace OpenMS
         if (precursor_mz > swath_maps[i].lower && precursor_mz < swath_maps[i].upper) 
         {
           used_swath_maps.push_back(swath_maps[i]);
-          std::cout << " will use map  sonar " << swath_maps[i].lower << " -  " << swath_maps[i].upper << std::endl;
+          // std::cout << " will use map  sonar " << swath_maps[i].lower << " -  " << swath_maps[i].upper << std::endl;
         }
       }
 
       // TODO compute some scores ...
-      sonar_scores(imrmfeature, transitions, used_swath_maps, ms1_map, diascoring, compound, scores);
+      //sonar_scores(imrmfeature, transitions, used_swath_maps, ms1_map, diascoring, compound, scores);
+      sonar_scores(imrmfeature, transitions, swath_maps, ms1_map, diascoring, compound, scores);
     }
     else
     {
@@ -186,7 +369,7 @@ namespace OpenMS
     std::vector<OpenSwath::SwathMap> used_swath_maps;
     if (swath_maps.size() > 1)
     {
-      std::cout << " dia scores1 , sonar " << std::endl;
+      // std::cout << " dia scores1 , sonar " << std::endl;
 
 
       double precursor_mz = transition.getPrecursorMZ();
@@ -196,7 +379,7 @@ namespace OpenMS
         if (precursor_mz > swath_maps[i].lower && precursor_mz < swath_maps[i].upper) 
         {
           used_swath_maps.push_back(swath_maps[i]);
-          std::cout << " will use map  sonar " << swath_maps[i].lower << " -  " << swath_maps[i].upper << std::endl;
+          // std::cout << " will use map  sonar " << swath_maps[i].lower << " -  " << swath_maps[i].upper << std::endl;
         }
       }
     }
