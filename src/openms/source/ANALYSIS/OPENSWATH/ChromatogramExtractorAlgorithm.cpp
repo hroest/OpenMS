@@ -81,7 +81,8 @@ namespace OpenMS
     mz_walker  = mz_it;
     int_walker = int_it;
 
-    // if we moved past the end of the spectrum, we need to try the last peak of the spectrum (it could still be within the window)
+    // if we moved past the end of the spectrum, we need to try the last peak
+    // of the spectrum (it could still be within the window)
     if (mz_it == mz_end)
     {
       --mz_walker; 
@@ -94,7 +95,7 @@ namespace OpenMS
       integrated_intensity += (*int_walker);
     }
 
-    // walk to the left until we go outside the window, then start walking to the right until we are outside the window
+    // (i) walk to the left until we go outside the window
     mz_walker  = mz_it;
     int_walker = int_it;
     if (mz_it != mz_start)
@@ -102,12 +103,19 @@ namespace OpenMS
       --mz_walker;
       --int_walker;
     }
+    // check for very first data point (will not be caught in the while loop)
+    if (mz_walker == mz_start && (*mz_walker) > left && (*mz_walker) < right)
+    {
+      integrated_intensity += (*int_walker);
+    }
     while (mz_walker != mz_start && (*mz_walker) > left && (*mz_walker) < right)
     {
       integrated_intensity += (*int_walker); 
       --mz_walker; 
       --int_walker;
     }
+
+    // (ii) walk to the left until we go outside the window
     mz_walker  = mz_it;
     int_walker = int_it;
     if (mz_it != mz_end)

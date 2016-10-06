@@ -341,6 +341,10 @@ public:
       {
         walker--;
       }
+      if (walker == 0 && input[walker].getMZ() > left && input[walker].getMZ() < right)
+      {
+        integrated_intensity += input[walker].getIntensity(); walker--;
+      }
       while (walker > 0 && input[walker].getMZ() > left && input[walker].getMZ() < right)
       {
         integrated_intensity += input[walker].getIntensity(); walker--;
@@ -350,7 +354,7 @@ public:
       {
         walker++;
       }
-      while (walker<input.size() && input[walker].getMZ()> left &&  input[walker].getMZ() < right)
+      while (walker < input.size() && input[walker].getMZ() > left &&  input[walker].getMZ() < right)
       {
         integrated_intensity += input[walker].getIntensity(); walker++;
       }
