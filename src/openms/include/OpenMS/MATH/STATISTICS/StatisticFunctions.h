@@ -76,6 +76,7 @@ namespace OpenMS
         throw Exception::InvalidRange(__FILE__, __LINE__, __PRETTY_FUNCTION__);
       }
     }
+
     /**
     @brief Helper function checking if two iterators are equal
 
@@ -171,37 +172,75 @@ namespace OpenMS
     }
   }
 
-  
-    /** 
-      @brief median absolute deviation (MAD)
+  /**
+    @brief Calculates the median of a range of values in linear time (on average)
 
-      Computes the MAD, defined as 
+    @note this will change the order of the elements
 
-      MAD = median( | x_i - median(x) | ) for a vector x with indices i in [1,n].
+    @param begin Start of range
+    @param end End of range (past-the-end iterator)
+    @return Median (as floating point, since we need to support average of middle values)
+    @exception Exception::InvalidRange is thrown if the range is NULL
 
-      Sortedness of the input is not required (nor does it provide a speedup).
-      For efficiency, you must provide the median separately, in order to avoid potentially duplicate efforts (usually one
-      computes the median anyway externally).
-      
-      @param begin Start of range
-      @param end End of range (past-the-end iterator)
-      @param median_of_numbers The precomputed median of range @p begin - @p end.
-      @return the MAD
+    @ingroup MathFunctionsStatistics
+  */
+  template <typename IteratorType>
+  static double medianFast(IteratorType first, IteratorType last)
+  {
+    checkIteratorsNotNULL(first, last);
+    // std::iterator_traits< std::vector<double>::const_iterator >::difference_type iterator_pos = std::distance(first, last);
 
-      @ingroup MathFunctionsStatistics
+    // Get the median element (after this, first + iterator_pos / 2 is
+    // guaranteed to be the median element)
+    Size iterator_pos = std::distance(first, last);
+    std::nth_element(first, first + iterator_pos / 2, last);
 
-    */
-    template <typename IteratorType>
-    double MAD(IteratorType begin, IteratorType end, double median_of_numbers)
+    if (iterator_pos % 2 == 0)
     {
-      std::vector<double> diffs;
-      diffs.reserve(std::distance(begin, end));
-      for (IteratorType it = begin; it != end; ++it)
-      {
-        diffs.push_back(fabs(*it - median_of_numbers));
-      }
-      return median(diffs.begin(), diffs.end(), false);
+      // even case
+      // compute the arithmetic mean between the two middle elements
+      double f = *(first + iterator_pos / 2);
+      std::nth_element(first, first + iterator_pos / 2 -1, last);
+      double s = *(first + iterator_pos / 2 - 1);
+      return (f+s)/2.0; 
     }
+    else
+    {
+      // odd case
+      return *(first + iterator_pos / 2);
+    }
+  }
+  
+  /** 
+    @brief median absolute deviation (MAD)
+
+    Computes the MAD, defined as 
+
+    MAD = median( | x_i - median(x) | ) for a vector x with indices i in [1,n].
+
+    Sortedness of the input is not required (nor does it provide a speedup).
+    For efficiency, you must provide the median separately, in order to avoid potentially duplicate efforts (usually one
+    computes the median anyway externally).
+    
+    @param begin Start of range
+    @param end End of range (past-the-end iterator)
+    @param median_of_numbers The precomputed median of range @p begin - @p end.
+    @return the MAD
+
+    @ingroup MathFunctionsStatistics
+
+  */
+  template <typename IteratorType>
+  double MAD(IteratorType begin, IteratorType end, double median_of_numbers)
+  {
+    std::vector<double> diffs;
+    diffs.reserve(std::distance(begin, end));
+    for (IteratorType it = begin; it != end; ++it)
+    {
+      diffs.push_back(fabs(*it - median_of_numbers));
+    }
+    return median(diffs.begin(), diffs.end(), false);
+  }
 
   /**
     @brief Calculates the first quantile of a range of values
