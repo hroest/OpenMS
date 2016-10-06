@@ -69,6 +69,10 @@ namespace OpenMS
     bool use_nr_peaks_score_;
     bool use_sn_score_;
     bool use_dia_scores_;
+    bool use_sonar_scores;
+    bool use_ms1_correlation;
+    bool use_ms1_fullscan;
+    bool use_uis_scores;
     
     OpenSwath_Scores_Usage() :
       use_coelution_score_(true),
@@ -80,12 +84,13 @@ namespace OpenMS
       use_total_xic_score_(true),
       use_nr_peaks_score_(true),
       use_sn_score_(true),
-      use_dia_scores_(true)
+      use_dia_scores_(true),
+      use_sonar_scores(true),
+      use_ms1_correlation(true),
+      use_ms1_fullscan(true),
+      use_uis_scores(true)
     {}
 
-    bool use_ms1_correlation;
-    bool use_ms1_fullscan;
-    bool use_uis_scores;
   };
 
   /** @brief A structure to hold the different scores computed by OpenSWATH
@@ -131,6 +136,10 @@ namespace OpenMS
     double ms1_ppm_score;
     double ms1_isotope_correlation;
     double ms1_isotope_overlap;
+
+    double sonar_sn;
+    double sonar_diff;
+    double sonar_trend;
 
     double library_manhattan;
     double library_dotprod;
@@ -178,6 +187,9 @@ namespace OpenMS
       ms1_ppm_score(0),
       ms1_isotope_correlation(0),
       ms1_isotope_overlap(0),
+      sonar_sn(0),
+      sonar_diff(0),
+      sonar_trend(0),
       library_manhattan(0),
       library_dotprod(0),
       intensity(0),
