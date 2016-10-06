@@ -773,20 +773,17 @@ namespace OpenMS
         return newchrom;
       }
 
-      // TODO: time array should be identical  ...
-      // TODO this may be an issue in the future, if different regions get extract in different SONAR scans ...
-      if (base_chrom->getIntensityArray()->data.size() != newchrom->getIntensityArray()->data.size())
-      {
-        throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__,
-          String("need equally spaced chromatograms for addition'") );
-      }
+      LinearResamplerAlign ls;
+      ls.raster(newchrom->getTimeArray()->data.begin(),
+                newchrom->getTimeArray()->data.end(),
+                newchrom->getIntensityArray()->data.begin(),
+                newchrom->getIntensityArray()->data.end(),
+                base_chrom->getTimeArray()->data.begin(),
+                base_chrom->getTimeArray()->data.end(),
+                base_chrom->getIntensityArray()->data.begin(),
+                base_chrom->getIntensityArray()->data.end()
+      );
 
-      // if (base_chrom->getIntensityArray()->data.size() != newchrom->getTimeArray()->data.size())
-      std::vector<double> result;
-      result.reserve(base_chrom->getIntensityArray()->data.size());
-      std::transform(base_chrom->getIntensityArray()->data.begin(), base_chrom->getIntensityArray()->data.end(), newchrom->getIntensityArray()->data.begin(),
-                   std::back_inserter(result), std::plus<double>());
-      base_chrom->getIntensityArray()->data = result;
       return base_chrom;
     }
 
