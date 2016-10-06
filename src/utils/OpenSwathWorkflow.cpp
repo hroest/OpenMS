@@ -647,7 +647,7 @@ namespace OpenMS
 
               for (size_t c_idx = 0; c_idx < coordinates.size(); c_idx++)
               {
-                if (coordinates[c_idx].mz_precursor > used_maps[map_idx].lower && 
+                if (coordinates[c_idx].mz_precursor > used_maps[map_idx].lower &&
                     coordinates[c_idx].mz_precursor < used_maps[map_idx].upper)
                 {
                   coordinates_used.push_back( coordinates[c_idx] );
@@ -709,7 +709,7 @@ namespace OpenMS
             }
 #endif
 
-            // Step 2.3: convert chromatograms back 
+            // Step 2.3: convert chromatograms back
             std::vector< OpenMS::MSChromatogram<> > chromatograms;
             extractor.return_chromatogram(chrom_list, coordinates, transition_exp_used, SpectrumSettings(), chromatograms, false);
             boost::shared_ptr<MSExperiment<Peak1D> > chrom_exp(new MSExperiment<Peak1D>);
@@ -719,7 +719,7 @@ namespace OpenMS
             // Step 3: score these extracted transitions
             FeatureMap featureFile;
             scoreAllChromatograms(chromatogram_ptr, used_maps, transition_exp_used,
-                feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, 
+                feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer,
                 ms1_chromatograms);
 
             // Step 4: write all chromatograms and features out into an output object / file
@@ -750,7 +750,7 @@ namespace OpenMS
                 {
                   out_featureFile.getProteinIdentifications().push_back(*protid_it);
                 }
-                // this->setProgress(progress++);
+                this->setProgress(progress++);
               }
             }
           }
