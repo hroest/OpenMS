@@ -77,6 +77,65 @@ namespace OpenMS
   }
 
 
+  void xcorr_compute(std::vector<std::vector<double> >& sonar_profiles, 
+                     double& xcorr_coelution_score, double& xcorr_shape_score)
+  {
+    /// Cross Correlation array
+    typedef std::map<int, double> XCorrArrayType;
+    /// Cross Correlation matrix
+    typedef std::vector<std::vector<XCorrArrayType> > XCorrMatrixType;
+
+    std::vector<double> intensityi, intensityj;
+    XCorrMatrixType xcorr_matrix;
+    for (std::size_t i = 0; i < sonar_profiles.size(); i++)
+    {
+      xcorr_matrix[i].resize(sonar_profiles.size());
+      for (std::size_t j = i; j < sonar_profiles.size(); j++)
+      {
+        // compute normalized cross correlation
+        xcorr_matrix[i][j] = OpenSwath::Scoring::normalizedCrossCorrelation(
+                sonar_profiles[i], sonar_profiles[j], boost::numeric_cast<int>(sonar_profiles[i].size()), 1);
+      }
+    }
+
+    // coelution (lag score)
+    std::vector<int> deltas;
+    for (std::size_t i = 0; i < xcorr_matrix.size(); i++)
+    {
+      for (std::size_t  j = i; j < xcorr_matrix.size(); j++)
+      {
+        // first is the lag value, should be an int
+        deltas.push_back(std::abs(OpenSwath::Scoring::xcorrArrayGetMaxPeak(xcorr_matrix[i][j])->first));
+      }
+    }
+
+    {
+      OpenSwath::mean_and_stddev msc;
+      msc = std::for_each(deltas.begin(), deltas.end(), msc);
+      double deltas_mean = msc.mean();
+      double deltas_stdv = msc.sample_stddev();
+      xcorr_coelution_score = deltas_mean + deltas_stdv;
+    }
+
+
+
+    // shape score (intensity)
+    std::vector<double> intensities;
+    for (std::size_t i = 0; i < xcorr_matrix.size(); i++)
+    {
+      for (std::size_t j = i; j < xcorr_matrix.size(); j++)
+      {
+        // second is the Y value (intensity)
+        intensities.push_back(OpenSwath::Scoring::xcorrArrayGetMaxPeak(xcorr_matrix[i][j])->second);
+      }
+    }
+    {
+      OpenSwath::mean_and_stddev msc;
+      msc = std::for_each(intensities.begin(), intensities.end(), msc);
+      xcorr_shape_score = msc.mean();
+    }
+  }
+
   void sonar_scores(OpenSwath::IMRMFeature* imrmfeature,
                                             const std::vector<OpenSwath::LightTransition> & transitions,
                                             std::vector<OpenSwath::SwathMap> swath_maps,
@@ -84,7 +143,7 @@ namespace OpenMS
                                             OpenMS::DIAScoring & diascoring, 
                                             const OpenSwath::LightCompound& compound, OpenSwath_Scores & scores)
   {
-      double precursor_mz = transitions[0].getPrecursorMZ();
+    double precursor_mz = transitions[0].getPrecursorMZ();
 
     std::ofstream debug_file;
     debug_file.open("debug_sonar_profiles.tsv",  std::fstream::in | std::fstream::out | std::fstream::app);
@@ -105,9 +164,14 @@ namespace OpenMS
     double dia_extract_window_ = 0.1;
     bool dia_centroided_ = false;
 
+    std::vector<std::vector<double> > sonar_profiles;
+    //std::vector<std::vector<double> > sn_score;
+
     std::vector<double> sn_score;
     std::vector<double> diff_score;
     std::vector<double> trend_score;
+    std::vector<double> mz_median_score;
+    std::vector<double> mz_stdev_score;
     for (Size k = 0; k < transitions.size(); k++)
     {
       String native_id = transitions[k].getNativeID();
@@ -165,7 +229,7 @@ namespace OpenMS
 
         // std::cout << swath_idx << " integrated data " << mz << " int : " << intensity << std::endl;
       }
-
+      sonar_profiles.push_back(sonar_profile);
 
       debug_file << native_id << "\t" << imrmfeature->getRT() << "\tint";
       for (Size it = 0; it < sonar_profile.size(); it++)
@@ -230,8 +294,6 @@ namespace OpenMS
         double pos_med = Math::medianFast(sonar_profile_pos.begin(), sonar_profile_pos.end()); 
         double neg_med = Math::medianFast(sonar_profile_neg.begin(), sonar_profile_neg.end()); 
 
-        // std::cout << " median positive " << pos_med << " vs median neg " << neg_med << std::endl;
-
         // compute the relative difference between the medians (or if the
         // medians are zero, compute the difference to the max element)
         if (neg_med > 0.0)
@@ -245,18 +307,45 @@ namespace OpenMS
 
       }
 
+      double median_mz = 0.0;
+      double mz_stdev = -1.0;
+      if (!sonar_mz_profile_pos.empty())
+      {
+        median_mz = Math::medianFast(sonar_mz_profile_pos.begin(), sonar_mz_profile_pos.end()); 
+
+        double sum = std::accumulate(sonar_mz_profile_pos.begin(), sonar_mz_profile_pos.end(), 0.0);
+        double mean = sum / sonar_mz_profile_pos.size();
+
+        double sq_sum = std::inner_product(sonar_mz_profile_pos.begin(), sonar_mz_profile_pos.end(), sonar_mz_profile_pos.begin(), 0.0);
+        double stdev = std::sqrt(sq_sum / sonar_mz_profile_pos.size() - mean * mean);
+
+        mz_stdev = stdev;
+      }
+
       /// std::cout << " computed SN: " << sonar_sn << " large diff: "  << sonar_largediff << " trend " << sonar_trend << std::endl;
       sn_score.push_back(sonar_sn);
       diff_score.push_back(sonar_largediff);
       trend_score.push_back(sonar_trend);
+
+      mz_median_score.push_back(median_mz);
+      mz_stdev_score.push_back(mz_stdev);
     }
+        
+    double xcorr_coelution_score, xcorr_shape_score;
+    xcorr_compute(sonar_profiles, xcorr_coelution_score, xcorr_shape_score);
+
     double sn_av = std::accumulate(sn_score.begin(), sn_score.end(), 0.0) / sn_score.size();
     double diff_av = std::accumulate(diff_score.begin(), diff_score.end(), 0.0) / diff_score.size();
     double trend_av = std::accumulate(trend_score.begin(), trend_score.end(), 0.0) / trend_score.size();
 
+    double mz_median = std::accumulate(mz_median_score.begin(), mz_median_score.end(), 0.0) / mz_median_score.size();
+    double mz_stdev = std::accumulate(mz_stdev_score.begin(), mz_stdev_score.end(), 0.0) / mz_stdev_score.size();
 
-    // TODO return scores
-     
+    scores.sonar_sn = sn_av;
+    scores.sonar_diff = diff_av;
+    scores.sonar_trend = trend_av;
+    scores.sonar_lag = xcorr_coelution_score;
+    scores.sonar_shape = xcorr_shape_score;
 
     debug_file.close();
   }

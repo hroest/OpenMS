@@ -140,6 +140,8 @@ namespace OpenMS
     double sonar_sn;
     double sonar_diff;
     double sonar_trend;
+    double sonar_shape;
+    double sonar_lag;
 
     double library_manhattan;
     double library_dotprod;
@@ -190,6 +192,8 @@ namespace OpenMS
       sonar_sn(0),
       sonar_diff(0),
       sonar_trend(0),
+      sonar_lag(0),
+      sonar_shape(0),
       library_manhattan(0),
       library_dotprod(0),
       intensity(0),
