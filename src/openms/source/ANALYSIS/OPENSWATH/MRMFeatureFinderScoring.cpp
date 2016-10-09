@@ -578,6 +578,8 @@ namespace OpenMS
 
       if (sonar_present && su_.use_sonar_scores)
       {
+        mrmfeature->addScore("var_sonar_lag", scores.sonar_lag);
+        mrmfeature->addScore("var_sonar_shape", scores.sonar_shape);
         mrmfeature->addScore("var_sonar_sn", scores.sonar_sn);
         mrmfeature->addScore("var_sonar_diff", scores.sonar_diff);
         mrmfeature->addScore("var_sonar_trend", scores.sonar_trend);
