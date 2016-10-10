@@ -306,7 +306,7 @@ namespace OpenMS
       for (int pr_idx = 0; pr_idx < sonar_profile_pos.size()-1; pr_idx++)
       {
         double diff = std::fabs(sonar_profile_pos[pr_idx] - sonar_profile_pos[pr_idx+1]);
-        if (diff < sonar_largediff) {sonar_largediff = diff;}
+        if (diff > sonar_largediff) {sonar_largediff = diff;}
       }
 
       double sonar_sn = 1.0;
