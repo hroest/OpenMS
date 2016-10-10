@@ -485,14 +485,6 @@ namespace OpenMS
       TransformationDescription trafo_inverse = trafo;
       trafo_inverse.invert();
 
-      // FIX broken maps (SONAR conversion problem!)
-      // TODO: remove!! 
-      // TODO: remove!! 
-      for (size_t i = 0; i < swath_maps.size(); ++i)
-      {
-        swath_maps[i].lower = swath_maps[i].lower - 11.5;
-        swath_maps[i].upper = swath_maps[i].upper - 11.5;
-      }
 
       if (swath_maps.empty() )
       {
@@ -2427,6 +2419,15 @@ protected:
     OpenSwathTSVWriter tsvwriter(out_tsv, file_list[0], use_ms1_traces, sonar, enable_uis_scoring);
     OpenSwathWorkflow wf(use_ms1_traces);
     wf.setLogType(log_type_);
+
+      // FIX broken maps (SONAR conversion problem!)
+      // TODO: remove!! 
+      // TODO: remove!! 
+      for (size_t i = 0; i < swath_maps.size(); ++i)
+      {
+        swath_maps[i].lower = swath_maps[i].lower - 11.5;
+        swath_maps[i].upper = swath_maps[i].upper - 11.5;
+      }
 
     if (sonar)
     {
