@@ -583,6 +583,7 @@ namespace OpenMS
         mrmfeature->addScore("var_sonar_sn", scores.sonar_sn);
         mrmfeature->addScore("var_sonar_diff", scores.sonar_diff);
         mrmfeature->addScore("var_sonar_trend", scores.sonar_trend);
+        mrmfeature->addScore("var_sonar_rsq", scores.sonar_rsq);
       }
 
       ///////////////////////////////////////////////////////////////////////////
