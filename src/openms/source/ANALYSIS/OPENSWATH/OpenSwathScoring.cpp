@@ -149,6 +149,19 @@ namespace OpenMS
     std::ofstream debug_file;
     debug_file.open("debug_sonar_profiles.tsv",  std::fstream::in | std::fstream::out | std::fstream::app);
 
+    String native_id = 0;
+    if (transitions.size() > 0)
+    {
+      native_id = transitions[0].getNativeID();
+    }
+    debug_file << native_id << "\t" << imrmfeature->getRT() << "\tcentr";
+    for (Size it = 0; it < swath_maps.size(); it++)
+    {
+      debug_file << "\t" << (swath_maps[it].lower + swath_maps[it].upper) / 2.0;
+    }
+    debug_file << "\n";
+
+
     // idea 1: check the elution profile of each SONAR scan ...
     for (int kk = 0; kk < imrmfeature->getNativeIDs().size(); kk++)
     {
