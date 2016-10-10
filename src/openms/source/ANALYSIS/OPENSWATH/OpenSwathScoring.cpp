@@ -38,6 +38,8 @@
 #include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/ALGO/Scoring.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/ALGO/MRMScoring.h>
 
+#include <OpenMS/MATH/STATISTICS/LinearRegression.h>
+
 // auxiliary
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
 #include <OpenMS/MATH/STATISTICS/StatisticFunctions.h>
@@ -192,6 +194,7 @@ namespace OpenMS
     std::vector<double> sn_score;
     std::vector<double> diff_score;
     std::vector<double> trend_score;
+    std::vector<double> rsq_score;
     std::vector<double> mz_median_score;
     std::vector<double> mz_stdev_score;
     for (Size k = 0; k < transitions.size(); k++)
@@ -214,13 +217,13 @@ namespace OpenMS
       for (int swath_idx = 0; swath_idx < swath_maps.size(); swath_idx++)
       {
         OpenSwath::SpectrumAccessPtr swath_map = swath_maps[swath_idx].sptr;
-        // std::cout << " swath_idx " << swath_idx << std::endl;
+        // std::cout << "  swath_idx " << swath_idx << (swath_maps[swath_idx].lower + swath_maps[swath_idx].upper) / 2.0 << std::endl;
         
         bool expect_signal = false;
         if (swath_maps[swath_idx].ms1) {continue;} // skip MS1
         if (precursor_mz > swath_maps[swath_idx].lower && precursor_mz < swath_maps[swath_idx].upper) 
         {
-          // std::cout << " expect signal... " << std::endl;
+          // std::cout << "   expect signal... " << std::endl;
           expect_signal = true;
         }
         else
@@ -249,7 +252,7 @@ namespace OpenMS
         sonar_mz_profile.push_back(mz);
         signal_exp.push_back(expect_signal);
 
-        // std::cout << swath_idx << " integrated data " << mz << " int : " << intensity << std::endl;
+        // std::cout << "   " << swath_idx << " integrated data " << mz << " int : " << intensity << std::endl;
       }
       sonar_profiles.push_back(sonar_profile);
 
@@ -301,6 +304,13 @@ namespace OpenMS
         }
       }
 
+      // try to find R^2 of a linear regression (optimally, there is no trend)
+      std::vector<double> xvals; 
+      for (int pr_idx = 0; pr_idx < sonar_profile_pos.size(); pr_idx++) {xvals.push_back(pr_idx);}
+      Math::LinearRegression lr;
+      lr.computeRegression(0.95, xvals.begin(), xvals.end(), sonar_profile_pos.begin());
+      double rsq = lr.getRSquared();
+
       // try to find largest diff
       double sonar_largediff = 0.0;
       for (int pr_idx = 0; pr_idx < sonar_profile_pos.size()-1; pr_idx++)
@@ -318,8 +328,8 @@ namespace OpenMS
       // from here on, its not sorted any more !!
       if (!sonar_profile_pos.empty() && !sonar_profile_neg.empty())
       {
-        pos_med = Math::medianFast(sonar_profile_pos.begin(), sonar_profile_pos.end()); 
-        neg_med = Math::medianFast(sonar_profile_neg.begin(), sonar_profile_neg.end()); 
+        pos_med = Math::median(sonar_profile_pos.begin(), sonar_profile_pos.end()); 
+        neg_med = Math::median(sonar_profile_neg.begin(), sonar_profile_neg.end()); 
 
         // compute the relative difference between the medians (or if the
         // medians are zero, compute the difference to the max element)
@@ -354,6 +364,7 @@ namespace OpenMS
       sn_score.push_back(sonar_sn);
       diff_score.push_back(sonar_largediff / pos_med);
       trend_score.push_back(sonar_trend);
+      rsq_score.push_back(rsq);
 
       mz_median_score.push_back(median_mz);
       mz_stdev_score.push_back(mz_stdev);
@@ -365,6 +376,7 @@ namespace OpenMS
     double sn_av = std::accumulate(sn_score.begin(), sn_score.end(), 0.0) / sn_score.size();
     double diff_av = std::accumulate(diff_score.begin(), diff_score.end(), 0.0) / diff_score.size();
     double trend_av = std::accumulate(trend_score.begin(), trend_score.end(), 0.0) / trend_score.size();
+    double rsq_av = std::accumulate(rsq_score.begin(), rsq_score.end(), 0.0) / rsq_score.size();
 
     double mz_median = std::accumulate(mz_median_score.begin(), mz_median_score.end(), 0.0) / mz_median_score.size();
     double mz_stdev = std::accumulate(mz_stdev_score.begin(), mz_stdev_score.end(), 0.0) / mz_stdev_score.size();
@@ -372,6 +384,7 @@ namespace OpenMS
     scores.sonar_sn = sn_av;
     scores.sonar_diff = diff_av;
     scores.sonar_trend = trend_av;
+    scores.sonar_rsq = rsq_av;
     scores.sonar_lag = xcorr_coelution_score;
     scores.sonar_shape = xcorr_shape_score;
 
