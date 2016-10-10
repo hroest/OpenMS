@@ -289,11 +289,16 @@ namespace OpenMS
       }
 
       double sonar_sn = 1.0;
+      double pos_med = 1.0;
+      double neg_med = 1.0;
+        std::cout << " compute from profile sizes " << 
+      sonar_profile_pos.size() << " and " <<  sonar_profile_neg.size() << std::endl;
+
       // from here on, its not sorted any more !!
       if (!sonar_profile_pos.empty() && !sonar_profile_neg.empty())
       {
-        double pos_med = Math::medianFast(sonar_profile_pos.begin(), sonar_profile_pos.end()); 
-        double neg_med = Math::medianFast(sonar_profile_neg.begin(), sonar_profile_neg.end()); 
+        pos_med = Math::medianFast(sonar_profile_pos.begin(), sonar_profile_pos.end()); 
+        neg_med = Math::medianFast(sonar_profile_neg.begin(), sonar_profile_neg.end()); 
 
         // compute the relative difference between the medians (or if the
         // medians are zero, compute the difference to the max element)
@@ -325,7 +330,7 @@ namespace OpenMS
 
       /// std::cout << " computed SN: " << sonar_sn << " large diff: "  << sonar_largediff << " trend " << sonar_trend << std::endl;
       sn_score.push_back(sonar_sn);
-      diff_score.push_back(sonar_largediff);
+      diff_score.push_back(sonar_largediff / pos_med);
       trend_score.push_back(sonar_trend);
 
       mz_median_score.push_back(median_mz);
