@@ -87,6 +87,7 @@ namespace OpenMS
 
     std::vector<double> intensityi, intensityj;
     XCorrMatrixType xcorr_matrix;
+    xcorr_matrix.resize(sonar_profiles.size());
     for (std::size_t i = 0; i < sonar_profiles.size(); i++)
     {
       xcorr_matrix[i].resize(sonar_profiles.size());
