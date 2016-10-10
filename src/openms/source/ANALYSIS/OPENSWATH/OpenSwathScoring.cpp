@@ -170,16 +170,24 @@ namespace OpenMS
       // std::cout << " for feathre  " << imrmfeature->getNativeIDs()[kk] << " st: " << rt[0] << " to " << rt.back() << std::endl;
     }
 
+    std::cout << " doing RT " << imrmfeature->getRT() << " using maps: " ;
+    for (int i  = 0; i < swath_maps.size() ; i++)
+    {
+      std::cout << (swath_maps[i].lower + swath_maps[i].upper) / 2 << " " ;
+    }
+    std::cout << std::endl;
+
 
 
     // idea 2: check the SONAR profile (e.g. in the dimension of) of the best scan (RT apex)
     double RT = imrmfeature->getRT();
 
-    double dia_extract_window_ = 0.1;
+    //double dia_extract_window_ = 0.1;
+    double dia_extract_window_ = 1.0;
     bool dia_centroided_ = false;
 
+    // Aggregate sonar profiles
     std::vector<std::vector<double> > sonar_profiles;
-    //std::vector<std::vector<double> > sn_score;
 
     std::vector<double> sn_score;
     std::vector<double> diff_score;
@@ -197,7 +205,7 @@ namespace OpenMS
         putative_fragment_charge = transitions[k].fragment_charge;
       }
 
-      // std::cout << " transition " << native_id << " will analyze with " << swath_maps.size() << " maps" << std::endl;
+      std::cout << " transition " << native_id << " at " << RT << " will analyze with " << swath_maps.size() << " maps" << std::endl;
 
       // Gather profiles 
       std::vector<double> sonar_profile;
@@ -341,7 +349,8 @@ namespace OpenMS
         mz_stdev = stdev;
       }
 
-      /// std::cout << " computed SN: " << sonar_sn << " large diff: "  << sonar_largediff << " trend " << sonar_trend << std::endl;
+      std::cout << " computed SN: " << sonar_sn  <<  "(from " << pos_med << " and neg " << neg_med <<  ")"
+        << " large diff: "  << sonar_largediff << " trend " << sonar_trend << std::endl;
       sn_score.push_back(sonar_sn);
       diff_score.push_back(sonar_largediff / pos_med);
       trend_score.push_back(sonar_trend);
