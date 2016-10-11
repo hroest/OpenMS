@@ -1034,6 +1034,11 @@ namespace OpenMS
   /**
    * @brief Class to execute an OpenSwath Workflow for SONAR data
    *
+   * The workflow will perform a complete OpenSWATH analysis, using scanning
+   * SWATH data (SONAR data) instead of regular data. In this case, each
+   * fragment ion may appear in multiple SWATH windows and thus needs to be
+   * extracted from multiple maps.
+   *
    */
   class OpenSwathWorkflowSonar :
     public OpenSwathWorkflow
