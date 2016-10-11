@@ -2420,6 +2420,11 @@ protected:
     OpenSwathWorkflow wf(use_ms1_traces);
     wf.setLogType(log_type_);
 
+
+    if (sonar)
+    {
+
+#ifdef OPENSWATH_WORKFLOW_DEBUG
       // FIX broken maps (SONAR conversion problem!)
       // TODO: remove!! 
       // TODO: remove!! 
@@ -2428,9 +2433,8 @@ protected:
         swath_maps[i].lower = swath_maps[i].lower - 11.5;
         swath_maps[i].upper = swath_maps[i].upper - 11.5;
       }
+#endif
 
-    if (sonar)
-    {
       wf.performExtractionSonar(swath_maps, trafo_rtnorm, cp, feature_finder_param, transition_exp,
           out_featureFile, !out.empty(), tsvwriter, chromConsumer, batchSize, load_into_memory);
     }
