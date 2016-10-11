@@ -54,7 +54,7 @@ namespace OpenMS
                                          double mz_extr_window, 
                                          bool ppm)
   {
-    LOG_DEBUG << "SwathMapMassCorrection::correctMZ with type " << corr_type << " and window " << mz_extr_window << std::endl;
+    LOG_DEBUG << "SwathMapMassCorrection::correctMZ with type " << corr_type << " and window " << mz_extr_window << " in ppm " << ppm << std::endl;
 
     bool is_ppm = bool(corr_type == "quadratic_regression_delta_ppm" || 
                        corr_type == "weighted_quadratic_regression_delta_ppm");
@@ -129,8 +129,8 @@ namespace OpenMS
 
         if (ppm)
         {
-          left = tr->product_mz - mz_extr_window / 2.0  * tr->product_mz / 1e-6;
-          right = tr->product_mz + mz_extr_window / 2.0 * tr->product_mz / 1e-6;
+          left = tr->product_mz - mz_extr_window / 2.0  * tr->product_mz * 1e-6;
+          right = tr->product_mz + mz_extr_window / 2.0 * tr->product_mz * 1e-6;
         }
 
         // integrate spectrum at the position of the theoretical mass
