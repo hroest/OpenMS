@@ -32,17 +32,7 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-// Interfaces
-/*
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/ISpectrumAccess.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/DataStructures.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
-#include <OpenMS/INTERFACES/IMSDataConsumer.h>
-*/
-
 // Consumers
-#include <OpenMS/FORMAT/DATAACCESS/MSDataCachedConsumer.h>
-#include <OpenMS/FORMAT/DATAACCESS/MSDataTransformingConsumer.h>
 #include <OpenMS/FORMAT/DATAACCESS/MSDataWritingConsumer.h>
 
 // Files
@@ -52,10 +42,10 @@
 #include <OpenMS/FORMAT/MzMLFile.h>
 #include <OpenMS/FORMAT/FeatureXMLFile.h>
 #include <OpenMS/FORMAT/TransformationXMLFile.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/TransitionTSVReader.h>
-#include <OpenMS/FORMAT/CachedMzML.h>
 #include <OpenMS/FORMAT/SwathFile.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/SwathWindowLoader.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/TransitionTSVReader.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathTSVWriter.h>
 
 // Kernel and implementations
 #include <OpenMS/KERNEL/MSExperiment.h>
@@ -69,15 +59,14 @@
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SimpleOpenMSSpectraAccessFactory.h>
 
-#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathTSVWriter.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathWorkflow.h>
-
 // Algorithms
 #include <OpenMS/ANALYSIS/OPENSWATH/MRMRTNormalizer.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/ChromatogramExtractor.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/MRMFeatureFinderScoring.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/MRMTransitionGroupPicker.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/SwathMapMassCorrection.h>
+
+#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathWorkflow.h>
 
 #include <assert.h>
 #include <limits>
