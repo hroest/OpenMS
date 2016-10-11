@@ -102,7 +102,7 @@ namespace OpenMS
 
       // TODO compute some scores ...
       //sonar_scores(imrmfeature, transitions, used_swath_maps, ms1_map, diascoring, compound, scores);
-      SONARScoring().sonar_scores(imrmfeature, transitions, swath_maps, ms1_map, diascoring, compound, scores);
+      SONARScoring().sonar_scores(imrmfeature, transitions, swath_maps, ms1_map, compound, scores);
     }
     else
     {

@@ -35,16 +35,13 @@
 #ifndef OPENMS_ANALYSIS_OPENSWATH_SONARSCORING_H
 #define OPENMS_ANALYSIS_OPENSWATH_SONARSCORING_H
 
-#include <boost/math/special_functions/fpclassify.hpp> // for isnan
-#include <OpenMS/CHEMISTRY/AASequence.h>
-#include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
-
 #include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/ISpectrumAccess.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/DataStructures.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/ITransition.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
 
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoring.h>
+#include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
+
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathScoring.h>
 
 namespace OpenMS
@@ -52,7 +49,7 @@ namespace OpenMS
   /**
     @brief Scoring of an spectrum using SONAR data
 
-  @htmlinclude OpenMS_SONARScoring.parameters
+    @htmlinclude OpenMS_SONARScoring.parameters
 
   */
   class OPENMS_DLLAPI SONARScoring :
@@ -74,7 +71,6 @@ public:
                       const std::vector<OpenSwath::LightTransition> & transitions,
                       std::vector<OpenSwath::SwathMap> swath_maps,
                       OpenSwath::SpectrumAccessPtr ms1_map,
-                      OpenMS::DIAScoring & diascoring, 
                       const OpenSwath::LightCompound& compound, OpenSwath_Scores & scores);
 
     void xcorr_compute(std::vector<std::vector<double> >& sonar_profiles, 

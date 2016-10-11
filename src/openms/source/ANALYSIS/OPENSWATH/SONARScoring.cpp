@@ -34,43 +34,15 @@
 
 #include <OpenMS/ANALYSIS/OPENSWATH/SONARScoring.h>
 
-#include <OpenMS/CONCEPT/Constants.h>
-// #include <OpenMS/DATASTRUCTURES/ListUtils.h>
-// #include <OpenMS/CHEMISTRY/IsotopeDistribution.h>
-// #include <OpenMS/CHEMISTRY/EmpiricalFormula.h>
-
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmPickedHelperStructs.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithm.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/ALGO/StatsHelpers.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/SpectrumHelpers.h> // integrateWindow
+#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/ALGO/StatsHelpers.h>
+
 #include <OpenMS/MATH/STATISTICS/LinearRegression.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
-
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAPrescoring.h>
-
-
-
+#include <OpenMS/MATH/STATISTICS/StatisticFunctions.h>
 
 #include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/ALGO/Scoring.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/ALGO/MRMScoring.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/SONARScoring.h>
 
-#include <OpenMS/MATH/STATISTICS/LinearRegression.h>
-
-// auxiliary
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
-#include <OpenMS/MATH/STATISTICS/StatisticFunctions.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/SpectrumAddition.h>
-
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/SpectrumHelpers.h> // integrateWindow
-
-#include <numeric>
-#include <algorithm>
-#include <functional>
-
-#include <boost/bind.hpp>
-
-const double C13C12_MASSDIFF_U = 1.0033548;
+// #define DEBUG_SONAR
 
 namespace OpenMS
 {
@@ -154,11 +126,17 @@ namespace OpenMS
                                             const std::vector<OpenSwath::LightTransition> & transitions,
                                             std::vector<OpenSwath::SwathMap> swath_maps,
                                             OpenSwath::SpectrumAccessPtr ms1_map,
-                                            OpenMS::DIAScoring & diascoring, 
                                             const OpenSwath::LightCompound& compound, OpenSwath_Scores & scores)
   {
+    // return if transitions.size() < 1 
+
     double precursor_mz = transitions[0].getPrecursorMZ();
 
+    //double dia_extract_window_ = 0.1;
+    double dia_extract_window_ = 1.0;
+    bool dia_centroided_ = false;
+
+#ifdef DEBUG_SONAR
     std::ofstream debug_file;
     debug_file.open("debug_sonar_profiles.tsv",  std::fstream::in | std::fstream::out | std::fstream::app);
 
@@ -175,29 +153,26 @@ namespace OpenMS
     debug_file << "\n";
 
 
-    // idea 1: check the elution profile of each SONAR scan ...
-    for (int kk = 0; kk < imrmfeature->getNativeIDs().size(); kk++)
-    {
-      std::vector<double> rt;
-      imrmfeature->getFeature(imrmfeature->getNativeIDs()[kk])->getRT(rt);
-      // std::cout << " for feathre  " << imrmfeature->getNativeIDs()[kk] << " st: " << rt[0] << " to " << rt.back() << std::endl;
-    }
-
     std::cout << " doing RT " << imrmfeature->getRT() << " using maps: " ;
     for (int i  = 0; i < swath_maps.size() ; i++)
     {
       std::cout << (swath_maps[i].lower + swath_maps[i].upper) / 2 << " " ;
     }
     std::cout << std::endl;
+#endif
+
+    // idea 1: check the elution profile of each SONAR scan ...
+    for (int kk = 0; kk < imrmfeature->getNativeIDs().size(); kk++)
+    {
+      std::vector<double> rt;
+      imrmfeature->getFeature(imrmfeature->getNativeIDs()[kk])->getRT(rt);
+    }
 
 
 
     // idea 2: check the SONAR profile (e.g. in the dimension of) of the best scan (RT apex)
     double RT = imrmfeature->getRT();
 
-    //double dia_extract_window_ = 0.1;
-    double dia_extract_window_ = 1.0;
-    bool dia_centroided_ = false;
 
     // Aggregate sonar profiles
     std::vector<std::vector<double> > sonar_profiles;
@@ -211,15 +186,13 @@ namespace OpenMS
     for (Size k = 0; k < transitions.size(); k++)
     {
       String native_id = transitions[k].getNativeID();
-      // double rel_intensity = intensities[native_id];
+
       // If no charge is given, we assume it to be 1
       int putative_fragment_charge = 1;
       if (transitions[k].fragment_charge > 0)
       {
         putative_fragment_charge = transitions[k].fragment_charge;
       }
-
-      std::cout << " transition " << native_id << " at " << RT << " will analyze with " << swath_maps.size() << " maps" << std::endl;
 
       // Gather profiles 
       std::vector<double> sonar_profile;
@@ -228,23 +201,16 @@ namespace OpenMS
       for (int swath_idx = 0; swath_idx < swath_maps.size(); swath_idx++)
       {
         OpenSwath::SpectrumAccessPtr swath_map = swath_maps[swath_idx].sptr;
-        // std::cout << "  swath_idx " << swath_idx << (swath_maps[swath_idx].lower + swath_maps[swath_idx].upper) / 2.0 << std::endl;
         
         bool expect_signal = false;
         if (swath_maps[swath_idx].ms1) {continue;} // skip MS1
         if (precursor_mz > swath_maps[swath_idx].lower && precursor_mz < swath_maps[swath_idx].upper) 
         {
-          // std::cout << "   expect signal... " << std::endl;
           expect_signal = true;
-        }
-        else
-        {
-          // std::cout << " expect no signal... " << std::endl;
         }
 
         // find closest 
         std::vector<std::size_t> indices = swath_map->getSpectraByRT(RT, 0.0);
-        // std::cout << " try to find RT " << RT << " found nr indices " << indices.size() << std::endl;
         if (indices.empty() )  {continue;}
         int closest_idx = boost::numeric_cast<int>(indices[0]);
         if (indices[0] != 0 &&
@@ -262,11 +228,11 @@ namespace OpenMS
         sonar_profile.push_back(intensity);
         sonar_mz_profile.push_back(mz);
         signal_exp.push_back(expect_signal);
-
-        // std::cout << "   " << swath_idx << " integrated data " << mz << " int : " << intensity << std::endl;
       }
       sonar_profiles.push_back(sonar_profile);
 
+#ifdef DEBUG_SONAR
+      std::cout << " transition " << native_id << " at " << RT << " will analyze with " << swath_maps.size() << " maps" << std::endl;
       debug_file << native_id << "\t" << imrmfeature->getRT() << "\tint";
       for (Size it = 0; it < sonar_profile.size(); it++)
       {
@@ -279,6 +245,7 @@ namespace OpenMS
         debug_file << "\t" << sonar_mz_profile[it];
       }
       debug_file << "\n";
+#endif
 
       // Analyze profiles 
       std::vector<double> sonar_profile_pos;
@@ -333,9 +300,6 @@ namespace OpenMS
       double sonar_sn = 1.0;
       double pos_med = 1.0;
       double neg_med = 1.0;
-        std::cout << " compute from profile sizes " << 
-      sonar_profile_pos.size() << " and " <<  sonar_profile_neg.size() << std::endl;
-
       // from here on, its not sorted any more !!
       if (!sonar_profile_pos.empty() && !sonar_profile_neg.empty())
       {
@@ -359,7 +323,7 @@ namespace OpenMS
       double mz_stdev = -1.0;
       if (!sonar_mz_profile_pos.empty())
       {
-        median_mz = Math::medianFast(sonar_mz_profile_pos.begin(), sonar_mz_profile_pos.end()); 
+        median_mz = Math::median(sonar_mz_profile_pos.begin(), sonar_mz_profile_pos.end()); 
 
         double sum = std::accumulate(sonar_mz_profile_pos.begin(), sonar_mz_profile_pos.end(), 0.0);
         double mean = sum / sonar_mz_profile_pos.size();
@@ -370,8 +334,10 @@ namespace OpenMS
         mz_stdev = stdev;
       }
 
+#ifdef DEBUG_SONAR
       std::cout << " computed SN: " << sonar_sn  <<  "(from " << pos_med << " and neg " << neg_med <<  ")"
         << " large diff: "  << sonar_largediff << " trend " << sonar_trend << std::endl;
+#endif
       sn_score.push_back(sonar_sn);
       diff_score.push_back(sonar_largediff / pos_med);
       trend_score.push_back(sonar_trend);
@@ -399,7 +365,9 @@ namespace OpenMS
     scores.sonar_lag = xcorr_coelution_score;
     scores.sonar_shape = xcorr_shape_score;
 
+#ifdef DEBUG_SONAR
     debug_file.close();
+#endif
   }
 
 
