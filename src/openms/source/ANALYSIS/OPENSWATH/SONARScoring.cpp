@@ -62,7 +62,7 @@ namespace OpenMS
     // TODO
   }
 
-  void SONARScoring::xcorr_compute(std::vector<std::vector<double> >& sonar_profiles, 
+  void SONARScoring::computeXCorr(std::vector<std::vector<double> >& sonar_profiles,
                      double& xcorr_coelution_score, double& xcorr_shape_score)
   {
     /// Cross Correlation array
@@ -122,13 +122,12 @@ namespace OpenMS
     }
   }
 
-  void SONARScoring::sonar_scores(OpenSwath::IMRMFeature* imrmfeature,
-                                            const std::vector<OpenSwath::LightTransition> & transitions,
-                                            std::vector<OpenSwath::SwathMap> swath_maps,
-                                            OpenSwath::SpectrumAccessPtr ms1_map,
-                                            const OpenSwath::LightCompound& compound, OpenSwath_Scores & scores)
+  void SONARScoring::computeSonarScores(OpenSwath::IMRMFeature* imrmfeature,
+                                        const std::vector<OpenSwath::LightTransition> & transitions,
+                                        std::vector<OpenSwath::SwathMap> swath_maps,
+                                        OpenSwath_Scores & scores)
   {
-    // return if transitions.size() < 1 
+    if (transitions.empty()) {return;}
 
     double precursor_mz = transitions[0].getPrecursorMZ();
 
@@ -154,25 +153,23 @@ namespace OpenMS
 
 
     std::cout << " doing RT " << imrmfeature->getRT() << " using maps: " ;
-    for (int i  = 0; i < swath_maps.size() ; i++)
+    for (Size i  = 0; i < swath_maps.size() ; i++)
     {
       std::cout << (swath_maps[i].lower + swath_maps[i].upper) / 2 << " " ;
     }
     std::cout << std::endl;
-#endif
 
     // idea 1: check the elution profile of each SONAR scan ...
-    for (int kk = 0; kk < imrmfeature->getNativeIDs().size(); kk++)
+    for (Size kk = 0; kk < imrmfeature->getNativeIDs().size(); kk++)
     {
       std::vector<double> rt;
       imrmfeature->getFeature(imrmfeature->getNativeIDs()[kk])->getRT(rt);
     }
-
+#endif
 
 
     // idea 2: check the SONAR profile (e.g. in the dimension of) of the best scan (RT apex)
     double RT = imrmfeature->getRT();
-
 
     // Aggregate sonar profiles
     std::vector<std::vector<double> > sonar_profiles;
@@ -187,29 +184,22 @@ namespace OpenMS
     {
       String native_id = transitions[k].getNativeID();
 
-      // If no charge is given, we assume it to be 1
-      int putative_fragment_charge = 1;
-      if (transitions[k].fragment_charge > 0)
-      {
-        putative_fragment_charge = transitions[k].fragment_charge;
-      }
-
-      // Gather profiles 
+      // Gather profiles
       std::vector<double> sonar_profile;
       std::vector<double> sonar_mz_profile;
       std::vector<bool> signal_exp;
-      for (int swath_idx = 0; swath_idx < swath_maps.size(); swath_idx++)
+      for (Size swath_idx = 0; swath_idx < swath_maps.size(); swath_idx++)
       {
         OpenSwath::SpectrumAccessPtr swath_map = swath_maps[swath_idx].sptr;
-        
+
         bool expect_signal = false;
         if (swath_maps[swath_idx].ms1) {continue;} // skip MS1
-        if (precursor_mz > swath_maps[swath_idx].lower && precursor_mz < swath_maps[swath_idx].upper) 
+        if (precursor_mz > swath_maps[swath_idx].lower && precursor_mz < swath_maps[swath_idx].upper)
         {
           expect_signal = true;
         }
 
-        // find closest 
+        // find closest
         std::vector<std::size_t> indices = swath_map->getSpectraByRT(RT, 0.0);
         if (indices.empty() )  {continue;}
         int closest_idx = boost::numeric_cast<int>(indices[0]);
@@ -221,7 +211,7 @@ namespace OpenMS
         }
         OpenSwath::SpectrumPtr spectrum_ = swath_map->getSpectrumById(closest_idx);
         double left = transitions[k].getProductMZ() - dia_extract_window_ / 2.0;
-        double right = transitions[k].getProductMZ() + dia_extract_window_ / 2.0; 
+        double right = transitions[k].getProductMZ() + dia_extract_window_ / 2.0;
         double mz, intensity;
         integrateWindow(spectrum_, left, right, mz, intensity, dia_centroided_);
 
@@ -247,7 +237,7 @@ namespace OpenMS
       debug_file << "\n";
 #endif
 
-      // Analyze profiles 
+      // Analyze profiles
       std::vector<double> sonar_profile_pos;
       std::vector<double> sonar_mz_profile_pos;
       std::vector<double> sonar_profile_neg;
@@ -266,7 +256,7 @@ namespace OpenMS
         }
       }
 
-      // try to find diff between first and last 
+      // try to find diff between first and last
       double sonar_trend = 1.0;
       if (sonar_profile_pos.size() > 1)
       {
@@ -283,18 +273,21 @@ namespace OpenMS
       }
 
       // try to find R^2 of a linear regression (optimally, there is no trend)
-      std::vector<double> xvals; 
-      for (int pr_idx = 0; pr_idx < sonar_profile_pos.size(); pr_idx++) {xvals.push_back(pr_idx);}
+      std::vector<double> xvals;
+      for (Size pr_idx = 0; pr_idx < sonar_profile_pos.size(); pr_idx++) {xvals.push_back(pr_idx);}
       OpenMS::Math::LinearRegression lr;
       lr.computeRegression(0.95, xvals.begin(), xvals.end(), sonar_profile_pos.begin());
       double rsq = lr.getRSquared();
 
       // try to find largest diff
       double sonar_largediff = 0.0;
-      for (int pr_idx = 0; pr_idx < sonar_profile_pos.size()-1; pr_idx++)
+      for (Size pr_idx = 0; pr_idx < sonar_profile_pos.size()-1; pr_idx++)
       {
         double diff = std::fabs(sonar_profile_pos[pr_idx] - sonar_profile_pos[pr_idx+1]);
-        if (diff > sonar_largediff) {sonar_largediff = diff;}
+        if (diff > sonar_largediff)
+        {
+          sonar_largediff = diff;
+        }
       }
 
       double sonar_sn = 1.0;
@@ -303,8 +296,8 @@ namespace OpenMS
       // from here on, its not sorted any more !!
       if (!sonar_profile_pos.empty() && !sonar_profile_neg.empty())
       {
-        pos_med = Math::median(sonar_profile_pos.begin(), sonar_profile_pos.end()); 
-        neg_med = Math::median(sonar_profile_neg.begin(), sonar_profile_neg.end()); 
+        pos_med = Math::median(sonar_profile_pos.begin(), sonar_profile_pos.end());
+        neg_med = Math::median(sonar_profile_neg.begin(), sonar_profile_neg.end());
 
         // compute the relative difference between the medians (or if the
         // medians are zero, compute the difference to the max element)
@@ -323,7 +316,7 @@ namespace OpenMS
       double mz_stdev = -1.0;
       if (!sonar_mz_profile_pos.empty())
       {
-        median_mz = Math::median(sonar_mz_profile_pos.begin(), sonar_mz_profile_pos.end()); 
+        median_mz = Math::median(sonar_mz_profile_pos.begin(), sonar_mz_profile_pos.end());
 
         double sum = std::accumulate(sonar_mz_profile_pos.begin(), sonar_mz_profile_pos.end(), 0.0);
         double mean = sum / sonar_mz_profile_pos.size();
@@ -346,17 +339,17 @@ namespace OpenMS
       mz_median_score.push_back(median_mz);
       mz_stdev_score.push_back(mz_stdev);
     }
-        
+
     double xcorr_coelution_score, xcorr_shape_score;
-    xcorr_compute(sonar_profiles, xcorr_coelution_score, xcorr_shape_score);
+    computeXCorr(sonar_profiles, xcorr_coelution_score, xcorr_shape_score);
 
     double sn_av = std::accumulate(sn_score.begin(), sn_score.end(), 0.0) / sn_score.size();
     double diff_av = std::accumulate(diff_score.begin(), diff_score.end(), 0.0) / diff_score.size();
     double trend_av = std::accumulate(trend_score.begin(), trend_score.end(), 0.0) / trend_score.size();
     double rsq_av = std::accumulate(rsq_score.begin(), rsq_score.end(), 0.0) / rsq_score.size();
 
-    double mz_median = std::accumulate(mz_median_score.begin(), mz_median_score.end(), 0.0) / mz_median_score.size();
-    double mz_stdev = std::accumulate(mz_stdev_score.begin(), mz_stdev_score.end(), 0.0) / mz_stdev_score.size();
+    //double mz_median = std::accumulate(mz_median_score.begin(), mz_median_score.end(), 0.0) / mz_median_score.size();
+    //double mz_stdev = std::accumulate(mz_stdev_score.begin(), mz_stdev_score.end(), 0.0) / mz_stdev_score.size();
 
     scores.sonar_sn = sn_av;
     scores.sonar_diff = diff_av;

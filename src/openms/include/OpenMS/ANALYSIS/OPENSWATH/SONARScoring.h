@@ -67,16 +67,15 @@ public:
     //@}
     //
 
-    void sonar_scores(OpenSwath::IMRMFeature* imrmfeature,
+    void computeSonarScores(OpenSwath::IMRMFeature* imrmfeature,
                       const std::vector<OpenSwath::LightTransition> & transitions,
                       std::vector<OpenSwath::SwathMap> swath_maps,
-                      OpenSwath::SpectrumAccessPtr ms1_map,
-                      const OpenSwath::LightCompound& compound, OpenSwath_Scores & scores);
-
-    void xcorr_compute(std::vector<std::vector<double> >& sonar_profiles, 
-                       double& xcorr_coelution_score, double& xcorr_shape_score);
+                      OpenSwath_Scores & scores);
 
 private:
+
+    void computeXCorr(std::vector<std::vector<double> >& sonar_profiles,
+                       double& xcorr_coelution_score, double& xcorr_shape_score);
 
     /// Copy constructor (algorithm class)
     SONARScoring(const SONARScoring& rhs);
