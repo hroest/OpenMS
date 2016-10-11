@@ -595,7 +595,7 @@ protected:
    */
   TransformationDescription loadTrafoFile(String trafo_in, String irt_tr_file,
     std::vector< OpenSwath::SwathMap > & swath_maps, double min_rsq, double min_coverage,
-    const Param& feature_finder_param, const OpenSwathWorkflow::ChromExtractParams& cp_irt,
+    const Param& feature_finder_param, const ChromExtractParams& cp_irt,
     const Param& irt_detection_param, const String & mz_correction_function, Size debug_level)
   {
     TransformationDescription trafo_rtnorm;
@@ -611,13 +611,15 @@ protected:
     }
     else if (!irt_tr_file.empty())
     {
-      OpenSwathWorkflow wf(false);
-      wf.setLogType(log_type_);
       // Loading iRT file
       std::cout << "Will load iRT transitions and try to find iRT peptides" << std::endl;
       TraMLFile traml;
       OpenMS::TargetedExperiment irt_transitions;
       traml.load(irt_tr_file, irt_transitions);
+
+      // perform extraction
+      OpenSwathWorkflowRTNorm wf;
+      wf.setLogType(log_type_);
       trafo_rtnorm = wf.performRTNormalization(irt_transitions, swath_maps, min_rsq, min_coverage,
           feature_finder_param, cp_irt, irt_detection_param, mz_correction_function, debug_level);
     }
@@ -718,7 +720,7 @@ protected:
       }
     }
 
-    OpenSwathWorkflow::ChromExtractParams cp;
+    ChromExtractParams cp;
     cp.min_upper_edge_dist   = min_upper_edge_dist;
     cp.mz_extraction_window  = mz_extraction_window;
     cp.ppm                   = ppm;
@@ -726,7 +728,7 @@ protected:
     cp.extraction_function   = extraction_function;
     cp.extra_rt_extract      = extra_rt_extract;
 
-    OpenSwathWorkflow::ChromExtractParams cp_irt = cp;
+    ChromExtractParams cp_irt = cp;
     cp_irt.rt_extraction_window = -1; // extract the whole RT range
 
     Param feature_finder_param = getParam_().copy("Scoring:", true);
@@ -865,8 +867,6 @@ protected:
     FeatureMap out_featureFile;
 
     OpenSwathTSVWriter tsvwriter(out_tsv, file_list[0], use_ms1_traces, sonar, enable_uis_scoring);
-    OpenSwathWorkflow wf(use_ms1_traces);
-    wf.setLogType(log_type_);
 
 
     if (sonar)
@@ -883,11 +883,15 @@ protected:
       }
 #endif
 
+      OpenSwathWorkflowSonar wf(use_ms1_traces);
+      wf.setLogType(log_type_);
       wf.performExtractionSonar(swath_maps, trafo_rtnorm, cp, feature_finder_param, transition_exp,
           out_featureFile, !out.empty(), tsvwriter, chromConsumer, batchSize, load_into_memory);
     }
     else
     {
+      OpenSwathWorkflow wf(use_ms1_traces);
+      wf.setLogType(log_type_);
       wf.performExtraction(swath_maps, trafo_rtnorm, cp, feature_finder_param, transition_exp,
           out_featureFile, !out.empty(), tsvwriter, chromConsumer, batchSize, load_into_memory);
     }
