@@ -32,53 +32,15 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-// Interfaces
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/ISpectrumAccess.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/DataStructures.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
-#include <OpenMS/INTERFACES/IMSDataConsumer.h>
+#ifndef OPENMS_ANALYSIS_OPENSWATH_OPENSWATHTSVWRITER_H
+#define OPENMS_ANALYSIS_OPENSWATH_OPENSWATHTSVWRITER_H
 
-// Consumers
-#include <OpenMS/FORMAT/DATAACCESS/MSDataCachedConsumer.h>
-#include <OpenMS/FORMAT/DATAACCESS/MSDataTransformingConsumer.h>
-#include <OpenMS/FORMAT/DATAACCESS/MSDataWritingConsumer.h>
+// Interfaces
+#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
 
 #include <OpenMS/KERNEL/FeatureMap.h>
-/*
-#include <OpenMS/FORMAT/FeatureXMLFile.h>
-// Files
-#include <OpenMS/FORMAT/FileHandler.h>
-#include <OpenMS/FORMAT/FileTypes.h>
-#include <OpenMS/FORMAT/TraMLFile.h>
-#include <OpenMS/FORMAT/MzMLFile.h>
-#include <OpenMS/FORMAT/TransformationXMLFile.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/TransitionTSVReader.h>
-#include <OpenMS/FORMAT/CachedMzML.h>
-#include <OpenMS/FORMAT/SwathFile.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/SwathWindowLoader.h>
 
-// Kernel and implementations
-#include <OpenMS/KERNEL/MSExperiment.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessOpenMS.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessTransforming.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessOpenMSInMemory.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/SwathMap.h>
-
-// Helpers
-#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SimpleOpenMSSpectraAccessFactory.h>
-
-// Algorithms
-#include <OpenMS/ANALYSIS/OPENSWATH/MRMRTNormalizer.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/ChromatogramExtractor.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/MRMFeatureFinderScoring.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/MRMTransitionGroupPicker.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/SwathMapMassCorrection.h>
-
-#include <assert.h>
-#include <limits>
-*/
+#include <fstream>
 
 namespace OpenMS
 {
@@ -357,4 +319,6 @@ namespace OpenMS
   };
 
 }
+
+#endif // OPENMS_ANALYSIS_OPENSWATH_OPENSWATHTSVWRITER_H
 
