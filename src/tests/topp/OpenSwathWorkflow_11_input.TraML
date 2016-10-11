@@ -216,7 +216,7 @@
       </Precursor>
       <Product>
         <cvParam cvRef="MS" accession="MS:1000041" name="charge state" value="2"/>
-        <cvParam cvRef="MS" accession="MS:1000827" name="isolation window target m/z" value="502.01"/>
+        <cvParam cvRef="MS" accession="MS:1000827" name="isolation window target m/z" value="300.01"/>
         <InterpretationList>
           <Interpretation>
             <cvParam cvRef="MS" accession="MS:1000903" name="product ion series ordinal" value="1"/>
@@ -236,7 +236,7 @@
       </Precursor>
       <Product>
         <cvParam cvRef="MS" accession="MS:1000041" name="charge state" value="2"/>
-        <cvParam cvRef="MS" accession="MS:1000827" name="isolation window target m/z" value="502.15"/>
+        <cvParam cvRef="MS" accession="MS:1000827" name="isolation window target m/z" value="301.01"/>
         <InterpretationList>
           <Interpretation>
             <cvParam cvRef="MS" accession="MS:1000903" name="product ion series ordinal" value="2"/>
@@ -256,7 +256,7 @@
       </Precursor>
       <Product>
         <cvParam cvRef="MS" accession="MS:1000041" name="charge state" value="2"/>
-        <cvParam cvRef="MS" accession="MS:1000827" name="isolation window target m/z" value="502.25"/>
+        <cvParam cvRef="MS" accession="MS:1000827" name="isolation window target m/z" value="302.01"/>
         <InterpretationList>
           <Interpretation>
             <cvParam cvRef="MS" accession="MS:1000903" name="product ion series ordinal" value="3"/>
