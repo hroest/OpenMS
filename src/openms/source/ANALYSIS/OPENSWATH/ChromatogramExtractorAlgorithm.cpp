@@ -102,11 +102,16 @@ namespace OpenMS
     {
       --mz_walker;
       --int_walker;
-    }
-    // check for very first data point (will not be caught in the while loop)
-    if (mz_walker == mz_start && (*mz_walker) > left && (*mz_walker) < right)
-    {
-      integrated_intensity += (*int_walker);
+
+      // special case: when mz_it is the second data point, mz_walker now
+      // points to the very first data point. If mz_it was the first data
+      // point, we already added it above. We still need to add this point if
+      // it is inside the window (while loop below will not catch it)
+      if (mz_walker == mz_start && (*mz_walker) > left && (*mz_walker) < right)
+      {
+        integrated_intensity += (*int_walker);
+      }
+
     }
     while (mz_walker != mz_start && (*mz_walker) > left && (*mz_walker) < right)
     {

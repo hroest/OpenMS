@@ -340,10 +340,11 @@ public:
       if (walker > 0)
       {
         walker--;
-      }
-      if (walker == 0 && input[walker].getMZ() > left && input[walker].getMZ() < right)
-      {
-        integrated_intensity += input[walker].getIntensity(); walker--;
+        // special case: walker is now zero
+        if (walker == 0 && input[walker].getMZ() > left && input[walker].getMZ() < right)
+        {
+          integrated_intensity += input[walker].getIntensity(); walker--;
+        }
       }
       while (walker > 0 && input[walker].getMZ() > left && input[walker].getMZ() < right)
       {
@@ -414,6 +415,11 @@ public:
       if (walker > 0 )
       {
         walker--;
+        // special case: walker is now zero
+        if (walker == 0 && input[walker].getMZ() > left && input[walker].getMZ() < right)
+        {
+          integrated_intensity += input[walker].getIntensity(); walker--;
+        }
       }
       while (walker > 0 && input[walker].getMZ() > left && input[walker].getMZ() < right)
       {
