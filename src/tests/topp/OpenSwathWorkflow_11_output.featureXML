@@ -191,7 +191,7 @@
 			<UserParam type="float" name="var_sonar_sn" value="6.0000001525879"/>
 			<UserParam type="float" name="var_sonar_diff" value="0"/>
 			<UserParam type="float" name="var_sonar_trend" value="1"/>
-			<UserParam type="float" name="var_sonar_rsq" value="nan"/>
+			<UserParam type="float" name="var_sonar_rsq" value="0"/>
 			<UserParam type="float" name="xx_swath_prelim_score" value="0"/>
 		</feature>
 	</featureList>
