@@ -275,9 +275,8 @@ namespace OpenMS
       // try to find R^2 of a linear regression (optimally, there is no trend)
       std::vector<double> xvals;
       for (Size pr_idx = 0; pr_idx < sonar_profile_pos.size(); pr_idx++) {xvals.push_back(pr_idx);}
-      OpenMS::Math::LinearRegression lr;
-      lr.computeRegression(0.95, xvals.begin(), xvals.end(), sonar_profile_pos.begin());
-      double rsq = lr.getRSquared();
+      double rsq = OpenSwath::cor_pearson( xvals.begin(), xvals.end(), sonar_profile_pos.begin() );
+
 
       // try to find largest diff
       double sonar_largediff = 0.0;
