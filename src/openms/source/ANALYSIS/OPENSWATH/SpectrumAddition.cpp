@@ -72,11 +72,11 @@ namespace OpenMS
 
       if (all_spectra[i]->getMZArray()->data[0] < min)
       {
-        min = all_spectra[i]->getMZArray()->data[0]; 
+        min = all_spectra[i]->getMZArray()->data[0];
       }
       if (all_spectra[i]->getMZArray()->data.back() > max)
       {
-        max = all_spectra[i]->getMZArray()->data.back(); 
+        max = all_spectra[i]->getMZArray()->data.back();
       }
     }
 
