@@ -556,6 +556,7 @@ var_yseries_score   -0.0327896378737766
     void calculateDIAScores(OpenSwath::IMRMFeature* imrmfeature, 
         const std::vector<TransitionType> & transitions,
         std::vector<OpenSwath::SwathMap> swath_maps,
+        bool use_sonar,
         OpenSwath::SpectrumAccessPtr ms1_map,
         OpenMS::DIAScoring & diascoring,
         const CompoundType& pep,

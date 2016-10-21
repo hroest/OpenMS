@@ -77,9 +77,11 @@ namespace OpenMS
   void OpenSwathScoring::calculateDIAScores(OpenSwath::IMRMFeature* imrmfeature,
                                             const std::vector<TransitionType> & transitions,
                                             std::vector<OpenSwath::SwathMap> swath_maps,
+                                            bool use_sonar,
                                             OpenSwath::SpectrumAccessPtr ms1_map,
                                             OpenMS::DIAScoring & diascoring,
-                                            const CompoundType& compound, OpenSwath_Scores & scores)
+                                            const CompoundType& compound,
+                                            OpenSwath_Scores & scores)
   {
     OPENMS_PRECONDITION(transitions.size() > 0, "There needs to be at least one transition.");
     OPENMS_PRECONDITION(swath_maps.size() > 0, "There needs to be at least one swath map.");
@@ -97,7 +99,10 @@ namespace OpenMS
         }
       }
 
-      SONARScoring().computeSonarScores(imrmfeature, transitions, swath_maps, scores);
+      if (use_sonar)
+      {
+        SONARScoring().computeSonarScores(imrmfeature, transitions, swath_maps, scores);
+      }
     }
     else
     {
@@ -178,7 +183,6 @@ namespace OpenMS
     if (swath_maps.size() > 1)
     {
       // std::cout << " dia scores1 , sonar " << std::endl;
-
 
       double precursor_mz = transition.getPrecursorMZ();
       for (size_t i = 0; i < swath_maps.size(); ++i)
