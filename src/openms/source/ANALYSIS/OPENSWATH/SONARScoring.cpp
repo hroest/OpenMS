@@ -171,9 +171,8 @@ namespace OpenMS
     // idea 2: check the SONAR profile (e.g. in the dimension of) of the best scan (RT apex)
     double RT = imrmfeature->getRT();
 
-    // Aggregate sonar profiles
+    // Aggregate sonar profiles (for each transition)
     std::vector<std::vector<double> > sonar_profiles;
-
     std::vector<double> sn_score;
     std::vector<double> diff_score;
     std::vector<double> trend_score;
@@ -184,7 +183,7 @@ namespace OpenMS
     {
       String native_id = transitions[k].getNativeID();
 
-      // Gather profiles
+      // Gather profiles across all SONAR maps
       std::vector<double> sonar_profile;
       std::vector<double> sonar_mz_profile;
       std::vector<bool> signal_exp;
@@ -199,7 +198,7 @@ namespace OpenMS
           expect_signal = true;
         }
 
-        // find closest
+        // find closest scan for current SONAR map (by retention time)
         std::vector<std::size_t> indices = swath_map->getSpectraByRT(RT, 0.0);
         if (indices.empty() )  {continue;}
         int closest_idx = boost::numeric_cast<int>(indices[0]);
@@ -210,6 +209,8 @@ namespace OpenMS
           closest_idx--;
         }
         OpenSwath::SpectrumPtr spectrum_ = swath_map->getSpectrumById(closest_idx);
+
+        // integrate intensity within that scan
         double left = transitions[k].getProductMZ() - dia_extract_window_ / 2.0;
         double right = transitions[k].getProductMZ() + dia_extract_window_ / 2.0;
         double mz, intensity;
@@ -276,7 +277,6 @@ namespace OpenMS
       std::vector<double> xvals;
       for (Size pr_idx = 0; pr_idx < sonar_profile_pos.size(); pr_idx++) {xvals.push_back(pr_idx);}
       double rsq = OpenSwath::cor_pearson( xvals.begin(), xvals.end(), sonar_profile_pos.begin() );
-
 
       // try to find largest diff
       double sonar_largediff = 0.0;
