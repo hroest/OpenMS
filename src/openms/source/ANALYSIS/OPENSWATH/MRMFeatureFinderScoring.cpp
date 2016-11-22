@@ -347,6 +347,7 @@ namespace OpenMS
       idscores.ind_num_transitions = native_ids_identification.size();
     }
 
+    // Compute DIA scores only on the identification transitions
     bool swath_present = (!swath_maps.empty() && swath_maps[0].sptr->getNrSpectra() > 0);
     if (swath_present && su_.use_dia_scores_ && native_ids_identification.size() > 0)
     {
@@ -464,7 +465,11 @@ namespace OpenMS
       if (swath_maps.size() > 0 && swath_maps[0].sptr->getNrSpectra() > 0 && su_.use_dia_scores_)
       {
         scorer.calculateDIAScores(imrmfeature, transition_group_detection.getTransitions(),
-                                  swath_maps, su_.use_sonar_scores, ms1_map_, diascoring_, *pep, scores);
+                                  swath_maps, ms1_map_, diascoring_, *pep, scores);
+      }
+      if (swath_maps.size() > 0 && swath_maps[0].sptr->getNrSpectra() > 0 && su_.use_sonar_scores)
+      {
+        SONARScoring().computeSonarScores(imrmfeature, transition_group_detection.getTransitions(), swath_maps, scores);
       }
 
       if (su_.use_uis_scores && transition_group_identification.getTransitions().size() > 0)
