@@ -141,7 +141,11 @@ namespace OpenMS
 
   OpenMS::MSSpectrum<> SpectrumAddition::addUpSpectra(std::vector<OpenMS::MSSpectrum<> > all_spectra, double sampling_rate, bool filter_zeros)
   {
-    // OPENMS_PRECONDITION(
+    if (all_spectra.size() == 1)
+    {
+      return all_spectra[0];
+    }
+
     bool all_empty = true;
     for (Size i = 0; i < all_spectra.size(); i++)
     {
@@ -155,7 +159,7 @@ namespace OpenMS
     {
       return MSSpectrum<>();
     }
-    if (all_spectra[0].empty() ) 
+    if (all_spectra[0].empty() )
     {
       throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, "First spectrum cannot be empty");
     }
