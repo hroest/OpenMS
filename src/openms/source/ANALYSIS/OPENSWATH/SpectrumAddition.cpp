@@ -141,15 +141,7 @@ namespace OpenMS
 
   OpenMS::MSSpectrum<> SpectrumAddition::addUpSpectra(std::vector<OpenMS::MSSpectrum<> > all_spectra, double sampling_rate, bool filter_zeros)
   {
-    if (all_spectra.empty())
-    {
-      return MSSpectrum<>();
-    }
-
-    // find global min and max -> use as start/endpoints for resampling
-    double min = all_spectra[0].getMin()[0]; 
-    double max = all_spectra[0].getMax()[0];
-    double min_spacing = max;
+    // OPENMS_PRECONDITION(
     bool all_empty = true;
     for (Size i = 0; i < all_spectra.size(); i++)
     {
@@ -158,12 +150,32 @@ namespace OpenMS
         continue;
       }
       all_empty = false;
+    }
+    if (all_spectra.empty() || all_empty)
+    {
+      return MSSpectrum<>();
+    }
+    if (all_spectra[0].empty() ) 
+    {
+      throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, "First spectrum cannot be empty");
+    }
+
+    // find global min and max -> use as start/endpoints for resampling
+    double min = all_spectra[0][0].getMZ();
+    double max = all_spectra[0][all_spectra[0].size()-1].getMZ();
+    double min_spacing = max - min;
+    for (Size i = 0; i < all_spectra.size(); i++)
+    {
+      if (all_spectra[i].empty())
+      {
+        continue;
+      }
 
       for (Size k = 0; k < all_spectra[i].size() && sampling_rate < 0; k++)
       {
         if (k > 0)
         {
-          if (min_spacing < all_spectra[i][k].getMZ() - all_spectra[i][k-1].getMZ() )
+          if (min_spacing > all_spectra[i][k].getMZ() - all_spectra[i][k-1].getMZ() )
           {
             min_spacing = all_spectra[i][k].getMZ() - all_spectra[i][k-1].getMZ();
           }

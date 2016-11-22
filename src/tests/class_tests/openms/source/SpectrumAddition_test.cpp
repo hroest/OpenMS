@@ -175,7 +175,6 @@ START_SECTION((static OpenMS::MSSpectrum<> addUpSpectra(std::vector< OpenMS::Spe
   all_spectra.clear();
   all_spectra.push_back(s1);
   all_spectra.push_back(s2);
-  std::cout << " to do here " << std::endl;
   MSSpectrum<> result = SpectrumAddition::addUpSpectra(all_spectra, 0.1, false);
   TEST_EQUAL(result.size(), 25);
 
@@ -185,6 +184,25 @@ START_SECTION((static OpenMS::MSSpectrum<> addUpSpectra(std::vector< OpenMS::Spe
   TEST_REAL_SIMILAR(result_filtered[0].getIntensity(), 2);
   TEST_REAL_SIMILAR(result_filtered[3].getMZ(), 101.9);
   TEST_REAL_SIMILAR(result_filtered[3].getIntensity(), 3 + 5/2.0); // 3 @ 101.9 and 5 @ 101.95
+
+  // automatic spacing should be the min distance found in the data in each
+  // spectrum individually, i.e. it should not decrease the resolution
+  result_filtered = SpectrumAddition::addUpSpectra(all_spectra, 0.01, true);
+  MSSpectrum<> result_filtered_auto = SpectrumAddition::addUpSpectra(all_spectra, -1, true);
+  // this has some numerical stability issues
+  // TEST_EQUAL(result_filtered, result_filtered_auto)
+
+  TEST_EQUAL(result_filtered.size(), 16);
+  TEST_REAL_SIMILAR(result_filtered[0].getMZ(), 100.0);
+  TEST_REAL_SIMILAR(result_filtered[0].getIntensity(), 2);
+  TEST_REAL_SIMILAR(result_filtered[3].getMZ(), 101.9);
+  TEST_REAL_SIMILAR(result_filtered[3].getIntensity(), 3);
+
+  TEST_EQUAL(result_filtered_auto.size(), 28);
+  TEST_REAL_SIMILAR(result_filtered[0].getMZ(), 100.0);
+  TEST_REAL_SIMILAR(result_filtered[0].getIntensity(), 2);
+  TEST_REAL_SIMILAR(result_filtered[3].getMZ(), 101.9);
+  TEST_REAL_SIMILAR(result_filtered[3].getIntensity(), 3);
 }
 END_SECTION
 
