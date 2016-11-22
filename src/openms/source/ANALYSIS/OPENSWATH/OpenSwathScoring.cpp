@@ -77,7 +77,6 @@ namespace OpenMS
   void OpenSwathScoring::calculateDIAScores(OpenSwath::IMRMFeature* imrmfeature,
                                             const std::vector<TransitionType> & transitions,
                                             std::vector<OpenSwath::SwathMap> swath_maps,
-                                            bool use_sonar,
                                             OpenSwath::SpectrumAccessPtr ms1_map,
                                             OpenMS::DIAScoring & diascoring,
                                             const CompoundType& compound,
@@ -86,6 +85,7 @@ namespace OpenMS
     OPENMS_PRECONDITION(transitions.size() > 0, "There needs to be at least one transition.");
     OPENMS_PRECONDITION(swath_maps.size() > 0, "There needs to be at least one swath map.");
 
+    // Identify corresponding SONAR maps (if more than one map is used)
     std::vector<OpenSwath::SwathMap> used_swath_maps;
     if (swath_maps.size() > 1 || transitions.empty())
     {
@@ -97,11 +97,6 @@ namespace OpenMS
         {
           used_swath_maps.push_back(swath_maps[i]);
         }
-      }
-
-      if (use_sonar)
-      {
-        SONARScoring().computeSonarScores(imrmfeature, transitions, swath_maps, scores);
       }
     }
     else
@@ -179,11 +174,10 @@ namespace OpenMS
   {
     OPENMS_PRECONDITION(swath_maps.size() > 0, "There needs to be at least one swath map.");
 
+    // Identify corresponding SONAR maps (if more than one map is used)
     std::vector<OpenSwath::SwathMap> used_swath_maps;
     if (swath_maps.size() > 1)
     {
-      // std::cout << " dia scores1 , sonar " << std::endl;
-
       double precursor_mz = transition.getPrecursorMZ();
       for (size_t i = 0; i < swath_maps.size(); ++i)
       {
@@ -191,7 +185,6 @@ namespace OpenMS
         if (precursor_mz > swath_maps[i].lower && precursor_mz < swath_maps[i].upper)
         {
           used_swath_maps.push_back(swath_maps[i]);
-          // std::cout << " will use map  sonar " << swath_maps[i].lower << " -  " << swath_maps[i].upper << std::endl;
         }
       }
     }
