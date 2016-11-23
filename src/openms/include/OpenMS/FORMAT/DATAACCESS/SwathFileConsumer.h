@@ -37,20 +37,23 @@
 
 #include <boost/cast.hpp>
 
-// Datastructures
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/DataStructures.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/SwathMap.h>
+#include <OpenMS/INTERFACES/IMSDataConsumer.h>
 
 // Consumers
 #include <OpenMS/FORMAT/DATAACCESS/MSDataCachedConsumer.h>
 #include <OpenMS/FORMAT/DATAACCESS/MSDataWritingConsumer.h>
-#include <OpenMS/FORMAT/DATAACCESS/MSDataTransformingConsumer.h>
+#include <OpenMS/FORMAT/DATAACCESS/MSDataAggregatingConsumer.h>
+#include <OpenMS/FORMAT/DATAACCESS/MSDataChainingConsumer.h>
+#include <OpenMS/FORMAT/DATAACCESS/MSDataStoringConsumer.h>
+
+// Datastructures
+#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/DataStructures.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/SwathMap.h>
 
 // Helpers
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SimpleOpenMSSpectraAccessFactory.h>
 
-#include <OpenMS/INTERFACES/IMSDataConsumer.h>
 #include <OpenMS/FORMAT/CachedMzML.h>
 
 #ifdef _OPENMP
@@ -110,6 +113,7 @@ public:
       ms1_map_(), // initialize to null
       consuming_possible_(true),
       use_external_boundaries_(false),
+      aggregate_ms1_(false),
       correct_window_counter_(0)
     {
       use_external_boundaries_ = !swath_map_boundaries_.empty();
@@ -119,14 +123,17 @@ public:
      * @brief Constructor
      *
      * @param swath_boundaries A vector of SwathMaps of which only the center,
-     * lower and upper attributes will be used to infer the expected Swath maps.
+     * lower and upper attributes will be used to infer the expected Swath
+     * maps. Will not be used if empty.
+     * @param aggregate_ms1 Aggregate MS1 data by retention time (e.g. in SONAR data)
      *
      */
-    FullSwathFileConsumer(std::vector<OpenSwath::SwathMap> swath_boundaries) :
+    FullSwathFileConsumer(std::vector<OpenSwath::SwathMap> swath_boundaries, bool aggregate_ms1 = false) :
       swath_map_boundaries_(swath_boundaries),
       ms1_map_(), // initialize to null
       consuming_possible_(true),
       use_external_boundaries_(false),
+      aggregate_ms1_(aggregate_ms1),
       correct_window_counter_(0)
     {
       use_external_boundaries_ = !swath_map_boundaries_.empty();
@@ -319,6 +326,9 @@ protected:
     /// Whether to use external input for SWATH boundaries
     bool use_external_boundaries_;
 
+    /// Whether to aggregate MS1 signal (as necessary for SONAR)
+    bool aggregate_ms1_;
+
     /// How many windows were correctly annotated (non-zero window limits)
     size_t correct_window_counter_;
 
@@ -342,7 +352,8 @@ public:
     RegularSwathFileConsumer() {}
 
     RegularSwathFileConsumer(std::vector<OpenSwath::SwathMap> known_window_boundaries) :
-      FullSwathFileConsumer(known_window_boundaries) {}
+      FullSwathFileConsumer(known_window_boundaries)  // initialize base class
+    {}
 
 protected:
     void addNewSwathMap_()
@@ -369,6 +380,9 @@ protected:
 
     void consumeMS1Spectrum_(MapType::SpectrumType& s)
     {
+      // we should not even be able to initialize with this set to true
+      if (aggregate_ms1_) {throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, "Aggregate MS1 not supported for RegularSwathFileConsumer");}
+
       if (!ms1_map_)
       {
         addMS1Map_();
@@ -399,6 +413,7 @@ public:
 
     CachedSwathFileConsumer(String cachedir, String basename, Size nr_ms1_spectra, std::vector<int> nr_ms2_spectra) :
       ms1_consumer_(NULL),
+      ms1_storage_(NULL),
       swath_consumers_(),
       cachedir_(cachedir),
       basename_(basename),
@@ -407,9 +422,10 @@ public:
     {}
 
     CachedSwathFileConsumer(std::vector<OpenSwath::SwathMap> known_window_boundaries,
-            String cachedir, String basename, Size nr_ms1_spectra, std::vector<int> nr_ms2_spectra) :
-      FullSwathFileConsumer(known_window_boundaries),
+            String cachedir, String basename, Size nr_ms1_spectra, std::vector<int> nr_ms2_spectra, bool aggregate_ms1 = false) :
+      FullSwathFileConsumer(known_window_boundaries, aggregate_ms1), // initialize base class
       ms1_consumer_(NULL),
+      ms1_storage_(NULL),
       swath_consumers_(),
       cachedir_(cachedir),
       basename_(basename),
@@ -418,6 +434,23 @@ public:
     {}
 
     ~CachedSwathFileConsumer()
+    {
+      doCleanup();
+    }
+
+protected:
+
+    /**
+
+     Properly delete the MSDataCachedConsumer -> free memory and _close_ file stream
+     The file streams to the cached data on disc can and should be closed
+     here safely. Since ensureMapsAreFilled_ is called after consuming all
+     the spectra, there will be no more spectra to append but the client
+     might already want to read after this call, so all data needs to be
+     present on disc and the file streams closed.
+
+    */
+    void doCleanup()
     {
       // Properly delete the MSDataCachedConsumer -> free memory and _close_ file stream
       while (!swath_consumers_.empty())
@@ -430,9 +463,13 @@ public:
         delete ms1_consumer_;
         ms1_consumer_ = NULL;
       }
+      while (!cleanup_consumers_.empty())
+      {
+        delete cleanup_consumers_.back();
+        cleanup_consumers_.pop_back();
+      }
     }
 
-protected:
     void addNewSwathMap_()
     {
       String meta_file = cachedir_ + basename_ + "_" + String(swath_consumers_.size()) +  ".mzML";
@@ -460,10 +497,35 @@ protected:
     {
       String meta_file = cachedir_ + basename_ + "_ms1.mzML";
       String cached_file = meta_file + ".cached";
-      ms1_consumer_ = new MSDataCachedConsumer(cached_file, true);
-      ms1_consumer_->setExpectedSize(nr_ms1_spectra_, 0);
-      boost::shared_ptr<MSExperiment<Peak1D> > exp(new MSExperiment<Peak1D>(settings_));
-      ms1_map_ = exp;
+      if (aggregate_ms1_)
+      {
+        MSDataCachedConsumer * cached_consumer = new MSDataCachedConsumer(cached_file, true);
+        MSDataStoringConsumer * storage = new MSDataStoringConsumer();
+        cached_consumer->setExpectedSize(nr_ms1_spectra_, 0);
+        storage->setExpectedSize(nr_ms1_spectra_, 0);
+
+        // For each aggregate MS1 spectrum perform the following actions:
+        // i) cache to disk (and delete data in memory)
+        // ii) store meta-data in memory
+        std::vector<Interfaces::IMSDataConsumer<> *> consumer_list;
+        consumer_list.push_back(cached_consumer);
+        consumer_list.push_back(storage);
+        MSDataChainingConsumer * chain = new MSDataChainingConsumer(consumer_list);
+
+        ms1_consumer_ = new MSDataAggregatingConsumer(chain);
+        ms1_storage_ = storage; // keep MS1 storage around
+
+        // Destruction order: ms1_consumer_, then chain, then cached_consumer & storage (from top to bottom)
+        cleanup_consumers_.push_back(cached_consumer);
+        cleanup_consumers_.push_back(chain);
+      }
+      else
+      {
+        ms1_consumer_ = new MSDataCachedConsumer(cached_file, true);
+        ms1_consumer_->setExpectedSize(nr_ms1_spectra_, 0);
+        boost::shared_ptr<MSExperiment<Peak1D> > exp(new MSExperiment<Peak1D>(settings_));
+        ms1_map_ = exp;
+      }
     }
 
     void consumeMS1Spectrum_(MapType::SpectrumType& s)
@@ -473,7 +535,12 @@ protected:
         addMS1Map_();
       }
       ms1_consumer_->consumeSpectrum(s);
-      ms1_map_->addSpectrum(s); // append for the metadata (actual data is deleted)
+
+      if (!aggregate_ms1_)
+      {
+        ms1_map_->addSpectrum(s); // append for the metadata (actual data is deleted)
+      }
+
     }
 
     void ensureMapsAreFilled_()
@@ -481,26 +548,10 @@ protected:
       size_t swath_consumers_size = swath_consumers_.size();
       bool have_ms1 = (ms1_consumer_ != NULL);
 
-      // Properly delete the MSDataCachedConsumer -> free memory and _close_ file stream
-      // The file streams to the cached data on disc can and should be closed
-      // here safely. Since ensureMapsAreFilled_ is called after consuming all
-      // the spectra, there will be no more spectra to append but the client
-      // might already want to read after this call, so all data needs to be
-      // present on disc and the file streams closed.
-      //
-      // TODO merge with destructor code into own function!
-      while (!swath_consumers_.empty())
-      {
-        delete swath_consumers_.back();
-        swath_consumers_.pop_back();
-      }
-      if (ms1_consumer_ != NULL)
-      {
-        delete ms1_consumer_;
-        ms1_consumer_ = NULL;
-      }
+      doCleanup();
 
-      if (have_ms1)
+      // Write meta data for MS1 to disk
+      if (have_ms1 && !aggregate_ms1_)
       {
         boost::shared_ptr<MSExperiment<Peak1D> > exp(new MSExperiment<Peak1D>);
         String meta_file = cachedir_ + basename_ + "_ms1.mzML";
@@ -508,6 +559,24 @@ protected:
         CachedmzML().writeMetadata(*ms1_map_, meta_file, true);
         MzMLFile().load(meta_file, *exp.get());
         ms1_map_ = exp;
+      }
+      else if (have_ms1 && aggregate_ms1_)
+      {
+        boost::shared_ptr<MSExperiment<Peak1D> > exp(new MSExperiment<Peak1D>);
+        String meta_file = cachedir_ + basename_ + "_ms1.mzML";
+
+        // write metadata to disk and store the correct data processing tag
+        MSExperiment<> exp_tmp = ms1_storage_->getData(); // make copy (writeMetadata changes the file)
+        CachedmzML().writeMetadata(exp_tmp, meta_file, true);
+        MzMLFile().load(meta_file, *exp.get());
+        ms1_map_ = exp;
+
+        // need to delete storage now and free memory
+        if (ms1_storage_ != NULL)
+        {
+          delete ms1_storage_;
+          ms1_storage_ = NULL;
+        }
       }
 
 #ifdef _OPENMP
@@ -524,8 +593,11 @@ protected:
       }
     }
 
-    MSDataCachedConsumer* ms1_consumer_;
+    Interfaces::IMSDataConsumer<> * ms1_consumer_; // generic MS1 consumer
+    MSDataStoringConsumer * ms1_storage_;
     std::vector<MSDataCachedConsumer*> swath_consumers_;
+
+    std::vector<Interfaces::IMSDataConsumer<> * > cleanup_consumers_; // collection of consumers in need of cleaning up
 
     String cachedir_;
     String basename_;
@@ -538,7 +610,7 @@ protected:
    *
    * Writes all spectra immediately to disk to an mzML file location using the
    * PlainMSDataWritingConsumer. Internally, it handles n+1 (n SWATH + 1 MS1
-   * map) objects of MSDataCachedConsumerwhich can consume the spectra and
+   * map) objects of MSDataCachedConsumer which can consume the spectra and
    * write them to disk immediately.
    *
    */
@@ -562,7 +634,7 @@ public:
 
     MzMLSwathFileConsumer(std::vector<OpenSwath::SwathMap> known_window_boundaries,
             String cachedir, String basename, Size nr_ms1_spectra, std::vector<int> nr_ms2_spectra) :
-      FullSwathFileConsumer(known_window_boundaries),
+      FullSwathFileConsumer(known_window_boundaries), // initialize base class
       ms1_consumer_(NULL),
       swath_consumers_(),
       cachedir_(cachedir),
@@ -623,10 +695,14 @@ protected:
 
     void consumeMS1Spectrum_(MapType::SpectrumType& s)
     {
+      // we should not even be able to initialize with this set to true
+      if (aggregate_ms1_) {throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, "Aggregate MS1 not supported for MzMLSwathFileConsumer");}
+
       if (ms1_consumer_ == NULL)
       {
         addMS1Map_();
       }
+
       ms1_consumer_->consumeSpectrum(s);
       s.clear(false);
     }
