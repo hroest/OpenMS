@@ -133,7 +133,7 @@ public:
       ms1_map_(), // initialize to null
       consuming_possible_(true),
       use_external_boundaries_(false),
-      aggregate_ms1_(aggregate_ms1_),
+      aggregate_ms1_(aggregate_ms1),
       correct_window_counter_(0)
     {
       use_external_boundaries_ = !swath_map_boundaries_.empty();
