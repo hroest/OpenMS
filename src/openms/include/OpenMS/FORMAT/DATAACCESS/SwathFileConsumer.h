@@ -380,6 +380,7 @@ protected:
 
     void consumeMS1Spectrum_(MapType::SpectrumType& s)
     {
+      // we should not even be able to initialize with this set to true
       if (aggregate_ms1_) {throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, "Aggregate MS1 not supported for RegularSwathFileConsumer");}
 
       if (!ms1_map_)
@@ -592,9 +593,8 @@ protected:
       }
     }
 
-    MSDataStoringConsumer * ms1_storage_;
-
     IMSDataConsumer* ms1_consumer_; // generic MS1 consumer
+    MSDataStoringConsumer * ms1_storage_;
     std::vector<MSDataCachedConsumer*> swath_consumers_;
 
     std::vector<IMSDataConsumer*> cleanup_consumers_; // collection of consumers in need of cleaning up
@@ -695,6 +695,7 @@ protected:
 
     void consumeMS1Spectrum_(MapType::SpectrumType& s)
     {
+      // we should not even be able to initialize with this set to true
       if (aggregate_ms1_) {throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, "Aggregate MS1 not supported for MzMLSwathFileConsumer");}
 
       if (ms1_consumer_ == NULL)
