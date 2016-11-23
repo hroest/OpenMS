@@ -94,8 +94,8 @@ namespace OpenMS
     /**
      * @brief Destructor
      *
-     * Does not destroy underlying consumers, therefore is the responsibility
-     * of the caller to destroy all consumers.
+     * Does nothing. Does not destroy underlying consumers, therefore is the
+     * responsibility of the caller to destroy all consumers.
      *
      */
     ~MSDataChainingConsumer();
@@ -141,4 +141,5 @@ namespace OpenMS
 
 } //end namespace OpenMS
 
-#endif
+#endif // OPENMS_FORMAT_DATAACCESS_MSDATACHAININGCONSUMER_H
+
