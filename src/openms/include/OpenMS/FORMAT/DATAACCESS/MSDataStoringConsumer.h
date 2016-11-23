@@ -44,6 +44,9 @@ namespace OpenMS
   /**
     @brief Consumer class that simply stores the data.
 
+    This class is able to keep spectra and chromatograms passed to it in memory
+    and the data can be accessed through getData()
+
   */
   class OPENMS_DLLAPI MSDataStoringConsumer :
     public Interfaces::IMSDataConsumer< MSExperiment<> >
@@ -57,11 +60,14 @@ namespace OpenMS
 
     void setExperimentalSettings(const ExperimentalSettings & settings) 
     {
-      // this should work and only override the settings, keep the data
-      exp_ = settings;
+      exp_ = settings; // only override the settings, keep the data
     }
 
-    void setExpectedSize(Size, Size) {}
+    void setExpectedSize(Size s_size, Size c_size) 
+    {
+      exp_.reserveSpaceSpectra(s_size);
+      exp_.reserveSpaceChromatograms(c_size);
+    }
 
     void consumeSpectrum(SpectrumType & s) 
     {
@@ -70,9 +76,7 @@ namespace OpenMS
 
     void consumeChromatogram(ChromatogramType & c) 
     {
-      std::cout << " MSDataStoringConsumer consumeChromatogram " << exp_.getNrChromatograms() << std::endl;
       exp_.addChromatogram(c);
-      std::cout << " MSDataStoringConsumer after consume " << exp_.getNrChromatograms() << std::endl;
     }
 
     const MSExperiment<>& getData() const
