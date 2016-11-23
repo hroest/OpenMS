@@ -61,15 +61,15 @@ namespace OpenMS
 
       /**
         @brief Constructor
+
+        @note This does not transfer ownership of the consumer
       */
-      
+
       MSDataAggregatingConsumer(IMSDataConsumer<>* next_consumer) :
         next_consumer_(next_consumer),
         previous_rt_(0.0),
         rt_initialized_(false)
-      {
-        std::cout << "MSDataAggregatingConsumer init" << next_consumer << " vs " << next_consumer_ << std::endl;
-      }
+      {}
 
       /// Destructor (flushes data)
       virtual ~MSDataAggregatingConsumer();
@@ -87,3 +87,4 @@ namespace OpenMS
 } //end namespace OpenMS
 
 #endif // OPENMS_FORMAT_DATAACCESS_MSDATAAGGREGATINGCONSUMER_H
+

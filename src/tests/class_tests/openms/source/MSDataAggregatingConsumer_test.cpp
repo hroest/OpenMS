@@ -81,6 +81,8 @@ START_SECTION((void consumeSpectrum(SpectrumType & s)))
     s.setRT(25);
     agg_consumer->consumeSpectrum(s);
 
+    // note how we can / have to destroy the aggregate consumer to ensure it
+    // flushes the data. The storage object will still be around.
     delete agg_consumer;
 
     TEST_EQUAL(storage->getData().getNrSpectra(), 3)
@@ -120,6 +122,8 @@ START_SECTION((void consumeSpectrum(SpectrumType & s)))
     s.setRT(35);
     agg_consumer->consumeSpectrum(s);
 
+    // note how we can / have to destroy the aggregate consumer to ensure it
+    // flushes the data. The storage object will still be around.
     delete agg_consumer;
 
     TEST_EQUAL(storage->getData().getNrSpectra(), 3)
@@ -178,6 +182,8 @@ START_SECTION((void consumeSpectrum(SpectrumType & s)))
     agg_consumer->consumeSpectrum(s);
     s.clear(true);
 
+    // note how we can / have to destroy the aggregate consumer to ensure it
+    // flushes the data. The storage object will still be around.
     delete agg_consumer;
 
     TEST_EQUAL(storage->getData().getNrSpectra(), 3)
