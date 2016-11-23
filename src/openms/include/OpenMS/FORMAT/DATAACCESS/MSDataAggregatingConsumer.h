@@ -64,14 +64,20 @@ namespace OpenMS
 
         @note This does not transfer ownership of the consumer
       */
-
       MSDataAggregatingConsumer(IMSDataConsumer<>* next_consumer) :
         next_consumer_(next_consumer),
         previous_rt_(0.0),
         rt_initialized_(false)
       {}
 
-      /// Destructor (flushes data)
+      /**
+        @brief Constructor
+
+        Flushes data to next consumer
+
+        @note It is essential to not delete the underlying next_consumer before
+        deleting this object, otherwise we risk a memory error
+      */
       virtual ~MSDataAggregatingConsumer();
 
       virtual void setExpectedSize(Size, Size) {}
