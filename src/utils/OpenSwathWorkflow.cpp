@@ -540,9 +540,21 @@ protected:
     }
   }
 
+  /**
+   * @brief Load the SWATH files
+   *
+   * @param file_list List of SWATH-MS files
+   * @param split_file Whether to treat the files as split files
+   * @param tmp Temporary directory
+   * @param readoptions How to read SWATH files (cached, normal etc)
+   * @param exp_meta Output storage for meta data (experimental settings)
+   * @param swath_maps Output storage for SWATH data
+   * @param sonar Whether input is SONAR data and needs to be aggregated on the MS1 level (MS1 spectra with the same retention times get added up)
+   *
+   */
   void loadSwathFiles(StringList& file_list, bool split_file, String tmp, String readoptions,
     boost::shared_ptr<ExperimentalSettings > & exp_meta,
-    std::vector< OpenSwath::SwathMap > & swath_maps)
+    std::vector< OpenSwath::SwathMap > & swath_maps, bool sonar)
   {
     SwathFile swath_file;
     swath_file.setLogType(log_type_);
@@ -558,12 +570,12 @@ protected:
       if (in_file_type == FileTypes::MZML || file_list[0].suffix(4).toLower() == "mzml"
         || file_list[0].suffix(7).toLower() == "mzml.gz"  )
       {
-        swath_maps = swath_file.loadMzML(file_list[0], tmp, exp_meta, readoptions);
+        swath_maps = swath_file.loadMzML(file_list[0], tmp, exp_meta, readoptions, sonar);
       }
       else if (in_file_type == FileTypes::MZXML || file_list[0].suffix(5).toLower() == "mzxml"
         || file_list[0].suffix(8).toLower() == "mzxml.gz"  )
       {
-        swath_maps = swath_file.loadMzXML(file_list[0], tmp, exp_meta, readoptions);
+        swath_maps = swath_file.loadMzXML(file_list[0], tmp, exp_meta, readoptions, sonar);
       }
       else
       {
@@ -769,7 +781,7 @@ protected:
     // (i) Load files
     boost::shared_ptr<ExperimentalSettings> exp_meta(new ExperimentalSettings);
     std::vector< OpenSwath::SwathMap > swath_maps;
-    loadSwathFiles(file_list, split_file, tmp, readoptions, exp_meta, swath_maps);
+    loadSwathFiles(file_list, split_file, tmp, readoptions, exp_meta, swath_maps, sonar);
 
     // (ii) Allow the user to specify the SWATH windows
     if (!swath_windows_file.empty())

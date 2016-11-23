@@ -155,7 +155,7 @@ public:
 
     /// Loads a Swath run from a single mzML file
     std::vector<OpenSwath::SwathMap> loadMzML(String file, String tmp,
-      boost::shared_ptr<ExperimentalSettings>& exp_meta, String readoptions = "normal")
+      boost::shared_ptr<ExperimentalSettings>& exp_meta, String readoptions = "normal", bool aggregateMS1 = false)
     {
       std::cout << "Loading mzML file " << file << " using readoptions " << readoptions << std::endl;
       String tmp_fname = "openswath_tmpfile";
@@ -184,7 +184,8 @@ public:
       }
       else if (readoptions == "cache")
       {
-        dataConsumer = new CachedSwathFileConsumer(known_window_boundaries, tmp, tmp_fname, nr_ms1_spectra, swath_counter);
+        dataConsumer = new CachedSwathFileConsumer(known_window_boundaries,
+            tmp, tmp_fname, nr_ms1_spectra, swath_counter, aggregateMS1);
         MzMLFile().transform(file, dataConsumer, *exp.get());
       }
       else if (readoptions == "split")
@@ -208,7 +209,7 @@ public:
 
     /// Loads a Swath run from a single mzXML file
     std::vector<OpenSwath::SwathMap> loadMzXML(String file, String tmp,
-      boost::shared_ptr<ExperimentalSettings>& exp_meta, String readoptions = "normal")
+      boost::shared_ptr<ExperimentalSettings>& exp_meta, String readoptions = "normal", bool aggregateMS1 = false)
     {
       std::cout << "Loading mzXML file " << file << " using readoptions " << readoptions << std::endl;
       String tmp_fname = "openswath_tmpfile";
@@ -241,7 +242,8 @@ public:
       }
       else if (readoptions == "cache")
       {
-        dataConsumer = new CachedSwathFileConsumer(known_window_boundaries, tmp, tmp_fname, nr_ms1_spectra, swath_counter);
+        dataConsumer = new CachedSwathFileConsumer(known_window_boundaries,
+            tmp, tmp_fname, nr_ms1_spectra, swath_counter, aggregateMS1);
         MzXMLFile().transform(file, dataConsumer, *exp.get());
       }
       else if (readoptions == "split")
