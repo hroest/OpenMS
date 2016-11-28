@@ -884,7 +884,6 @@ protected:
 
     OpenSwathTSVWriter tsvwriter(out_tsv, file_list[0], use_ms1_traces, sonar, enable_uis_scoring);
 
-
     if (sonar)
     {
       OpenSwathWorkflowSonar wf(use_ms1_traces);
