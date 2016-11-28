@@ -102,7 +102,7 @@ namespace OpenMS
       ofs << "\txx_lda_prelim_score\txx_swath_prelim_score";
       if (sonar_)
       {
-        ofs << "var_sonar_lag\tvar_sonar_shape\tvar_sonar_log_sn\tvar_sonar_log_diff\tvar_sonar_log_trend\tvar_sonar_rsq";
+        ofs << "\tvar_sonar_lag\tvar_sonar_shape\tvar_sonar_log_sn\tvar_sonar_log_diff\tvar_sonar_log_trend\tvar_sonar_rsq";
       }
       if (use_ms1_traces_)
       {
