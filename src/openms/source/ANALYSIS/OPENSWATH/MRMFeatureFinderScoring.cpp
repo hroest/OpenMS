@@ -695,8 +695,8 @@ namespace OpenMS
 
     // set SONAR values
     Param p = sonarscoring_.getDefaults();
-    p.setValues("dia_extraction_window", param_.getValue("DIAScoring:dia_extraction_window"));
-    p.setValues("dia_centroided", param_.getValue("DIAScoring:dia_centroided"));
+    p.setValue("dia_extraction_window", param_.getValue("DIAScoring:dia_extraction_window"));
+    p.setValue("dia_centroided", param_.getValue("DIAScoring:dia_centroided"));
     sonarscoring_.setParameters(p);
 
     diascoring_.setParameters(param_.copy("DIAScoring:", true));
