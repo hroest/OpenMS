@@ -879,6 +879,9 @@ protected:
       chromConsumer->setExpectedSize(0, expected_chromatograms);
       chromConsumer->setExperimentalSettings(*exp_meta);
       chromConsumer->getOptions().setWriteIndex(true);  // ensure that we write the index
+      chromConsumer->getOptions().setCompression(true); // compress data
+      chromConsumer->getOptions().setMz32Bit(true); // store RT data in 32 bit
+      chromConsumer->getOptions().setIntensity32Bit(true); // store Intensity data with 32 bit
       chromConsumer->addDataProcessing(getProcessingInfo_(DataProcessing::SMOOTHING));
     }
     else
@@ -893,21 +896,8 @@ protected:
 
     OpenSwathTSVWriter tsvwriter(out_tsv, file_list[0], use_ms1_traces, sonar, enable_uis_scoring);
 
-
     if (sonar)
     {
-
-#ifdef OPENSWATH_WORKFLOW_DEBUG
-      // FIX broken maps (SONAR conversion problem!)
-      // TODO: remove!! 
-      // TODO: remove!! 
-      for (size_t i = 0; i < swath_maps.size(); ++i)
-      {
-        swath_maps[i].lower = swath_maps[i].lower - 11.5;
-        swath_maps[i].upper = swath_maps[i].upper - 11.5;
-      }
-#endif
-
       OpenSwathWorkflowSonar wf(use_ms1_traces);
       wf.setLogType(log_type_);
       wf.performExtractionSonar(swath_maps, trafo_rtnorm, cp, feature_finder_param, transition_exp,

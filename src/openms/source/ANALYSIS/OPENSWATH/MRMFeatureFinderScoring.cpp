@@ -39,6 +39,7 @@
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SimpleOpenMSSpectraAccessFactory.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/MRMFeatureAccessOpenMS.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/SONARScoring.h>
 
 // peak picking & noise estimation
 #include <OpenMS/FILTERING/NOISEESTIMATION/SignalToNoiseEstimatorMedian.h>
@@ -346,6 +347,7 @@ namespace OpenMS
       idscores.ind_num_transitions = native_ids_identification.size();
     }
 
+    // Compute DIA scores only on the identification transitions
     bool swath_present = (!swath_maps.empty() && swath_maps[0].sptr->getNrSpectra() > 0);
     if (swath_present && su_.use_dia_scores_ && native_ids_identification.size() > 0)
     {
@@ -463,7 +465,11 @@ namespace OpenMS
       if (swath_maps.size() > 0 && swath_maps[0].sptr->getNrSpectra() > 0 && su_.use_dia_scores_)
       {
         scorer.calculateDIAScores(imrmfeature, transition_group_detection.getTransitions(),
-                                  swath_maps, su_.use_sonar_scores, ms1_map_, diascoring_, *pep, scores);
+                                  swath_maps, ms1_map_, diascoring_, *pep, scores);
+      }
+      if (swath_maps.size() > 0 && swath_maps[0].sptr->getNrSpectra() > 0 && su_.use_sonar_scores)
+      {
+        sonarscoring_.computeSonarScores(imrmfeature, transition_group_detection.getTransitions(), swath_maps, scores);
       }
 
       if (su_.use_uis_scores && transition_group_identification.getTransitions().size() > 0)
@@ -578,11 +584,20 @@ namespace OpenMS
 
       if (sonar_present && su_.use_sonar_scores)
       {
+
+        // set all scores less than 1 to zero (do not over-punish large negative scores)
+        double log_sn = 0;
+        if (scores.sonar_sn > 1) log_sn = std::log(scores.sonar_sn);
+        double log_trend = 0;
+        if (scores.sonar_trend > 1) log_trend = std::log(scores.sonar_trend);
+        double log_diff = 0;
+        if (scores.sonar_diff > 1) log_diff = std::log(scores.sonar_diff);
+
         mrmfeature->addScore("var_sonar_lag", scores.sonar_lag);
         mrmfeature->addScore("var_sonar_shape", scores.sonar_shape);
-        mrmfeature->addScore("var_sonar_sn", scores.sonar_sn);
-        mrmfeature->addScore("var_sonar_diff", scores.sonar_diff);
-        mrmfeature->addScore("var_sonar_trend", scores.sonar_trend);
+        mrmfeature->addScore("var_sonar_log_sn", log_sn);
+        mrmfeature->addScore("var_sonar_log_diff", log_diff);
+        mrmfeature->addScore("var_sonar_log_trend", log_trend);
         mrmfeature->addScore("var_sonar_rsq", scores.sonar_rsq);
       }
 
@@ -677,6 +692,12 @@ namespace OpenMS
     spacing_for_spectra_resampling_ = param_.getValue("spacing_for_spectra_resampling");
     uis_threshold_sn_ = param_.getValue("uis_threshold_sn");
     uis_threshold_peak_area_ = param_.getValue("uis_threshold_peak_area");
+
+    // set SONAR values
+    Param p = sonarscoring_.getDefaults();
+    p.setValue("dia_extraction_window", param_.getValue("DIAScoring:dia_extraction_window"));
+    p.setValue("dia_centroided", param_.getValue("DIAScoring:dia_centroided"));
+    sonarscoring_.setParameters(p);
 
     diascoring_.setParameters(param_.copy("DIAScoring:", true));
     emgscoring_.setFitterParam(param_.copy("EmgScoring:", true));

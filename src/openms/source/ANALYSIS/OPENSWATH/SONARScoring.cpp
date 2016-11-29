@@ -53,6 +53,8 @@ namespace OpenMS
 
     defaults_.setValue("dia_extraction_window", 0.05, "DIA extraction window in Th.");
     defaults_.setMinFloat("dia_extraction_window", 0.0);
+    defaults_.setValue("dia_centroided", "false", "Use centroded DIA data.");
+    defaults_.setValidStrings("dia_centroided", ListUtils::create<String>("true,false"));
 
     // write defaults into Param object param_
     defaultsToParam_();
@@ -60,10 +62,11 @@ namespace OpenMS
 
   void SONARScoring::updateMembers_()
   {
-    // TODO
+    dia_extract_window_ = (double)param_.getValue("dia_extraction_window");
+    dia_centroided_ = param_.getValue("dia_centroided").toBool();
   }
 
-  void SONARScoring::computeXCorr(std::vector<std::vector<double> >& sonar_profiles,
+  void SONARScoring::computeXCorr_(std::vector<std::vector<double> >& sonar_profiles,
                      double& xcorr_coelution_score, double& xcorr_shape_score)
   {
     /// Cross Correlation array
@@ -125,16 +128,12 @@ namespace OpenMS
 
   void SONARScoring::computeSonarScores(OpenSwath::IMRMFeature* imrmfeature,
                                         const std::vector<OpenSwath::LightTransition> & transitions,
-                                        std::vector<OpenSwath::SwathMap> swath_maps,
+                                        std::vector<OpenSwath::SwathMap>& swath_maps,
                                         OpenSwath_Scores & scores)
   {
     if (transitions.empty()) {return;}
 
     double precursor_mz = transitions[0].getPrecursorMZ();
-
-    //double dia_extract_window_ = 0.1;
-    double dia_extract_window_ = 1.0;
-    bool dia_centroided_ = false;
 
 #ifdef DEBUG_SONAR
     std::ofstream debug_file;
@@ -172,9 +171,8 @@ namespace OpenMS
     // idea 2: check the SONAR profile (e.g. in the dimension of) of the best scan (RT apex)
     double RT = imrmfeature->getRT();
 
-    // Aggregate sonar profiles
+    // Aggregate sonar profiles (for each transition)
     std::vector<std::vector<double> > sonar_profiles;
-
     std::vector<double> sn_score;
     std::vector<double> diff_score;
     std::vector<double> trend_score;
@@ -185,7 +183,7 @@ namespace OpenMS
     {
       String native_id = transitions[k].getNativeID();
 
-      // Gather profiles
+      // Gather profiles across all SONAR maps
       std::vector<double> sonar_profile;
       std::vector<double> sonar_mz_profile;
       std::vector<bool> signal_exp;
@@ -200,7 +198,7 @@ namespace OpenMS
           expect_signal = true;
         }
 
-        // find closest
+        // find closest scan for current SONAR map (by retention time)
         std::vector<std::size_t> indices = swath_map->getSpectraByRT(RT, 0.0);
         if (indices.empty() )  {continue;}
         int closest_idx = boost::numeric_cast<int>(indices[0]);
@@ -211,6 +209,8 @@ namespace OpenMS
           closest_idx--;
         }
         OpenSwath::SpectrumPtr spectrum_ = swath_map->getSpectrumById(closest_idx);
+
+        // integrate intensity within that scan
         double left = transitions[k].getProductMZ() - dia_extract_window_ / 2.0;
         double right = transitions[k].getProductMZ() + dia_extract_window_ / 2.0;
         double mz, intensity;
@@ -341,7 +341,7 @@ namespace OpenMS
     }
 
     double xcorr_coelution_score, xcorr_shape_score;
-    computeXCorr(sonar_profiles, xcorr_coelution_score, xcorr_shape_score);
+    computeXCorr_(sonar_profiles, xcorr_coelution_score, xcorr_shape_score);
 
     double sn_av = std::accumulate(sn_score.begin(), sn_score.end(), 0.0) / sn_score.size();
     double diff_av = std::accumulate(diff_score.begin(), diff_score.end(), 0.0) / diff_score.size();
@@ -365,3 +365,4 @@ namespace OpenMS
 
 
 }
+
