@@ -593,11 +593,11 @@ protected:
       }
     }
 
-    IMSDataConsumer* ms1_consumer_; // generic MS1 consumer
+    Interfaces::IMSDataConsumer<> * ms1_consumer_; // generic MS1 consumer
     MSDataStoringConsumer * ms1_storage_;
     std::vector<MSDataCachedConsumer*> swath_consumers_;
 
-    std::vector<IMSDataConsumer*> cleanup_consumers_; // collection of consumers in need of cleaning up
+    std::vector<Interfaces::IMSDataConsumer<> * > cleanup_consumers_; // collection of consumers in need of cleaning up
 
     String cachedir_;
     String basename_;
