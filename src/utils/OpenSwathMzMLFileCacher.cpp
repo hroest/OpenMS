@@ -327,16 +327,6 @@ class OPENMS_DLLAPI SqMassWriter
       }
     }
 
-      /*
-
-         -rw-rw-r-- 1 hr hr 393K Mar 21 20:00 testchrom.allterms.np.zl.mzML.gz
-         -rw-r--r-- 1 hr hr 159K Mar 21 20:01 testout_sqlite_newbase4.mzML
-         -rw-r--r-- 1 hr hr 688K Mar 21 20:02 testout_sqlite_newbase64.mzML
-         -rw-r--r-- 1 hr hr 517K Mar 21 20:04 testout_sqlite_new_zlib.mzML
-         -rw-r--r-- 1 hr hr 976K Mar 21 20:14 testout_sqlite_new_binaryOnly.mzML
-
-
-*/
     void writeChromatograms(const std::vector<MSChromatogram<> >& chroms)
     {
       sqlite3 *db;
@@ -358,6 +348,17 @@ class OPENMS_DLLAPI SqMassWriter
       insert_chrom_sql.precision(11);
       insert_precursor_sql.precision(11);
       insert_product_sql.precision(11);
+
+      // Encoding options
+      MSNumpressCoder::NumpressConfig npconfig_mz;
+      npconfig_mz.estimate_fixed_point = true; // critical
+      npconfig_mz.numpressErrorTolerance = -1.0; // skip check, faster
+      npconfig_mz.setCompression("linear");
+      npconfig_mz.linear_fp_mass_acc = 0.05; // set the desired mass accuracy
+      MSNumpressCoder::NumpressConfig npconfig_int;
+      npconfig_int.estimate_fixed_point = true; // critical
+      npconfig_int.numpressErrorTolerance = -1.0; // skip check, faster
+      npconfig_int.setCompression("slof");
 
       String prepare_statement = "INSERT INTO DATA(CHROMATOGRAM_ID, DATA_TYPE, COMPRESSION, DATA) VALUES ";
       std::vector<String> data;
@@ -383,63 +384,41 @@ class OPENMS_DLLAPI SqMassWriter
         OpenMS::Product prod = chrom.getProduct();
         insert_product_sql << "INSERT INTO PRODUCT (CHROMATOGRAM_ID, CHARGE, ISOLATION_TARGET) VALUES (" << chrom_id_ << "," << 0 << "," << prod.getMZ() <<  "); ";
 
+        //  data_type is one of 0 = mz, 1 = int, 2 = rt
+        //  compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
+
         // encode retention time data
         {
-          MSNumpressCoder::NumpressConfig npconfig_mz;
-
-          npconfig_mz.estimate_fixed_point = true; // critical
-          npconfig_mz.numpressErrorTolerance = -1.0; // skip check, faster
-          npconfig_mz.setCompression("linear");
-          npconfig_mz.linear_fp_mass_acc = 0.05; // set the desired mass accuracy
-
           std::vector<double> data_to_encode;
           data_to_encode.resize(chrom.size());
           for (Size p = 0; p < chrom.size(); ++p)
           {
             data_to_encode[p] = chrom[p].getRT();
           }
-          // std::cout << " id " << sql_it << " has data size " << data_to_encode.size() << std::endl;
 
-          //  data_type is one of 0 = mz, 1 = int, 2 = rt
-          //  compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
-          {
-            String uncompressed_str;
-            String encoded_string;
-            MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_mz);
-            OpenMS::Internal::compress_str(uncompressed_str, encoded_string);
-            data.push_back( encoded_string );
-			prepare_statement += String("(") + chrom_id_ + ", 2, 5, ?" + sql_it++ + " ),";
-          }
+          String uncompressed_str;
+          String encoded_string;
+          MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_mz);
+          OpenMS::Internal::compress_str(uncompressed_str, encoded_string);
+          data.push_back(encoded_string);
+          prepare_statement += String("(") + chrom_id_ + ", 2, 5, ?" + sql_it++ + " ),";
         }
 
         // encode intensity data
         {
-          String encoded_string;
-          MSNumpressCoder::NumpressConfig npconfig_int;
-
-          npconfig_int.estimate_fixed_point = true; // critical
-          npconfig_int.numpressErrorTolerance = -1.0; // skip check, faster
-          npconfig_int.setCompression("slof");
-          // npconfig_int.linear_fp_mass_acc = 0.05; // set the desired mass accuracy
-
           std::vector<double> data_to_encode;
           data_to_encode.resize(chrom.size());
           for (Size p = 0; p < chrom.size(); ++p)
           {
             data_to_encode[p] = chrom[p].getIntensity();
           }
-          // std::cout << " id " << sql_it << " has data size " << data_to_encode.size() << std::endl;
 
-          //  data_type is one of 0 = mz, 1 = int, 2 = rt
-          //  compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
-          {
-            String uncompressed_str;
-            String encoded_string;
-            MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_int);
-            OpenMS::Internal::compress_str(uncompressed_str, encoded_string);
-            data.push_back( encoded_string );
-			prepare_statement += String("(") + chrom_id_ + ", 1, 6, ?" + sql_it++ + " ),";
-          }
+          String uncompressed_str;
+          String encoded_string;
+          MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_int);
+          OpenMS::Internal::compress_str(uncompressed_str, encoded_string);
+          data.push_back( encoded_string );
+          prepare_statement += String("(") + chrom_id_ + ", 1, 6, ?" + sql_it++ + " ),";
         }
         chrom_id_++;
 
@@ -741,7 +720,6 @@ class TOPPOpenSwathMzMLFileCacher
 
   void convertToSQL(MSExperiment<> exp, String outputname)
   {
-
     SqMassWriter sql_mass(outputname);
     sql_mass.init();
     sql_mass.writeChromatograms(exp.getChromatograms());
