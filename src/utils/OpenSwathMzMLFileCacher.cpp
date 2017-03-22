@@ -390,7 +390,7 @@ class OPENMS_DLLAPI SqMassWriter
           {
             insert_precursor_sql << "INSERT INTO PRECURSOR (SPECTRUM_ID, CHARGE, ISOLATION_TARGET) VALUES (" << spec_id_ << "," << prec.getCharge() << "," << prec.getMZ() << "); ";
           }
-          nr_products++;
+          nr_precursors++;
         }
 
         if (!spec.getProducts().empty())
