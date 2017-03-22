@@ -242,6 +242,8 @@ class OPENMS_DLLAPI SqMassWriter
     // spectrum table
             "CREATE TABLE SPECTRUM(" \
             "ID INT PRIMARY KEY NOT NULL," \
+            "MSLEVEL INT NULL," \
+            "RETENTION_TIME REAL NULL," \
             "NATIVE_ID TEXT NOT NULL" \
             ");" \
 
@@ -327,8 +329,146 @@ class OPENMS_DLLAPI SqMassWriter
       }
     }
 
+    void writeSpectra(const std::vector<MSSpectrum<> >& spectra)
+    {
+      if (spectra.empty()) return;
+
+      sqlite3 *db;
+      char *zErrMsg = 0;
+      int rc;
+
+      // Open database
+      rc = sqlite3_open(filename_.c_str(), &db);
+      if (rc)
+      {
+        throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, String("Can't open database: ") + sqlite3_errmsg(db));
+      }
+
+      // prepare streams and set required precision (default is 6 digits)
+      std::stringstream insert_spectra_sql;
+      std::stringstream insert_precursor_sql;
+      std::stringstream insert_product_sql;
+
+      insert_spectra_sql.precision(11);
+      insert_precursor_sql.precision(11);
+      insert_product_sql.precision(11);
+
+      // Encoding options
+      MSNumpressCoder::NumpressConfig npconfig_mz;
+      npconfig_mz.estimate_fixed_point = true; // critical
+      npconfig_mz.numpressErrorTolerance = -1.0; // skip check, faster
+      npconfig_mz.setCompression("linear");
+      npconfig_mz.linear_fp_mass_acc = 0.0001; // set the desired mass accuracy = 1ppm at 100 m/z
+      MSNumpressCoder::NumpressConfig npconfig_int;
+      npconfig_int.estimate_fixed_point = true; // critical
+      npconfig_int.numpressErrorTolerance = -1.0; // skip check, faster
+      npconfig_int.setCompression("slof");
+
+      String prepare_statement = "INSERT INTO DATA(SPECTRUM_ID, DATA_TYPE, COMPRESSION, DATA) VALUES ";
+      std::vector<String> data;
+      int sql_it = 1;
+      int nr_precursors = 0;
+      int nr_products = 0;
+      for (Size k = 0; k < spectra.size(); k++)
+      {
+        const MSSpectrum<>& spec = spectra[k];
+        insert_spectra_sql << "INSERT INTO SPECTRUM(ID, NATIVE_ID, MSLEVEL, RETENTION_TIME) VALUES (" << spec_id_ << ",'" << spec.getNativeID() << "'," 
+          << spec.getMSLevel() << "," << spec.getRT() << "); ";
+
+        if (!spec.getPrecursors().empty())
+        {
+          if (spec.getPrecursors().size() > 1) std::cout << "WARNING cannot store more than first precursor" << std::endl;
+          OpenMS::Precursor prec = spec.getPrecursors()[0];
+          String pepseq;
+          if (prec.metaValueExists("peptide_sequence"))
+          {
+            pepseq = prec.getMetaValue("peptide_sequence");
+            insert_precursor_sql << "INSERT INTO PRECURSOR (SPECTRUM_ID, CHARGE, ISOLATION_TARGET, PEPTIDE_SEQUENCE) VALUES (" << spec_id_ << "," << 
+              prec.getCharge() << "," << prec.getMZ() << ",'" << pepseq << "'" <<  "); ";
+          }
+          else
+          {
+            insert_precursor_sql << "INSERT INTO PRECURSOR (SPECTRUM_ID, CHARGE, ISOLATION_TARGET) VALUES (" << spec_id_ << "," << prec.getCharge() << "," << prec.getMZ() << "); ";
+          }
+          nr_products++;
+        }
+
+        if (!spec.getProducts().empty())
+        {
+          if (spec.getProducts().size() > 1) std::cout << "WARNING cannot store more than first product" << std::endl;
+          OpenMS::Product prod = spec.getProducts()[0];
+          insert_product_sql << "INSERT INTO PRODUCT (SPECTRUM_ID, CHARGE, ISOLATION_TARGET) VALUES (" << spec_id_ << "," << 0 << "," << prod.getMZ() <<  "); ";
+          nr_products++;
+        }
+
+        //  data_type is one of 0 = mz, 1 = int, 2 = rt
+        //  compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
+
+        // encode mz data
+        {
+          std::vector<double> data_to_encode;
+          data_to_encode.resize(spec.size());
+          for (Size p = 0; p < spec.size(); ++p)
+          {
+            data_to_encode[p] = spec[p].getMZ();
+          }
+
+          String uncompressed_str;
+          String encoded_string;
+          MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_mz);
+          OpenMS::Internal::compress_str(uncompressed_str, encoded_string);
+          data.push_back(encoded_string);
+          prepare_statement += String("(") + spec_id_ + ", 0, 5, ?" + sql_it++ + " ),";
+        }
+
+        // encode intensity data
+        {
+          std::vector<double> data_to_encode;
+          data_to_encode.resize(spec.size());
+          for (Size p = 0; p < spec.size(); ++p)
+          {
+            data_to_encode[p] = spec[p].getIntensity();
+          }
+
+          String uncompressed_str;
+          String encoded_string;
+          MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_int);
+          OpenMS::Internal::compress_str(uncompressed_str, encoded_string);
+          data.push_back( encoded_string );
+          prepare_statement += String("(") + spec_id_ + ", 1, 6, ?" + sql_it++ + " ),";
+        }
+        spec_id_++;
+
+        if (sql_it > 500) // flush after 500 spectra as sqlite can only handle so many bind_blob statments
+        {
+          prepare_statement.resize( prepare_statement.size() -1 ); // remove last ","
+          executeBlobBind(db, prepare_statement, data);
+
+          data.clear();
+          prepare_statement = "INSERT INTO DATA(SPECTRUm_ID, DATA_TYPE, COMPRESSION, DATA) VALUES ";
+          sql_it = 1;
+        }
+
+      }
+
+      prepare_statement.resize( prepare_statement.size() -1 );
+      executeBlobBind(db, prepare_statement, data);
+
+      sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &zErrMsg);
+
+      executeSql(db, insert_spectra_sql);
+      if (nr_precursors > 0) executeSql(db, insert_precursor_sql);
+      if (nr_products > 0) executeSql(db, insert_product_sql);
+
+      sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &zErrMsg);
+
+      sqlite3_close(db);
+    }
+
     void writeChromatograms(const std::vector<MSChromatogram<> >& chroms)
     {
+      if (chroms.empty()) return;
+
       sqlite3 *db;
       char *zErrMsg = 0;
       int rc;
@@ -354,7 +494,7 @@ class OPENMS_DLLAPI SqMassWriter
       npconfig_mz.estimate_fixed_point = true; // critical
       npconfig_mz.numpressErrorTolerance = -1.0; // skip check, faster
       npconfig_mz.setCompression("linear");
-      npconfig_mz.linear_fp_mass_acc = 0.05; // set the desired mass accuracy
+      npconfig_mz.linear_fp_mass_acc = 0.05; // set the desired RT accuracy (0.05 seconds)
       MSNumpressCoder::NumpressConfig npconfig_int;
       npconfig_int.estimate_fixed_point = true; // critical
       npconfig_int.numpressErrorTolerance = -1.0; // skip check, faster
@@ -468,7 +608,7 @@ class OPENMS_DLLAPI SqMassReader
     {
     }
 
-    static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+    static int callback(void * /* NotUsed */, int argc, char **argv, char **azColName)
     {
       int i;
       for (i=0; i<argc; i++)
@@ -479,15 +619,14 @@ class OPENMS_DLLAPI SqMassReader
       return(0);
     }
 
-    void read(MSExperiment<>& exp)
+    void read(MSExperiment<>& exp, bool meta_only = false)
     {
       sqlite3 *db;
       sqlite3_stmt * stmt;
-      char *zErrMsg = 0;
+      // char *zErrMsg = 0;
       int rc;
       std::string select_sql;
-      const char* data = "Callback function called";
-
+      // const char* data = "Callback function called";
 
       // Open database
       rc = sqlite3_open(filename_.c_str(), &db);
@@ -496,9 +635,14 @@ class OPENMS_DLLAPI SqMassReader
         throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, String("Can't open database: ") + sqlite3_errmsg(db));
       }
 
-      // creates the chromatograms but does not fill them with data
+      // creates the chromatograms but does not fill them with data (provides option to return meta-data only)
       std::vector<MSChromatogram<> > chromatograms;
-      prepareChroms(db, chromatograms);
+      prepareChroms_(db, chromatograms);
+      if (meta_only) 
+      {
+        exp.setChromatograms(chromatograms);
+        return;
+      }
 
       select_sql = "SELECT " \
                    "CHROMATOGRAM.ID as chrom_id," \
@@ -603,7 +747,9 @@ class OPENMS_DLLAPI SqMassReader
       exp.setChromatograms(chromatograms);
     }
 
-    void prepareChroms(sqlite3 *db, std::vector<MSChromatogram<> >& chromatograms)
+  private:
+
+    void prepareChroms_(sqlite3 *db, std::vector<MSChromatogram<> >& chromatograms)
     {
       sqlite3_stmt * stmt;
       std::string select_sql;
@@ -625,11 +771,12 @@ class OPENMS_DLLAPI SqMassReader
                    "INNER JOIN PRODUCT ON CHROMATOGRAM.ID = PRODUCT.CHROMATOGRAM_ID " \
                    ";";
 
-    ///   readChromatograms_(db, stmt, chromatograms);
-    /// }
+      /// TODO : do we want to support reading a subset of the data (e.g. only chromatograms xx - yy)
+      ///   readChromatograms_(db, stmt, chromatograms);
+      /// }
 
-    /// void readChromatograms_(sqlite3 *db, sqlite3_stmt* stmt, std::vector<MSChromatogram<> >& chromatograms)
-    /// {
+      /// void readChromatograms_(sqlite3 *db, sqlite3_stmt* stmt, std::vector<MSChromatogram<> >& chromatograms)
+      /// {
 
       // See https://www.sqlite.org/c3ref/column_blob.html
       // The pointers returned are valid until a type conversion occurs as
@@ -642,12 +789,11 @@ class OPENMS_DLLAPI SqMassReader
       sqlite3_prepare(db, select_sql.c_str(), -1, &stmt, NULL);
       sqlite3_step( stmt );
 
-      int k = 0;
       while (sqlite3_column_type( stmt, 0 ) != SQLITE_NULL)
       {
         MSChromatogram<> chrom;
 
-        int chrom_id = sqlite3_column_int(stmt, 0);
+        // int chrom_id = sqlite3_column_int(stmt, 0);
         const unsigned char * native_id = sqlite3_column_text(stmt, 1);
         chrom.setNativeID( std::string(reinterpret_cast<const char*>(native_id), sqlite3_column_bytes(stmt, 1)));
         String peptide_sequence;
@@ -723,6 +869,7 @@ class TOPPOpenSwathMzMLFileCacher
     SqMassWriter sql_mass(outputname);
     sql_mass.init();
     sql_mass.writeChromatograms(exp.getChromatograms());
+    sql_mass.writeSpectra(exp.getSpectra());
   }
 
   void convertFromSQL(String inputname, MSExperiment<>& exp)
