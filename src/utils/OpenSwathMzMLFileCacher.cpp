@@ -623,10 +623,8 @@ class OPENMS_DLLAPI SqMassReader
     {
       sqlite3 *db;
       sqlite3_stmt * stmt;
-      // char *zErrMsg = 0;
       int rc;
       std::string select_sql;
-      // const char* data = "Callback function called";
 
       // Open database
       rc = sqlite3_open(filename_.c_str(), &db);
@@ -637,12 +635,30 @@ class OPENMS_DLLAPI SqMassReader
 
       // creates the chromatograms but does not fill them with data (provides option to return meta-data only)
       std::vector<MSChromatogram<> > chromatograms;
+      std::vector<MSSpectrum<> > spectra;
       prepareChroms_(db, chromatograms);
+      prepareSpectra_(db, spectra);
       if (meta_only) 
       {
         exp.setChromatograms(chromatograms);
+        exp.setSpectra(spectra);
         return;
       }
+
+      populateChromatogramsWithData_(db, chromatograms);
+      populateSpectraWithData_(db, spectra);
+
+      exp.setChromatograms(chromatograms);
+      exp.setSpectra(spectra);
+    }
+
+  private:
+
+    void populateChromatogramsWithData_(sqlite3 *db, std::vector<MSChromatogram<> >& chromatograms)
+    {
+      sqlite3_stmt * stmt;
+      int rc;
+      std::string select_sql;
 
       select_sql = "SELECT " \
                    "CHROMATOGRAM.ID as chrom_id," \
@@ -743,11 +759,115 @@ class OPENMS_DLLAPI SqMassReader
       }
 
       sqlite3_finalize(stmt);
-    
-      exp.setChromatograms(chromatograms);
     }
 
-  private:
+    void populateSpectraWithData_(sqlite3 *db, std::vector<MSSpectrum<> >& spectra)
+    {
+      sqlite3_stmt * stmt;
+      int rc;
+      std::string select_sql;
+
+      select_sql = "SELECT " \
+                   "SPECTRUM.ID as spec_id," \
+                   "SPECTRUM.NATIVE_ID as spec_native_id," \
+                   "DATA.COMPRESSION as data_compression," \
+                   "DATA.DATA_TYPE as data_type," \
+                   "DATA.DATA as binary_data " \
+                   "FROM SPECTRUM " \
+                   "INNER JOIN DATA ON SPECTRUM.ID = DATA.SPECTRUM_ID " \
+                   ";";
+
+
+      /* Execute SQL statement */
+      sqlite3_prepare(db, select_sql.c_str(), -1, &stmt, NULL);
+      sqlite3_step( stmt );
+
+      // TODO ensure that all spectra have their data...
+      std::vector<int> specdata; specdata.resize(spectra.size());
+      int k = 0;
+      while (sqlite3_column_type( stmt, 0 ) != SQLITE_NULL)
+      {
+        int spec_id = sqlite3_column_int( stmt, 0 );
+        const unsigned char * native_id_ = sqlite3_column_text(stmt, 1);
+        std::string native_id(reinterpret_cast<const char*>(native_id_), sqlite3_column_bytes(stmt, 1));
+
+        if (spec_id >= spectra.size())
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+              "Data for non-existent spectrum found");
+        }
+        if (native_id != spectra[spec_id].getNativeID())
+        {
+          std::cout << "nati: " << native_id << " / " <<  spectra[spec_id].getNativeID() << std::endl;
+          throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+              "Native id for spectrum doesnt match");
+        }
+
+        int compression = sqlite3_column_int( stmt, 2 );
+        int data_type = sqlite3_column_int( stmt, 3 );
+
+        const void * tt = sqlite3_column_blob(stmt, 4);
+        size_t blob_bytes = sqlite3_column_bytes(stmt, 4);
+
+        // data_type is one of 0 = mz, 1 = int, 2 = rt
+        // compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
+        std::vector<double> data;
+        if (compression == 5)
+        {
+          std::string uncompressed;
+          OpenMS::Internal::uncompress_str(tt, blob_bytes, uncompressed);
+          MSNumpressCoder::NumpressConfig config;
+          config.setCompression("linear");
+          MSNumpressCoder_Internal().decodeNP_raw(uncompressed, data, config);
+        }
+        else if (compression == 6)
+        {
+          std::string uncompressed;
+          OpenMS::Internal::uncompress_str(tt, blob_bytes, uncompressed);
+          MSNumpressCoder::NumpressConfig config;
+          config.setCompression("slof");
+          MSNumpressCoder_Internal().decodeNP_raw(uncompressed, data, config);
+        }
+        else
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+              "Compression not supported");
+        }
+
+        if (data_type == 1)
+        {
+          // intensity
+          if (spectra[spec_id].empty()) spectra[spec_id].resize(data.size());
+          std::vector< double >::iterator data_it = data.begin();
+          for (MSSpectrum<>::iterator it = spectra[spec_id].begin(); it != spectra[spec_id].end(); it++, data_it++)
+          {
+            it->setIntensity(*data_it);
+          }
+          specdata[spec_id] += 1;
+        }
+        else if (data_type == 0)
+        {
+          // mz
+          if (spectra[spec_id].empty()) spectra[spec_id].resize(data.size());
+          std::vector< double >::iterator data_it = data.begin();
+          for (MSSpectrum<>::iterator it = spectra[spec_id].begin(); it != spectra[spec_id].end(); it++, data_it++)
+          {
+            it->setMZ(*data_it);
+          }
+          specdata[spec_id] += 1;
+        }
+        else
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+              "Found data type other than RT/Intensity for spectra");
+        }
+
+        sqlite3_step( stmt );
+        k++;
+      }
+
+      sqlite3_finalize(stmt);
+    }
 
     void prepareChroms_(sqlite3 *db, std::vector<MSChromatogram<> >& chromatograms)
     {
@@ -819,6 +939,83 @@ class OPENMS_DLLAPI SqMassReader
         chrom.setPrecursor(precursor);
         chrom.setProduct(product);
         chromatograms.push_back(chrom);
+
+        sqlite3_step( stmt );
+      }
+
+      // free memory
+      sqlite3_finalize(stmt);
+    }
+
+    void prepareSpectra_(sqlite3 *db, std::vector<MSSpectrum<> >& spectra)
+    {
+      sqlite3_stmt * stmt;
+      std::string select_sql;
+      select_sql = "SELECT " \
+                   "SPECTRUM.ID as spec_id," \
+                   "SPECTRUM.NATIVE_ID as spec_native_id," \
+                   "SPECTRUM.MSLEVEL as spec_mslevel," \
+                   "SPECTRUM.RETENTION_TIME as spec_rt," \
+                   "PRECURSOR.CHARGE as precursor_charge," \
+                   "PRECURSOR.DRIFT_TIME as precursor_dt," \
+                   "PRECURSOR.ISOLATION_TARGET as precursor_mz," \
+                   "PRECURSOR.ISOLATION_LOWER as precursor_mz_lower," \
+                   "PRECURSOR.ISOLATION_UPPER as precursor_mz_upper," \
+                   "PRECURSOR.PEPTIDE_SEQUENCE as precursor_seq," \
+                   "PRODUCT.CHARGE as product_charge," \
+                   "PRODUCT.ISOLATION_TARGET as product_mz," \
+                   "PRODUCT.ISOLATION_LOWER as product_mz_lower," \
+                   "PRODUCT.ISOLATION_UPPER as product_mz_upper " \
+                   "FROM SPECTRUM " \
+                   "LEFT JOIN PRECURSOR ON SPECTRUM.ID = PRECURSOR.SPECTRUM_ID " \
+                   "LEFT JOIN PRODUCT ON SPECTRUM.ID = PRODUCT.SPECTRUM_ID " \
+                   ";";
+
+      // See https://www.sqlite.org/c3ref/column_blob.html
+      // The pointers returned are valid until a type conversion occurs as
+      // described above, or until sqlite3_step() or sqlite3_reset() or
+      // sqlite3_finalize() is called. The memory space used to hold strings
+      // and BLOBs is freed automatically. Do not pass the pointers returned
+      // from sqlite3_column_blob(), sqlite3_column_text(), etc. into
+      // sqlite3_free().
+
+      std::cout << select_sql << std::endl;
+      sqlite3_prepare(db, select_sql.c_str(), -1, &stmt, NULL);
+      sqlite3_step( stmt );
+
+      while (sqlite3_column_type( stmt, 0 ) != SQLITE_NULL)
+      {
+        MSSpectrum<> spec;
+
+        const unsigned char * native_id = sqlite3_column_text(stmt, 1);
+        spec.setNativeID( std::string(reinterpret_cast<const char*>(native_id), sqlite3_column_bytes(stmt, 1)));
+        String peptide_sequence;
+        std::cout << " found spec " << native_id << std::endl;
+
+        if (sqlite3_column_type(stmt, 2) != SQLITE_NULL) spec.setMSLevel(sqlite3_column_int(stmt, 2));
+        if (sqlite3_column_type(stmt, 3) != SQLITE_NULL) spec.setRT(sqlite3_column_double(stmt, 3));
+
+        OpenMS::Precursor precursor;
+        OpenMS::Product product;
+        if (sqlite3_column_type(stmt, 4) != SQLITE_NULL) precursor.setCharge(sqlite3_column_int(stmt, 4));
+        if (sqlite3_column_type(stmt, 5) != SQLITE_NULL) precursor.setDriftTime(sqlite3_column_double(stmt, 5));
+        if (sqlite3_column_type(stmt, 6) != SQLITE_NULL) precursor.setMZ(sqlite3_column_double(stmt, 6));
+        if (sqlite3_column_type(stmt, 7) != SQLITE_NULL) precursor.setIsolationWindowLowerOffset(sqlite3_column_double(stmt, 7));
+        if (sqlite3_column_type(stmt, 8) != SQLITE_NULL) precursor.setIsolationWindowUpperOffset(sqlite3_column_double(stmt, 8));
+        if (sqlite3_column_type(stmt, 9) != SQLITE_NULL) 
+        {
+          const unsigned char * pepseq = sqlite3_column_text(stmt, 9);
+          peptide_sequence = std::string(reinterpret_cast<const char*>(pepseq), sqlite3_column_bytes(stmt, 9));
+          precursor.setMetaValue("peptide_sequence", peptide_sequence);
+        }
+        // if (sqlite3_column_type(stmt, 10) != SQLITE_NULL) product.setCharge(sqlite3_column_int(stmt, 10));
+        if (sqlite3_column_type(stmt, 11) != SQLITE_NULL) product.setMZ(sqlite3_column_double(stmt, 11));
+        if (sqlite3_column_type(stmt, 12) != SQLITE_NULL) product.setIsolationWindowLowerOffset(sqlite3_column_double(stmt, 12));
+        if (sqlite3_column_type(stmt, 13) != SQLITE_NULL) product.setIsolationWindowUpperOffset(sqlite3_column_double(stmt, 13));
+
+        if (sqlite3_column_type(stmt, 6) != SQLITE_NULL) spec.getPrecursors().push_back(precursor);
+        if (sqlite3_column_type(stmt, 11) != SQLITE_NULL) spec.getProducts().push_back(product);
+        spectra.push_back(spec);
 
         sqlite3_step( stmt );
       }
