@@ -40,6 +40,7 @@
 
 #include <fstream>
 
+
 using namespace OpenMS;
 using namespace std;
 
@@ -73,6 +74,637 @@ using namespace std;
 // We do not want this class to show up in the docu:
 /// @cond TOPPCLASSES
 
+#include <sqlite3.h>
+#include <zlib.h>
+#include <OpenMS/FORMAT/Base64.h>
+#include <OpenMS/FORMAT/MSNumpressCoder.h>
+#include <QByteArray>
+
+#define EXECUTE_BLOB_END
+
+class OPENMS_DLLAPI MSNumpressCoder_Internal : MSNumpressCoder
+{
+
+  public :
+
+    MSNumpressCoder_Internal() {}
+
+    void encodeNP_raw(const std::vector<double> & in, String & result, const MSNumpressCoder::NumpressConfig & config)
+    {
+      MSNumpressCoder::encodeNP_(in, result, config);
+    }
+
+    void decodeNP_raw(const std::string & in, std::vector<double> & out,
+        const NumpressConfig & config)
+    {
+      decodeNP_(in, out, config);
+    }
+
+};
+
+static void compress_str(std::string& str, std::string& compressed)
+{
+  compressed.clear();
+
+  unsigned long sourceLen =   (unsigned long)str.size();
+  unsigned long compressed_length = //compressBound((unsigned long)str.size());
+                                    sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + 11; // taken from zlib's compress.c, as we cannot use compressBound*
+
+  int zlib_error;
+  do
+  {
+    compressed.resize(compressed_length);
+    zlib_error = compress(reinterpret_cast<Bytef*>(&compressed[0]), &compressed_length, reinterpret_cast<Bytef*>(&str[0]), (unsigned long) str.size());
+
+    switch (zlib_error)
+    {
+    case Z_MEM_ERROR:
+      throw Exception::OutOfMemory(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, compressed_length);
+
+    case Z_BUF_ERROR:
+      compressed_length *= 2;
+    }
+  }
+  while (zlib_error == Z_BUF_ERROR);
+
+  if (zlib_error != Z_OK)
+  {
+    throw Exception::ConversionError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Compression error?");
+  }
+  compressed.resize(compressed_length);
+}
+
+static void uncompress_str(const void * tt, size_t blob_bytes, std::string& uncompressed)
+{
+  // take a leap of faith and assume the input is valid
+  uncompressed.clear();
+  QByteArray raw_data = QByteArray::fromRawData((const char*)tt, blob_bytes);
+
+  // base64_uncompressed = QByteArray::fromBase64(herewego);
+  // void Base64::decodeSingleString(const String& in, QByteArray& base64_uncompressed, bool zlib_compression)
+  // base64_uncompressed = QByteArray::fromBase64(herewego);
+  // QByteArray base64_uncompressed = str.c_str();
+  QByteArray base64_uncompressed = raw_data;
+  if (true)
+  {
+    QByteArray czip;
+    czip.resize(4);
+    czip[0] = (base64_uncompressed.size() & 0xff000000) >> 24;
+    czip[1] = (base64_uncompressed.size() & 0x00ff0000) >> 16;
+    czip[2] = (base64_uncompressed.size() & 0x0000ff00) >> 8;
+    czip[3] = (base64_uncompressed.size() & 0x000000ff);
+    czip += base64_uncompressed;
+    base64_uncompressed = qUncompress(czip);
+
+    if (base64_uncompressed.isEmpty())
+    {
+      throw Exception::ConversionError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Decompression error?");
+    }
+  }
+
+  // Note that we may have zero bytes in the string, so we cannot use QString
+  uncompressed = std::string(base64_uncompressed.data(), base64_uncompressed.size());
+}
+
+class OPENMS_DLLAPI SqMassWriter
+{
+  String filename_;
+
+  /// Decoder/Encoder for Base64-data in MzML
+  Base64 base64coder_;
+  MSNumpressCoder numpress_coder_;
+
+  Int spec_id_;
+  Int chrom_id_;
+
+  public:
+
+    SqMassWriter(String filename) :
+      filename_(filename),
+      base64coder_(),
+      numpress_coder_(),
+      spec_id_(0),
+      chrom_id_(0)
+    {
+    }
+
+    static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+    {
+      int i;
+      for (i=0; i<argc; i++)
+      {
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+      }
+      printf("\n");
+      return(0);
+    }
+
+    void init()
+    {
+      sqlite3 *db;
+      char *zErrMsg = 0;
+      int  rc;
+      char *create_sql;
+
+      // delete file if present
+      // TODO
+      // remove(filename_);
+
+      /* Open database */
+      rc = sqlite3_open(filename_.c_str(), &db);
+      if( rc )
+      {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+      }
+      else
+      {
+        fprintf(stdout, "OSW stucture prepared successfully\n");
+      }
+
+      /* Create SQL structure */
+      create_sql = 
+
+    // data table
+    //  compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
+    //  data_type is one of 0 = mz, 1 = int, 2 = rt
+            "CREATE TABLE DATA(" \
+            "SPECTRUM_ID INT," \
+            "CHROMATOGRAM_ID INT," \
+            "COMPRESSION INT," \
+            "DATA_TYPE INT," \
+            "DATA BLOB NOT NULL" \
+            ");" \
+
+    // spectrum table
+            "CREATE TABLE SPECTRUM(" \
+            "ID INT PRIMARY KEY NOT NULL," \
+            "NATIVE_ID TEXT NOT NULL" \
+            ");" \
+
+    // chromatogram table
+            "CREATE TABLE CHROMATOGRAM(" \
+            "ID INT PRIMARY KEY NOT NULL," \
+            "NATIVE_ID TEXT NOT NULL" \
+            ");" \
+    
+    // product table
+            "CREATE TABLE PRODUCT(" \
+            "SPECTRUM_ID INT," \
+            "CHROMATOGRAM_ID INT," \
+            "CHARGE INT NULL," \
+            "ISOLATION_TARGET REAL NULL," \
+            "ISOLATION_LOWER REAL NULL," \
+            "ISOLATION_UPPER REAL NULL" \
+            ");" \
+
+    // precursor table
+            "CREATE TABLE PRECURSOR(" \
+            "SPECTRUM_ID INT," \
+            "CHROMATOGRAM_ID INT," \
+            "CHARGE INT NULL," \
+            "PEPTIDE_SEQUENCE TEXT NULL," \
+            "DRIFT_TIME REAL NULL," \
+            "ISOLATION_TARGET REAL NULL," \
+            "ISOLATION_LOWER REAL NULL," \
+            "ISOLATION_UPPER REAL NULL" \
+            ");";
+
+
+      // Execute SQL statement
+      rc = sqlite3_exec(db, create_sql, callback, 0, &zErrMsg);
+      if( rc != SQLITE_OK )
+      {
+        throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+            zErrMsg);
+        sqlite3_free(zErrMsg);
+      }
+      else {
+        std::cout << "Done creating tables" << std::endl;
+      }
+      sqlite3_close(db);
+    }
+
+    void executeBlobBind(sqlite3 *db, String& prepare_statement, std::vector<String>& data)
+    {
+      int rc;
+
+      // The calling procedure is responsible for deleting the compiled SQL statement using sqlite3_finalize() after it has finished with it.
+      sqlite3_stmt *stmt = NULL;
+      const char *curr_loc;
+      rc = sqlite3_prepare_v2(db, prepare_statement.c_str(), prepare_statement.size(), &stmt, &curr_loc);
+      if (rc != SQLITE_OK) { throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, sqlite3_errmsg(db)); }
+
+      for (Size k = 0; k < data.size(); k++)
+      {
+        // Fifth argument is a destructor for the blob.
+        // SQLITE_STATIC because the statement is finalized
+        // before the buffer is freed:
+        rc = sqlite3_bind_blob(stmt, k+1, data[k].c_str(), data[k].size(), SQLITE_STATIC);
+        if (rc != SQLITE_OK) { throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, sqlite3_errmsg(db)); } 
+      }
+
+      rc = sqlite3_step(stmt);
+      if (rc != SQLITE_DONE) { throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, sqlite3_errmsg(db)); }
+
+      // free memory again
+      sqlite3_finalize(stmt);
+    }
+
+    void executeSql(sqlite3 *db, const std::stringstream& statement)
+    {
+      char *zErrMsg = 0;
+      std::string insert_str = statement.str();
+      int rc = sqlite3_exec(db, insert_str.c_str(), callback, 0, &zErrMsg);
+      if( rc != SQLITE_OK )
+      {
+        throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+            zErrMsg);
+        sqlite3_free(zErrMsg);
+      }
+    }
+
+      /*
+
+         -rw-rw-r-- 1 hr hr 393K Mar 21 20:00 testchrom.allterms.np.zl.mzML.gz
+         -rw-r--r-- 1 hr hr 159K Mar 21 20:01 testout_sqlite_newbase4.mzML
+         -rw-r--r-- 1 hr hr 688K Mar 21 20:02 testout_sqlite_newbase64.mzML
+         -rw-r--r-- 1 hr hr 517K Mar 21 20:04 testout_sqlite_new_zlib.mzML
+         -rw-r--r-- 1 hr hr 976K Mar 21 20:14 testout_sqlite_new_binaryOnly.mzML
+
+
+*/
+    void writeChromatograms(const std::vector<MSChromatogram<> >& chroms)
+    {
+      sqlite3 *db;
+      char *zErrMsg = 0;
+      int rc;
+
+      /* Open database */
+      rc = sqlite3_open(filename_.c_str(), &db);
+      if (rc)
+      {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, String("Can't open database: ") + sqlite3_errmsg(db));
+      }
+
+      // prepare streams and set required precision (default is 6 digits)
+      std::stringstream insert_chrom_sql;
+      std::stringstream insert_precursor_sql;
+      std::stringstream insert_product_sql;
+
+      insert_chrom_sql.precision(11);
+      insert_precursor_sql.precision(11);
+      insert_product_sql.precision(11);
+
+      String prepare_statement = "INSERT INTO DATA(CHROMATOGRAM_ID, DATA_TYPE, COMPRESSION, DATA) VALUES ";
+      std::vector<String> data;
+      int sql_it = 1;
+      for (Size k = 0; k < chroms.size(); k++)
+      {
+        const MSChromatogram<>& chrom = chroms[k];
+        insert_chrom_sql << "INSERT INTO CHROMATOGRAM (ID, NATIVE_ID) VALUES (" << chrom_id_ << ",'" << chrom.getNativeID() << "'); ";
+
+        OpenMS::Precursor prec = chrom.getPrecursor();
+        String pepseq;
+        if (prec.metaValueExists("peptide_sequence"))
+        {
+          pepseq = prec.getMetaValue("peptide_sequence");
+          insert_precursor_sql << "INSERT INTO PRECURSOR (CHROMATOGRAM_ID, CHARGE, ISOLATION_TARGET, PEPTIDE_SEQUENCE) VALUES (" << chrom_id_ << "," << 
+            prec.getCharge() << "," << prec.getMZ() << ",'" << pepseq << "'" <<  "); ";
+        }
+        else
+        {
+          insert_precursor_sql << "INSERT INTO PRECURSOR (CHROMATOGRAM_ID, CHARGE, ISOLATION_TARGET) VALUES (" << chrom_id_ << "," << prec.getCharge() << "," << prec.getMZ() << "); ";
+        }
+
+        OpenMS::Product prod = chrom.getProduct();
+        insert_product_sql << "INSERT INTO PRODUCT (CHROMATOGRAM_ID, CHARGE, ISOLATION_TARGET) VALUES (" << chrom_id_ << "," << 0 << "," << prod.getMZ() <<  "); ";
+
+        // encode retention time data
+        {
+          MSNumpressCoder::NumpressConfig npconfig_mz;
+
+          npconfig_mz.estimate_fixed_point = true; // critical
+          npconfig_mz.numpressErrorTolerance = -1.0; // skip check, faster
+          npconfig_mz.setCompression("linear");
+          npconfig_mz.linear_fp_mass_acc = 0.05; // set the desired mass accuracy
+
+          std::vector<double> data_to_encode;
+          data_to_encode.resize(chrom.size());
+          for (Size p = 0; p < chrom.size(); ++p)
+          {
+            data_to_encode[p] = chrom[p].getRT();
+          }
+          // std::cout << " id " << sql_it << " has data size " << data_to_encode.size() << std::endl;
+
+          //  data_type is one of 0 = mz, 1 = int, 2 = rt
+          //  compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
+          {
+            String uncompressed_str;
+            String encoded_string;
+            MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_mz);
+            compress_str(uncompressed_str, encoded_string);
+            data.push_back( encoded_string );
+			prepare_statement += String("(") + chrom_id_ + ", 2, 5, ?" + sql_it++ + " ),";
+          }
+        }
+
+        // encode intensity data
+        {
+          String encoded_string;
+          MSNumpressCoder::NumpressConfig npconfig_int;
+
+          npconfig_int.estimate_fixed_point = true; // critical
+          npconfig_int.numpressErrorTolerance = -1.0; // skip check, faster
+          npconfig_int.setCompression("slof");
+          // npconfig_int.linear_fp_mass_acc = 0.05; // set the desired mass accuracy
+
+          std::vector<double> data_to_encode;
+          data_to_encode.resize(chrom.size());
+          for (Size p = 0; p < chrom.size(); ++p)
+          {
+            data_to_encode[p] = chrom[p].getIntensity();
+          }
+          // std::cout << " id " << sql_it << " has data size " << data_to_encode.size() << std::endl;
+
+          //  data_type is one of 0 = mz, 1 = int, 2 = rt
+          //  compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
+          {
+            String uncompressed_str;
+            String encoded_string;
+            MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_int);
+            compress_str(uncompressed_str, encoded_string);
+            data.push_back( encoded_string );
+			prepare_statement += String("(") + chrom_id_ + ", 1, 6, ?" + sql_it++ + " ),";
+          }
+        }
+        chrom_id_++;
+
+        if (sql_it > 500) // flush after 500 chromatograms as sqlite can only handle so many bind_blob statments
+        {
+          prepare_statement.resize( prepare_statement.size() -1 ); // remove last ","
+          executeBlobBind(db, prepare_statement, data);
+
+          data.clear();
+          prepare_statement = "INSERT INTO DATA(CHROMATOGRAM_ID, DATA_TYPE, COMPRESSION, DATA) VALUES ";
+          sql_it = 1;
+        }
+
+      }
+
+      prepare_statement.resize( prepare_statement.size() -1 );
+      executeBlobBind(db, prepare_statement, data);
+
+      sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &zErrMsg);
+
+      executeSql(db, insert_chrom_sql);
+      executeSql(db, insert_precursor_sql);
+      executeSql(db, insert_product_sql);
+
+      sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &zErrMsg);
+
+      sqlite3_close(db);
+    }
+
+};
+
+class OPENMS_DLLAPI SqMassReader
+{
+
+  String filename_; 
+
+  /// Decoder/Encoder for Base64-data in MzML
+  Base64 base64coder_;
+  MSNumpressCoder numpress_coder_;
+
+  public:
+
+    SqMassReader(String filename) :
+      filename_(filename),
+      base64coder_(),
+      numpress_coder_()
+    {
+    }
+
+    static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+    {
+      int i;
+      for (i=0; i<argc; i++)
+      {
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+      }
+      printf("\n");
+      return(0);
+    }
+
+    void read(MSExperiment<>& exp)
+    {
+      sqlite3 *db;
+      sqlite3_stmt * stmt;
+      char *zErrMsg = 0;
+      int  rc;
+      std::string select_sql;
+      const char* data = "Callback function called";
+
+
+      /* Open database */
+      rc = sqlite3_open(filename_.c_str(), &db);
+      if( rc )
+      {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+      }
+      else
+      {
+        fprintf(stdout, "Opened database successfully\n");
+      }
+
+      // creates the chromatograms but does not fill them with data
+      std::vector<MSChromatogram<> > chromatograms;
+      prepareChroms(db, chromatograms);
+
+      select_sql = "SELECT " \
+                   "CHROMATOGRAM.ID as chrom_id," \
+                   "CHROMATOGRAM.NATIVE_ID as chrom_native_id," \
+                   "DATA.COMPRESSION as data_compression," \
+                   "DATA.DATA_TYPE as data_type," \
+                   "DATA.DATA as binary_data " \
+                   "FROM CHROMATOGRAM " \
+                   "INNER JOIN DATA ON CHROMATOGRAM.ID = DATA.CHROMATOGRAM_ID " \
+                   ";";
+
+
+      /* Execute SQL statement */
+      sqlite3_prepare(db, select_sql.c_str(), -1, &stmt, NULL);
+      sqlite3_step( stmt );
+
+      // TODO ensure that all chroms have their data...
+      std::vector<int> chromdata; chromdata.resize(chromatograms.size());
+      int k = 0;
+      while (sqlite3_column_type( stmt, 0 ) != SQLITE_NULL)
+      {
+        int chrom_id = sqlite3_column_int( stmt, 0 );
+        const unsigned char * native_id_ = sqlite3_column_text(stmt, 1);
+        std::string native_id(reinterpret_cast<const char*>(native_id_), sqlite3_column_bytes(stmt, 1));
+
+        if (chrom_id >= chromatograms.size())
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+              "Data for non-existent chromatogram found");
+        }
+        if (native_id != chromatograms[chrom_id].getNativeID())
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+              "Native id for chromatogram doesnt match");
+        }
+
+        int compression = sqlite3_column_int( stmt, 2 );
+        int data_type = sqlite3_column_int( stmt, 3 );
+
+        const void * tt = sqlite3_column_blob(stmt, 4);
+        size_t blob_bytes = sqlite3_column_bytes(stmt, 4);
+
+        // data_type is one of 0 = mz, 1 = int, 2 = rt
+        // compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
+        std::vector<double> data;
+        if (compression == 5)
+        {
+          std::string uncompressed;
+          uncompress_str(tt, blob_bytes, uncompressed);
+          MSNumpressCoder::NumpressConfig config;
+          config.setCompression("linear");
+          MSNumpressCoder_Internal().decodeNP_raw(uncompressed, data, config);
+        }
+        else if (compression == 6)
+        {
+          std::string uncompressed;
+          uncompress_str(tt, blob_bytes, uncompressed);
+          MSNumpressCoder::NumpressConfig config;
+          config.setCompression("slof");
+          MSNumpressCoder_Internal().decodeNP_raw(uncompressed, data, config);
+        }
+        else
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+              "Compression not supported");
+        }
+
+        if (data_type == 1)
+        {
+          // intensity
+          if (chromatograms[chrom_id].empty()) chromatograms[chrom_id].resize(data.size());
+          std::vector< double >::iterator data_it = data.begin();
+          for (MSChromatogram<>::iterator it = chromatograms[chrom_id].begin(); it != chromatograms[chrom_id].end(); it++, data_it++)
+          {
+            it->setIntensity(*data_it);
+          }
+          chromdata[chrom_id] += 1;
+        }
+        else if (data_type == 2)
+        {
+          // rt
+          if (chromatograms[chrom_id].empty()) chromatograms[chrom_id].resize(data.size());
+          std::vector< double >::iterator data_it = data.begin();
+          for (MSChromatogram<>::iterator it = chromatograms[chrom_id].begin(); it != chromatograms[chrom_id].end(); it++, data_it++)
+          {
+            it->setRT(*data_it);
+          }
+          chromdata[chrom_id] += 1;
+        }
+        else
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, 
+              "Found data type other than RT/Intensity for chromatograms");
+        }
+
+        sqlite3_step( stmt );
+        k++;
+      }
+
+      sqlite3_finalize(stmt);
+    
+      exp.setChromatograms(chromatograms);
+    }
+
+    void prepareChroms(sqlite3 *db, std::vector<MSChromatogram<> >& chromatograms)
+    {
+      sqlite3_stmt * stmt;
+      std::string select_sql;
+      select_sql = "SELECT " \
+                   "CHROMATOGRAM.ID as chrom_id," \
+                   "CHROMATOGRAM.NATIVE_ID as chrom_native_id," \
+                   "PRECURSOR.CHARGE as precursor_charge," \
+                   "PRECURSOR.DRIFT_TIME as precursor_dt," \
+                   "PRECURSOR.ISOLATION_TARGET as precursor_mz," \
+                   "PRECURSOR.ISOLATION_LOWER as precursor_mz_lower," \
+                   "PRECURSOR.ISOLATION_UPPER as precursor_mz_upper," \
+                   "PRECURSOR.PEPTIDE_SEQUENCE as precursor_seq," \
+                   "PRODUCT.CHARGE as product_charge," \
+                   "PRODUCT.ISOLATION_TARGET as product_mz," \
+                   "PRODUCT.ISOLATION_LOWER as product_mz_lower," \
+                   "PRODUCT.ISOLATION_UPPER as product_mz_upper " \
+                   "FROM CHROMATOGRAM " \
+                   "INNER JOIN PRECURSOR ON CHROMATOGRAM.ID = PRECURSOR.CHROMATOGRAM_ID " \
+                   "INNER JOIN PRODUCT ON CHROMATOGRAM.ID = PRODUCT.CHROMATOGRAM_ID " \
+                   ";";
+
+    ///   readChromatograms_(db, stmt, chromatograms);
+    /// }
+
+    /// void readChromatograms_(sqlite3 *db, sqlite3_stmt* stmt, std::vector<MSChromatogram<> >& chromatograms)
+    /// {
+
+      // See https://www.sqlite.org/c3ref/column_blob.html
+      // The pointers returned are valid until a type conversion occurs as
+      // described above, or until sqlite3_step() or sqlite3_reset() or
+      // sqlite3_finalize() is called. The memory space used to hold strings
+      // and BLOBs is freed automatically. Do not pass the pointers returned
+      // from sqlite3_column_blob(), sqlite3_column_text(), etc. into
+      // sqlite3_free().
+
+      sqlite3_prepare(db, select_sql.c_str(), -1, &stmt, NULL);
+      sqlite3_step( stmt );
+
+      int k = 0;
+      while (sqlite3_column_type( stmt, 0 ) != SQLITE_NULL)
+      {
+        MSChromatogram<> chrom;
+
+        int chrom_id = sqlite3_column_int(stmt, 0);
+        const unsigned char * native_id = sqlite3_column_text(stmt, 1);
+        chrom.setNativeID( std::string(reinterpret_cast<const char*>(native_id), sqlite3_column_bytes(stmt, 1)));
+        String peptide_sequence;
+
+        OpenMS::Precursor precursor;
+        OpenMS::Product product;
+        if (sqlite3_column_type(stmt, 2) != SQLITE_NULL) precursor.setCharge(sqlite3_column_int(stmt, 2));
+        if (sqlite3_column_type(stmt, 3) != SQLITE_NULL) precursor.setDriftTime(sqlite3_column_double(stmt, 3));
+        if (sqlite3_column_type(stmt, 4) != SQLITE_NULL) precursor.setMZ(sqlite3_column_double(stmt, 4));
+        if (sqlite3_column_type(stmt, 5) != SQLITE_NULL) precursor.setIsolationWindowLowerOffset(sqlite3_column_double(stmt, 5));
+        if (sqlite3_column_type(stmt, 6) != SQLITE_NULL) precursor.setIsolationWindowUpperOffset(sqlite3_column_double(stmt, 6));
+        if (sqlite3_column_type(stmt, 7) != SQLITE_NULL) 
+        {
+          const unsigned char * pepseq = sqlite3_column_text(stmt, 7);
+          peptide_sequence = std::string(reinterpret_cast<const char*>(pepseq), sqlite3_column_bytes(stmt, 7));
+          precursor.setMetaValue("peptide_sequence", peptide_sequence);
+        }
+        // if (sqlite3_column_type(stmt, 8) != SQLITE_NULL) product.setCharge(sqlite3_column_int(stmt, 8));
+        if (sqlite3_column_type(stmt, 9) != SQLITE_NULL) product.setMZ(sqlite3_column_double(stmt, 9));
+        if (sqlite3_column_type(stmt, 10) != SQLITE_NULL) product.setIsolationWindowLowerOffset(sqlite3_column_double(stmt, 10));
+        if (sqlite3_column_type(stmt, 11) != SQLITE_NULL) product.setIsolationWindowUpperOffset(sqlite3_column_double(stmt, 11));
+
+        chrom.setPrecursor(precursor);
+        chrom.setProduct(product);
+        chromatograms.push_back(chrom);
+
+        sqlite3_step( stmt );
+      }
+
+      // free memory
+      sqlite3_finalize(stmt);
+    }
+
+};
+
 class TOPPOpenSwathMzMLFileCacher
   : public TOPPBase,
     public ProgressLogger
@@ -90,15 +722,41 @@ class TOPPOpenSwathMzMLFileCacher
 
   void registerOptionsAndFlags_()
   {
-    registerInputFile_("in","<file>","","transition file ('csv')");
-    setValidFormats_("in", ListUtils::create<String>("mzML"));
+    registerInputFile_("in","<file>","","Input mzML file");
+    registerStringOption_("in_type", "<type>", "", "input file type -- default: determined from file extension or content\n", false);
+    String formats("mzML,sqMass");
+    setValidFormats_("in", ListUtils::create<String>(formats));
+    setValidStrings_("in_type", ListUtils::create<String>(formats));
 
-    registerOutputFile_("out","<file>","","output file");
+    formats = "mzML,sqMass";
+    registerOutputFile_("out", "<file>", "", "Output file");
+    setValidFormats_("out", ListUtils::create<String>(formats));
+    registerStringOption_("out_type", "<type>", "", "Output file type -- default: determined from file extension or content\nNote: that not all conversion paths work or make sense.", false);
+    setValidStrings_("out_type", ListUtils::create<String>(formats));
 
     //registerStringOption_("out_meta","<file>","","output file", false);
     //setValidFormats_("out_meta",ListUtils::create<String>("mzML"));
 
     registerFlag_("convert_back", "Convert back to mzML");
+
+    registerFlag_("sqlite", "SQLITE!");
+  }
+
+  void convertToSQL(MSExperiment<> exp, String outputname)
+  {
+
+    SqMassWriter sql_mass(outputname);
+    sql_mass.init();
+    sql_mass.writeChromatograms(exp.getChromatograms());
+
+
+    MSExperiment<> read_back;
+    SqMassReader sql_mass_reader(outputname);
+    sql_mass_reader.read(read_back);
+
+
+    MzMLFile f;
+    f.store("/tmp/tmp.mzML", read_back);
 
   }
 
@@ -109,6 +767,16 @@ class TOPPOpenSwathMzMLFileCacher
     String in_cached = in + ".cached";
     String out_cached = out_meta + ".cached";
     bool convert_back =  getFlag_("convert_back");
+    bool sqlite =  getFlag_("sqlite");
+
+    if (sqlite)
+    {
+      MzMLFile f;
+      MapType exp;
+      f.load(in,exp);
+      convertToSQL(exp, out_meta);
+      return EXECUTION_OK;
+    }
 
     if (!convert_back)
     {

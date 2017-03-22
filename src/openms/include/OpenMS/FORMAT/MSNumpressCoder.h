@@ -187,7 +187,7 @@ public:
       // decodeNP_internal_(reinterpret_cast<const unsigned char*>(base64_uncompressed.constData()), base64_uncompressed.size(), out, config);
     }
 
-private:
+protected:
 
     /**
      * @brief Encode the vector in to the result string using numpress
