@@ -34,6 +34,8 @@
 
 #include "OpenMS/FORMAT/CachedMzML.h"
 
+#include <OpenMS/FORMAT/FileHandler.h>
+#include <OpenMS/FORMAT/FileTypes.h>
 #include <OpenMS/APPLICATIONS/TOPPBase.h>
 #include <OpenMS/CONCEPT/ProgressLogger.h>
 #include <OpenMS/FORMAT/MzMLFile.h>
@@ -79,9 +81,6 @@ using namespace std;
 #include <OpenMS/FORMAT/Base64.h>
 #include <OpenMS/FORMAT/MSNumpressCoder.h>
 #include <QByteArray>
-
-#define EXECUTE_BLOB_END
-
 class OPENMS_DLLAPI MSNumpressCoder_Internal : MSNumpressCoder
 {
 
@@ -102,68 +101,76 @@ class OPENMS_DLLAPI MSNumpressCoder_Internal : MSNumpressCoder
 
 };
 
-static void compress_str(std::string& str, std::string& compressed)
+namespace OpenMS
 {
-  compressed.clear();
-
-  unsigned long sourceLen =   (unsigned long)str.size();
-  unsigned long compressed_length = //compressBound((unsigned long)str.size());
-                                    sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + 11; // taken from zlib's compress.c, as we cannot use compressBound*
-
-  int zlib_error;
-  do
+  namespace Internal
   {
-    compressed.resize(compressed_length);
-    zlib_error = compress(reinterpret_cast<Bytef*>(&compressed[0]), &compressed_length, reinterpret_cast<Bytef*>(&str[0]), (unsigned long) str.size());
 
-    switch (zlib_error)
+    static void compress_str(std::string& str, std::string& compressed)
     {
-    case Z_MEM_ERROR:
-      throw Exception::OutOfMemory(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, compressed_length);
+      compressed.clear();
 
-    case Z_BUF_ERROR:
-      compressed_length *= 2;
+      unsigned long sourceLen =   (unsigned long)str.size();
+      unsigned long compressed_length = //compressBound((unsigned long)str.size());
+                                        sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + 11; // taken from zlib's compress.c, as we cannot use compressBound*
+
+      int zlib_error;
+      do
+      {
+        compressed.resize(compressed_length);
+        zlib_error = compress(reinterpret_cast<Bytef*>(&compressed[0]), &compressed_length, reinterpret_cast<Bytef*>(&str[0]), (unsigned long) str.size());
+
+        switch (zlib_error)
+        {
+        case Z_MEM_ERROR:
+          throw Exception::OutOfMemory(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, compressed_length);
+
+        case Z_BUF_ERROR:
+          compressed_length *= 2;
+        }
+      }
+      while (zlib_error == Z_BUF_ERROR);
+
+      if (zlib_error != Z_OK)
+      {
+        throw Exception::ConversionError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Compression error?");
+      }
+      compressed.resize(compressed_length);
     }
-  }
-  while (zlib_error == Z_BUF_ERROR);
 
-  if (zlib_error != Z_OK)
-  {
-    throw Exception::ConversionError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Compression error?");
-  }
-  compressed.resize(compressed_length);
-}
-
-static void uncompress_str(const void * tt, size_t blob_bytes, std::string& uncompressed)
-{
-  // take a leap of faith and assume the input is valid
-  uncompressed.clear();
-  QByteArray raw_data = QByteArray::fromRawData((const char*)tt, blob_bytes);
-
-  // base64_uncompressed = QByteArray::fromBase64(herewego);
-  // void Base64::decodeSingleString(const String& in, QByteArray& base64_uncompressed, bool zlib_compression)
-  // base64_uncompressed = QByteArray::fromBase64(herewego);
-  // QByteArray base64_uncompressed = str.c_str();
-  QByteArray base64_uncompressed = raw_data;
-  if (true)
-  {
-    QByteArray czip;
-    czip.resize(4);
-    czip[0] = (base64_uncompressed.size() & 0xff000000) >> 24;
-    czip[1] = (base64_uncompressed.size() & 0x00ff0000) >> 16;
-    czip[2] = (base64_uncompressed.size() & 0x0000ff00) >> 8;
-    czip[3] = (base64_uncompressed.size() & 0x000000ff);
-    czip += base64_uncompressed;
-    base64_uncompressed = qUncompress(czip);
-
-    if (base64_uncompressed.isEmpty())
+    static void uncompress_str(const void * tt, size_t blob_bytes, std::string& uncompressed)
     {
-      throw Exception::ConversionError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Decompression error?");
-    }
-  }
+      // take a leap of faith and assume the input is valid
+      uncompressed.clear();
+      QByteArray raw_data = QByteArray::fromRawData((const char*)tt, blob_bytes);
 
-  // Note that we may have zero bytes in the string, so we cannot use QString
-  uncompressed = std::string(base64_uncompressed.data(), base64_uncompressed.size());
+      // base64_uncompressed = QByteArray::fromBase64(herewego);
+      // void Base64::decodeSingleString(const String& in, QByteArray& base64_uncompressed, bool zlib_compression)
+      // base64_uncompressed = QByteArray::fromBase64(herewego);
+      // QByteArray base64_uncompressed = str.c_str();
+      QByteArray base64_uncompressed = raw_data;
+      if (true)
+      {
+        QByteArray czip;
+        czip.resize(4);
+        czip[0] = (base64_uncompressed.size() & 0xff000000) >> 24;
+        czip[1] = (base64_uncompressed.size() & 0x00ff0000) >> 16;
+        czip[2] = (base64_uncompressed.size() & 0x0000ff00) >> 8;
+        czip[3] = (base64_uncompressed.size() & 0x000000ff);
+        czip += base64_uncompressed;
+        base64_uncompressed = qUncompress(czip);
+
+        if (base64_uncompressed.isEmpty())
+        {
+          throw Exception::ConversionError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Decompression error?");
+        }
+      }
+
+      // Note that we may have zero bytes in the string, so we cannot use QString
+      uncompressed = std::string(base64_uncompressed.data(), base64_uncompressed.size());
+    }
+
+  }
 }
 
 class OPENMS_DLLAPI SqMassWriter
@@ -203,30 +210,27 @@ class OPENMS_DLLAPI SqMassWriter
     {
       sqlite3 *db;
       char *zErrMsg = 0;
-      int  rc;
+      int rc;
       char *create_sql;
 
       // delete file if present
       // TODO
       // remove(filename_);
 
-      /* Open database */
+      // Open database
       rc = sqlite3_open(filename_.c_str(), &db);
-      if( rc )
+      if (rc)
       {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-      }
-      else
-      {
-        fprintf(stdout, "OSW stucture prepared successfully\n");
+        throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, String("Can't open database: ") + sqlite3_errmsg(db));
       }
 
-      /* Create SQL structure */
+      // Create SQL structure
       create_sql = 
 
     // data table
-    //  compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
-    //  data_type is one of 0 = mz, 1 = int, 2 = rt
+    //  - compression is one of 0 = no, 1 = zlib, 2 = np-linear, 3 = np-slof, 4 = np-pic, 5 = np-linear + zlib, 6 = np-slof + zlib, 7 = np-pic + zlib
+    //  - data_type is one of 0 = mz, 1 = int, 2 = rt
+    //  - data contains the raw (blob) data for a single data array
             "CREATE TABLE DATA(" \
             "SPECTRUM_ID INT," \
             "CHROMATOGRAM_ID INT," \
@@ -339,11 +343,10 @@ class OPENMS_DLLAPI SqMassWriter
       char *zErrMsg = 0;
       int rc;
 
-      /* Open database */
+      // Open database
       rc = sqlite3_open(filename_.c_str(), &db);
       if (rc)
       {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, String("Can't open database: ") + sqlite3_errmsg(db));
       }
 
@@ -403,7 +406,7 @@ class OPENMS_DLLAPI SqMassWriter
             String uncompressed_str;
             String encoded_string;
             MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_mz);
-            compress_str(uncompressed_str, encoded_string);
+            OpenMS::Internal::compress_str(uncompressed_str, encoded_string);
             data.push_back( encoded_string );
 			prepare_statement += String("(") + chrom_id_ + ", 2, 5, ?" + sql_it++ + " ),";
           }
@@ -433,7 +436,7 @@ class OPENMS_DLLAPI SqMassWriter
             String uncompressed_str;
             String encoded_string;
             MSNumpressCoder_Internal().encodeNP_raw(data_to_encode, uncompressed_str, npconfig_int);
-            compress_str(uncompressed_str, encoded_string);
+            OpenMS::Internal::compress_str(uncompressed_str, encoded_string);
             data.push_back( encoded_string );
 			prepare_statement += String("(") + chrom_id_ + ", 1, 6, ?" + sql_it++ + " ),";
           }
@@ -502,20 +505,16 @@ class OPENMS_DLLAPI SqMassReader
       sqlite3 *db;
       sqlite3_stmt * stmt;
       char *zErrMsg = 0;
-      int  rc;
+      int rc;
       std::string select_sql;
       const char* data = "Callback function called";
 
 
-      /* Open database */
+      // Open database
       rc = sqlite3_open(filename_.c_str(), &db);
-      if( rc )
+      if (rc)
       {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-      }
-      else
-      {
-        fprintf(stdout, "Opened database successfully\n");
+        throw Exception::IllegalArgument(__FILE__, __LINE__, __PRETTY_FUNCTION__, String("Can't open database: ") + sqlite3_errmsg(db));
       }
 
       // creates the chromatograms but does not fill them with data
@@ -569,7 +568,7 @@ class OPENMS_DLLAPI SqMassReader
         if (compression == 5)
         {
           std::string uncompressed;
-          uncompress_str(tt, blob_bytes, uncompressed);
+          OpenMS::Internal::uncompress_str(tt, blob_bytes, uncompressed);
           MSNumpressCoder::NumpressConfig config;
           config.setCompression("linear");
           MSNumpressCoder_Internal().decodeNP_raw(uncompressed, data, config);
@@ -577,7 +576,7 @@ class OPENMS_DLLAPI SqMassReader
         else if (compression == 6)
         {
           std::string uncompressed;
-          uncompress_str(tt, blob_bytes, uncompressed);
+          OpenMS::Internal::uncompress_str(tt, blob_bytes, uncompressed);
           MSNumpressCoder::NumpressConfig config;
           config.setCompression("slof");
           MSNumpressCoder_Internal().decodeNP_raw(uncompressed, data, config);
@@ -738,8 +737,6 @@ class TOPPOpenSwathMzMLFileCacher
     //setValidFormats_("out_meta",ListUtils::create<String>("mzML"));
 
     registerFlag_("convert_back", "Convert back to mzML");
-
-    registerFlag_("sqlite", "SQLITE!");
   }
 
   void convertToSQL(MSExperiment<> exp, String outputname)
@@ -748,35 +745,72 @@ class TOPPOpenSwathMzMLFileCacher
     SqMassWriter sql_mass(outputname);
     sql_mass.init();
     sql_mass.writeChromatograms(exp.getChromatograms());
+  }
 
-
-    MSExperiment<> read_back;
-    SqMassReader sql_mass_reader(outputname);
-    sql_mass_reader.read(read_back);
-
-
-    MzMLFile f;
-    f.store("/tmp/tmp.mzML", read_back);
-
+  void convertFromSQL(String inputname, MSExperiment<>& exp)
+  {
+    SqMassReader sql_mass_reader(inputname);
+    sql_mass_reader.read(exp);
   }
 
   ExitCodes main_(int , const char**)
   {
-    String in = getStringOption_("in");
     String out_meta = getStringOption_("out");
-    String in_cached = in + ".cached";
     String out_cached = out_meta + ".cached";
     bool convert_back =  getFlag_("convert_back");
-    bool sqlite =  getFlag_("sqlite");
 
-    if (sqlite)
+    FileHandler fh;
+
+    //input file type
+    String in = getStringOption_("in");
+    String in_cached = in + ".cached";
+    FileTypes::Type in_type = FileTypes::nameToType(getStringOption_("in_type"));
+
+    if (in_type == FileTypes::UNKNOWN)
     {
-      MzMLFile f;
+      in_type = fh.getType(in);
+      writeDebug_(String("Input file type: ") + FileTypes::typeToName(in_type), 2);
+    }
+
+    if (in_type == FileTypes::UNKNOWN)
+    {
+      writeLog_("Error: Could not determine input file type!");
+      return PARSE_ERROR;
+    }
+
+    //output file names and types
+    String out = getStringOption_("out");
+    FileTypes::Type out_type = FileTypes::nameToType(getStringOption_("out_type"));
+
+    if (out_type == FileTypes::UNKNOWN)
+    {
+      out_type = fh.getTypeByFileName(out);
+    }
+
+    if (out_type == FileTypes::UNKNOWN)
+    {
+      writeLog_("Error: Could not determine output file type!");
+      return PARSE_ERROR;
+    }
+
+    if (in_type == FileTypes::SQMASS && out_type == FileTypes::MZML)
+    {
       MapType exp;
-      f.load(in,exp);
-      convertToSQL(exp, out_meta);
+      convertFromSQL(in, exp);
+      MzMLFile f;
+      f.store(out, exp);
       return EXECUTION_OK;
     }
+    else if (in_type == FileTypes::MZML && out_type == FileTypes::SQMASS)
+    {
+      std::cout << " out is sqmass, in is mzML" << std::endl;
+      MzMLFile f;
+      MapType exp;
+      f.load(in, exp);
+      convertToSQL(exp, out);
+      return EXECUTION_OK;
+    }
+
 
     if (!convert_back)
     {
