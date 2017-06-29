@@ -188,7 +188,9 @@ public:
 
 private:
 
+    /// Access to underlying sqMass file
     OpenMS::Internal::MzMLSqliteHandler handler_;
+    /// Optional subset of spectral indices
     std::vector<int> sidx_;
   };
 } //end namespace OpenMS
