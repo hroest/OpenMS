@@ -50,8 +50,22 @@
 namespace OpenMS
 {
   /**
-   * @brief An implementation of the OpenSWATH Spectrum Access interface 
-   * 
+   * @brief An implementation of the Spectrum Access interface using SQL files
+   *
+   * The interface takes an MzMLSqliteHandler object to access spectra and
+   * chromatograms from a sqlite file (sqMass). Currently access to individual
+   * spectra and chromatograms are not supported due to large overhead of
+   * opening a DB connection and performing a single query.
+   *
+   * Instead, the users should use getAllSpectra which returns all available
+   * spectra together.
+   *
+   * The interface allows to be constructed in a way as to only provide access
+   * to a subset of spectra / chromatograms by supplying a set of indices which
+   * are then used to provide a transparent interface to any consumer who will
+   * get access to the described subset of spectra / chromatograms. This can be
+   * useful to provide a specific interface to MS1 or MS2  spectra only or to
+   * different DIA / SWATH-MS windows.
    *
   */
   class OPENMS_DLLAPI SpectrumAccessSqMass :
@@ -59,7 +73,6 @@ namespace OpenMS
   {
 
 public:
-    typedef OpenMS::PeakMap MSExperimentType;
     typedef OpenMS::MSSpectrum<Peak1D> MSSpectrumType;
     typedef OpenMS::MSChromatogram<ChromatogramPeak> MSChromatogramType;
 
@@ -70,7 +83,7 @@ public:
 
     SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler, std::vector<int> indices) :
       handler_(handler),
-      ids_(indices)
+      sidx_(indices)
     {}
 
     /// Destructor
@@ -79,7 +92,7 @@ public:
     /// Copy constructor
     SpectrumAccessSqMass(const SpectrumAccessSqMass & rhs) :
       handler_(rhs.handler_),
-      ids_(rhs.ids_)
+      sidx_(rhs.sidx_)
     {
     }
 
@@ -89,40 +102,30 @@ public:
       return boost::shared_ptr<SpectrumAccessSqMass>(new SpectrumAccessSqMass(*this));
     }
 
-    OpenSwath::SpectrumPtr getSpectrumById(int id)
+    OpenSwath::SpectrumPtr getSpectrumById(int /* id */)
     {
-      int used_id = id;
-      if (!ids_.empty())
-      {
-        if (id >= 0 && id < ids_.size())
-        {
-          used_id = ids_[id];
-        }
-      }
-
-      // now go and retrieve id
-      // handler_.getSpectrum ... 
       throw Exception::NotImplemented(__FILE__,__LINE__,OPENMS_PRETTY_FUNCTION);
     }
 
-    OpenSwath::SpectrumMeta getSpectrumMetaById(int id) const
+    OpenSwath::SpectrumMeta getSpectrumMetaById(int /* id */) const
     {
-      OpenSwath::SpectrumMeta m;
-      return m;
-    }
-
-    void runTest() 
-    {
-      std::cout << " run test only avbal here" << std::endl;
+      throw Exception::NotImplemented(__FILE__,__LINE__,OPENMS_PRETTY_FUNCTION);
     }
 
     void getAllSpectra(std::vector< OpenSwath::SpectrumPtr > & spectra, std::vector< OpenSwath::SpectrumMeta > & spectra_meta) 
     {
-      std::cout << " run test only avbal here" << std::endl;
+      // read MSSpectra and prepare for conversion
       std::vector<MSSpectrum<> > tmp_spectra;
-      handler_.readSpectra(tmp_spectra, ids_, false);
-      std::cout << " read " << tmp_spectra.size() << " spectra " << std::endl;
-
+      if (sidx_.empty())
+      {
+        MSExperiment exp;
+        handler_.readExperiment(exp, false);
+        tmp_spectra = exp.getSpectra();
+      }
+      else
+      {
+        handler_.readSpectra(tmp_spectra, sidx_, false);
+      }
       spectra.reserve(tmp_spectra.size());
       spectra_meta.reserve(tmp_spectra.size());
     
@@ -150,41 +153,35 @@ public:
       }
     }
 
-    std::vector<std::size_t> getSpectraByRT(double RT, double deltaRT) const
+    std::vector<std::size_t> getSpectraByRT(double /* RT */, double /* deltaRT */) const
     {
       throw Exception::NotImplemented(__FILE__,__LINE__,OPENMS_PRETTY_FUNCTION);
     }
 
     size_t getNrSpectra() const
     {
-      if (ids_.empty())
+      if (sidx_.empty())
       {
         return handler_.getNrSpectra();
       }
       else
       {
-        return ids_.size();
+        return sidx_.size();
       }
     }
 
-    OpenSwath::ChromatogramPtr getChromatogramById(int id)
+    OpenSwath::ChromatogramPtr getChromatogramById(int /* id */)
     {
       throw Exception::NotImplemented(__FILE__,__LINE__,OPENMS_PRETTY_FUNCTION);
     }
 
     size_t getNrChromatograms() const
     {
-      if (ids_.empty())
-      {
-        return handler_.getNrChromatograms();
-      }
-      else
-      {
-        return ids_.size();
-      }
+      // TODO: currently chrom indices are not supported
+      return handler_.getNrChromatograms();
     }
 
-    std::string getChromatogramNativeID(int id) const
+    std::string getChromatogramNativeID(int /* id */) const
     {
       throw Exception::NotImplemented(__FILE__,__LINE__,OPENMS_PRETTY_FUNCTION);
     }
@@ -192,18 +189,8 @@ public:
 private:
 
     OpenMS::Internal::MzMLSqliteHandler handler_;
-    std::vector<int> ids_;
-
-    std::vector< OpenSwath::SpectrumPtr > spectra_;
-    std::vector< OpenSwath::SpectrumMeta > spectra_meta_;
-
-    std::vector< OpenSwath::ChromatogramPtr > chromatograms_;
-    std::vector< std::string > chromatogram_ids_;
-
+    std::vector<int> sidx_;
   };
-
-    // SpectrumAccessSqMass::~SpectrumAccessSqMass() {}
-
 } //end namespace OpenMS
 
 #endif // OPENMS_ANALYSIS_OPENSWATH_DATAACCESS_SPECTRUMACCESSSQMASS_H
