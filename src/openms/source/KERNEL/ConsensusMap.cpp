@@ -313,6 +313,7 @@ namespace OpenMS
 
   void ConsensusMap::sortPeptideIdentificationsByMapIndex()
   {
+#if ENABLE_FULL_C11
     // lambda predicate
     auto mapIndexLess = [] (const PeptideIdentification & a, const PeptideIdentification & b) -> bool
     {
@@ -340,6 +341,7 @@ namespace OpenMS
         stable_sort(pids.begin(), pids.end(), mapIndexLess);
         return c;
       });
+#endif
   }
 
   void ConsensusMap::swap(ConsensusMap& from)

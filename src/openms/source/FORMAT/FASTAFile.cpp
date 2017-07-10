@@ -51,7 +51,11 @@ namespace OpenMS
   typedef seqan::RecordReader<std::fstream, seqan::SinglePass<> > FASTARecordReader;
 
   FASTAFile::FASTAFile()
+#if ENABLE_FULL_C11
     : reader_(std::nullptr_t()), // point to nothing
+#else
+    : reader_(NULL), // point to nothing
+#endif
       entries_read_(0)
   {
   }
@@ -77,12 +81,14 @@ namespace OpenMS
 
     infile_.open(filename.c_str(), std::ios::binary | std::ios::in);
     
+#if ENABLE_FULL_C11
     // automatically deletes old handles
     reader_ = std::unique_ptr<void, std::function<void(void*) > >(new FASTARecordReader(infile_),
       [](void* ptr)
       { // lambda with custom cast
         delete static_cast<FASTARecordReader*>(ptr);
       });
+#endif
 
     entries_read_ = 0;
   }

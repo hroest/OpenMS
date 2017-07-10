@@ -529,7 +529,11 @@ namespace OpenMS
 
     // Iterate over all target peptides
     int transition_index = 0;
+#if ENABLE_FULL_C11
     for (typename PeptideMapT::iterator pep_it = TargetPeptideMap.begin(); pep_it != TargetPeptideMap.end(); ++pep_it)
+#else
+    for (PeptideMapT::iterator pep_it = TargetPeptideMap.begin(); pep_it != TargetPeptideMap.end(); ++pep_it)
+#endif
     { 
       setProgress(progress++);
 
@@ -600,7 +604,11 @@ namespace OpenMS
 
     // Iterate over all decoy peptides
     int transition_index = 0;
+#if ENABLE_FULL_C11
     for (typename PeptideMapT::iterator decoy_pep_it = DecoyPeptideMap.begin(); decoy_pep_it != DecoyPeptideMap.end(); ++decoy_pep_it)
+#else
+    for (PeptideMapT::iterator decoy_pep_it = DecoyPeptideMap.begin(); decoy_pep_it != DecoyPeptideMap.end(); ++decoy_pep_it)
+#endif
     {
       setProgress(progress++);
       TargetedExperiment::Peptide target_peptide = exp.getPeptideByRef(decoy_pep_it->first);
