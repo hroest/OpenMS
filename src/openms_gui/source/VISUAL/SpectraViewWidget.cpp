@@ -678,6 +678,10 @@ namespace OpenMS
               selected_item = sub_item;
             }
             QString chrom_description = "ion";
+            if (!current_chromatogram.getNativeID().empty())
+            {
+              chrom_description = String(current_chromatogram.getNativeID()).toQString();
+            }
             if (mit->first.metaValueExists("description"))
             {
               chrom_description = String(mit->first.getMetaValue("description")).toQString();
