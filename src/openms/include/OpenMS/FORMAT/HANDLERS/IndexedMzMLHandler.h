@@ -47,6 +47,9 @@
 namespace OpenMS
 {
 
+namespace Internal
+{
+
   /**
     @brief A low-level class to read an indexedmzML file.
 
@@ -171,6 +174,7 @@ namespace OpenMS
     }
 
   };
+}
 }
 
 #endif // OPENMS_FORMAT_INDEXEDMZMLHANDLER_H

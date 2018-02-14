@@ -41,6 +41,8 @@
 
 namespace OpenMS
 {
+namespace Internal
+{
 
   void IndexedMzMLFile::parseFooter_(String filename)
   {
@@ -249,4 +251,5 @@ namespace OpenMS
     return sptr;
   }
 
+}
 }
