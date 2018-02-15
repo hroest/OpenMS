@@ -6,7 +6,7 @@ from InterfaceDataStructures cimport *
 # from ISpectrumAccess cimport *
 from IndexedMzMLDecoder cimport *
 
-cdef extern from "<OpenMS/FORMAT/IndexedMzMLFile.h>" namespace "OpenMS":
+cdef extern from "<OpenMS/FORMAT/HANDLERS/IndexedMzMLHandler.h>" namespace "OpenMS":
     
     cdef cppclass IndexedMzMLFile "OpenMS::IndexedMzMLFile":
         IndexedMzMLFile() nogil except +
