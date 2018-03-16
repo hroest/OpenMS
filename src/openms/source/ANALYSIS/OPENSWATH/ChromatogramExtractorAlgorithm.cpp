@@ -142,8 +142,11 @@ namespace OpenMS
 
   void ChromatogramExtractorAlgorithm::extractChromatograms(const OpenSwath::SpectrumAccessPtr input,
       std::vector< OpenSwath::ChromatogramPtr >& output,
-      std::vector<ExtractionCoordinates> extraction_coordinates, double mz_extraction_window,
-      bool ppm, String filter)
+      const std::vector<ExtractionCoordinates>& extraction_coordinates,
+      double mz_extraction_window,
+      bool ppm,
+      double im_extraction_window,
+      String filter)
   {
     Size input_size = input->getNrSpectra();
     if (input_size < 1)
@@ -186,6 +189,9 @@ namespace OpenMS
       {
         continue;
       }
+
+      bool has_im = (im_extraction_window > 0.0);
+      // sptr
 
       // go through all transitions / chromatograms which are sorted by
       // ProductMZ. We can use this to step through the spectrum and at the
@@ -238,3 +244,4 @@ namespace OpenMS
   }
 
 }
+

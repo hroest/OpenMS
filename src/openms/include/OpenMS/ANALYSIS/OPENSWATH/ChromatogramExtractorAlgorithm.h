@@ -68,6 +68,8 @@ public:
       double mz_precursor; ///< precursor m/z value (is currently ignored by the algorithm)
       double rt_start; ///< rt start of extraction (in seconds)
       double rt_end; ///< rt end of extraction (in seconds)
+      double im_start; ///< ion mobility start of extraction (in milliseconds)
+      double im_end; ///< ion mobility end of extraction (in milliseconds)
       std::string id; ///< identifier
 
       static bool SortExtractionCoordinatesByMZ(
@@ -101,8 +103,11 @@ public:
     */
     void extractChromatograms(const OpenSwath::SpectrumAccessPtr input, 
         std::vector< OpenSwath::ChromatogramPtr >& output, 
-        std::vector<ExtractionCoordinates> extraction_coordinates, double mz_extraction_window,
-        bool ppm, String filter);
+        const std::vector<ExtractionCoordinates>& extraction_coordinates,
+        double mz_extraction_window,
+        bool ppm,
+        double im_extraction_window,
+        String filter);
 
     /**
      * @brief Extract the next mz value and add the integrated intensity to integrated_intensity. 
