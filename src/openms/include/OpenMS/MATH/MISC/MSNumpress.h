@@ -30,37 +30,40 @@
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /*
-	==================== encodeInt ====================
-	Some of the encodings described below use a integer compression referred to simply as 
-	
-	encodeInt()
+      ==================== encodeInt ====================
+      Some of the encodings described below use a integer compression referred to simply as 
+      
+      encodeInt()
  
-	The algorithm is similar to other variable length integer encodings,
-	such as the SQLite Variable-Length Integers encoding, but it uses half
-	bytes in its encoding procedure.
+      The algorithm is similar to other variable length integer encodings,
+      such as the SQLite Variable-Length Integers encoding, but it uses half
+      bytes in its encoding procedure.
 
-	This encoding works on a 4 byte integer, by truncating initial zeros or ones.
-	If the initial (most significant) half byte is 0x0 or 0xf, the number of such 
-	halfbytes starting from the most significant is stored in a halfbyte. This initial 
-	count is then followed by the rest of the ints halfbytes, in little-endian order. 
-	A count halfbyte c of
+      This encoding works on a 4 byte integer, by truncating initial zeros or ones.
+      If the initial (most significant) half byte is 0x0 or 0xf, the number of such 
+      halfbytes starting from the most significant is stored in a halfbyte. This initial 
+      count is then followed by the rest of the ints halfbytes, in little-endian order. 
+      A count halfbyte c of
 
-		0 <= c <= 8 		is interpreted as an initial c 		0x0 halfbytes 
-		9 <= c <= 15		is interpreted as an initial (c-8) 	0xf halfbytes
+            0 <= c <= 8             is interpreted as an initial c             0x0 halfbytes 
+            9 <= c <= 15            is interpreted as an initial (c-8)         0xf halfbytes
 
-	Example:
+      Example:
 
-	int		c		rest
-	0 	=> 	0x8
-	-1	=>	0xf		0xf
-	 2	=>	0x7		0x2
-	23	=>	0x6 	0x7	0x1
-	2047	=>	0x5 	0xf 0xf	0xf
+      int            c              rest    no. hb
+      0       =>     0x8                    1
+      -1      =>     0xf            0xf     2
+       2      =>     0x7            0x2     2
+      23      =>     0x6        0x7 0x1     3
+      2047    =>     0x5    0xf 0xf 0xf     4
 
-	Note that the algorithm returns a char array in which the half bytes are
-	stored in the lower 4 bits of each element. Since the first element is a
-	count half byte, the maximal length of the encoded data is 9 half bytes
-	(1 count half byte + 8 half bytes for a 4-byte integer).
+      Note that the algorithm returns a char array in which the half bytes are
+      stored in the lower 4 bits of each element. Since the first element is a
+      count half byte, the maximal length of the encoded data is 9 half bytes
+      (1 count half byte + 8 half bytes for a 4-byte integer). Therefore the
+      worst-case behavior is an increase in storage by 12.5%, whereas the best
+      case behavior is a decrease in storage by 87.5% (only 1 half-byte per
+      int).
 
  */
 
@@ -114,9 +117,9 @@ namespace MSNumpress {
 
 	/**
 	 * Encodes the doubles in data by first using a 
-	 *   - lossy conversion to a 4 byte 5 decimal fixed point representation
-	 *   - storing the residuals from a linear prediction after first two values
-	 *   - encoding by encodeInt (see above) 
+	 *   - (i)   lossy conversion to a 4 byte 5 decimal fixed point representation
+	 *   - (ii)  storing the residuals from a linear prediction after first two values
+	 *   - (iii) encoding by encodeInt (see above) 
 	 * 
 	 * The resulting binary is maximally 8 + dataSize * 5 bytes, but much less if the 
 	 * data is reasonably smooth on the first order.

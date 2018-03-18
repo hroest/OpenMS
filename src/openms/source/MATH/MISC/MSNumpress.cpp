@@ -155,16 +155,17 @@ static void encodeInt(
  */
 static void decodeInt(
 		const unsigned char *data,
-		size_t *di,
-		size_t max_di,
+		size_t *di, // position in *data
+	 	size_t max_di,
 		size_t *half,
 		unsigned int *res
 ) {
     size_t n, i;
     unsigned int mask, m;
-    unsigned char head;
+    unsigned char head; // number of leading 0x0 or 0xf
     unsigned char hb;
 
+  // get the number of leading 0x0 or 0xf
 	if (*half == 0) {
 		head = data[*di] >> 4;
 	} else {
@@ -175,7 +176,7 @@ static void decodeInt(
 	*half = 1-(*half);
 	*res = 0;
 	
-	if (head <= 8) {
+	if (head <= 8) { // leading zeros, leave zeros be
 		n = head;
 	} else { // leading ones, fill n half bytes in res
 		n = head - 8;
@@ -196,13 +197,13 @@ static void decodeInt(
 	
 	for (i=n; i<8; i++) {
 		if (*half == 0) {
-			hb = data[*di] >> 4;
+			hb = data[*di] >> 4; // first half byte
 		} else {
-			hb = data[*di] & 0xf;
+			hb = data[*di] & 0xf; // second half byte, move to next byte
 			(*di)++;
 		}
 		*res = *res | ( static_cast<unsigned int>(hb) << ((i-n)*4));
-		*half = 1 - (*half);
+		*half = 1 - (*half); // toggle half byte switch
 	}
 }
 
@@ -288,6 +289,9 @@ size_t encodeLinear(
 
 	if (dataSize == 0) return 8;
 
+  // (i) lossy conversion into an integer data type by multiplying with a fixed
+  // point that determines the accuracy.
+  // Then store the result as the first value.
 	ints[1] = static_cast<long long>(data[0] * fixedPoint + 0.5);
 	for (i=0; i<4; i++) {
 		result[8+i] = (ints[1] >> (i*8)) & 0xff;
@@ -295,6 +299,8 @@ size_t encodeLinear(
 
 	if (dataSize == 1) return 12;
 
+  // (i)
+  // Then store the result as the second value.
 	ints[2] = static_cast<long long>(data[1] * fixedPoint + 0.5);
 	for (i=0; i<4; i++) {
 		result[12+i] = (ints[2] >> (i*8)) & 0xff;
@@ -303,7 +309,10 @@ size_t encodeLinear(
 	halfByteCount = 0;
 	ri = 16;
 
+  // now loop and use the previous two values (see above) to predict the next
+  // value and store the difference to the prediction.
 	for (i=2; i<dataSize; i++) {
+    // get previous two values
 		ints[0] = ints[1];
 		ints[1] = ints[2];
 		if (MS_NUMPRESS_THROW_ON_OVERFLOW && 
@@ -311,7 +320,9 @@ size_t encodeLinear(
 			throw "[MSNumpress::encodeLinear] Next number overflows LLONG_MAX.";
 		}
 
+    // (i)
 		ints[2] = static_cast<long long>(data[i] * fixedPoint + 0.5);
+    // (ii) perform linear prediction based on past two values
 		extrapol = ints[1] + (ints[1] - ints[0]);
 
 		if (MS_NUMPRESS_THROW_ON_OVERFLOW && 
@@ -320,8 +331,10 @@ size_t encodeLinear(
 			throw "[MSNumpress::encodeLinear] Cannot encode a number that exceeds the bounds of [-INT_MAX, INT_MAX].";
 		}
 
+    // (ii) store difference to linear prediction based on past two values
 		diff = static_cast<int>(ints[2] - extrapol);
 		//printf("%lu %lu %lu,   extrapol: %ld    diff: %d \n", ints[0], ints[1], ints[2], extrapol, diff);
+    // (iii) encode diff as variable length int
 		encodeInt(
 				static_cast<unsigned int>(diff), 
 				&halfBytes[halfByteCount], 
@@ -389,6 +402,7 @@ size_t decodeLinear(
 	if (dataSize < 12) 
 		throw "[MSNumpress::decodeLinear] Corrupt input data: not enough bytes to read first value! ";
 
+  // get first value
 	ints[1] = 0;
 	for (i=0; i<4; i++) {
 		ints[1] = ints[1] | ((0xff & (init = data[8+i])) << (i*8));
@@ -399,6 +413,7 @@ size_t decodeLinear(
 	if (dataSize < 16) 
 		throw "[MSNumpress::decodeLinear] Corrupt input data: not enough bytes to read second value! ";
 
+  // get second value
 	ints[2] = 0;
 	for (i=0; i<4; i++) {
 		ints[2] = ints[2] | ((0xff & (init = data[12+i])) << (i*8));
@@ -419,15 +434,17 @@ size_t decodeLinear(
 		}
 		//printf("%7d %7d %7d %lu %lu %ld", di, ri, half, ints[0], ints[1], extrapol);
 		
+    // get last two value and compute diff to prediction
 		ints[0] = ints[1];
 		ints[1] = ints[2];
 		decodeInt(data, &di, dataSize, &half, &buff);
 		diff = static_cast<int>(buff);
 
+    // compute extrapolation based on last two values
 		extrapol = ints[1] + (ints[1] - ints[0]);
-		y = extrapol + diff;
+		y = extrapol + diff; // actual value in integer space
 		//printf(" %d \n", diff);
-		result[ri++] 	= y / fixedPoint;
+		result[ri++] 	= y / fixedPoint; // actual value in float space
 		ints[2] 		= y;
 	}
 
