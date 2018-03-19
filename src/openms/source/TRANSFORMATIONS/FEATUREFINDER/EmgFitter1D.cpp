@@ -174,23 +174,63 @@ namespace OpenMS
     setInitialParameters_(set);
 
     // Optimize parameter with Levenberg-Marquardt algorithm
-//    CoordinateType x_init[4] = { height_, width_, symmetry_, retention_ };
+    //    CoordinateType x_init[4] = { height_, width_, symmetry_, retention_ };
     Eigen::VectorXd x_init(4);
     x_init(0) = height_;
     x_init(1) = width_;
     x_init(2) = symmetry_;
     x_init(3) = retention_;
-    if (symmetric_ == false)
+    std::cout << " initial params " << height_ << " / " << width_ << " / " << symmetry_ << " " << retention_ << std::endl;
+
     {
-      EgmFitterFunctor functor(4, &d);
-      optimize_(x_init, functor);
+      Eigen::VectorXd x_values(x_init);
+      if (symmetric_ == false)
+      {
+        EgmFitterFunctor functor(4, &d);
+        optimize_(x_values, functor);
+      }
+
+      // Set optimized parameters
+      height_ = x_values[0];
+      width_ = x_values[1];
+      symmetry_ = x_values[2];
+      retention_ = x_values[3];
     }
 
-    // Set optimized parameters
-    height_ = x_init[0];
-    width_ = x_init[1];
-    symmetry_ = x_init[2];
-    retention_ = x_init[3];
+    std::cout << " fit params params " << height_ << " / " << width_ << " / " << symmetry_ << " " << retention_ << std::endl;
+    
+    // Fix issues with the fit (e.g. too large step size), where the algorithm
+    // got stuck and computed a negative height.
+    if (height_ < 0.0)
+    {
+      std::cout << " something went quite wrong here!" << std::endl;
+      std::cout << " got params params " << height_ << " / " << width_ << " / " << symmetry_ << " " << retention_ << std::endl;
+
+      {
+        Eigen::VectorXd x_values(x_init);
+      std::cout << " wills start again with params " << x_values[0] << " / " << x_values[1] << " / " << x_values[2] << " " << x_values[3] << std::endl;
+        if (symmetric_ == false)
+        {
+          // use a very small step size for the algorithm (smallest recommended is 0.1)
+          double old_s = step_size_;
+          int old_mi = max_iteration_;
+          step_size_ = 1.01;
+          step_size_ = 0.01;
+          max_iteration_ = 5000;
+          EgmFitterFunctor functor(4, &d);
+          optimize_(x_values, functor);
+          step_size_ = old_s;
+          max_iteration_ = old_mi;
+        }
+
+        // Set optimized parameters
+        height_ = x_values[0];
+        width_ = x_values[1];
+        symmetry_ = x_values[2];
+        retention_ = x_values[3];
+      }
+      std::cout << "  --- now got params params " << height_ << " / " << width_ << " / " << symmetry_ << " " << retention_ << std::endl;
+    }
 
 #ifdef DEBUG_FEATUREFINDER
     if (getGslStatus_() != "success")
