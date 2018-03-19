@@ -47,8 +47,26 @@ namespace OpenMS
       // LM always expects N>=p, cause Jacobian be rectangular M x N with M>=N
       if (data_count < num_params) throw Exception::UnableToFit(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "UnableToFit-FinalSet", "Skipping feature, we always expects N>=p");
 
+      // Documentation of these parameters:
+      // http://eigen.tuxfamily.org/dox/unsupported/classEigen_1_1LevenbergMarquardt.html
+      // http://www.netlib.org/minpack/lmder.f
+      // 
+      // maxfev is a positive integer input variable. termination
+      //   occurs when the number of calls to fcn with iflag = 1
+      //   has reached maxfev.
+      // factor is a positive input variable used in determining the
+      //   initial step bound. this bound is set to the product of
+      //   factor and the euclidean norm of diag*x if nonzero, or else
+      //   to factor itself. in most cases factor should lie in the
+      //   interval (.1,100.).100. is a generally recommended value.
+      //
       Eigen::LevenbergMarquardt<GenericFunctor> lmSolver (functor);
       lmSolver.parameters.maxfev = max_iteration_;
+      lmSolver.parameters.factor = step_size_; // step size
+      // lmSolver.parameters.xtol = 1; // desired termination for difference between solution and value
+      // lmSolver.parameters.ftol = 1; // desired termination condition for improvement between iterations
+      // lmSolver.parameters.gtol = 1; // desired termination condition for cosine between fvec and columns in jacobian
+      // lmSolver.parameters.epsfcn = 1; // error precision
       Eigen::LevenbergMarquardtSpace::Status status = lmSolver.minimize(x_init);
 
       //the states are poorly documented. after checking the source, we believe that
@@ -64,7 +82,9 @@ namespace OpenMS
     {
       Fitter1D::updateMembers_();
       max_iteration_ = this->param_.getValue("max_iteration");
+      step_size_ = this->param_.getValue("step_size");
     }
 
 
 } // namespace OpenMS
+
