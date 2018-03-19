@@ -84,12 +84,15 @@ public:
       Fitter1D()
     {
       this->defaults_.setValue("max_iteration", 500, "Maximum number of iterations using by Levenberg-Marquardt algorithm.", ListUtils::create<String>("advanced"));
+      this->defaults_.setValue("step_size", 100.0, "Step size used in the Levenberg-Marquardt algorithm (recommended values between 0.1 and 100).", ListUtils::create<String>("advanced"));
+
     }
 
     /// copy constructor
     LevMarqFitter1D(const LevMarqFitter1D & source) :
       Fitter1D(source),
-      max_iteration_(source.max_iteration_)
+      max_iteration_(source.max_iteration_),
+      step_size_(source.step_size_)
     {
     }
 
@@ -105,6 +108,7 @@ public:
 
       Fitter1D::operator=(source);
       max_iteration_ = source.max_iteration_;
+      step_size_ = source.step_size_;
 
       return *this;
     }
@@ -115,6 +119,8 @@ protected:
     bool symmetric_;
     /// Maximum number of iterations
     Int max_iteration_;
+    /// Step size
+    double step_size_;
 
     /**
         @brief Optimize start parameter
