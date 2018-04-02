@@ -261,7 +261,7 @@ public:
           for (Size k = 0; k < picked_chroms.size(); k++)
           {
             double intensity(-1);
-            double maxi;
+            double maxi = 0;
             for (Size i = 0; i < picked_chroms[k].size(); i++)
             {
               if (picked_chroms[k][i].getMZ() >= best_left && picked_chroms[k][i].getMZ() <= best_right)
