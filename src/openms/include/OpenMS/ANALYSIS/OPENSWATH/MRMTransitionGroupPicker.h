@@ -242,6 +242,8 @@ public:
 
       std::vector< double > left_edges;
       std::vector< double > right_edges;
+      double min_left = best_left;
+      double max_right = best_right;
       if (use_consensus_)
       {
         // Remove other, overlapping, picked peaks (in this and other
@@ -274,8 +276,11 @@ public:
             double l = picked_chroms[k].getFloatDataArrays()[1][maxi];
             double r = picked_chroms[k].getFloatDataArrays()[2][maxi];
             picked_chroms[k][maxi].setIntensity(0.0); // only remove one peak per transition
-            left_edges.push_back( l );
-            right_edges.push_back( r );
+            left_edges.push_back(l);
+            right_edges.push_back(r);
+            // ensure we remember the overall maxima / minima
+            if (l < min_left) {min_left = l;}
+            if (r > max_right) {max_right = r;}
           }
         }
       }
@@ -301,11 +306,12 @@ public:
       }
 
       // Prepare linear resampling of all the chromatograms, here creating the
-      // empty master_peak_container with the same RT (m/z) values as the reference
-      // chromatogram.
+      // empty master_peak_container with the same RT (m/z) values as the
+      // reference chromatogram. We use the overall minimal left boundary and
+      // maximal right boundary to prepare the container.
       SpectrumT master_peak_container;
       const SpectrumT& ref_chromatogram = selectChromHelper_(transition_group, picked_chroms[chr_idx].getNativeID());
-      prepareMasterContainer_(ref_chromatogram, master_peak_container, best_left, best_right);
+      prepareMasterContainer_(ref_chromatogram, master_peak_container, min_left, max_right);
 
       // Iterate over initial transitions / chromatograms (note that we may
       // have a different number of picked chromatograms than total transitions
@@ -333,7 +339,6 @@ public:
 
         SpectrumT used_chromatogram;
         // resample the current chromatogram
-        // TODO: need to ensure that our master container is larger than local_left / local_right
         if (peak_integration_ == "original")
         {
           used_chromatogram = resampleChromatogram_(chromatogram, master_peak_container, local_left, local_right);
