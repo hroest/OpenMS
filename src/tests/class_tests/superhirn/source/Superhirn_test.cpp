@@ -36,7 +36,7 @@
 #include "test_config.h"
 
 ///////////////////////////
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmSH.h>
+#include <OpenMS/FEATUREFINDERSH/FeatureFinderAlgorithmSH.h>
 ///////////////////////////
 
 #include <OpenMS/KERNEL/Feature.h>

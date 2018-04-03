@@ -7,7 +7,7 @@ from ChromatogramPeak cimport *
 from FeatureFinder cimport *
 from DefaultParamHandler cimport *
 
-cdef extern from "<OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmSH.h>" namespace "OpenMS":
+cdef extern from "<OpenMS/FEATUREFINDERSH/FeatureFinderAlgorithmSH.h>" namespace "OpenMS":
 
     cdef cppclass FeatureFinderAlgorithmSH(DefaultParamHandler):
 
@@ -19,6 +19,6 @@ cdef extern from "<OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmSH
         void run() nogil except +
         unsigned int getNativeScanId(String native_id) nogil except +
 
-cdef extern from "<OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmSH.h>" namespace "OpenMS::FeatureFinderAlgorithmSH":
+cdef extern from "<OpenMS/FEATUREFINDERSH/FeatureFinderAlgorithmSH.h>" namespace "OpenMS::FeatureFinderAlgorithmSH":
 
     String getProductName()   nogil except + # wrap-attach:FeatureFinderAlgorithmSH

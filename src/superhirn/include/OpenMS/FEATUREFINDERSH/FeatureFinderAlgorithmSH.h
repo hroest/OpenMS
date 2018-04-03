@@ -36,7 +36,7 @@
 
 #include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnConfig.h>
 
-#include <OpenMS/FEATUREFINDERSH/FeatureFinderAlgorithm.h>
+#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithm.h>
 
 namespace OpenMS
 {

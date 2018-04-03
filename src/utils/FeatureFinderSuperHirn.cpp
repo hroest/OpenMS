@@ -38,7 +38,7 @@
 #include <OpenMS/FORMAT/FeatureXMLFile.h>
 #include <OpenMS/KERNEL/Feature.h>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmSH.h>
+#include <OpenMS/FEATUREFINDERSH/FeatureFinderAlgorithmSH.h>
 
 #include <OpenMS/APPLICATIONS/TOPPBase.h>
 
