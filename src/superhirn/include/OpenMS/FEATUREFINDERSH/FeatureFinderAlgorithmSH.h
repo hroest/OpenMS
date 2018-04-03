@@ -34,9 +34,9 @@
 
 #pragma once
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnConfig.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnConfig.h>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithm.h>
+#include <OpenMS/FEATUREFINDERSH/FeatureFinderAlgorithm.h>
 
 namespace OpenMS
 {

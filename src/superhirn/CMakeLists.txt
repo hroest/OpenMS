@@ -51,10 +51,10 @@ set(SuperHirn_sources_h CACHE INTERNAL "This variable should hold all SuperHirn 
 
 # --------------------------------------------------------------------------
 # include the file collections
-include(source/TRANSFORMATIONS/FEATUREFINDER/sources.cmake)
-include(source/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/sources.cmake)
-include(include/OpenMS/TRANSFORMATIONS/FEATUREFINDER/sources.cmake)
-include(include/OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/sources.cmake)
+include(source/FEATUREFINDERSH/sources.cmake)
+include(source/FEATUREFINDERSH/SUPERHIRN/sources.cmake)
+include(include/OpenMS/FEATUREFINDERSH/sources.cmake)
+include(include/OpenMS/FEATUREFINDERSH/SUPERHIRN/sources.cmake)
 
 #------------------------------------------------------------------------------
 # QT dependencies
@@ -72,7 +72,7 @@ openms_add_library(TARGET_NAME SuperHirn
                    INTERNAL_INCLUDES ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/include
                    EXTERNAL_INCLUDES ${Boost_INCLUDE_DIRS} ${OpenMS_INCLUDE_DIRECTORIES}
                    LINK_LIBRARIES OpenMS
-                   DLL_EXPORT_PATH "OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/")
+                   DLL_EXPORT_PATH "OpenMS/FEATUREFINDERSH/SUPERHIRN/")
 
 # --------------------------------------------------------------------------
 # link libraries for SuperHirn tools

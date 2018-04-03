@@ -50,10 +50,10 @@
 
 #pragma once
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnConfig.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnConfig.h>
 
 #include <OpenMS/CONCEPT/Types.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2Fragment.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2Fragment.h>
 
 #include <string>
 #include <map>

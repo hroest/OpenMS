@@ -47,11 +47,11 @@
 #include <iostream>
 #include <map>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/Deisotoper.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidData.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/IsotopicDist.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnParameters.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/Deisotoper.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidData.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/IsotopicDist.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnParameters.h>
 
 namespace OpenMS
 {

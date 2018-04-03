@@ -43,7 +43,7 @@
 //
 
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/FeatureLCProfile.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/FeatureLCProfile.h>
 
 namespace OpenMS
 {

@@ -37,9 +37,9 @@
 
 ///////////////////////////
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MSPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/IsotopicDist.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MSPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/IsotopicDist.h>
 
 ///////////////////////////
 

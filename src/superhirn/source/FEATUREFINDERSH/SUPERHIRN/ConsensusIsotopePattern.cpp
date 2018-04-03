@@ -47,9 +47,9 @@
 #include <vector>
 #include <cmath>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/ConsensusIsotopePattern.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnUtil.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnParameters.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/ConsensusIsotopePattern.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnUtil.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnParameters.h>
 
 namespace OpenMS
 {

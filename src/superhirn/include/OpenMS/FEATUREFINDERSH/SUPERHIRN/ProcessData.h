@@ -50,8 +50,8 @@
 
 #pragma once
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnConfig.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/BackgroundControl.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnConfig.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/BackgroundControl.h>
 
 #include <map>
 #include <vector>

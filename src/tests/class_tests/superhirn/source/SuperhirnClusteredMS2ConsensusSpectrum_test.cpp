@@ -38,9 +38,9 @@
 ///////////////////////////
 
 #include <vector>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2Fragment.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2ConsensusSpectrum.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/ClusteredMS2ConsensusSpectrum.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2Fragment.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2ConsensusSpectrum.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/ClusteredMS2ConsensusSpectrum.h>
 
 ///////////////////////////
 

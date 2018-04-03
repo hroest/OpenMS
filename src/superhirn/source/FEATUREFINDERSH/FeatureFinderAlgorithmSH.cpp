@@ -32,8 +32,8 @@
 // $Authors: Florian Zeller $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmSH.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmSHCtrl.h>
+#include <OpenMS/FEATUREFINDERSH/FeatureFinderAlgorithmSH.h>
+#include <OpenMS/FEATUREFINDERSH/FeatureFinderAlgorithmSHCtrl.h>
 #include <OpenMS/DATASTRUCTURES/ListUtils.h>
 
 #include <boost/shared_ptr.hpp>

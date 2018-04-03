@@ -50,7 +50,7 @@
 
 #pragma once
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnConfig.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnConfig.h>
 
 #include <OpenMS/CONCEPT/Types.h>
 

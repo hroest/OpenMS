@@ -46,7 +46,7 @@
 //  Group of Prof. Ruedi Aebersold, IMSB, ETH Hoenggerberg, Zurich
 //
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MSPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MSPeak.h>
 
 #include <string>
 #include <vector>
@@ -54,7 +54,7 @@
 #include <iostream>
 #include <cstdio>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidPeak.h>
 
 namespace OpenMS
 {

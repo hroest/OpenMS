@@ -43,7 +43,7 @@
  *
  */
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/RawData.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/RawData.h>
 
 #include <iostream>
 #include <iomanip>

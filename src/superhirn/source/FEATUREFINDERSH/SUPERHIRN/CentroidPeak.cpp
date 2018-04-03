@@ -50,8 +50,8 @@
 #include <iomanip>
 #include <map>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnParameters.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnParameters.h>
 
 namespace OpenMS
 {

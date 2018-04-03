@@ -43,12 +43,12 @@
 //
 
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2Feature.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2Feature.h>
 
 #include <cstdio>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2Fragment.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/ClusteredMS2ConsensusSpectrum.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2Fragment.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/ClusteredMS2ConsensusSpectrum.h>
 
 namespace OpenMS
 {

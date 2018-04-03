@@ -52,9 +52,9 @@
 #include <map>
 #include <cmath>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MSPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/BackgroundIntensityBin.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnParameters.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MSPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/BackgroundIntensityBin.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnParameters.h>
 
 namespace OpenMS
 {

@@ -37,8 +37,8 @@
 
 ///////////////////////////
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MSPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/BackgroundIntensityBin.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MSPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/BackgroundIntensityBin.h>
 
 ///////////////////////////
 

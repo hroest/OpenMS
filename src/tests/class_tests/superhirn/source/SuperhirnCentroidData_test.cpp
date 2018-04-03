@@ -37,9 +37,9 @@
 
 ///////////////////////////
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/RawData.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidData.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/RawData.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidData.h>
 
 ///////////////////////////
 

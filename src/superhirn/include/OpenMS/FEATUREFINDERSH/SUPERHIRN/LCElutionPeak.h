@@ -49,12 +49,12 @@
 
 #pragma once
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnConfig.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnConfig.h>
 
 #include <vector>
 #include <map>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/ConsensusIsotopePattern.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MSPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/ConsensusIsotopePattern.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MSPeak.h>
 
 namespace OpenMS
 {

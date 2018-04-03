@@ -50,11 +50,11 @@
 #pragma once
 
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnConfig.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnConfig.h>
 
 #include <vector>
 #include <OpenMS/CONCEPT/Types.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2ConsensusSpectrum.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2ConsensusSpectrum.h>
 
 namespace OpenMS
 {

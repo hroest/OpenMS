@@ -44,17 +44,17 @@
 //
 
 //  PEAK DETECTION OF FOURIER TRANSFORME MS INSTRUMENT DATA
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/LCElutionPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/LCElutionPeak.h>
 
 #include <cmath>
 #include <cstdio>
 #include <iostream>
 #include <map>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/ConsensusIsotopePattern.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MSPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnParameters.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/ConsensusIsotopePattern.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MSPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnParameters.h>
 
 namespace OpenMS
 {

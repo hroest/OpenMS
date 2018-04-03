@@ -42,7 +42,7 @@
 //  December 2010
 //
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/LCMS.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/LCMS.h>
 
 #include <string>
 #include <vector>
@@ -50,11 +50,11 @@
 #include <algorithm>
 #include <cstdio>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnParameters.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2Info.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2Feature.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/FeatureLCProfile.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SHFeature.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnParameters.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2Info.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2Feature.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/FeatureLCProfile.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SHFeature.h>
 
 namespace OpenMS
 {

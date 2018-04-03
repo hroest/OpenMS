@@ -47,7 +47,7 @@
 //
 //
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2ConsensusSpectrum.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2ConsensusSpectrum.h>
 
 #include <map>
 #include <vector>
@@ -55,8 +55,8 @@
 #include <cmath>
 #include <cstdio>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnUtil.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2Fragment.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnUtil.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2Fragment.h>
 
 using namespace std;
 

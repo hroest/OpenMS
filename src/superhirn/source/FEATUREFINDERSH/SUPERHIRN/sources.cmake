@@ -1,5 +1,5 @@
 ### the directory name
-set(directory source/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN)
+set(directory source/FEATUREFINDERSH/SUPERHIRN)
 
 ### list all filenames of the directory here
 set(sources_list

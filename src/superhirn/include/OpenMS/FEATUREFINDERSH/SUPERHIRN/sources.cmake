@@ -1,5 +1,5 @@
 ### the directory name
-set(directory include/OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN)
+set(directory include/OpenMS/FEATUREFINDERSH/SUPERHIRN)
 
 ### list all header files of the directory here
 set(sources_list_h

@@ -42,7 +42,7 @@
 //  December 2010
 //
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MS2Info.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MS2Info.h>
 
 #include <string>
 #include <map>

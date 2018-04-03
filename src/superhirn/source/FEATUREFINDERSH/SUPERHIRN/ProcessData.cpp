@@ -46,7 +46,7 @@
 //
 //
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/ProcessData.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/ProcessData.h>
 
 #include <map>
 #include <vector>
@@ -55,16 +55,16 @@
 #include <iostream>
 #include <cstdio>
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MSPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidData.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/LCElutionPeak.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/BackgroundIntensityBin.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/BackgroundControl.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/Deisotoper.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/LCMSCData.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnUtil.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnParameters.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MSPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidData.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/LCElutionPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/BackgroundIntensityBin.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/BackgroundControl.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/Deisotoper.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/LCMSCData.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnUtil.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/SuperHirnParameters.h>
 
 
 namespace OpenMS

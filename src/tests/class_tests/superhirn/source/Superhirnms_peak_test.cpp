@@ -37,10 +37,10 @@
 
 ///////////////////////////
 
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/CentroidPeak.h>
-//#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/BackgroundIntensityBin.h>
-//#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/BackgroundControl.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/MSPeak.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/CentroidPeak.h>
+//#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/BackgroundIntensityBin.h>
+//#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/BackgroundControl.h>
+#include <OpenMS/FEATUREFINDERSH/SUPERHIRN/MSPeak.h>
 
 ///////////////////////////
 
