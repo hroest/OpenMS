@@ -255,13 +255,13 @@ public:
       {
         // Pick the most intense peak for each chromatogram and use this for
         // the current peak. Note that we will only set the most intense peak
-        // to zero, so if there are two peaks for some transitions, we will get
-        // to them later.
+        // per chromatogram to zero, so if there are two peaks for some transitions, we will get
+        // to them later. If there is no peak, then we transfer transition boundaries from "master" peak.
         {
           for (Size k = 0; k < picked_chroms.size(); k++)
           {
             double intensity(-1);
-            double maxi = 0;
+            int maxi = -1;
             for (Size i = 0; i < picked_chroms[k].size(); i++)
             {
               if (picked_chroms[k][i].getMZ() >= best_left && picked_chroms[k][i].getMZ() <= best_right)
@@ -269,13 +269,21 @@ public:
                 if (picked_chroms[k][i].getIntensity() >= intensity)
                 {
                   intensity = picked_chroms[k][i].getIntensity();
-                  maxi = i;
+                  maxi = (int)i;
                 }
               }
             }
-            double l = picked_chroms[k].getFloatDataArrays()[1][maxi];
-            double r = picked_chroms[k].getFloatDataArrays()[2][maxi];
-            picked_chroms[k][maxi].setIntensity(0.0); // only remove one peak per transition
+            
+            // Select master peak boundaries, or in the case we found at least one peak, the local peak boundaries 
+            double l = best_left;
+            double r = best_right;
+            if (maxi >= 0)
+            {
+              double l = picked_chroms[k].getFloatDataArrays()[1][maxi];
+              double r = picked_chroms[k].getFloatDataArrays()[2][maxi];
+              picked_chroms[k][maxi].setIntensity(0.0); // only remove one peak per transition
+            }
+            
             left_edges.push_back(l);
             right_edges.push_back(r);
             // ensure we remember the overall maxima / minima
