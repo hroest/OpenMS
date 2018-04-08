@@ -525,7 +525,9 @@ namespace OpenMS
 
             // Step 3: score these extracted transitions
             FeatureMap featureFile;
-            scoreAllChromatograms(chrom_exp.getChromatograms(), ms1_chromatograms, {swath_maps[i]}, transition_exp_used,
+            std::vector< OpenSwath::SwathMap > tmp = {swath_maps[i]};
+            tmp.back().sptr = current_swath_map;
+            scoreAllChromatograms(chrom_exp.getChromatograms(), ms1_chromatograms, tmp, transition_exp_used,
                 feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer);
 
             // Step 4: write all chromatograms and features out into an output object / file
