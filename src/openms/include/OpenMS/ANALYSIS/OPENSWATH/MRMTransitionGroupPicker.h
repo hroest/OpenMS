@@ -359,6 +359,11 @@ public:
 
         f.setMZ(chromatogram.getProduct().getMZ());
         mrmFeature.setMZ(chromatogram.getPrecursor().getMZ());
+        if (chromatogram.metaValueExists("product_mz")) // legacy
+        {
+          f.setMetaValue("MZ", chromatogram.getMetaValue("product_mz"));
+          f.setMZ(chromatogram.getMetaValue("product_mz"));
+        }
 
         // TODO shouldnt this be quantifying transition?
         if (transition_group.getTransitions()[k].isDetectingTransition())
@@ -466,6 +471,12 @@ public:
 
         f.setMZ(chromatogram.getPrecursor().getMZ());
         mrmFeature.setMZ(chromatogram.getPrecursor().getMZ());
+        if (chromatogram.metaValueExists("precursor_mz")) // legacy
+        {
+          f.setMZ(chromatogram.getMetaValue("precursor_mz"));
+          mrmFeature.setMZ(chromatogram.getMetaValue("precursor_mz"));
+        }
+
 
         f.setRT(picked_chroms[chr_idx][peak_idx].getMZ());
         f.setIntensity(peak_integral);
