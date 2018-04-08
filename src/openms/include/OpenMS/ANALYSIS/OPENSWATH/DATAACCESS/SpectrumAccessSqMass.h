@@ -94,9 +94,11 @@ public:
     /// Constructor
     SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler);
 
-    SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler, std::vector<int> indices);
+    SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler, const std::vector<int>& indices);
 
-    SpectrumAccessSqMass(SpectrumAccessSqMass sp, std::vector<int> indices);
+    SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler, const std::vector<int>& indices, bool throw_on_direct_access = false);
+
+    SpectrumAccessSqMass(SpectrumAccessSqMass sp, const std::vector<int>& indices);
 
     /// Destructor
     ~SpectrumAccessSqMass() override;
@@ -130,6 +132,9 @@ private:
     OpenMS::Internal::MzMLSqliteHandler handler_;
     /// Optional subset of spectral indices
     std::vector<int> sidx_;
+
+    bool throw_on_direct_access_;
+
   };
 } //end namespace OpenMS
 

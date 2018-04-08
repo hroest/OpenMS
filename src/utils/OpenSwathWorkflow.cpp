@@ -560,6 +560,8 @@ protected:
       // p.setValidFormats_("irt_mzml", ListUtils::create<String>("mzML"));
       p.setValue("irt_trafo", "", "Transformation file for RT transform");
       // p.setValidFormats_("irt_trafo", ListUtils::create<String>("trafoXML"));
+      p.setValue("throw_on_direct_sql_access", "false", "Throw error on direct SQL access");
+      p.setValidStrings("throw_on_direct_sql_access", ListUtils::create<String>("true,false"));
       return p;
     }
     else if (name == "Library")
@@ -574,7 +576,7 @@ protected:
 
   void loadSwathFiles(StringList& file_list, bool split_file, String tmp, String readoptions,
     boost::shared_ptr<ExperimentalSettings > & exp_meta,
-    std::vector< OpenSwath::SwathMap > & swath_maps)
+    std::vector< OpenSwath::SwathMap > & swath_maps, bool throw_on_direct_sql_access)
   {
     SwathFile swath_file;
     swath_file.setLogType(log_type_);
@@ -597,7 +599,7 @@ protected:
       }
       else if (in_file_type == FileTypes::SQMASS)
       {
-        swath_maps = swath_file.loadSqMass(file_list[0], exp_meta);
+        swath_maps = swath_file.loadSqMass(file_list[0], exp_meta, throw_on_direct_sql_access);
       }
       else
       {
@@ -728,6 +730,7 @@ protected:
     double min_coverage = getDoubleOption_("min_coverage");
 
     Param debug_params = getParam_().copy("Debugging:", true);
+    bool throw_on_direct_sql_access = debug_params.getValue("throw_on_direct_sql_access").toBool();
 
     String readoptions = getStringOption_("readOptions");
     String mz_correction_function = getStringOption_("mz_correction_function");
@@ -873,7 +876,7 @@ protected:
     // (i) Load files
     boost::shared_ptr<ExperimentalSettings> exp_meta(new ExperimentalSettings);
     std::vector< OpenSwath::SwathMap > swath_maps;
-    loadSwathFiles(file_list, split_file, tmp, readoptions, exp_meta, swath_maps);
+    loadSwathFiles(file_list, split_file, tmp, readoptions, exp_meta, swath_maps, throw_on_direct_sql_access);
 
     // (ii) Allow the user to specify the SWATH windows
     if (!swath_windows_file.empty())

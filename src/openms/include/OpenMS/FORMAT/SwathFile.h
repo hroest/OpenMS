@@ -82,7 +82,9 @@ public:
                                                String readoptions = "normal");
 
     /// Loads a Swath run from a single sqMass file
-    std::vector<OpenSwath::SwathMap> loadSqMass(String file, boost::shared_ptr<ExperimentalSettings>& /* exp_meta */);
+    std::vector<OpenSwath::SwathMap> loadSqMass(String file,
+                                                boost::shared_ptr<ExperimentalSettings>& /* exp_meta */,
+                                                bool throw_on_access = false);
 
 protected:
 

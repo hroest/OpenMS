@@ -250,7 +250,7 @@ namespace OpenMS
   }
 
   /// Loads a Swath run from a single sqMass file
-  std::vector<OpenSwath::SwathMap> SwathFile::loadSqMass(String file, boost::shared_ptr<ExperimentalSettings>& /* exp_meta */)
+  std::vector<OpenSwath::SwathMap> SwathFile::loadSqMass(String file, boost::shared_ptr<ExperimentalSettings>& /* exp_meta */, bool throw_on_access)
   {
     startProgress(0, 1, "Loading sqmass data file " + file);
 
@@ -260,7 +260,7 @@ namespace OpenMS
     {
       std::vector<int> indices = sql_mass_reader.readSpectraForWindow(swath_maps[k]);
       OpenMS::Internal::MzMLSqliteHandler handler(file);
-      OpenSwath::SpectrumAccessPtr sptr(new OpenMS::SpectrumAccessSqMass(handler, indices));
+      OpenSwath::SpectrumAccessPtr sptr(new OpenMS::SpectrumAccessSqMass(handler, indices, throw_on_access));
       swath_maps[k].sptr = sptr;
     }
 
@@ -268,7 +268,7 @@ namespace OpenMS
     OpenSwath::SwathMap ms1_map;
     std::vector<int> indices = sql_mass_reader.readMS1Spectra();
     OpenMS::Internal::MzMLSqliteHandler handler(file);
-    OpenSwath::SpectrumAccessPtr sptr(new OpenMS::SpectrumAccessSqMass(handler, indices));
+    OpenSwath::SpectrumAccessPtr sptr(new OpenMS::SpectrumAccessSqMass(handler, indices, throw_on_access));
     ms1_map.sptr = sptr;
     ms1_map.ms1 = true;
     swath_maps.push_back(ms1_map);
