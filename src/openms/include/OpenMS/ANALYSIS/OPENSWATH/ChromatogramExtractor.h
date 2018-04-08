@@ -337,8 +337,8 @@ public:
         if (coord.ion_mobility >= 0)
         {
           prec.setDriftTime(coord.ion_mobility);
-          prec.setDriftTimeWindowLowerOffset(coord.ion_mobility - im_extraction_width);
-          prec.setDriftTimeWindowUpperOffset(coord.ion_mobility + im_extraction_width);
+          prec.setDriftTimeWindowLowerOffset(im_extraction_width / 2.0);
+          prec.setDriftTimeWindowUpperOffset(im_extraction_width / 2.0);
         }
         chrom.setPrecursor(prec);
 
