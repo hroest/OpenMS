@@ -308,9 +308,19 @@ namespace OpenMS
 
     // get drift time upper/lower offset (this assumes that all chromatograms
     // are derived from the same precursor with the same drift time)
-    auto & prec = trgr_ident.getChromatograms()[0].getPrecursor();
-    double drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
-    double drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+    double drift_lower(0), drift_upper(0);
+    if (!trgr_ident.getChromatograms().empty())
+    {
+      auto & prec = trgr_ident.getChromatograms()[0].getPrecursor();
+      drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
+      drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+    }
+    else if (!trgr_ident.getPrecursorChromatograms().empty())
+    {
+      auto & prec = trgr_ident.getPrecursorChromatograms()[0].getPrecursor();
+      drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
+      drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+    }
 
     std::vector<std::string> native_ids_identification;
     std::vector<OpenSwath::ISignalToNoisePtr> signal_noise_estimators_identification;
@@ -432,9 +442,19 @@ namespace OpenMS
 
     // get drift time upper/lower offset (this assumes that all chromatograms
     // are derived from the same precursor with the same drift time)
-    auto & prec = transition_group_detection.getChromatograms()[0].getPrecursor();
-    double drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
-    double drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+    double drift_lower(0), drift_upper(0);
+    if (!transition_group_detection.getChromatograms().empty())
+    {
+      auto & prec = transition_group_detection.getChromatograms()[0].getPrecursor();
+      drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
+      drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+    }
+    else if (!transition_group_detection.getPrecursorChromatograms().empty())
+    {
+      auto & prec = transition_group_detection.getPrecursorChromatograms()[0].getPrecursor();
+      drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
+      drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+    }
 
     double sn_win_len_ = (double)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_win_len");
     unsigned int sn_bin_count_ = (unsigned int)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_bin_count");
