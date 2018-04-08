@@ -354,18 +354,13 @@ public:
         ConvexHull2D hull;
         hull.setHullPoints(pa.hull_points);
         f.getConvexHulls().push_back(hull);
-        if (chromatogram.metaValueExists("product_mz"))
-        {
-          f.setMetaValue("MZ", chromatogram.getMetaValue("product_mz"));
-          f.setMZ(chromatogram.getMetaValue("product_mz"));
-        }
-        else
-        {
-          LOG_WARN << "Please set meta value 'product_mz' on chromatogram to populate feature m/z value" << std::endl;
-        }
         f.setMetaValue("native_id", chromatogram.getNativeID());
         f.setMetaValue("peak_apex_int", peak_apex_int);
 
+        f.setMZ(chromatogram.getProduct().getMZ());
+        mrmFeature.setMZ(chromatogram.getPrecursor().getMZ());
+
+        // TODO shouldnt this be quantifying transition?
         if (transition_group.getTransitions()[k].isDetectingTransition())
         {
           total_intensity += peak_integral;
@@ -469,11 +464,8 @@ public:
           f.setMetaValue("noise_background_level", avg_noise_level);
         }
 
-        if (chromatogram.metaValueExists("precursor_mz")) 
-        {
-          f.setMZ(chromatogram.getMetaValue("precursor_mz"));
-          mrmFeature.setMZ(chromatogram.getMetaValue("precursor_mz"));
-        }
+        f.setMZ(chromatogram.getPrecursor().getMZ());
+        mrmFeature.setMZ(chromatogram.getPrecursor().getMZ());
 
         f.setRT(picked_chroms[chr_idx][peak_idx].getMZ());
         f.setIntensity(peak_integral);
