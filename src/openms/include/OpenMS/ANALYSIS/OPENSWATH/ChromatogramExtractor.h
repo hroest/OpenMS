@@ -334,7 +334,7 @@ public:
           }
         }
 
-        if (coord.ion_mobility >= 0)
+        if (coord.ion_mobility >= 0 && im_extraction_width > 0.0)
         {
           prec.setDriftTime(coord.ion_mobility);
           prec.setDriftTimeWindowLowerOffset(im_extraction_width / 2.0);
