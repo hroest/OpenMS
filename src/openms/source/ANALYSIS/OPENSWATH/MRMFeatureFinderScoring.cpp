@@ -306,6 +306,12 @@ namespace OpenMS
     OpenSwath::IMRMFeature* idimrmfeature;
     idimrmfeature = new MRMFeatureOpenMS(idmrmfeature);  
 
+    // get drift time upper/lower offset (this assumes that all chromatograms
+    // are derived from the same precursor with the same drift time)
+    auto & prec = trgr_ident.getChromatograms()[0].getPrecursor();
+    double drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
+    double drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+
     std::vector<std::string> native_ids_identification;
     std::vector<OpenSwath::ISignalToNoisePtr> signal_noise_estimators_identification;
 
@@ -376,7 +382,7 @@ namespace OpenMS
 
         scorer.calculateDIAIdScores(idimrmfeature, 
                                     trgr_ident.getTransition(native_ids_identification[i]),
-                                    swath_maps, diascoring_, tmp_scores);
+                                    swath_maps, diascoring_, tmp_scores, drift_lower, drift_upper);
 
         if (i != 0)
         {
@@ -423,6 +429,12 @@ namespace OpenMS
 
     std::vector<OpenSwath::ISignalToNoisePtr> signal_noise_estimators;
     std::vector<MRMFeature> feature_list;
+
+    // get drift time upper/lower offset (this assumes that all chromatograms
+    // are derived from the same precursor with the same drift time)
+    auto & prec = transition_group_detection.getChromatograms()[0].getPrecursor();
+    double drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
+    double drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
 
     double sn_win_len_ = (double)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_win_len");
     unsigned int sn_bin_count_ = (unsigned int)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_bin_count");
@@ -540,7 +552,7 @@ namespace OpenMS
         // full spectra scores 
         if (ms1_map_ && ms1_map_->getNrSpectra() > 0 && mrmfeature->getMZ() > 0) 
         {
-          scorer.calculatePrecursorDIAScores(ms1_map_, diascoring_, precursor_mz, imrmfeature->getRT(), *pep, scores);
+          scorer.calculatePrecursorDIAScores(ms1_map_, diascoring_, precursor_mz, imrmfeature->getRT(), *pep, scores, drift_lower, drift_upper);
         }
         if (su_.use_ms1_fullscan)
         {
@@ -591,7 +603,7 @@ namespace OpenMS
         if (swath_present && su_.use_dia_scores_)
         {
           scorer.calculateDIAScores(imrmfeature, transition_group_detection.getTransitions(),
-                                    swath_maps, ms1_map_, diascoring_, *pep, scores);
+                                    swath_maps, ms1_map_, diascoring_, *pep, scores, drift_lower, drift_upper);
         }
         if (sonar_present && su_.use_sonar_scores)
         {
