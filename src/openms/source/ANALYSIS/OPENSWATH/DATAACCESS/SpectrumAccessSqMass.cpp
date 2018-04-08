@@ -57,7 +57,8 @@ namespace OpenMS
 
 
     SpectrumAccessSqMass::SpectrumAccessSqMass(SpectrumAccessSqMass sp, const std::vector<int>& indices) :
-      handler_(sp.handler_)
+      handler_(sp.handler_),
+      throw_on_direct_access_(false)
     {
       if (indices.empty())
       {
