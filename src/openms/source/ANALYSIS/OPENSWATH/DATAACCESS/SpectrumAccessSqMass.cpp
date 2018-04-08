@@ -97,6 +97,8 @@ namespace OpenMS
 
     OpenSwath::SpectrumPtr SpectrumAccessSqMass::getSpectrumById(int id)
     {
+      OPENMS_PRECONDITION(!throw_on_direct_access_, "Something went wrong, there should be no direct data access through the SQL interface");
+      // if (throw_on_direct_access_) throw 1;
       std::vector<int> indices;
       if (sidx_.empty())
       {
@@ -128,6 +130,8 @@ namespace OpenMS
 
     OpenSwath::SpectrumMeta SpectrumAccessSqMass::getSpectrumMetaById(int id) const
     {
+      OPENMS_PRECONDITION(!throw_on_direct_access_, "Something went wrong, there should be no direct data access through the SQL interface");
+      // if (throw_on_direct_access_) throw 1;
       std::vector<int> indices;
       if (sidx_.empty())
       {
@@ -152,6 +156,8 @@ namespace OpenMS
 
     void SpectrumAccessSqMass::getAllSpectra(std::vector< OpenSwath::SpectrumPtr > & spectra, std::vector< OpenSwath::SpectrumMeta > & spectra_meta) const
     {
+      // Note: here we dont care whether throw_on_direct_access_ is set or not, since this is not direct access!
+
       // read MSSpectra and prepare for conversion
       std::vector<MSSpectrum> tmp_spectra;
 
@@ -198,7 +204,8 @@ namespace OpenMS
     std::vector<std::size_t> SpectrumAccessSqMass::getSpectraByRT(double RT, double deltaRT) const
     {
       OPENMS_PRECONDITION(deltaRT >= 0, "Delta RT needs to be a positive number");
-      std::cout << "std::vector<std::size_t> SpectrumAccessSqMass::getSpectraByRT(double RT, double deltaRT) const " << std::endl;
+      OPENMS_PRECONDITION(!throw_on_direct_access_, "Something went wrong, there should be no direct data access through the SQL interface");
+      // if (throw_on_direct_access_) throw 1;
       std::vector<std::size_t> res = handler_.getSpectraIndicesbyRT(RT, deltaRT, sidx_);
 
       if (sidx_.empty())
