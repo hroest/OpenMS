@@ -736,7 +736,6 @@ namespace OpenMS
       MRMTransitionGroupType transition_group;
       transition_group.setTransitionGroupID(id);
       double expected_rt = transition_exp.getCompounds()[ assay_peptide_map[id] ].rt;
-      double precursor_mz = -1;
 
       // Go through all transitions, for each transition get chromatogram and
       // the chromatogram and the assay to the MRMTransitionGroup
@@ -744,7 +743,6 @@ namespace OpenMS
       for (Size i = 0; i < assay_it->second.size(); i++)
       {
         const TransitionType* transition = assay_it->second[i];
-        precursor_mz = transition->getPrecursorMZ();
 
         if (transition->isDetectingTransition())
         {
@@ -760,8 +758,6 @@ namespace OpenMS
           throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
               "Error, did not find chromatogram for transition " + transition->getNativeID() );
         }
-
-        precursor_mz = transition->getPrecursorMZ();
 
         // Convert chromatogram to MSChromatogram and filter
         auto chromatogram = chrom_input[ chromatogram_map[transition->getNativeID()] ];
