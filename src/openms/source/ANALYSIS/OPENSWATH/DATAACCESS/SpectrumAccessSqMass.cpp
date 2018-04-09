@@ -43,12 +43,6 @@ namespace OpenMS
       throw_on_direct_access_(false)
     {}
 
-    SpectrumAccessSqMass::SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler, const std::vector<int>& indices) :
-      handler_(handler),
-      sidx_(indices),
-      throw_on_direct_access_(false)
-    {}
-
     SpectrumAccessSqMass::SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler, const std::vector<int>& indices, bool throw_on_direct_access) :
       handler_(handler),
       sidx_(indices),

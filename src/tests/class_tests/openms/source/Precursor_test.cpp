@@ -140,7 +140,7 @@ END_SECTION
 
 START_SECTION((void setDriftTimeWindowLowerOffset(double bound)))
   Precursor tmp;
-  tmp.setDriftTimeWindowLowerOffsetj(22.8);
+  tmp.setDriftTimeWindowLowerOffset(22.8);
   TEST_REAL_SIMILAR(tmp.getDriftTimeWindowLowerOffset(), 22.8);
 END_SECTION
 

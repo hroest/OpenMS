@@ -94,8 +94,6 @@ public:
     /// Constructor
     SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler);
 
-    SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler, const std::vector<int>& indices);
-
     SpectrumAccessSqMass(OpenMS::Internal::MzMLSqliteHandler handler, const std::vector<int>& indices, bool throw_on_direct_access = false);
 
     SpectrumAccessSqMass(SpectrumAccessSqMass sp, const std::vector<int>& indices);
