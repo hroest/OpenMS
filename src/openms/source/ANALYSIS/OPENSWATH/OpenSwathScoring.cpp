@@ -425,9 +425,9 @@ namespace OpenMS
         intens_arr_out->data.push_back( *int_it );
         im_arr_out->data.push_back( *im_it );
       }
-      mz_it++;
-      int_it++;
-      im_it++;
+      ++mz_it
+      ++int_it
+      ++im_it
     }
     output->setMZArray(mz_arr_out);
     output->setIntensityArray(intens_arr_out);
