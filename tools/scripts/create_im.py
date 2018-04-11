@@ -91,10 +91,12 @@ for rt_idx in range(NR_RT_SAMPLES):
         # and ion mobility 100
         for i in range(NR_PEAKS):
             if im_idx > 90 and im_idx < 90 + 20:
-                apex_dist = abs( 100 - im_idx)
+                apex_dist = abs(100 - im_idx)
+                if i == 1: apex_dist = abs(99 - im_idx)
+                if i == 2: apex_dist = abs(102 - im_idx)
                 p = Peak1D()
                 p.setMZ(100+i)
-                p.setIntensity(base_int * (i + 1) - base_int * (i + 1) * apex_dist / 10.0)
+                p.setIntensity(max(0, base_int * (i + 1) - base_int * (i + 1) * apex_dist / 10.0))
                 allmz.append(p.getMZ())
                 allint.append(p.getIntensity())
                 allim.append( im_idx / 500.0)
@@ -103,10 +105,15 @@ for rt_idx in range(NR_RT_SAMPLES):
         # and ion mobility 150
         for i in range(NR_PEAKS):
             if im_idx > 130 and im_idx < 130 + 40:
-                apex_dist = abs( 150 - im_idx)
+                apex_dist = abs(150 - im_idx)
+                # shift the peaks slightly
+                if i == 1: apex_dist = abs(149 - im_idx)
+                if i == 2: apex_dist = abs(152 - im_idx)
+                # introduce missing values
+                if i == 2 and im_idx in [154, 160]: continue
                 p = Peak1D()
                 p.setMZ(100+i)
-                p.setIntensity(base_int * (i + 1) - base_int * (i + 1) * apex_dist / 20.0)
+                p.setIntensity(max(0, base_int * (i + 1) - base_int * (i + 1) * apex_dist / 20.0))
                 allmz.append(p.getMZ())
                 allint.append(p.getIntensity())
                 allim.append( im_idx / 500.0)
