@@ -75,41 +75,24 @@ namespace OpenMS
     this->su_ = su;
   }
 
-  // DIAScoring.cpp
+  // see DIAScoring.cpp
   void adjustExtractionWindow(double& right, double& left, const double& dia_extract_window_, const bool& dia_extraction_ppm_);
-  // void adjustExtractionWindow_X(double& right, double& left, const double& dia_extract_window_, const bool& dia_extraction_ppm_)
-  // {
-  //   if (dia_extraction_ppm_)
-  //   {
-  //     left -= left * dia_extract_window_ / 2e6;
-  //     right += right * dia_extract_window_ / 2e6;
-  //   }
-  //   else
-  //   {
-  //     left -= dia_extract_window_ / 2.0;
-  //     right += dia_extract_window_ / 2.0;
-  //   }
-  // }
 
   void integrateDriftSpectrum(
     OpenSwath::SpectrumPtr spectrum, 
-    double mz_start, double mz_end, double mz, double intensity, std::vector<std::pair<double, double> >& res, 
+    double mz_start, double mz_end, double , double , std::vector<std::pair<double, double> >& res, 
     double drift_start, double drift_end)
   {
-    // double IM_IDX_MULT = 250;
-    double IM_IDX_MULT = 10e5;
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
-    std::cout << " will integrate from " << mz_start << " to  " << mz_end  << std::endl;
 
-    // for (auto k : spectrum->getMZArray()->data) std::cout << k  << std::endl;
+    // rounding multiplier for the ion mobility value
+    double IM_IDX_MULT = 10e5;
 
     std::map< int, double> im_chrom;
     {
       // get the weighted average for noncentroided data.
       // TODO this is not optimal if there are two peaks in this window (e.g. if the window is too large)
       typedef std::vector<double>::const_iterator itType;
-      mz = 0;
-      intensity = 0;
 
       itType mz_arr_end = spectrum->getMZArray()->data.end();
       itType int_it = spectrum->getIntensityArray()->data.begin();
@@ -125,15 +108,12 @@ namespace OpenMS
       std::advance(int_it, iterator_pos);
       std::advance(im_it, iterator_pos);
 
-      std::cout << " will go from " << *mz_it << " to the end" << *mz_it_end << " covering " << mz_it_end - mz_it<< std::endl;
+      // Iterate from mz start to end, only storing ion mobility values that are in the range
       for (; mz_it != mz_it_end; ++mz_it, ++int_it, ++im_it)
       {
         if ( *im_it >= drift_start && *im_it <= drift_end)
         {
-          // im_chrom[ intensity += (*int_it);
           im_chrom[ int((*im_it)*IM_IDX_MULT) ] += *int_it;
-          // std::cout << " just added " << *int_it << "  at position " << int((*im_it)*IM_IDX_MULT) << " value " << im_chrom[ int((*im_it)*IM_IDX_MULT) ] << std::endl;
-          // mz += (*int_it) * (*mz_it);
         }
       }
 
@@ -141,7 +121,6 @@ namespace OpenMS
 
     for (auto k : im_chrom) 
     {
-      // std::cout << " pos " << k.first / IM_IDX_MULT << " " << k.second  << std::endl;
       res.push_back(std::make_pair( k.first / IM_IDX_MULT, k.second ) );
     }
 
@@ -332,33 +311,22 @@ namespace OpenMS
   typedef OpenSwath::LightCompound CompoundType;
   void driftScoring(
     OpenSwath::SpectrumPtr spectrum, 
-    OpenSwath::IMRMFeature* imrmfeature,
-                                            const std::vector<TransitionType> & transitions,
-                                            std::vector<OpenSwath::SwathMap> swath_maps,
-                                            OpenSwath::SpectrumAccessPtr ms1_map,
-                                            OpenMS::DIAScoring & diascoring,
-                                            const CompoundType& compound,
-                                            OpenSwath_Scores & scores,
-                                          const double drift_lower, const double drift_upper, const double drift_target)
+    const std::vector<TransitionType> & transitions,
+    OpenSwath_Scores & scores,
+    const double drift_lower, const double drift_upper, const double drift_target)
   {
-    OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
+    // OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
-    std::cout << " drift scoring!!  " << std::endl;
-    std::cout << " spec size " << spectrum->getMZArray()-> data.size() << std::endl;
+    auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
 
-  auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
-    std::cout << " dddd " << std::endl;
+    double DRIFT_EXTRA = 0.25;
 
-  double DRIFT_EXTRA = 0.25;
+    double drift_width = fabs(drift_upper - drift_lower);
 
-  double drift_center = (drift_lower + drift_upper) / 2.0;
-  double drift_width = fabs(drift_upper - drift_lower);
+    double drift_lower_used = drift_lower - drift_width * DRIFT_EXTRA;
+    double drift_upper_used = drift_upper + drift_width * DRIFT_EXTRA;
 
-  double drift_lower_used = drift_lower - drift_width * DRIFT_EXTRA;
-  double drift_upper_used = drift_upper + drift_width * DRIFT_EXTRA;
-
-  {
-    double mz, intensity;
+    double mz(0), intensity(0);
     double dia_extract_window_ = 0.05;
     bool dia_extraction_ppm_ = false;
     typedef std::vector<std::pair<double, double> > IMProfile;
@@ -367,31 +335,11 @@ namespace OpenMS
     {
       const TransitionType* transition = &transitions[k];
       // Calculate the difference of the theoretical mass and the actually measured mass
-      std::cout << " kkk 2  drift " << std::endl;
       double left(transition->getProductMZ()), right(transition->getProductMZ());
-      std::cout << " kkk 3  drift " << std::endl;
       adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
       IMProfile res;
-      std::cout << " kkk 4  drift " << std::endl;
       integrateDriftSpectrum(spectrum, left, right, mz, intensity, res, drift_lower_used, drift_upper_used);
       im_profiles.push_back( res );
-
-      std::cout << " start drift " << drift_lower << " " << drift_upper << std::endl;
-      std::cout << " for transition  " << transition->transition_name << std::endl;
-      std::cout << " for transition  " << transition->product_mz << " / " << transition->precursor_mz << std::endl;
-
-      // for (const auto & k : res) std::cout << k.first << " :: " << k.second << std::endl;
-
-      // Continue if no signal was found - we therefore don't make a statement
-      // about the mass difference if no signal is present.
-      // if (!signalFound)
-      // {
-      //   continue;
-      // }
-
-      // double diff_ppm = std::fabs(mz - transition->getProductMZ()) * 1000000 / transition->getProductMZ();
-      // ppm_score += diff_ppm;
-      // ppm_score_weighted += diff_ppm * normalized_library_intensity[k];
     }
 
     std::vector<double> im_values;
@@ -417,9 +365,6 @@ namespace OpenMS
 
     }
 
-    // std::cout << " curr im values " << std::endl;
-    // for (auto k : im_values) std::cout << k << std::endl;
-
     std::vector< IMProfile > im_profiles_aligned;
     std::vector< std::vector< double > > raw_im_profiles_aligned;
     std::vector<double> delta_im;
@@ -430,11 +375,10 @@ namespace OpenMS
 
       std::vector< double > raw_profile;
       std::vector< double > raw_im;
-      int max_peak_idx = 0;
+      Size max_peak_idx = 0;
       double max_int = 0;
       for (Size k = 0; k < im_values.size(); k++)
       {
-        // std::cout << " iterate through profile " << im_values[k] << "  / " << pr_it->first << std::endl;
         // In each iteration, the IM value of pr_it should be equal to or
         // larger than the master container. If it is equal, we add the current
         // data point, if it is larger we add zero and advance the counter k.
@@ -447,19 +391,19 @@ namespace OpenMS
         }
         else
         {
-          std::cout << " add zero !!! " << std::endl;
           aligned_profile.push_back( std::make_pair( im_values[k], 0.0 ) );
           raw_profile.push_back(0.0);
           raw_im.push_back( im_values[k] );
         }
 
         // check that we did not advance past 
-        if (pr_it != profile.end() && im_values[k] - pr_it->first > 1e-3)
+        if (pr_it != profile.end() && (im_values[k] - pr_it->first) > 1e-3)
         {
-          std::cout << " problem " << im_values[k]  << "  / " <<  pr_it->first  << std::endl;
-          // TODO !!! 
-          throw 1;
+          std::cout << " This should never happen, pr_it has advanced past the master container: " << im_values[k]  << "  / " <<  pr_it->first  << std::endl;
+          throw Exception::OutOfRange(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
         }
+
+        // collect maxima
         if (pr_it->second > max_int)
         {
           max_int = pr_it->second;
@@ -477,13 +421,8 @@ namespace OpenMS
       {
         OpenMS::Math::spline_bisection(peak_spline, raw_im[ max_peak_idx - 1], raw_im[ max_peak_idx + 1], spline_im, spline_int);
       }
-      std::cout << "spline itner polation " << spline_im << "  / " << spline_int << std::endl;
-
-      std::cout << "spline delta " << fabs(drift_target - spline_im) << std::endl;
       delta_im.push_back(fabs(drift_target - spline_im));
     }
-
-    // TODO calculate scores!
 
     OpenSwath::MRMScoring mrmscore_;
     mrmscore_.initializeXCorrMatrix(raw_im_profiles_aligned);
@@ -495,13 +434,9 @@ namespace OpenMS
     delta_m = std::for_each(delta_im.begin(), delta_im.end(), delta_m);
     double im_delta_score = delta_m.mean();
 
-    std::cout << " scores " << xcorr_coelution_score << " and " << xcorr_shape_score << std::endl;
-    std::cout << " delta scores " << im_delta_score << std::endl;
-
     scores.im_xcorr_coelution_score = xcorr_coelution_score;
     scores.im_xcorr_shape_score = xcorr_shape_score;
     scores.im_delta_score = im_delta_score;
-  }
 
 
   }
@@ -547,7 +482,7 @@ namespace OpenMS
     if (drift_upper > 0 && su_.use_im_scores)
     {
       driftScoring( fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, 0, 0),
-          imrmfeature, transitions, used_swath_maps, ms1_map, diascoring, compound, scores, drift_lower, drift_upper, drift_target);
+          transitions, scores, drift_lower, drift_upper, drift_target);
     }
 
 
