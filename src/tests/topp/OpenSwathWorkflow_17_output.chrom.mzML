@@ -180,7 +180,7 @@
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJwBbACT/0DBLYAAAAAAAADckW2pRrcewcLIAc9K1N7Y6NyF4Mvjx+aG6RHsb+6m8LvysfSN9k/4/PmV+xz9kv75/5L+HP2V+/z5T/iN9rH0u/Km8G/uEeyG6cfmy+OF4Ojc3thK1AHPwsgewUa3banckRhERxs=</binary>
+						<binary>eJwBbACT/0DBRoAAAAAAAABHkfeo47bJwHjIwM4Q1KvYu9xd4KfjqOZr6frrW+6V8K3ypvSE9kn4+fmU+x39lf7+/5X+Hf2U+/n5SfiE9qb0rfKV8Fvu+utr6ajmp+Nd4Lvcq9gQ1MDOeMjJwOO296hHkZemSYs=</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
@@ -217,7 +217,7 @@
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJwBbACT/0DA1oAAAAAAAAD9kx+rtLhcwtrJ+s8p1abZnN0n4VvkSef66Xjsy+738AHz7fS/9nn4Hfqu+y39nP78/5z+Lf2u+x36efi/9u30AfP38MvueOz66UnnW+Qn4Zzdptkp1frP2slcwrS4H6v9k4dPSJg=</binary>
+						<binary>eJwBbACT/0DA3AAAAAAAAADXkwCrmrhFwsXJ6M8Y1ZbZjd0a4U/kPufw6W/swu7v8Pry5/S59nT4GPqq+yn9mP75/5j+Kf2q+xj6dPi59uf0+vLv8MLub+zw6T7nT+Qa4Y3dltkY1ejPxclFwpq4AKvXkzwbR50=</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
@@ -254,7 +254,7 @@
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJwBbACT/0C/bwAAAAAAAAAFm7GwZr1sxm3NJtP91y/c4t8x4y/m6+hv68Pt7u/18d3zqPVb9/j4gPr3+1z9sv77/7L+XP33+4D6+Phb96j13fP18e7vw+1v6+voL+Yx4+LfL9z91ybTbc1sxma9sbAFm4YWSZU=</binary>
+						<binary>eJwBbACT/0C/cgAAAAAAAAD8mquwYb1oxmnNI9P71yzc4N8v4y7m6uhu68Lt7e/18dzzqPVb9/j4gfr3+139s/78/7P+Xf33+4H6+Phb96j13PP18e3vwu1u6+roLuYv4+DfLNz71yPTac1oxmG9q7D8mtpYS0E=</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
@@ -291,7 +291,7 @@
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJwBbACT/0C/+AAAAAAAAABRmVivQ7xvxY7MYNJM15DbUt+w4rvlg+gS63DtpO+08aTzd/Uy99X4ZPrh+039qf73/6n+Tf3h+2T61fgy93f1pPO08aTvcO0S64Pou+Ww4lLfkNtM12DSjsxvxUO8WK9RmdU9RXI=</binary>
+						<binary>eJwBbACT/0DADAAAAAAAAADymA6vBbw7xWHMOdIp13HbON+Z4qflcugD62Ptmu+s8Z7zc/Uv99T4Zfrj+1D9rv79/67+UP3j+2X61Pgv93P1nvOs8ZrvY+0D63Lop+WZ4jjfcdsp1znSYcw7xQW8Dq/ymPrLQhs=</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
@@ -328,7 +328,7 @@
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJwBbACT/0C98QAAAAAAAAC6n2m0hsAgyc3PQdXe2d3dY+GK5GTn/+lk7JzurfCb8mz0IvbA90n5v/ok/Hj9vv73/77+eP0k/L/6SfnA9yL2bPSb8q3wnO5k7P/pZOeK5GPh3d3e2UHVzc8gyYbAabS6n16gSD0=</binary>
+						<binary>eJwBbACT/0C+UAAAAAAAAACRnn+zw794yDnPv9Rq2XXdB+E45Bvnvukr7GrugfB28kz0B/ar9zn5s/oc/HX9v/78/7/+df0c/LP6Ofmr9wf2TPR28oHwau4r7L7pG+c45Afhdd1q2b/UOc94yMO/f7ORnv4rQeQ=</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
