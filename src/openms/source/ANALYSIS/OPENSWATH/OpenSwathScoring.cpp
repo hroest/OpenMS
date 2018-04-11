@@ -86,6 +86,7 @@ namespace OpenMS
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
 
     // rounding multiplier for the ion mobility value
+    // TODO: how to improve this -- will work up to 42949.67296
     double IM_IDX_MULT = 10e5;
 
     std::map< int, double> im_chrom;
@@ -125,7 +126,6 @@ namespace OpenMS
     }
 
   }
-
 
   class MSDriftSpectrum 
   {
@@ -315,7 +315,7 @@ namespace OpenMS
     OpenSwath_Scores & scores,
     const double drift_lower, const double drift_upper, const double drift_target)
   {
-    // OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
+    OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
     auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
 
@@ -414,8 +414,8 @@ namespace OpenMS
       raw_im_profiles_aligned.push_back(raw_profile);
 
 
+      // Use cubic spline interpolation to find exact minima / maxima
       CubicSpline2d peak_spline (raw_im, raw_profile);
-
       double spline_im(0), spline_int(0);
       if (max_peak_idx > 0 && max_peak_idx < raw_im.size() )
       {
@@ -537,8 +537,6 @@ namespace OpenMS
     // - compute isotopic pattern score
     if (ms1_map && ms1_map->getNrSpectra() > 0)
     {
-      std::cout<< "void OpenSwathScoring::calculatePrecursorDIAScores(OpenSwath::SpectrumAccessPtr ms1_map,  " << std::endl;
-      std::cout<< " fetch " << drift_lower << " / " << drift_upper << std::endl;
       OpenSwath::SpectrumPtr ms1_spectrum = fetchSpectrumSwath(ms1_map, rt, add_up_spectra_, drift_lower, drift_upper);
       diascoring.dia_ms1_massdiff_score(precursor_mz, ms1_spectrum, scores.ms1_ppm_score);
 
@@ -564,8 +562,6 @@ namespace OpenMS
     }
   }
 
-      
-    
   void OpenSwathScoring::calculateDIAIdScores(OpenSwath::IMRMFeature* imrmfeature,
                                               const TransitionType & transition,
                                               std::vector<OpenSwath::SwathMap> swath_maps,
@@ -597,7 +593,6 @@ namespace OpenMS
     // find spectrum that is closest to the apex of the peak using binary search
     OpenSwath::SpectrumPtr spectrum = fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, drift_lower, drift_upper);
 
-
     // If no charge is given, we assume it to be 1
     int putative_product_charge = 1;
     if (transition.getProductChargeState() > 0)
@@ -611,7 +606,6 @@ namespace OpenMS
     diascoring.dia_ms1_isotope_scores(transition.getProductMZ(), spectrum, putative_product_charge, scores.isotope_correlation, scores.isotope_overlap);
     // Mass deviation score
     diascoring.dia_ms1_massdiff_score(transition.getProductMZ(), spectrum, scores.massdev_score);
-    std::cout << " massdev score frmom spectrum " << spectrum->getMZArray()->data.size() << std::endl;
   }
 
   void OpenSwathScoring::calculateChromatographicScores(
@@ -751,7 +745,6 @@ namespace OpenMS
   OpenSwath::SpectrumPtr OpenSwathScoring::fetchSpectrumSwath(OpenSwath::SpectrumAccessPtr swath_map,
                                                               double RT, int nr_spectra_to_add, const double drift_lower, const double drift_upper)
   {
-    std::cout << " OpenSwathScoring::fetchSpectrumSwath 1" << std::endl;
     return getAddedSpectra_(swath_map, RT, nr_spectra_to_add, drift_lower, drift_upper);
   }
 
@@ -779,10 +772,7 @@ namespace OpenMS
   OpenSwath::SpectrumPtr filterByDrift(const OpenSwath::SpectrumPtr input, const double drift_lower, const double drift_upper)
   {
     OPENMS_PRECONDITION(drift_upper > 0, "Cannot filter by drift time if upper value is less or equal to zero");
-    OPENMS_PRECONDITION(input->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
-
-    std::cout << " OpenSwath::SpectrumPtr filterByDrift(const OpenSwath::SpectrumPtr input, const double drift_lower, const double drift_upper) " << std::endl;
-    if (input->getDriftTimeArray() == nullptr) std::cout << " filterByDrift: no data available!! " << std::endl;
+    // OPENMS_PRECONDITION(input->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
 
     if (input->getDriftTimeArray() == nullptr) return input;
       
@@ -825,11 +815,9 @@ namespace OpenMS
   OpenSwath::SpectrumPtr OpenSwathScoring::getAddedSpectra_(OpenSwath::SpectrumAccessPtr swath_map,
                                                             double RT, int nr_spectra_to_add, const double drift_lower, const double drift_upper)
   {
-    std::cout << " getAddedSpectra_ xx " << nr_spectra_to_add << " at RT "<< RT << std::endl;
     std::vector<std::size_t> indices = swath_map->getSpectraByRT(RT, 0.0);
     if (indices.empty() )
     {
-    std::cout << " return : empty! " << nr_spectra_to_add << std::endl;
       OpenSwath::SpectrumPtr sptr(new OpenSwath::Spectrum);
       return sptr;
     }
