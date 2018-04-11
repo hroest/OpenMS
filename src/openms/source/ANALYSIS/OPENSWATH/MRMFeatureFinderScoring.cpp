@@ -133,6 +133,8 @@ namespace OpenMS
     scores_to_use.setValidStrings("use_ms1_correlation", ListUtils::create<String>("true,false"));
     scores_to_use.setValue("use_sonar_scores", "false", "Use the scores for SONAR scans (scanning swath)", ListUtils::create<String>("advanced"));
     scores_to_use.setValidStrings("use_sonar_scores", ListUtils::create<String>("true,false"));
+    scores_to_use.setValue("use_ion_mobility_scores", "false", "Use the scores for Ion Mobility scans", ListUtils::create<String>("advanced"));
+    scores_to_use.setValidStrings("use_ion_mobility_scores", ListUtils::create<String>("true,false"));
     scores_to_use.setValue("use_ms1_fullscan", "false", "Use the full MS1 scan at the peak apex for scoring (ppm accuracy of precursor and isotopic pattern)", ListUtils::create<String>("advanced"));
     scores_to_use.setValidStrings("use_ms1_fullscan", ListUtils::create<String>("true,false"));
     scores_to_use.setValue("use_uis_scores", "false", "Use UIS scores for peptidoform identification ", ListUtils::create<String>("advanced"));
@@ -442,19 +444,22 @@ namespace OpenMS
 
     // get drift time upper/lower offset (this assumes that all chromatograms
     // are derived from the same precursor with the same drift time)
-    double drift_lower(0), drift_upper(0);
+    double drift_lower(0), drift_upper(0), drift_target;
     if (!transition_group_detection.getChromatograms().empty())
     {
       auto & prec = transition_group_detection.getChromatograms()[0].getPrecursor();
       drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
       drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+      drift_target = prec.getDriftTime(); 
     }
     else if (!transition_group_detection.getPrecursorChromatograms().empty())
     {
       auto & prec = transition_group_detection.getPrecursorChromatograms()[0].getPrecursor();
       drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
       drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+      drift_target = prec.getDriftTime(); 
     }
+
 
     double sn_win_len_ = (double)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_win_len");
     unsigned int sn_bin_count_ = (unsigned int)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_bin_count");
@@ -512,6 +517,7 @@ namespace OpenMS
       }
       bool swath_present = (!swath_maps.empty() && swath_maps[0].sptr->getNrSpectra() > 0);
       bool sonar_present = (swath_maps.size() > 1);
+      bool im_present = (drift_upper > 0.0);
       double xx_lda_prescore;
       double precursor_mz(-1);
 
@@ -623,7 +629,7 @@ namespace OpenMS
         if (swath_present && su_.use_dia_scores_)
         {
           scorer.calculateDIAScores(imrmfeature, transition_group_detection.getTransitions(),
-                                    swath_maps, ms1_map_, diascoring_, *pep, scores, drift_lower, drift_upper);
+                                    swath_maps, ms1_map_, diascoring_, *pep, scores, drift_lower, drift_upper, drift_target);
         }
         if (sonar_present && su_.use_sonar_scores)
         {
@@ -772,6 +778,13 @@ namespace OpenMS
           mrmfeature->setOverallQuality(xx_swath_prescore);
         }
 
+        if (im_present && su_.use_im_scores)
+        {
+          mrmfeature->addScore("var_im_xcorr_shape", scores.im_xcorr_shape_score);
+          mrmfeature->addScore("var_im_xcorr_coelution", scores.im_xcorr_coelution_score);
+          mrmfeature->addScore("var_im_delta_score", scores.im_delta_score);
+        }
+
         precursor_mz = transition_group_detection.getTransitions()[0].getPrecursorMZ();
 
         if (sonar_present && su_.use_sonar_scores)
@@ -907,6 +920,7 @@ namespace OpenMS
     su_.use_sn_score_            = param_.getValue("Scores:use_sn_score").toBool();
     su_.use_dia_scores_          = param_.getValue("Scores:use_dia_scores").toBool();
     su_.use_sonar_scores         = param_.getValue("Scores:use_sonar_scores").toBool();
+    su_.use_im_scores            = param_.getValue("Scores:use_ion_mobility_scores").toBool();
     su_.use_ms1_correlation      = param_.getValue("Scores:use_ms1_correlation").toBool();
     su_.use_ms1_fullscan         = param_.getValue("Scores:use_ms1_fullscan").toBool();
     su_.use_uis_scores           = param_.getValue("Scores:use_uis_scores").toBool();

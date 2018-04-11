@@ -79,7 +79,7 @@ namespace OpenMS
                                             OpenMS::DIAScoring & diascoring,
                                             const CompoundType& compound,
                                             OpenSwath_Scores & scores,
-                                            double drift_lower, double drift_upper)
+                                            const double drift_lower, const double drift_upper, const double drift_target)
   {
     OPENMS_PRECONDITION(transitions.size() > 0, "There needs to be at least one transition.");
     OPENMS_PRECONDITION(swath_maps.size() > 0, "There needs to be at least one swath map.");

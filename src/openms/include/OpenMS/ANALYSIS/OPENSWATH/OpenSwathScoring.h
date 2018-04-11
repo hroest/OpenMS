@@ -69,6 +69,7 @@ namespace OpenMS
     bool use_sn_score_;
     bool use_dia_scores_;
     bool use_sonar_scores;
+    bool use_im_scores;
     bool use_ms1_correlation;
     bool use_ms1_fullscan;
     bool use_uis_scores;
@@ -85,6 +86,7 @@ namespace OpenMS
       use_sn_score_(true),
       use_dia_scores_(true),
       use_sonar_scores(true),
+      use_im_scores(true),
       use_ms1_correlation(true),
       use_ms1_fullscan(true),
       use_uis_scores(true)
@@ -145,6 +147,10 @@ namespace OpenMS
     double sonar_shape;
     double sonar_lag;
 
+    double im_xcorr_coelution_score;
+    double im_xcorr_shape_score;
+    double im_delta_score;
+
     double library_manhattan;
     double library_dotprod;
     double intensity;
@@ -197,6 +203,9 @@ namespace OpenMS
       sonar_rsq(0),
       sonar_shape(0),
       sonar_lag(0),
+      im_xcorr_coelution_score(0),
+      im_xcorr_shape_score(0),
+      im_delta_score(0),
       library_manhattan(0),
       library_dotprod(0),
       intensity(0),
@@ -570,7 +579,7 @@ var_yseries_score   -0.0327896378737766
         OpenMS::DIAScoring & diascoring,
         const CompoundType& compound,
         OpenSwath_Scores & scores, 
-        double im_start, double im_end);
+        const double drift_lower, const double drift_upper, const double drift_target);
 
     /** @brief Score a single chromatographic feature using the precursor map.
      *
