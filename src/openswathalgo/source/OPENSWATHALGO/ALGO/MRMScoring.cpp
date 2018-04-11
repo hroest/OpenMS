@@ -49,6 +49,22 @@ namespace OpenSwath
     return xcorr_matrix_;
   }
 
+  void MRMScoring::initializeXCorrMatrix(const std::vector< std::vector< double > >& data)
+  {
+    xcorr_matrix_.resize(data.size());
+    for (std::size_t i = 0; i < data.size(); i++)
+    {
+      xcorr_matrix_[i].resize(data.size());
+      for (std::size_t j = i; j < data.size(); j++)
+      {
+        // compute normalized cross correlation
+        std::vector< double > tmp1(data[i]);
+        std::vector< double > tmp2(data[j]);
+        xcorr_matrix_[i][j] = Scoring::normalizedCrossCorrelation(tmp1, tmp2, boost::numeric_cast<int>(data[i].size()), 1);
+      }
+    }
+  }
+
   void MRMScoring::initializeXCorrMatrix(OpenSwath::IMRMFeature* mrmfeature, const std::vector<String>& native_ids)
   {
     std::vector<double> intensityi, intensityj;

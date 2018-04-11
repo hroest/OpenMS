@@ -102,6 +102,9 @@ public:
     /** @name Scores */
     //@{
     /// Initialize the scoring object and building the cross-correlation matrix
+    void initializeXCorrMatrix(const std::vector< std::vector< double > >& data);
+
+    /// Initialize the scoring object and building the cross-correlation matrix
     void initializeXCorrMatrix(OpenSwath::IMRMFeature* mrmfeature, const std::vector<String>& native_ids);
 
     /// Initialize the cross-correlation vector with the MS1 trace
