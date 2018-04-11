@@ -43,7 +43,7 @@
 // Functions
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/SpectrumHelpers.h> // integrateWindow
 
-// #define SWATHMAPMASSCORRECTION_DEBUG
+#define SWATHMAPMASSCORRECTION_DEBUG
 
 namespace OpenMS
 {
