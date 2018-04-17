@@ -47,6 +47,7 @@ namespace OpenMS
     const ChromExtractParams & cp_irt,
     const Param & irt_detection_param,
     const String & mz_correction_function,
+    const String& irt_mzml_out,
     Size debug_level,
     bool sonar,
     bool load_into_memory)
@@ -56,21 +57,25 @@ namespace OpenMS
     simpleExtractChromatograms(swath_maps, irt_transitions, irt_chromatograms, cp_irt, sonar, load_into_memory);
 
     // debug output of the iRT chromatograms
-    if (debug_level > 1)
+    if (irt_mzml_out.empty() && debug_level > 1)
+      {
+        String irt_mzml_out = "debug_irts.mzML";
+      }
+    if (!irt_mzml_out.empty())
     {
       try
       {
         PeakMap exp;
         exp.setChromatograms(irt_chromatograms);
-        MzMLFile().store("debug_irts.mzML", exp);
+        MzMLFile().store(irt_mzml_out, exp);
       }
       catch (OpenMS::Exception::UnableToCreateFile& /*e*/)
       {
-        LOG_DEBUG << "Error creating file 'debug_irts.mzML', not writing out iRT chromatogram file"  << std::endl;
+        LOG_DEBUG << "Error creating file " + irt_mzml_out + ", not writing out iRT chromatogram file"  << std::endl;
       }
       catch (OpenMS::Exception::BaseException& /*e*/)
       {
-        LOG_DEBUG << "Error writing to file 'debug_irts.mzML', not writing out iRT chromatogram file"  << std::endl;
+        LOG_DEBUG << "Error writing to file " + irt_mzml_out + ", not writing out iRT chromatogram file"  << std::endl;
       }
     }
     LOG_DEBUG << "Extracted number of chromatograms from iRT files: " << irt_chromatograms.size() <<  std::endl;
@@ -806,7 +811,7 @@ namespace OpenMS
       }
 
       // Add to the output tsv if given
-      if (tsv_writer.isActive())
+      if (tsv_writer.isActive() && output.size() > 0) // implies that detection_assay_it was set
       {
         const OpenSwath::LightCompound pep = transition_exp.getCompounds()[ assay_peptide_map[id] ];
         const TransitionType* transition = assay_it->second[detection_assay_it];
@@ -814,7 +819,7 @@ namespace OpenMS
       }
 
       // Add to the output osw if given
-      if (osw_writer.isActive())
+      if (osw_writer.isActive() && output.size() > 0) // implies that detection_assay_it was set
       {
         const OpenSwath::LightCompound pep = transition_exp.getCompounds()[ assay_peptide_map[id] ];
         const TransitionType* transition = assay_it->second[detection_assay_it];
