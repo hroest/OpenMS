@@ -34,52 +34,66 @@
 
 #pragma once
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
+#include <OpenMS/config.h>
 
-#include <OpenMS/OPENSWATHALGO/OpenSwathAlgoConfig.h>
+#include <limits> 
+#include <cmath> 
 
-namespace OpenSwath
+namespace OpenMS
 {
-  // Datastructures for Scoring
-  class OPENSWATHALGO_DLLAPI IFeature
+  /**
+   * @brief Uses bisection to find the maximum point of a spline
+   *
+   * Should work with BSpline2d and CubicSpline2d
+   *
+   */
+  namespace Math
   {
-public:
-    virtual ~IFeature(){}
-    virtual void getRT(std::vector<double>& rt) const = 0;
-    virtual void getIntensity(std::vector<double>& intens) const = 0;
-    virtual float getIntensity() const = 0;
-    virtual double getRT() const = 0;
-  };
 
-  class OPENSWATHALGO_DLLAPI IMRMFeature
-  {
-public:
-    virtual ~IMRMFeature(){}
-    virtual boost::shared_ptr<OpenSwath::IFeature> getFeature(std::string nativeID) = 0;
-    virtual boost::shared_ptr<OpenSwath::IFeature> getPrecursorFeature(std::string nativeID) = 0;
-    virtual std::vector<std::string> getNativeIDs() const = 0;
-    virtual std::vector<std::string> getPrecursorIDs() const = 0;
-    virtual float getIntensity() const = 0;
-    virtual double getRT() const = 0;
-    virtual size_t size() const = 0;
-  };
+    template <class T>
+    void spline_bisection(const T & peak_spline, 
+        double const left_neighbor_mz,
+        double const right_neighbor_mz,
+        double & max_peak_mz,
+        double & max_peak_int,
+        double const threshold = 1e-6)
+    {
+      // calculate maximum by evaluating the spline's 1st derivative
+      // (bisection method)
+      double lefthand = left_neighbor_mz;
+      double righthand = right_neighbor_mz;
 
-  struct OPENSWATHALGO_DLLAPI ITransitionGroup
-  {
-    virtual ~ITransitionGroup() {}
-    virtual std::size_t size() const = 0;
-    virtual std::vector<std::string> getNativeIDs() const = 0;
-    virtual void getLibraryIntensities(std::vector<double>& intensities) const = 0;
-  };
+      bool lefthand_sign = 1;
+      double eps = std::numeric_limits<double>::epsilon();
 
-  struct OPENSWATHALGO_DLLAPI ISignalToNoise
-  {
-    virtual ~ISignalToNoise() {}
-    virtual double getValueAtRT(double RT) = 0; // cannot be const due to OpenMS implementation
-  };
-  typedef boost::shared_ptr<ISignalToNoise> ISignalToNoisePtr;
+      // bisection
+      do
+      {
+        double mid = (lefthand + righthand) / 2.0;
+        double midpoint_deriv_val = peak_spline.derivatives(mid, 1);
 
+        // if deriv nearly zero then maximum already found
+        if (!(std::fabs(midpoint_deriv_val) > eps))
+        {
+          break;
+        }
 
-} //end Namespace OpenSwath
+        bool midpoint_sign = (midpoint_deriv_val < 0.0) ? 0 : 1;
 
+        if (lefthand_sign ^ midpoint_sign)
+        {
+          righthand = mid;
+        }
+        else
+        {
+          lefthand = mid;
+        }
+      }
+      while (righthand - lefthand > threshold);
+
+      max_peak_mz = (lefthand + righthand) / 2;
+      max_peak_int = peak_spline.eval(max_peak_mz);
+    }
+
+  }
+}

@@ -32,54 +32,36 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-#pragma once
+#include <OpenMS/MATH/MISC/SplineBisection.h>
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
+#include <OpenMS/MATH/MISC/BSpline2d.h>
+#include <OpenMS/MATH/MISC/CubicSpline2d.h>
 
-#include <OpenMS/OPENSWATHALGO/OpenSwathAlgoConfig.h>
-
-namespace OpenSwath
+namespace OpenMS
 {
-  // Datastructures for Scoring
-  class OPENSWATHALGO_DLLAPI IFeature
+
+  namespace Math
   {
-public:
-    virtual ~IFeature(){}
-    virtual void getRT(std::vector<double>& rt) const = 0;
-    virtual void getIntensity(std::vector<double>& intens) const = 0;
-    virtual float getIntensity() const = 0;
-    virtual double getRT() const = 0;
-  };
 
-  class OPENSWATHALGO_DLLAPI IMRMFeature
-  {
-public:
-    virtual ~IMRMFeature(){}
-    virtual boost::shared_ptr<OpenSwath::IFeature> getFeature(std::string nativeID) = 0;
-    virtual boost::shared_ptr<OpenSwath::IFeature> getPrecursorFeature(std::string nativeID) = 0;
-    virtual std::vector<std::string> getNativeIDs() const = 0;
-    virtual std::vector<std::string> getPrecursorIDs() const = 0;
-    virtual float getIntensity() const = 0;
-    virtual double getRT() const = 0;
-    virtual size_t size() const = 0;
-  };
-
-  struct OPENSWATHALGO_DLLAPI ITransitionGroup
-  {
-    virtual ~ITransitionGroup() {}
-    virtual std::size_t size() const = 0;
-    virtual std::vector<std::string> getNativeIDs() const = 0;
-    virtual void getLibraryIntensities(std::vector<double>& intensities) const = 0;
-  };
-
-  struct OPENSWATHALGO_DLLAPI ISignalToNoise
-  {
-    virtual ~ISignalToNoise() {}
-    virtual double getValueAtRT(double RT) = 0; // cannot be const due to OpenMS implementation
-  };
-  typedef boost::shared_ptr<ISignalToNoise> ISignalToNoisePtr;
+    // explicit instantiation.
+    template 
+    void spline_bisection<BSpline2d>(const BSpline2d & peak_spline, 
+        double const left_neighbor_mz,
+        double const right_neighbor_mz,
+        double & max_peak_mz,
+        double & max_peak_int,
+        double const threshold = 1e-6);
 
 
-} //end Namespace OpenSwath
+    // explicit instantiation.
+    template 
+    void spline_bisection<CubicSpline2d>(const CubicSpline2d & peak_spline, 
+        double const left_neighbor_mz,
+        double const right_neighbor_mz,
+        double & max_peak_mz,
+        double & max_peak_int,
+        double const threshold = 1e-6);
 
+  }
+
+}

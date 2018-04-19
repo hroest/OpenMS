@@ -223,6 +223,60 @@ BOOST_AUTO_TEST_CASE(initializeXCorrMatrix)
 }
 END_SECTION
 
+BOOST_AUTO_TEST_CASE(initializeXCorrMatrix_2)
+{
+  MockMRMFeature * imrmfeature = new MockMRMFeature();
+  MRMScoring mrmscore;
+
+  std::vector<std::string> native_ids;
+  fill_mock_objects(imrmfeature, native_ids);
+
+  std::vector< std::vector<double> > inp;
+  std::vector<double> tmp; 
+  imrmfeature->getFeature("group1")->getIntensity(tmp);
+  inp.push_back(tmp);
+  tmp.clear();
+  imrmfeature->getFeature("group2")->getIntensity(tmp);
+  inp.push_back(tmp);
+  tmp.clear();
+
+  //initialize the XCorr Matrix
+  mrmscore.initializeXCorrMatrix(inp);
+
+  TEST_EQUAL(mrmscore.getXCorrMatrix().size(), 2)
+  TEST_EQUAL(mrmscore.getXCorrMatrix()[0].size(), 2)
+  TEST_EQUAL(mrmscore.getXCorrMatrix()[0][0].data.size(), 23)
+
+  // test auto-correlation = xcorrmatrix_0_0
+  const OpenSwath::Scoring::XCorrArrayType auto_correlation =
+      mrmscore.getXCorrMatrix()[0][0];
+
+  TEST_EQUAL(auto_correlation.data[11].first, 0)
+  TEST_EQUAL(auto_correlation.data[12].first, 1)
+  TEST_EQUAL(auto_correlation.data[10].first, -1)
+  TEST_EQUAL(auto_correlation.data[13].first, 2)
+  TEST_EQUAL(auto_correlation.data[ 9].first, -2)
+
+  TEST_REAL_SIMILAR(auto_correlation.data[11].second , 1)                   // find(0)->second, 
+  TEST_REAL_SIMILAR(auto_correlation.data[12].second , -0.227352707759245)  // find(1)->second, 
+  TEST_REAL_SIMILAR(auto_correlation.data[10].second ,  -0.227352707759245) // find(-1)->second,
+  TEST_REAL_SIMILAR(auto_correlation.data[13].second , -0.07501116)         // find(2)->second, 
+  TEST_REAL_SIMILAR(auto_correlation.data[ 9].second ,  -0.07501116)        // find(-2)->second,
+
+  // test cross-correlation = xcorrmatrix_0_1
+  const OpenSwath::Scoring::XCorrArrayType cross_correlation =
+      mrmscore.getXCorrMatrix()[0][1];
+
+  TEST_REAL_SIMILAR(cross_correlation.data[13].second, -0.31165141)   // find(2)->second, 
+  TEST_REAL_SIMILAR(cross_correlation.data[12].second, -0.35036919)   // find(1)->second, 
+  TEST_REAL_SIMILAR(cross_correlation.data[11].second, 0.03129565)    // find(0)->second, 
+  TEST_REAL_SIMILAR(cross_correlation.data[10].second,  0.30204049)   // find(-1)->second,
+  TEST_REAL_SIMILAR(cross_correlation.data[ 9].second,  0.13012441)   // find(-2)->second,
+  TEST_REAL_SIMILAR(cross_correlation.data[ 8].second,  0.39698322)   // find(-3)->second,
+  TEST_REAL_SIMILAR(cross_correlation.data[ 7].second,  0.16608774)   // find(-4)->second,
+}
+END_SECTION
+
 BOOST_AUTO_TEST_CASE(initializeMS1XCorr)
 {
   MockMRMFeature * imrmfeature = new MockMRMFeature();

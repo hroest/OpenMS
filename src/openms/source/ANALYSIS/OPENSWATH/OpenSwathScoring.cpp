@@ -34,6 +34,9 @@
 
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathScoring.h>
 
+#include <OpenMS/MATH/MISC/CubicSpline2d.h>
+#include <OpenMS/MATH/MISC/SplineBisection.h>
+
 // scoring
 #include <OpenMS/OPENSWATHALGO/ALGO/Scoring.h>
 #include <OpenMS/OPENSWATHALGO/ALGO/MRMScoring.h>
@@ -72,6 +75,372 @@ namespace OpenMS
     this->su_ = su;
   }
 
+  // see DIAScoring.cpp
+  void adjustExtractionWindow(double& right, double& left, const double& dia_extract_window_, const bool& dia_extraction_ppm_);
+
+  void integrateDriftSpectrum(
+    OpenSwath::SpectrumPtr spectrum, 
+    double mz_start, double mz_end, double , double , std::vector<std::pair<double, double> >& res, 
+    double drift_start, double drift_end)
+  {
+    OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
+
+    // rounding multiplier for the ion mobility value
+    // TODO: how to improve this -- will work up to 42949.67296
+    double IM_IDX_MULT = 10e5;
+
+    std::map< int, double> im_chrom;
+    {
+      // get the weighted average for noncentroided data.
+      // TODO this is not optimal if there are two peaks in this window (e.g. if the window is too large)
+      typedef std::vector<double>::const_iterator itType;
+
+      itType mz_arr_end = spectrum->getMZArray()->data.end();
+      itType int_it = spectrum->getIntensityArray()->data.begin();
+      itType im_it = spectrum->getDriftTimeArray()->data.begin();
+
+      // this assumes that the spectra are sorted!
+      itType mz_it = std::lower_bound(spectrum->getMZArray()->data.begin(),
+        spectrum->getMZArray()->data.end(), mz_start);
+      itType mz_it_end = std::lower_bound(mz_it, mz_arr_end, mz_end);
+
+      // also advance intensity and ion mobility iterator now
+      std::iterator_traits< itType >::difference_type iterator_pos = std::distance((itType)spectrum->getMZArray()->data.begin(), mz_it);
+      std::advance(int_it, iterator_pos);
+      std::advance(im_it, iterator_pos);
+
+      // Iterate from mz start to end, only storing ion mobility values that are in the range
+      for (; mz_it != mz_it_end; ++mz_it, ++int_it, ++im_it)
+      {
+        if ( *im_it >= drift_start && *im_it <= drift_end)
+        {
+          im_chrom[ int((*im_it)*IM_IDX_MULT) ] += *int_it;
+        }
+      }
+
+    }
+
+    for (auto k : im_chrom) 
+    {
+      res.push_back(std::make_pair( k.first / IM_IDX_MULT, k.second ) );
+    }
+
+  }
+
+  class MSDriftSpectrum 
+  {
+    std::vector<double> mz_;
+    std::vector<double> intens_;
+    std::vector<double> im_;
+
+    bool sorted_by_mz = false;
+    bool sorted_by_im = false;
+
+		struct DoubleVectorComparator
+		{
+				const std::vector<double> & value_vector;
+
+				DoubleVectorComparator(const std::vector<double> & val_vec):
+						value_vector(val_vec) {}
+
+				bool operator()(int i1, int i2)
+				{
+						return value_vector[i1] < value_vector[i2];
+				}
+		};
+
+    void init()
+    {
+      sorted_by_mz = std::adjacent_find(mz_.begin(), mz_.end(), std::greater<double>()) == mz_.end();
+      sorted_by_im = std::adjacent_find(im_.begin(), im_.end(), std::greater<double>()) == im_.end();
+    }
+
+  public:
+
+    MSDriftSpectrum () {};
+
+    MSDriftSpectrum (const std::vector<double>& mz, const std::vector<double>& intens, const std::vector<double>& im) :
+      mz_(mz), intens_(intens), im_(im)
+    {
+      init();
+    }
+
+    MSDriftSpectrum (std::vector<double>::const_iterator& mz_start,
+                     std::vector<double>::const_iterator& mz_end,
+                     std::vector<double>::const_iterator& intens_start,
+                     std::vector<double>::const_iterator& im_start) :
+      mz_(mz_start, mz_end), 
+      intens_(intens_start, std::next(intens_start, std::distance(mz_start, mz_end))), 
+      im_(im_start, std::next(im_start, std::distance(mz_start, mz_end)))
+    {
+      init();
+    }
+
+    MSDriftSpectrum (std::vector<double>::const_iterator& mz_start,
+                     std::vector<double>::const_iterator& mz_end,
+                     std::vector<double>::const_iterator& intens_start,
+                     std::vector<double>::const_iterator& intens_end,
+                     std::vector<double>::const_iterator& im_start,
+                     std::vector<double>::const_iterator& im_end) :
+      mz_(mz_start, mz_end), 
+      intens_(intens_start, intens_end),
+      im_(im_start, im_end)
+    {
+      init();
+    }
+
+    void projectMZAxis(double eps = 1e-6)
+    {
+      sortByMZ();
+
+      std::vector<double> mz, intens;
+      auto mz_it = mz_.begin();
+      auto intens_it = intens_.begin();
+      // auto im_it = im_.begin();
+      mz.push_back(*mz_it);
+      intens.push_back(*intens_it);
+      ++mz_it; ++intens_it;
+
+      auto mz_prev = mz_it;
+      while (mz_it != mz_.end())
+      {
+        if ( fabs(*mz_it - *mz_prev) < eps)
+        {
+          intens.back() += *intens_it;
+        }
+        else
+        {
+          intens.push_back(*intens_it);
+          mz.push_back(*mz_it);
+        }
+        ++mz_it; ++intens_it;
+      }
+    }
+
+    void sortByMZ()
+    {
+      if (sorted_by_mz) return;
+
+      // sort by m/z
+    	std::sort(im_.begin(), im_.end(), DoubleVectorComparator(mz_));
+    	std::sort(intens_.begin(), intens_.end(), DoubleVectorComparator(mz_));
+    	std::sort(mz_.begin(), mz_.end() );
+
+      sorted_by_im = false;
+      sorted_by_mz = true;
+    }
+
+    void sortByIM()
+    {
+      if (sorted_by_im) return;
+
+      // sort by ion mobility
+    	std::sort(mz_.begin(), mz_.end(), DoubleVectorComparator(im_));
+    	std::sort(intens_.begin(), intens_.end(), DoubleVectorComparator(im_));
+    	std::sort(im_.begin(), im_.end() );
+
+      sorted_by_im = true;
+      sorted_by_mz = false;
+    }
+
+    void projectIMMZAxis(double eps = 1e-6)
+    {
+      sortByIM();
+
+      std::vector<double> im, intens;
+      // auto mz_it = mz_.begin();
+      auto intens_it = intens_.begin();
+      auto im_it = im_.begin();
+      im.push_back(*im_it);
+      intens.push_back(*intens_it);
+      ++im_it; ++intens_it;
+
+      auto im_prev = im_it;
+      while (im_it != im_.end())
+      {
+        if ( fabs(*im_it - *im_prev) < eps)
+        {
+          intens.back() += *intens_it;
+        }
+        else
+        {
+          intens.push_back(*intens_it);
+          im.push_back(*im_it);
+        }
+        ++im_it; ++intens_it;
+      }
+    }
+
+    double getIMSpacing_sub(std::vector<double>& tmp)
+    {
+      double min_diff = fabs(tmp[tmp.size()-1] - tmp[0]);
+
+      for (Size k = 1; k < tmp.size(); k++) 
+      {
+        double diff = fabs(tmp[k] - tmp[k-1]);
+        if (diff > 1e-5 && diff < min_diff) min_diff = diff;
+      }
+      return min_diff;
+    }
+
+    static std::vector<double> getIMValues(const std::vector<double>& im, double eps = 1e-5)
+    {
+      OPENMS_PRECONDITION(im.size() >= 2, "Needs at least 2 entries")
+
+      std::vector<double> tmp(im);
+      std::sort(tmp.begin(), tmp.end());
+
+      // min_diff = getIMSpacing_sub(tmp);
+
+      std::vector<double> im_values;
+      im_values.push_back( tmp[0] );
+      for (Size k = 1; k < tmp.size(); k++) 
+      {
+        double diff = fabs(tmp[k] - tmp[k-1]);
+        if (diff > eps)
+        {
+          im_values.push_back( tmp[k] );
+        }
+      }
+      return im_values;
+    }
+
+  };
+
+  typedef OpenSwath::LightTransition TransitionType;
+  typedef OpenSwath::LightCompound CompoundType;
+  void driftScoring(
+    OpenSwath::SpectrumPtr spectrum, 
+    const std::vector<TransitionType> & transitions,
+    OpenSwath_Scores & scores,
+    const double drift_lower, const double drift_upper, const double drift_target)
+  {
+    OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
+
+    auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
+
+    double DRIFT_EXTRA = 0.25;
+
+    double drift_width = fabs(drift_upper - drift_lower);
+
+    double drift_lower_used = drift_lower - drift_width * DRIFT_EXTRA;
+    double drift_upper_used = drift_upper + drift_width * DRIFT_EXTRA;
+
+    double mz(0), intensity(0);
+    double dia_extract_window_ = 0.05;
+    bool dia_extraction_ppm_ = false;
+    typedef std::vector<std::pair<double, double> > IMProfile;
+    std::vector< IMProfile > im_profiles;
+    for (std::size_t k = 0; k < transitions.size(); k++)
+    {
+      const TransitionType* transition = &transitions[k];
+      // Calculate the difference of the theoretical mass and the actually measured mass
+      double left(transition->getProductMZ()), right(transition->getProductMZ());
+      adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+      IMProfile res;
+      integrateDriftSpectrum(spectrum, left, right, mz, intensity, res, drift_lower_used, drift_upper_used);
+      im_profiles.push_back( res );
+    }
+
+    std::vector<double> im_values;
+    double eps = 1e-5;
+    {
+      std::vector< double > tmp;
+      for (const auto & p : im_profiles) 
+      {
+        for (const auto & k : p) tmp.push_back(k.first);
+      }
+
+      std::sort(tmp.begin(), tmp.end());
+
+      im_values.push_back( tmp[0] );
+      for (Size k = 1; k < tmp.size(); k++) 
+      {
+        double diff = fabs(tmp[k] - tmp[k-1]);
+        if (diff > eps)
+        {
+          im_values.push_back( tmp[k] );
+        }
+      }
+
+    }
+
+    std::vector< IMProfile > im_profiles_aligned;
+    std::vector< std::vector< double > > raw_im_profiles_aligned;
+    std::vector<double> delta_im;
+    for (const auto & profile : im_profiles) 
+    {
+      auto pr_it = profile.begin();
+      IMProfile aligned_profile;
+
+      std::vector< double > raw_profile;
+      std::vector< double > raw_im;
+      Size max_peak_idx = 0;
+      double max_int = 0;
+      for (Size k = 0; k < im_values.size(); k++)
+      {
+        // In each iteration, the IM value of pr_it should be equal to or
+        // larger than the master container. If it is equal, we add the current
+        // data point, if it is larger we add zero and advance the counter k.
+        if (pr_it != profile.end() && fabs(pr_it->first - im_values[k] ) < 1e-4 ) 
+        {
+          aligned_profile.push_back(*pr_it);
+          raw_profile.push_back(pr_it->second);
+          raw_im.push_back(pr_it->first);
+          ++pr_it;
+        }
+        else
+        {
+          aligned_profile.push_back( std::make_pair( im_values[k], 0.0 ) );
+          raw_profile.push_back(0.0);
+          raw_im.push_back( im_values[k] );
+        }
+
+        // check that we did not advance past 
+        if (pr_it != profile.end() && (im_values[k] - pr_it->first) > 1e-3)
+        {
+          std::cout << " This should never happen, pr_it has advanced past the master container: " << im_values[k]  << "  / " <<  pr_it->first  << std::endl;
+          throw Exception::OutOfRange(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
+        }
+
+        // collect maxima
+        if (pr_it->second > max_int)
+        {
+          max_int = pr_it->second;
+          max_peak_idx = k;
+        }
+      }
+      im_profiles_aligned.push_back(aligned_profile);
+      raw_im_profiles_aligned.push_back(raw_profile);
+
+
+      // Use cubic spline interpolation to find exact minima / maxima
+      CubicSpline2d peak_spline (raw_im, raw_profile);
+      double spline_im(0), spline_int(0);
+      if (max_peak_idx > 0 && max_peak_idx < raw_im.size() )
+      {
+        OpenMS::Math::spline_bisection(peak_spline, raw_im[ max_peak_idx - 1], raw_im[ max_peak_idx + 1], spline_im, spline_int);
+      }
+      delta_im.push_back(fabs(drift_target - spline_im));
+    }
+
+    OpenSwath::MRMScoring mrmscore_;
+    mrmscore_.initializeXCorrMatrix(raw_im_profiles_aligned);
+
+    double xcorr_coelution_score = mrmscore_.calcXcorrCoelutionScore();
+    double xcorr_shape_score = mrmscore_.calcXcorrShape_score();
+
+    OpenSwath::mean_and_stddev delta_m;
+    delta_m = std::for_each(delta_im.begin(), delta_im.end(), delta_m);
+    double im_delta_score = delta_m.mean();
+
+    scores.im_xcorr_coelution_score = xcorr_coelution_score;
+    scores.im_xcorr_shape_score = xcorr_shape_score;
+    scores.im_delta_score = im_delta_score;
+
+
+  }
+
   void OpenSwathScoring::calculateDIAScores(OpenSwath::IMRMFeature* imrmfeature,
                                             const std::vector<TransitionType> & transitions,
                                             std::vector<OpenSwath::SwathMap> swath_maps,
@@ -79,7 +448,7 @@ namespace OpenMS
                                             OpenMS::DIAScoring & diascoring,
                                             const CompoundType& compound,
                                             OpenSwath_Scores & scores,
-                                            double drift_lower, double drift_upper)
+                                            const double drift_lower, const double drift_upper, const double drift_target)
   {
     OPENMS_PRECONDITION(transitions.size() > 0, "There needs to be at least one transition.");
     OPENMS_PRECONDITION(swath_maps.size() > 0, "There needs to be at least one swath map.");
@@ -108,6 +477,14 @@ namespace OpenMS
 
     // find spectrum that is closest to the apex of the peak using binary search
     OpenSwath::SpectrumPtr spectrum = fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, drift_lower, drift_upper);
+
+    // score drift time dimension
+    if (drift_upper > 0 && su_.use_im_scores)
+    {
+      driftScoring( fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, 0, 0),
+          transitions, scores, drift_lower, drift_upper, drift_target);
+    }
+
 
     // Mass deviation score
     diascoring.dia_massdiff_score(transitions, spectrum, normalized_library_intensity,
@@ -395,7 +772,7 @@ namespace OpenMS
   OpenSwath::SpectrumPtr filterByDrift(const OpenSwath::SpectrumPtr input, const double drift_lower, const double drift_upper)
   {
     OPENMS_PRECONDITION(drift_upper > 0, "Cannot filter by drift time if upper value is less or equal to zero");
-    OPENMS_PRECONDITION(input->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
+    // OPENMS_PRECONDITION(input->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
 
     if (input->getDriftTimeArray() == nullptr) return input;
       
