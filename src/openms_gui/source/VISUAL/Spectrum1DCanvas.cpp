@@ -1412,7 +1412,6 @@ namespace OpenMS
         context_menu->addAction("Switch to 3D view");
       }
 
-      // TODO only if its im data!!!
       if (TOPPViewBase::containsIMData(getCurrentLayer().getPeakData()->getSpectrum( 
               getCurrentLayer().getCurrentSpectrumIndex() ) ))
       {

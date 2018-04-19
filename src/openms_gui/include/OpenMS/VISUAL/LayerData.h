@@ -245,10 +245,23 @@ public:
       current_spectrum_ = index;
     }
 
+    /// Check whether the current layer should be represented as ion mobility
+    bool isIonMobilityData() const
+    {
+      return this->getPeakData()->size() > 0 &&
+             this->getPeakData()->metaValueExists("is_ion_mobility") &&
+             this->getPeakData()->getMetaValue("is_ion_mobility").toBool();
+    }
+
+    void labelAsIonMobilityData() const
+    {
+      this->getPeakData()->setMetaValue("is_ion_mobility", "true");
+    }
+
     /// Check whether the current layer is a chromatogram
-    // we need this specifically because this->type will *not* distinguish
-    // chromatogram and spectra data since we need to store chromatograms for
-    // the 1D case in a layer that looks like PEAK data to all tools.
+    /// we need this specifically because this->type will *not* distinguish
+    /// chromatogram and spectra data since we need to store chromatograms for
+    /// the 1D case in a layer that looks like PEAK data to all tools.
     bool chromatogram_flag_set() const
     {
       return this->getPeakData()->size() > 0 &&
