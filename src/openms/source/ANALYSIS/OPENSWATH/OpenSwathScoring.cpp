@@ -315,6 +315,7 @@ namespace OpenMS
     OpenSwath_Scores & scores,
     const double drift_lower, const double drift_upper, const double drift_target)
   {
+    OPENMS_PRECONDITION(spectrum != nullptr, "Spectrum cannot be null");
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
     auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
@@ -450,6 +451,7 @@ namespace OpenMS
                                             OpenSwath_Scores & scores,
                                             const double drift_lower, const double drift_upper, const double drift_target)
   {
+    OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
     OPENMS_PRECONDITION(transitions.size() > 0, "There needs to be at least one transition.");
     OPENMS_PRECONDITION(swath_maps.size() > 0, "There needs to be at least one swath map.");
 
@@ -569,6 +571,7 @@ namespace OpenMS
                                               OpenSwath_Scores & scores,
                                               double drift_lower, double drift_upper)
   {
+    OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
     OPENMS_PRECONDITION(swath_maps.size() > 0, "There needs to be at least one swath map.");
 
     // Identify corresponding SONAR maps (if more than one map is used)
@@ -616,6 +619,8 @@ namespace OpenMS
         std::vector<OpenSwath::ISignalToNoisePtr>& signal_noise_estimators,
         OpenSwath_Scores & scores)
   {
+    OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
+
     OpenSwath::MRMScoring mrmscore_;
     mrmscore_.initializeXCorrMatrix(imrmfeature, native_ids);
 
@@ -672,6 +677,8 @@ namespace OpenMS
         std::vector<OpenSwath::ISignalToNoisePtr>& signal_noise_estimators,
         OpenSwath_Scores & idscores)
   {
+    OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
+
     OpenSwath::MRMScoring mrmscore_;
     mrmscore_.initializeXCorrIdMatrix(imrmfeature, native_ids_identification, native_ids_detection);
 
@@ -699,6 +706,8 @@ namespace OpenMS
         const double normalized_feature_rt,
         OpenSwath_Scores & scores)
   {
+    OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
+
     std::vector<double> normalized_library_intensity;
     getNormalized_library_intensities_(transitions, normalized_library_intensity);
 
