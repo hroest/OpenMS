@@ -191,6 +191,11 @@ namespace OpenMS
     qglClearColor_(color);
     calculateGridLines_();
 
+    scrollRepaint();
+  }
+
+  void Spectrum3DOpenGLCanvas::scrollRepaint()
+  {
     //abort if no layers are displayed
     if (canvas_3d_.getLayerCount() == 0) { return; }
 

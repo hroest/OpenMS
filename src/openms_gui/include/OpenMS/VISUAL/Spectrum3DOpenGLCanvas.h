@@ -87,6 +87,8 @@ public:
     /// virtual function provided from QGLWidget
     void paintGL() override;
 
+    void scrollRepaint();
+
     /** @name Reimplemented QT events */
     //@{
     void mouseMoveEvent(QMouseEvent * e) override;
