@@ -82,8 +82,6 @@ namespace OpenMS
     OPENMS_PRECONDITION(id >= 0, "Id needs to be larger than zero");
     OPENMS_PRECONDITION(id < (int)getNrSpectra(), "Id cannot be larger than number of spectra");
 
-    OpenSwath::BinaryDataArrayPtr mz_array(new OpenSwath::BinaryDataArray);
-    OpenSwath::BinaryDataArrayPtr intensity_array(new OpenSwath::BinaryDataArray);
     int ms_level = -1;
     double rt = -1.0;
 
@@ -95,11 +93,8 @@ namespace OpenMS
         "Error while changing position of input stream pointer.", filename_cached_);
     }
 
-    CachedmzML::readSpectrumFast(mz_array, intensity_array, ifs_, ms_level, rt);
-
     OpenSwath::SpectrumPtr sptr(new OpenSwath::Spectrum);
-    sptr->setMZArray(mz_array);
-    sptr->setIntensityArray(intensity_array);
+    sptr->getDataArrays() = CachedmzML::readSpectrumFast(ifs_, ms_level, rt); 
     return sptr;
   }
 
@@ -130,11 +125,8 @@ namespace OpenMS
         "Error while changing position of input stream pointer.", filename_cached_);
     }
 
-    CachedmzML::readChromatogramFast(rt_array, intensity_array, ifs_);
-
     OpenSwath::ChromatogramPtr cptr(new OpenSwath::Chromatogram);
-    cptr->setTimeArray(rt_array);
-    cptr->setIntensityArray(intensity_array);
+    cptr->getDataArrays() = CachedmzML::readChromatogramFast(ifs_);
     return cptr;
   }
 
