@@ -486,7 +486,7 @@ var_yseries_score   -0.0327896378737766
     */
     void initialize(double rt_normalization_factor,
       int add_up_spectra, double spacing_for_spectra_resampling,
-      OpenSwath_Scores_Usage & su);
+      OpenSwath_Scores_Usage & su, std::string spectrum_addition_method);
 
     /** @brief Score a single peakgroup in a chromatogram using only chromatographic properties.
      *
