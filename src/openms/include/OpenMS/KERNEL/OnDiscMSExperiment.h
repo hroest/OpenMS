@@ -56,8 +56,15 @@ namespace OpenMS
 
     @ingroup Kernel
 
-    @note This implementation is @a not thread-safe since it keeps internally a
-    single file access pointer which it moves when accessing a specific
+    This class represents an interface to access mass spectrometric data on
+    disk. It is designed to only keep minimal information in memory and thus is
+    highly memory efficient. By defauly it keeps meta data-only spectra and
+    chromatograms (full objects without the raw data) in memory, this can be
+    turned off by setting skipLoadingMetaData to @p true in the openFile()
+    function, further reducing the memory footprint.
+
+    @note This implementation is @a not thread-safe since its implementation
+    keeps a single file access pointer which it moves when accessing a specific
     data item. Please provide a separate copy to each thread, e.g. 
 
     @code
@@ -86,14 +93,18 @@ public:
       This tries to read the indexed mzML by parsing the index and then reading
       the meta information into memory.
 
+      @param filename The filename of the indexed mzML file to open
+      @param skipLoadingMetaData Whether to skip the loading of meta data (faster load times)
+
       @return Whether the parsing of the file was successful (if false, the
-      file most likely was not an indexed mzML file)
+              file most likely was not an indexed mzML file)
+
     */
-    bool openFile(const String& filename, bool skipMetaData = false)
+    bool openFile(const String& filename, bool skipLoadingMetaData = false)
     {
       filename_ = filename;
       indexed_mzml_file_.openFile(filename);
-      if (filename != "" && !skipMetaData)
+      if (filename != "" && !skipLoadingMetaData)
       {
         loadMetaData_(filename);
       }
@@ -182,19 +193,32 @@ public:
     }
 
     /**
-      @brief returns a single spectrum
+      @brief Returns a single spectrum
+
+      @note Unless the meta data is empty (if openFile was called with
+      skipLoadingMetaData), the resulting spectrum will have all meta data
+      fields populated.
 
       @param id The index of the spectrum
     */
     MSSpectrum getSpectrum(Size id)
     {
-      MSSpectrum spectrum(meta_ms_experiment_->operator[](id));
-      indexed_mzml_file_.getMSSpectrumById(static_cast<int>(id), spectrum);
-      return spectrum;
+      if (id < meta_ms_experiment_->getNrSpectra())
+      {
+        MSSpectrum spectrum(meta_ms_experiment_->operator[](id));
+        indexed_mzml_file_.getMSSpectrumById(static_cast<int>(id), spectrum);
+        return spectrum;
+      }
+      else
+      {
+        MSSpectrum spectrum;
+        indexed_mzml_file_.getMSSpectrumById(static_cast<int>(id), spectrum);
+        return spectrum;
+      }
     }
 
     /**
-      @brief returns a single spectrum
+      @brief Returns raw data for a single spectrum
     */
     OpenMS::Interfaces::SpectrumPtr getSpectrumById(Size id)
     {
@@ -202,26 +226,45 @@ public:
     }
 
     /**
-      @brief returns a single chromatogram
+      @brief Returns a single chromatogram
+
+      @note Unless the meta data is empty (if openFile was called with
+      skipLoadingMetaData), the resulting chromatogram will have all meta data
+      fields populated.
 
       @param id The index of the chromatogram
     */
     MSChromatogram getChromatogram(Size id)
     {
-      MSChromatogram chromatogram(meta_ms_experiment_->getChromatogram(id));
-      indexed_mzml_file_.getMSChromatogramById(static_cast<int>(id), chromatogram);
-      return chromatogram;
+      if (id < meta_ms_experiment_->getNrChromatograms())
+      {
+        MSChromatogram chromatogram(meta_ms_experiment_->getChromatogram(id));
+        indexed_mzml_file_.getMSChromatogramById(static_cast<int>(id), chromatogram);
+        return chromatogram;
+      }
+      else
+      {
+        MSChromatogram chromatogram;
+        indexed_mzml_file_.getMSChromatogramById(static_cast<int>(id), chromatogram);
+        return chromatogram;
+      }
     }
 
     /**
-      @brief returns a single chromatogram
+      @brief Returns raw data for a single chromatogram
     */
     OpenMS::Interfaces::ChromatogramPtr getChromatogramById(Size id)
     {
       return indexed_mzml_file_.getChromatogramById(id);
     }
 
-    ///sets whether to skip some XML checks and be fast instead
+    /**
+      @brief Sets whether to skip some XML checks
+      
+      If set, base64 arrays will not be checked for whitespace which saves some
+      time and makes parsing faster. Setting this option to true is almost
+      always safe.
+    */
     void setSkipXMLChecks(bool skip)
     {
       indexed_mzml_file_.setSkipXMLChecks(skip);
