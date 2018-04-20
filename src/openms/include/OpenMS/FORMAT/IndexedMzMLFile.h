@@ -34,9 +34,7 @@
 
 #pragma once
 
-#include <OpenMS/FORMAT/MzMLFile.h>
 #include <OpenMS/KERNEL/OnDiscMSExperiment.h>
-#include <OpenMS/FORMAT/DATAACCESS/MSDataWritingConsumer.h>
 
 namespace OpenMS
 {
@@ -90,25 +88,7 @@ namespace OpenMS
       @param filename Filename determines where the file will be stored 
       @param exp MS data to be stored
     */
-    void store(const String& filename, OnDiscPeakMap& exp)
-    {
-      // Create a writing data consumer which consumes the experiment (writes it to disk)
-      PlainMSDataWritingConsumer consumer(filename);
-      consumer.setExpectedSize(exp.getNrSpectra(), exp.getNrChromatograms());
-      consumer.setExperimentalSettings(*exp.getExperimentalSettings().get());
-      options_.setWriteIndex(true);  // ensure that we write the index
-      consumer.setOptions(options_);
-      for (Size i = 0; i < exp.getNrSpectra(); i++)
-      {
-        MSSpectrum s = exp.getSpectrum(i);
-        consumer.consumeSpectrum(s);
-      }
-      for (Size i = 0; i < exp.getNrChromatograms(); i++)
-      {
-        MSChromatogram c = exp.getChromatogram(i);
-        consumer.consumeChromatogram(c);
-      }
-    }
+    void store(const String& filename, OnDiscPeakMap& exp);
 
     /**
       @brief Store a file from an in-memory data-structure
@@ -116,13 +96,7 @@ namespace OpenMS
       @param filename Filename determines where the file will be stored 
       @param exp MS data to be stored
     */
-    void store(const String& filename, PeakMap& exp)
-    {
-      MzMLFile f;
-      options_.setWriteIndex(true);  // ensure that we write the index
-      f.setOptions(options_);
-      f.store(filename, exp);
-    }
+    void store(const String& filename, PeakMap& exp);
 
 private:
 
@@ -131,5 +105,4 @@ private:
 
   };
 }
-
 
