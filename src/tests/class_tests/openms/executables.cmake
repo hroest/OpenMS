@@ -169,7 +169,7 @@ set(format_executables_list
   IdXMLFile_test
   IndexedMzMLDecoder_test
   IndexedMzMLFile_test
-  IndexedMzMLFileLoader_test
+  IndexedMzMLHandler_test
   InspectInfile_test
   InspectOutfile_test
   KroenikFile_test

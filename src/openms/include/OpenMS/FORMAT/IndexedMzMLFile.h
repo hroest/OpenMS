@@ -50,15 +50,15 @@ namespace OpenMS
     a MSExperiment and a OnDiscMSExperiment.
 
   */
-  class OPENMS_DLLAPI IndexedMzMLFileLoader
+  class OPENMS_DLLAPI IndexedMzMLFile
   {
     public:
 
     /// Constructor
-    IndexedMzMLFileLoader();
+    IndexedMzMLFile();
 
     /// Destructor
-    ~IndexedMzMLFileLoader();
+    ~IndexedMzMLFile();
 
     /// Mutable access to the options for loading/storing
     PeakFileOptions& getOptions();

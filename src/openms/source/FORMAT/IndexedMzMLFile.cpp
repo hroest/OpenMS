@@ -32,30 +32,30 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/FORMAT/IndexedMzMLFileLoader.h>
+#include <OpenMS/FORMAT/IndexedMzMLFile.h>
 
 namespace OpenMS
 {
 
-  IndexedMzMLFileLoader::IndexedMzMLFileLoader()
+  IndexedMzMLFile::IndexedMzMLFile()
   {
   }
 
-  IndexedMzMLFileLoader::~IndexedMzMLFileLoader()
+  IndexedMzMLFile::~IndexedMzMLFile()
   {
   }
 
-  PeakFileOptions & IndexedMzMLFileLoader::getOptions()
-  {
-    return options_;
-  }
-
-  const PeakFileOptions & IndexedMzMLFileLoader::getOptions() const
+  PeakFileOptions & IndexedMzMLFile::getOptions()
   {
     return options_;
   }
 
-  void IndexedMzMLFileLoader::setOptions(const PeakFileOptions & options)
+  const PeakFileOptions & IndexedMzMLFile::getOptions() const
+  {
+    return options_;
+  }
+
+  void IndexedMzMLFile::setOptions(const PeakFileOptions & options)
   {
       options_ = options;
   }

@@ -4,11 +4,11 @@ from PeakFileOptions cimport *
 from MzMLFile cimport *
 from OnDiscMSExperiment cimport *
 
-cdef extern from "<OpenMS/FORMAT/IndexedMzMLFileLoader.h>" namespace "OpenMS":
+cdef extern from "<OpenMS/FORMAT/IndexedMzMLFile.h>" namespace "OpenMS":
 
-    cdef cppclass IndexedMzMLFileLoader:
+    cdef cppclass IndexedMzMLFile:
 
-        IndexedMzMLFileLoader() nogil except +
+        IndexedMzMLFile() nogil except +
  
         bool load(String, OnDiscMSExperiment &) nogil except+
         void store(String, OnDiscMSExperiment &) nogil except+

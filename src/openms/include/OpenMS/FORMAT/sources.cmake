@@ -39,7 +39,7 @@ GzipIfstream.h
 GzipInputStream.h
 IBSpectraFile.h
 IdXMLFile.h
-IndexedMzMLFileLoader.h
+IndexedMzMLFile.h
 InspectInfile.h
 InspectOutfile.h
 KroenikFile.h

@@ -26,7 +26,7 @@ GzipIfstream.cpp
 GzipInputStream.cpp
 IBSpectraFile.cpp
 IdXMLFile.cpp
-IndexedMzMLFileLoader.cpp
+IndexedMzMLFile.cpp
 InspectInfile.cpp
 InspectOutfile.cpp
 KroenikFile.cpp
