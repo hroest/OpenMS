@@ -41,7 +41,7 @@
 #include <OpenMS/KERNEL/MSChromatogram.h>
 #include <OpenMS/METADATA/ExperimentalSettings.h>
 #include <OpenMS/FORMAT/HANDLERS/IndexedMzMLHandler.h>
-#include <OpenMS/FORMAT/MzMLFile.h>
+#include <OpenMS/FORMAT/OPTIONS/PeakFileOptions.h>
 
 #include <vector>
 #include <algorithm>
@@ -72,7 +72,7 @@ namespace OpenMS
     @endcode
 
   */
-  class OnDiscMSExperiment
+  class OPENMS_DLLAPI OnDiscMSExperiment
   {
 
   typedef ChromatogramPeak ChromatogramPeakT;
@@ -85,7 +85,7 @@ public:
 
       This initializes the object, use openFile to open a file.
     */
-    OnDiscMSExperiment() {}
+    OnDiscMSExperiment();
 
     /**
       @brief Open a specific file on disk.
@@ -100,16 +100,7 @@ public:
               file most likely was not an indexed mzML file)
 
     */
-    bool openFile(const String& filename, bool skipLoadingMetaData = false)
-    {
-      filename_ = filename;
-      indexed_mzml_file_.openFile(filename);
-      if (filename != "" && !skipLoadingMetaData)
-      {
-        loadMetaData_(filename);
-      }
-      return indexed_mzml_file_.getParsingSuccess();
-    }
+    bool openFile(const String& filename, bool skipLoadingMetaData = false);
 
     /// Copy constructor
     OnDiscMSExperiment(const OnDiscMSExperiment& source) :
@@ -146,10 +137,7 @@ public:
       Note that we cannot check whether all spectra are sorted (except if we
       were to load them all and check).
     */
-    bool isSortedByRT() const
-    {
-      return meta_ms_experiment_->isSorted(false);
-    }
+    bool isSortedByRT() const;
 
     /// alias for getNrSpectra
     inline Size size() const
@@ -201,29 +189,12 @@ public:
 
       @param id The index of the spectrum
     */
-    MSSpectrum getSpectrum(Size id)
-    {
-      if (id < meta_ms_experiment_->getNrSpectra())
-      {
-        MSSpectrum spectrum(meta_ms_experiment_->operator[](id));
-        indexed_mzml_file_.getMSSpectrumById(static_cast<int>(id), spectrum);
-        return spectrum;
-      }
-      else
-      {
-        MSSpectrum spectrum;
-        indexed_mzml_file_.getMSSpectrumById(static_cast<int>(id), spectrum);
-        return spectrum;
-      }
-    }
+    MSSpectrum getSpectrum(Size id);
 
     /**
       @brief Returns raw data for a single spectrum
     */
-    OpenMS::Interfaces::SpectrumPtr getSpectrumById(Size id)
-    {
-      return indexed_mzml_file_.getSpectrumById(id);
-    }
+    OpenMS::Interfaces::SpectrumPtr getSpectrumById(Size id);
 
     /**
       @brief Returns a single chromatogram
@@ -234,29 +205,12 @@ public:
 
       @param id The index of the chromatogram
     */
-    MSChromatogram getChromatogram(Size id)
-    {
-      if (id < meta_ms_experiment_->getNrChromatograms())
-      {
-        MSChromatogram chromatogram(meta_ms_experiment_->getChromatogram(id));
-        indexed_mzml_file_.getMSChromatogramById(static_cast<int>(id), chromatogram);
-        return chromatogram;
-      }
-      else
-      {
-        MSChromatogram chromatogram;
-        indexed_mzml_file_.getMSChromatogramById(static_cast<int>(id), chromatogram);
-        return chromatogram;
-      }
-    }
+    MSChromatogram getChromatogram(Size id);
 
     /**
       @brief Returns raw data for a single chromatogram
     */
-    OpenMS::Interfaces::ChromatogramPtr getChromatogramById(Size id)
-    {
-      return indexed_mzml_file_.getChromatogramById(id);
-    }
+    OpenMS::Interfaces::ChromatogramPtr getChromatogramById(Size id);
 
     /**
       @brief Sets whether to skip some XML checks
@@ -265,26 +219,14 @@ public:
       time and makes parsing faster. Setting this option to true is almost
       always safe.
     */
-    void setSkipXMLChecks(bool skip)
-    {
-      indexed_mzml_file_.setSkipXMLChecks(skip);
-    }
+    void setSkipXMLChecks(bool skip);
 
 private:
 
     /// Private Assignment operator -> we cannot copy file streams in IndexedMzMLHandler
     OnDiscMSExperiment& operator=(const OnDiscMSExperiment& /* source */);
 
-    void loadMetaData_(const String& filename)
-    {
-      meta_ms_experiment_ = boost::shared_ptr< PeakMap >(new PeakMap);
-
-      MzMLFile f;
-      PeakFileOptions options = f.getOptions();
-      options.setFillData(false);
-      f.setOptions(options);
-      f.load(filename, *meta_ms_experiment_.get());
-    }
+    void loadMetaData_(const String& filename);
 
 protected:
 
