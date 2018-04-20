@@ -36,8 +36,9 @@
 #include <OpenMS/test_config.h>
 
 ///////////////////////////
+#include <OpenMS/FORMAT/IndexedMzMLFile.h>
+///////////////////////////
 
-#include <OpenMS/FORMAT/IndexedMzMLFileLoader.h>
 #include <OpenMS/KERNEL/OnDiscMSExperiment.h>
 #include <OpenMS/FORMAT/MzMLFile.h>
 #include <OpenMS/FORMAT/FileTypes.h>
@@ -48,7 +49,7 @@ using namespace std;
 
 ///////////////////////////
 
-START_TEST(IndexedMzMLFileLoader, "$Id$")
+START_TEST(IndexedMzMLFile, "$Id$")
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
@@ -57,31 +58,31 @@ START_TEST(IndexedMzMLFileLoader, "$Id$")
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
-IndexedMzMLFileLoader* ptr = nullptr;
-IndexedMzMLFileLoader* nullPointer = nullptr;
-START_SECTION((IndexedMzMLFileLoader()))
-  ptr = new IndexedMzMLFileLoader;
+IndexedMzMLFile* ptr = nullptr;
+IndexedMzMLFile* nullPointer = nullptr;
+START_SECTION((IndexedMzMLFile()))
+  ptr = new IndexedMzMLFile;
   TEST_NOT_EQUAL(ptr, nullPointer)
 END_SECTION
 
-START_SECTION((~IndexedMzMLFileLoader()))
+START_SECTION((~IndexedMzMLFile()))
   delete ptr;
 END_SECTION
 
 START_SECTION(const PeakFileOptions& getOptions() const)
-  IndexedMzMLFileLoader file;
+  IndexedMzMLFile file;
   const PeakFileOptions& options = file.getOptions();
   TEST_EQUAL(options.hasMSLevels(),false)
 END_SECTION
 
 START_SECTION(PeakFileOptions& getOptions())
-  IndexedMzMLFileLoader file;
+  IndexedMzMLFile file;
   file.getOptions().addMSLevel(1);
   TEST_EQUAL(file.getOptions().hasMSLevels(),true);
 END_SECTION
 
 START_SECTION(void setOptions(const PeakFileOptions &))
-  IndexedMzMLFileLoader file;
+  IndexedMzMLFile file;
   const PeakFileOptions& options = file.getOptions();
   TEST_EQUAL(options.hasMSLevels(),false)
   TEST_EQUAL(file.getOptions().hasMSLevels(),false);
@@ -95,7 +96,7 @@ TOLERANCE_ABSOLUTE(0.01)
 
 START_SECTION(bool load(const String& filename, OnDiscPeakMap& exp))
 {
-  IndexedMzMLFileLoader file;
+  IndexedMzMLFile file;
   OnDiscPeakMap exp;
   file.load(OPENMS_GET_TEST_DATA_PATH("IndexedmzMLFile_1.mzML"),exp);
 
@@ -124,7 +125,7 @@ END_SECTION
 START_SECTION([EXTRA]CheckParsing)
 {
   // Check return value of load
-  IndexedMzMLFileLoader file;
+  IndexedMzMLFile file;
   OnDiscPeakMap exp;
   bool success;
   success = file.load(OPENMS_GET_TEST_DATA_PATH("MzMLFile_1.mzML"), exp);
@@ -136,7 +137,7 @@ END_SECTION
 
 START_SECTION(void store(const String& filename, OnDiscPeakMap& exp))
 {
-  IndexedMzMLFileLoader file;
+  IndexedMzMLFile file;
   OnDiscPeakMap exp, exp_;
   file.load(OPENMS_GET_TEST_DATA_PATH("IndexedmzMLFile_1.mzML"),exp_);
   std::string tmp_filename;
@@ -171,7 +172,7 @@ END_SECTION
 
 START_SECTION(void store(const String& filename, PeakMap& exp))
 {
-  IndexedMzMLFileLoader file;
+  IndexedMzMLFile file;
   OnDiscPeakMap exp;
   PeakMap exp2;
   MzMLFile().load(OPENMS_GET_TEST_DATA_PATH("IndexedmzMLFile_1.mzML"),exp2);
