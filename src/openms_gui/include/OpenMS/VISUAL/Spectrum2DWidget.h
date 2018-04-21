@@ -87,7 +87,6 @@ public:
     /// Returns if one of the projections is visible (or both are visible)
     bool projectionsVisible() const;
 
-
 public slots:
     // Docu in base class
     void recalculateAxes_() override;

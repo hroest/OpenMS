@@ -1088,6 +1088,7 @@ namespace OpenMS
 
   void Spectrum2DCanvas::updateProjections()
   {
+    std::cout << "void Spectrum2DCanvas::updateProjections()" <<std::endl;
     //find the last (visible) peak layers
     Size layer_count = 0;
     Size last_layer = 0;

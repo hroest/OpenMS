@@ -350,6 +350,7 @@ namespace OpenMS
 
   void Spectrum2DWidget::horizontalProjection(ExperimentSharedPtrType exp)
   {
+    std::cout << " void Spectrum2DWidget::horizontalProjection(ExperimentSharedPtrType exp)" << std::endl;
     projection_horz_->canvas()->mzToXAxis(true); // determines the orientation of the data
     projection_horz_->canvas()->setSwappedAxis(canvas()->isMzToXAxis());
     projection_horz_->showLegend(false);
@@ -358,6 +359,8 @@ namespace OpenMS
     Spectrum1DCanvas::IntensityModes intensity = projection_horz_->canvas()->getIntensityMode();
     projection_horz_->canvas()->removeLayer(0);
     projection_horz_->canvas()->addLayer(exp);
+    std::cout << "add layer with " << exp->size() << " spectra" << std::endl;
+    std::cout << "add layer with " << (*exp)[0].size() << " peaks" << std::endl;
     projection_horz_->canvas()->setDrawMode(mode);
     projection_horz_->canvas()->setIntensityMode(intensity);
     grid_->setColumnStretch(3, 2);
