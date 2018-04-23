@@ -394,8 +394,8 @@ namespace OpenMS
     layers_.resize(layers_.size() + 1);
     layers_.back().param = param_;
     layers_.back().filename = filename;
-    layers_.back().getPeakData() = map;
-    layers_.back().getOnDiscPeakData() = od_map;
+    layers_.back().setPeakData(map);
+    layers_.back().setOnDiscPeakData(od_map);
 
     if (layers_.back().getPeakData()->getChromatograms().size() != 0 
         && layers_.back().getPeakData()->size() != 0)
@@ -873,11 +873,11 @@ namespace OpenMS
     {
       if (layer.type == LayerData::DT_PEAK)
       {
-        dlg.add(*layer.getPeakData());
+        dlg.add(*layer.getPeakDataMuteable());
         // Exception for Spectrum1DCanvas, here we add the meta data of the one spectrum
         if (getName() == "Spectrum1DCanvas")
         {
-          dlg.add((*layer.getPeakData())[layer.getCurrentSpectrumIndex()]);
+          dlg.add((*layer.getPeakDataMuteable())[layer.getCurrentSpectrumIndex()]);
         }
       }
       else if (layer.type == LayerData::DT_FEATURE)
@@ -901,7 +901,7 @@ namespace OpenMS
     {
       if (layer.type == LayerData::DT_PEAK)
       {
-        dlg.add((*layer.getPeakData())[index]);
+        dlg.add((*layer.getPeakDataMuteable())[index]);
       }
       else if (layer.type == LayerData::DT_FEATURE)
       {

@@ -1039,10 +1039,10 @@ namespace OpenMS
     }
 
     current_layer_ = getLayerCount() - 1;
-    currentPeakData_()->updateRanges();
+    getCurrentLayer_().updateRanges();
 
     // Abort if no data points are contained (note that all data could be on disk)
-    if (getCurrentLayer().getPeakData()->size() == 0)
+    if (getCurrentLayer().getCurrentSpectrum().size() == 0)
     {
       layers_.resize(getLayerCount() - 1);
       if (current_layer_ != 0)
@@ -1092,13 +1092,14 @@ namespace OpenMS
       break;
     }
 
-    // sort spectra in ascending order of position
-    for (Size i = 0; i < currentPeakData_()->size(); ++i)
+    // sort spectra in ascending order of position (ensure that we sort all spectra as well as the currently 
+    for (Size i = 0; i < getCurrentLayer_().getPeakData()->size(); ++i)
     {
-      (*getCurrentLayer_().getPeakData())[i].sortByPosition();
+      (*getCurrentLayer_().getPeakDataMuteable())[i].sortByPosition();
     }
+    getCurrentLayer_().getCurrentSpectrum().sortByPosition();
 
-    getCurrentLayer_().annotations_1d.resize(currentPeakData_()->size());
+    getCurrentLayer_().annotations_1d.resize(getCurrentLayer_().getPeakData()->size());
 
     // update nearest peak
     selected_peak_.clear();
@@ -1607,6 +1608,7 @@ namespace OpenMS
       }
       else
       {
+        // TODO: this will not work if the data is cached on disk
         FileHandler().storeExperiment(file_name, *layer.getPeakData(), ProgressLogger::GUI);
       }
     }
@@ -2008,7 +2010,11 @@ namespace OpenMS
 
   void Spectrum1DCanvas::activateSpectrum(Size index, bool repaint)
   {
-    if (index < currentPeakData_()->size())
+    // Note: even though the current spectrum may be on disk, there will still
+    // be an in-memory representation in the peak data structure. Using
+    // setCurrentSpectrumIndex will select the appropriate spectrum and load it
+    // into memory.
+    if (index < getCurrentLayer_().getPeakData()->size())
     {
       getCurrentLayer_().setCurrentSpectrumIndex(index);
       recalculateSnapFactor_();
