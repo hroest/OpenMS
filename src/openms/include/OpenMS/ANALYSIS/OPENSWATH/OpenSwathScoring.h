@@ -482,6 +482,7 @@ var_yseries_score   -0.0327896378737766
      * @param add_up_spectra How many spectra to add up (default 1)
      * @param spacing_for_spectra_resampling Spacing factor for spectra addition
      * @param su Which scores to actually compute
+     * @param spectrum_addition_method Method to use for spectrum addition (valid: "simple", "resample")
      *
     */
     void initialize(double rt_normalization_factor,

@@ -63,8 +63,8 @@ OpenSwathScoring* nullPointer = nullptr;
 
 START_SECTION(OpenSwathScoring())
 {
-	ptr = new OpenSwathScoring();
-	TEST_NOT_EQUAL(ptr, nullPointer)
+  ptr = new OpenSwathScoring();
+  TEST_NOT_EQUAL(ptr, nullPointer)
 }
 END_SECTION
 
@@ -74,12 +74,12 @@ START_SECTION(~OpenSwathScoring())
 }
 END_SECTION
 
-START_SECTION((void initialize(double rt_normalization_factor_, int add_up_spectra_, double spacing_for_spectra_resampling_, OpenSwath_Scores_Usage & su_)))
+START_SECTION((void initialize(double rt_normalization_factor_, int add_up_spectra_, double spacing_for_spectra_resampling_, OpenSwath_Scores_Usage & su_, std::string spectrum_addition_method)))
 {
-	ptr = new OpenSwathScoring();
+  ptr = new OpenSwathScoring();
   OpenSwath_Scores_Usage su;
-	TEST_NOT_EQUAL(ptr, nullPointer)
-  ptr->initialize(100.0, 1, 0.01, su);
+  TEST_NOT_EQUAL(ptr, nullPointer)
+  ptr->initialize(100.0, 1, 0.01, su, "simple");
   delete ptr;
 }
 END_SECTION
