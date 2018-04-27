@@ -461,8 +461,8 @@ var_yseries_score   -0.0327896378737766
     typedef OpenSwath::LightTransition TransitionType;
 
     double rt_normalization_factor_;
-    int add_up_spectra_;
     double spacing_for_spectra_resampling_;
+    int add_up_spectra_;
     std::string spectra_addition_method_;
     OpenSwath_Scores_Usage su_;
 

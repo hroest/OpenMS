@@ -99,9 +99,9 @@ namespace OpenMS
   /// Constructor
   OpenSwathScoring::OpenSwathScoring() :
     rt_normalization_factor_(1.0),
+    spacing_for_spectra_resampling_(0.005),
     add_up_spectra_(1),
-    spectra_addition_method_("simple"),
-    spacing_for_spectra_resampling_(0.005)
+    spectra_addition_method_("simple")
   {
   }
 

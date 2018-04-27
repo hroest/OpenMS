@@ -446,7 +446,7 @@ namespace OpenMS
 
     // get drift time upper/lower offset (this assumes that all chromatograms
     // are derived from the same precursor with the same drift time)
-    double drift_lower(0), drift_upper(0), drift_target;
+    double drift_lower(0), drift_upper(0), drift_target(0);
     if (!transition_group_detection.getChromatograms().empty())
     {
       auto & prec = transition_group_detection.getChromatograms()[0].getPrecursor();

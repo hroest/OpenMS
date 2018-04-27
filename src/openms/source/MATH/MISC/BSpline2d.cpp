@@ -73,9 +73,14 @@ namespace OpenMS
     return spline_->slope(x);
   }
 
+#ifdef OPENMS_ASSERTIONS
   double BSpline2d::derivatives(const double x, unsigned order) const
+#else
+  double BSpline2d::derivatives(const double x, unsigned /* order */) const
+#endif
   {
-    OPENMS_PRECONDITION(order == 1, "Spline was not initialized properly.")
+    OPENMS_PRECONDITION(ok(), "Spline was not initialized properly.")
+    OPENMS_PRECONDITION(order == 1, "Can only compute derivative for order 1.")
     return derivative(x);
   }
 
