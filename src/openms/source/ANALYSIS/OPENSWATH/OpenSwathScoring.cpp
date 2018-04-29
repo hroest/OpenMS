@@ -186,7 +186,7 @@ namespace OpenMS
 		{
 				const std::vector<double> & value_vector;
 
-				DoubleVectorComparator(const std::vector<double> & val_vec):
+				explicit DoubleVectorComparator(const std::vector<double> & val_vec):
 						value_vector(val_vec) {}
 
 				bool operator()(int i1, int i2)
