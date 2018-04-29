@@ -3363,6 +3363,34 @@ def testPeak():
 
 
 @report
+def testNumpressCoder():
+    """
+    """
+
+    np = pyopenms.NumpressCoder()
+
+    nc = pyopenms.NumpressConfig()
+    nc.np_compression = NumpressCompression.LINEAR
+    res = ""
+    out = []
+    np.encodeNP( [1, 2, 3], res, True, nc)
+    np.decodeNP(res, out, True, nc)
+
+@report
+def testNumpressConfig():
+    """
+    """
+
+    np = pyopenms.NumpressConfig()
+    np.np_compression = NumpressCompression.LINEAR
+    assert np.np_compression == NumpressCompression.LINEAR
+    np.numpressFixedPoint = 4.2
+    np.numpressErrorTolerance = 4.2
+    np.estimate_fixed_point = True
+    np.linear_fp_mass_acc = 4.2
+    np.setCompression("linear")
+
+@report
 def testPeakFileOptions():
     """
     @tests: PeakFileOptions
