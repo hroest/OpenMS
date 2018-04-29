@@ -199,7 +199,7 @@ namespace OpenMS
       {
         openglwidget()->updateIntensityScale();
       }
-      // openglwidget()->initializeGL(); // if I remove this, then there is no more scrolling
+      openglwidget()->initializeGL();
       openglwidget()->scrollRepaint(); // maybe this works as well? -- this works !!! 
     }
     openglwidget()->resizeGL(width(), height());

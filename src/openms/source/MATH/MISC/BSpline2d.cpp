@@ -37,7 +37,6 @@
 #include <BSpline/BSplineBase.cpp>
 #include <BSpline/BSpline.cpp>
 
-
 namespace OpenMS
 {
 
