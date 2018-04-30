@@ -176,6 +176,8 @@ START_SECTION((OpenSwath::SpectrumPtr OpenSwathScoring::fetchSpectrumSwath(std::
 
     TEST_EQUAL(swath_ptr->getNrSpectra(), 3)
     OpenSwathScoring sc;
+    OpenSwath_Scores_Usage su;
+    sc.initialize(100.0, 1, 0.005, su, "resample");
     OpenSwath::SpectrumPtr sp = sc.fetchSpectrumSwath(swath_ptr, 20.0, 3, 0, 0);
 
     TEST_EQUAL(sp->getMZArray()->data.size(), 1);
@@ -206,6 +208,8 @@ START_SECTION((OpenSwath::SpectrumPtr OpenSwathScoring::fetchSpectrumSwath(std::
 
     TEST_EQUAL(swath_ptr->getNrSpectra(), 2)
     OpenSwathScoring sc;
+    OpenSwath_Scores_Usage su;
+    sc.initialize(100.0, 1, 0.005, su, "resample");
     OpenSwath::SpectrumPtr sp = sc.fetchSpectrumSwath(swath_ptr, 20.0, 3, 0, 0);
 
     TEST_EQUAL(sp->getMZArray()->data.size(), 1);
