@@ -435,7 +435,7 @@ protected:
     registerDoubleOption_("min_upper_edge_dist", "<double>", 0.0, "Minimal distance to the edge to still consider a precursor, in Thomson", false, true);
     registerDoubleOption_("rt_extraction_window", "<double>", 600.0, "Only extract RT around this value (-1 means extract over the whole range, a value of 600 means to extract around +/- 300 s of the expected elution).", false);
     registerDoubleOption_("extra_rt_extraction_window", "<double>", 0.0, "Output an XIC with a RT-window that by this much larger (e.g. to visually inspect a larger area of the chromatogram)", false, true);
-    registerDoubleOption_("ion_mobility_window", "<double>", -1, "Extraction window in ion mobility dimension (in milliseconds). This is the full window size, e.g. a value of 10 milliseconds would extract 5 milliseconds on either side.", false);
+    registerDoubleOption_("ion_mobility_window", "<double>", -1, "Extraction window in ion mobility dimension (in 1/K0 or milliseconds). This is the full window size, e.g. a value of 10 milliseconds would extract 5 milliseconds on either side.", false);
     registerDoubleOption_("mz_extraction_window", "<double>", 0.05, "Extraction window used (in Thomson, to use ppm see -ppm flag)", false);
     setMinFloat_("mz_extraction_window", 0.0);
     setMinFloat_("extra_rt_extraction_window", 0.0);
@@ -457,6 +457,7 @@ protected:
     registerStringOption_("mz_correction_function", "<name>", "none", "Use the retention time normalization peptide MS2 masses to perform a mass correction (linear, weighted by intensity linear or quadratic) of all spectra.", false, true);
     setValidStrings_("mz_correction_function", ListUtils::create<String>("none,unweighted_regression,weighted_regression,quadratic_regression,weighted_quadratic_regression,weighted_quadratic_regression_delta_ppm,quadratic_regression_delta_ppm"));
     registerDoubleOption_("irt_mz_extraction_window", "<double>", 0.05, "Extraction window used for iRT and m/z correction (in Thomson, use ppm use -ppm flag)", false, true);
+    registerDoubleOption_("irt_im_extraction_window", "<double>", -1, "Ion mobility extraction window used for iRT (in 1/K0 or milliseconds)", false, true);
     registerFlag_("ppm_irtwindow", "iRT m/z extraction_window is in ppm", true);
 
     // TODO terminal slash !
@@ -726,6 +727,7 @@ protected:
     double min_upper_edge_dist = getDoubleOption_("min_upper_edge_dist");
     double mz_extraction_window = getDoubleOption_("mz_extraction_window");
     double irt_mz_extraction_window = getDoubleOption_("irt_mz_extraction_window");
+    double irt_im_extraction_window = getDoubleOption_("irt_im_extraction_window");
     double rt_extraction_window = getDoubleOption_("rt_extraction_window");
     double im_extraction_window = getDoubleOption_("ion_mobility_window");
     double extra_rt_extract = getDoubleOption_("extra_rt_extraction_window");
@@ -807,8 +809,9 @@ protected:
     cp.extra_rt_extract      = extra_rt_extract;
 
     ChromExtractParams cp_irt = cp;
-    cp_irt.rt_extraction_window = -1; // extract the whole RT range
+    cp_irt.rt_extraction_window = -1; // extract the whole RT range for iRT measurements
     cp_irt.mz_extraction_window = irt_mz_extraction_window;
+    cp_irt.im_extraction_window = irt_im_extraction_window;
     cp_irt.ppm                  = irt_ppm;
 
     Param feature_finder_param = getParam_().copy("Scoring:", true);
