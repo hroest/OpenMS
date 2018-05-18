@@ -463,8 +463,13 @@ namespace OpenMS
       im_profiles_aligned.push_back(aligned_profile);
       raw_im_profiles_aligned.push_back(raw_profile);
 
-
       // Use cubic spline interpolation to find exact minima / maxima
+      if (raw_im.size() < 2)
+      {
+        delta_im.push_back(999);
+        continue;
+      }
+
       CubicSpline2d peak_spline (raw_im, raw_profile);
       double spline_im(0), spline_int(0);
       if (max_peak_idx > 0 && max_peak_idx < raw_im.size() )
