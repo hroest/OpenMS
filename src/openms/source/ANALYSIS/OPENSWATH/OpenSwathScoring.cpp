@@ -454,7 +454,7 @@ namespace OpenMS
         }
 
         // collect maxima
-        if (pr_it->second > max_int)
+        if (pr_it != profile.end() && pr_it->second > max_int)
         {
           max_int = pr_it->second;
           max_peak_idx = k;
