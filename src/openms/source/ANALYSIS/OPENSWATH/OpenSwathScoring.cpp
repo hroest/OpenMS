@@ -466,7 +466,8 @@ namespace OpenMS
       // Use cubic spline interpolation to find exact minima / maxima
       if (raw_im.size() < 2)
       {
-        delta_im.push_back(999);
+        double max_diff = std::max( std::fabs(drift_target - drift_lower), std::fabs(drift_target - drift_upper) );
+        delta_im.push_back(max_diff);
         continue;
       }
 
