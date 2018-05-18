@@ -400,13 +400,16 @@ namespace OpenMS
 
       std::sort(tmp.begin(), tmp.end());
 
-      im_values.push_back( tmp[0] );
-      for (Size k = 1; k < tmp.size(); k++) 
+      if (!tmp.empty())
       {
-        double diff = fabs(tmp[k] - tmp[k-1]);
-        if (diff > eps)
+        im_values.push_back( tmp[0] );
+        for (Size k = 1; k < tmp.size(); k++) 
         {
-          im_values.push_back( tmp[k] );
+          double diff = fabs(tmp[k] - tmp[k-1]);
+          if (diff > eps)
+          {
+            im_values.push_back( tmp[k] );
+          }
         }
       }
 
