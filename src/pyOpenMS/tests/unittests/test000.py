@@ -3367,23 +3367,29 @@ def testNumpressCoder():
     """
     """
 
-    np = pyopenms.NumpressCoder()
+    np = pyopenms.MSNumpressCoder()
 
     nc = pyopenms.NumpressConfig()
-    nc.np_compression = NumpressCompression.LINEAR
+    nc.np_compression = np.NumpressCompression.LINEAR
     res = ""
     out = []
-    np.encodeNP( [1, 2, 3], res, True, nc)
+    inp =  [1.0, 2.0, 3.0, 4.0, 5.0]
+    np.encodeNP(inp, res, True, nc)
+    assert res != "", res
     np.decodeNP(res, out, True, nc)
+    print(res)
+    assert len(out) == 3, (out, res)
+    assert out == inp, out
 
 @report
 def testNumpressConfig():
     """
     """
 
+    n = pyopenms.MSNumpressCoder()
     np = pyopenms.NumpressConfig()
-    np.np_compression = NumpressCompression.LINEAR
-    assert np.np_compression == NumpressCompression.LINEAR
+    np.np_compression = n.NumpressCompression.LINEAR
+    assert np.np_compression == n.NumpressCompression.LINEAR
     np.numpressFixedPoint = 4.2
     np.numpressErrorTolerance = 4.2
     np.estimate_fixed_point = True
