@@ -10,8 +10,11 @@
 #
 
 ## For a release, change to the following:
-## git clone -b Release2.3.0 https://github.com/OpenMS/OpenMS.git
-## sed -i 's/@CF_OPENMS_PACKAGE_VERSION@/2.3.0.3/' OpenMS/src/pyOpenMS/env.py.in
+wget https://github.com/OpenMS/OpenMS/releases/download/Release2.3.0/OpenMS-2.3.0-src.tar.gz -O OpenMS-2.3.0-src.tar.gz 
+tar xzvf OpenMS-2.3.0-src.tar.gz 
+cd OpenMS-2.3.0/
+sed -i 's/@CF_OPENMS_PACKAGE_VERSION@/2.3.0.4/' src/pyOpenMS/env.py.in
+sed -i 's/@CF_OPENMS_PACKAGE_VERSION@/2.3.0.4/' src/pyOpenMS/pyopenms/__init__.py
 
 git clone https://github.com/OpenMS/OpenMS.git
 

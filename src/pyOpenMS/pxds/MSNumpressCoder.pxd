@@ -11,7 +11,7 @@ cdef extern from "<OpenMS/FORMAT/MSNumpressCoder.h>" namespace "OpenMS":
         void encodeNP(libcpp_vector[double] in_, String & result,
                 bool zlib_compression, NumpressConfig config) nogil except +
 
-        void decodeNP(String in_, libcpp_vector[double] & out,
+        void decodeNP(const String& in_, libcpp_vector[double] & out,
                 bool zlib_compression, NumpressConfig config) nogil except +
 
 cdef extern from "<OpenMS/FORMAT/MSNumpressCoder.h>" namespace "OpenMS::MSNumpressCoder":
@@ -36,5 +36,5 @@ cdef extern from "<OpenMS/FORMAT/MSNumpressCoder.h>" namespace "OpenMS::MSNumpre
       bool estimate_fixed_point # whether to estimate the fixed point or use the one proved with numpressFixedPoint
       double linear_fp_mass_acc # desired mass accuracy for linear encoding (-1 no effect, use 0.0001 for 0.2 ppm accuracy @ 500 m/z)
 
-      void setCompression(String compression) nogil except +
+      void setCompression(const String& compression) nogil except +
 
