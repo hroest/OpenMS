@@ -192,6 +192,10 @@ namespace OpenMS
   {
 #endif
 
+    // make sure OpenGL already properly initialized
+    QOpenGLContext *ctx = QOpenGLContext::currentContext();
+    if (!ctx || !ctx->isValid()) return;
+        
     if (update_buffer_)
     {
       update_buffer_ = false;
