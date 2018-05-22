@@ -169,32 +169,6 @@
        </property>
        <layout class="QVBoxLayout">
         <item>
-         <widget class="QRadioButton" name="cutoff_">
-          <property name="mouseTracking">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>&amp;Intensity cutoff on                    </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="nocutoff_">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="mouseTracking">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>o&amp;ff                    </string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QCheckBox" name="dia_data_">
           <property name="text">
            <string>DIA / SWATH data</string>
@@ -296,8 +270,6 @@
   <tabstop>layer_</tabstop>
   <tabstop>d2_</tabstop>
   <tabstop>d3_</tabstop>
-  <tabstop>nocutoff_</tabstop>
-  <tabstop>cutoff_</tabstop>
   <tabstop>cancel_</tabstop>
   <tabstop>ok_</tabstop>
  </tabstops>
