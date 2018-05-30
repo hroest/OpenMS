@@ -67,6 +67,7 @@ namespace OpenMS
         "\tvar_library_rootmeansquare\tvar_library_sangle\tvar_log_sn_score\tvar_manhatt_score" <<
         "\tvar_massdev_score\tvar_massdev_score_weighted\tvar_norm_rt_score\tvar_xcorr_coelution" <<
         "\tvar_xcorr_coelution_weighted\tvar_xcorr_shape\tvar_xcorr_shape_weighted" <<
+        "\tvar_im_xcorr_shape\tvar_im_xcorr_coelution\tvar_im_delta_score" <<
         "\tvar_yseries_score\tvar_elution_model_fit_score";
       if (use_ms1_traces_)
       {
@@ -244,6 +245,9 @@ namespace OpenMS
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_coelution_weighted")
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_shape")
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_shape_weighted")
+            + "\t" + (String)feature_it->getMetaValue("var_im_xcorr_shape")
+            + "\t" + (String)feature_it->getMetaValue("var_im_xcorr_coelution")
+            + "\t" + (String)feature_it->getMetaValue("var_im_delta_score")
             + "\t" + (String)feature_it->getMetaValue("var_yseries_score")
             + "\t" + (String)feature_it->getMetaValue("var_elution_model_fit_score");
 
