@@ -400,7 +400,11 @@ namespace OpenMS
 
       std::sort(tmp.begin(), tmp.end());
 
+#if 1
+      // In some cases there are not enough datapoints available (one of the
+      // transitions has no datapoints)
       if (!tmp.empty())
+#endif
       {
         im_values.push_back( tmp[0] );
         for (Size k = 1; k < tmp.size(); k++) 
@@ -454,7 +458,11 @@ namespace OpenMS
         }
 
         // collect maxima
+#if 0
         if (pr_it != profile.end() && pr_it->second > max_int)
+#else
+        if (pr_it != profile.end() && pr_it->second > max_int)
+#endif
         {
           max_int = pr_it->second;
           max_peak_idx = k;
@@ -463,20 +471,27 @@ namespace OpenMS
       im_profiles_aligned.push_back(aligned_profile);
       raw_im_profiles_aligned.push_back(raw_profile);
 
-      // Use cubic spline interpolation to find exact minima / maxima
+#if 1
+      // We need at least 2 datapoints for the cubic spline
+      // (sometimes there are just not enough datapoints available in the spectra)
       if (raw_im.size() < 2)
       {
         double max_diff = std::max( std::fabs(drift_target - drift_lower), std::fabs(drift_target - drift_upper) );
         delta_im.push_back(max_diff);
         continue;
       }
+#endif
 
+      // std::cout << " size  " << raw_im.size() << std::endl;
+      // Use cubic spline interpolation to find exact minima / maxima
       CubicSpline2d peak_spline (raw_im, raw_profile);
-      double spline_im(0), spline_int(0);
+      double spline_im(0);
       if (max_peak_idx > 0 && max_peak_idx < raw_im.size() )
       {
+        double spline_int(0);
         OpenMS::Math::spline_bisection(peak_spline, raw_im[ max_peak_idx - 1], raw_im[ max_peak_idx + 1], spline_im, spline_int);
       }
+      // std::cout << " we have a difference in " << drift_target - spline_im << std::endl;
       delta_im.push_back(fabs(drift_target - spline_im));
     }
 
