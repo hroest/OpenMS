@@ -443,6 +443,9 @@ protected:
       {
         MzIdentMLFile().load(mzid_decoy, protein_identifications, peptide_identifications);
       }
+
+      for (auto& pid : peptide_identifications) {pid.setHigherScoreBetter(false);}
+      for (auto& pid : protein_identifications) {pid.setHigherScoreBetter(false);}
     }
     else
     {
