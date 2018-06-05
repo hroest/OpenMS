@@ -519,6 +519,7 @@ namespace OpenMS
       }
       bool swath_present = (!swath_maps.empty() && swath_maps[0].sptr->getNrSpectra() > 0);
       bool sonar_present = (swath_maps.size() > 1);
+      // TODO: this is not the best way of doing this -- another way of figuring out whether we have it ?
       bool im_present = (drift_upper > 0.0);
       double xx_lda_prescore;
       double precursor_mz(-1);
