@@ -35,6 +35,7 @@
 // OpenMS includes
 #include <OpenMS/VISUAL/DIALOGS/TOPPASVertexNameDialog.h>
 #include <ui_TOPPASVertexNameDialog.h>
+#include <QRegExpValidator> 
 
 #include <iostream>
 
