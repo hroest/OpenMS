@@ -89,7 +89,7 @@
 			<UserParam type="float" name="var_isotope_correlation_score" value="0.0260894299407082"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
 			<UserParam type="float" name="var_massdev_score" value="27.1945494817822"/>
-			<UserParam type="float" name="var_massdev_score_weighted" value="20.3108685980962"/>
+			<UserParam type="float" name="var_massdev_score_weighted" value="6.77028953269873"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
 			<UserParam type="float" name="var_dotprod_score" value="0.602724778636096"/>
@@ -186,7 +186,7 @@
 			<UserParam type="float" name="var_isotope_correlation_score" value="0.135147817700222"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
 			<UserParam type="float" name="var_massdev_score" value="16.3566522647397"/>
-			<UserParam type="float" name="var_massdev_score_weighted" value="17.7471993510744"/>
+			<UserParam type="float" name="var_massdev_score_weighted" value="5.91573311702479"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
 			<UserParam type="float" name="var_dotprod_score" value="0.779355965797236"/>
