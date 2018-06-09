@@ -174,7 +174,11 @@ public:
           findWidestPeakIndices(picked_chroms_, chr_idx, peak_idx);
         }
 
-        if (chr_idx == -1 && peak_idx == -1) break;
+        if (chr_idx == -1 && peak_idx == -1)
+        {
+          LOG_DEBUG << "**** MRMTransitionGroupPicker : no more peaks left" << picked_chroms_.size() << std::endl;
+          break;
+        }
 
         // Compute a feature from the individual chromatograms and add non-zero features
         MRMFeature mrm_feature = createMRMFeature(transition_group, picked_chroms_, smoothed_chroms_, chr_idx, peak_idx);
