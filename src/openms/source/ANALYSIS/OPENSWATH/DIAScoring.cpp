@@ -161,9 +161,9 @@ namespace OpenMS
     DefaultParamHandler("DIAScoring")
   {
 
-    defaults_.setValue("dia_extraction_window", 0.05, "DIA extraction window in Th or ppm.");
+    defaults_.setValue("dia_extraction_window", 50.0, "DIA extraction window in Th or ppm.");
     defaults_.setMinFloat("dia_extraction_window", 0.0);
-    defaults_.setValue("dia_extraction_unit", "Th", "DIA extraction window unit");
+    defaults_.setValue("dia_extraction_unit", "ppm", "DIA extraction window unit");
     defaults_.setValidStrings("dia_extraction_unit", ListUtils::create<String>("Th,ppm"));
     defaults_.setValue("dia_centroided", "false", "Use centroided DIA data.");
     defaults_.setValidStrings("dia_centroided", ListUtils::create<String>("true,false"));
@@ -301,7 +301,7 @@ namespace OpenMS
       // value. Otherwise calculate the difference in ppm.
       if (!signalFound)
       {
-        ppm_score = dia_extract_window_ / precursor_mz * 1000000;
+        ppm_score = dia_extraction_ppm_ ? dia_extract_window_ : dia_extract_window_ / precursor_mz * 1e6;
         return false;
       }
       else
@@ -317,7 +317,9 @@ namespace OpenMS
           im_array_copy(spectrum, left, right, newmz, newint);
           if (newmz.size() < 2) 
           {
-            ppm_score = dia_extract_window_ / precursor_mz * 1000000;
+            // TODO: just use single data point?
+            ppm_score = dia_extraction_ppm_ ? dia_extract_window_ : dia_extract_window_ / precursor_mz * 1e6;
+            ppm_score = newmz[0];
             return false;
           }
           fit_spline(spectrum, left, right, newmz, newint, max_peak_mz);
