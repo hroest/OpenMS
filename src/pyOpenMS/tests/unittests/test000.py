@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import pyopenms
 import copy
+import os
 
 from pyopenms import String as s
 
@@ -700,14 +701,14 @@ def testConsensusMap():
      ConsensusMap.clearUniqueId
      ConsensusMap.ensureUniqueId
      ConsensusMap.getDataProcessing
-     ConsensusMap.getFileDescriptions
+     ConsensusMap.getColumnHeaders
      ConsensusMap.getProteinIdentifications
      ConsensusMap.getUnassignedPeptideIdentifications
      ConsensusMap.getUniqueId
      ConsensusMap.hasInvalidUniqueId
      ConsensusMap.hasValidUniqueId
      ConsensusMap.setDataProcessing
-     ConsensusMap.setFileDescriptions
+     ConsensusMap.setColumnHeaders
      ConsensusMap.setProteinIdentifications
      ConsensusMap.setUnassignedPeptideIdentifications
      ConsensusMap.setUniqueId
@@ -734,14 +735,14 @@ def testConsensusMap():
     m.clearUniqueId()
     m.ensureUniqueId()
     m.getDataProcessing()
-    m.getFileDescriptions()
+    m.getColumnHeaders()
     m.getProteinIdentifications()
     m.getUnassignedPeptideIdentifications()
     m.getUniqueId()
     m.hasInvalidUniqueId()
     m.hasValidUniqueId()
     m.setDataProcessing
-    m.setFileDescriptions
+    m.setColumnHeaders
     m.setProteinIdentifications
     m.setUnassignedPeptideIdentifications
     m.setUniqueId
@@ -2057,14 +2058,14 @@ def testFeatureXMLFile():
 @report
 def testFileDescription():
     """
-    @tests: FileDescription
-     FileDescription.__init__
-     FileDescription.filename
-     FileDescription.label
-     FileDescription.size
-     FileDescription.unique_id
+    @tests: ColumnHeader
+     ColumnHeader.__init__
+     ColumnHeader.filename
+     ColumnHeader.label
+     ColumnHeader.size
+     ColumnHeader.unique_id
     """
-    fd = pyopenms.FileDescription()
+    fd = pyopenms.ColumnHeader()
     assert isinstance(fd.filename, bytes)
     assert isinstance(fd.label, bytes)
     assert isinstance(fd.size, int)
@@ -3387,6 +3388,71 @@ def testPeak():
     assert p2.getRT() == 45.0
 
 
+
+@report
+def testNumpressCoder():
+    """
+    """
+
+    np = pyopenms.MSNumpressCoder()
+
+    nc = pyopenms.NumpressConfig()
+    nc.np_compression = np.NumpressCompression.LINEAR
+    nc.estimate_fixed_point = True
+    tmp = pyopenms.String()
+    out = []
+    inp =  [1.0, 2.0, 3.0]
+    np.encodeNP(inp, tmp, True, nc)
+
+    res = str(tmp)
+    assert len(res) != 0, len(res)
+    assert res != "", res
+    np.decodeNP(res, out, True, nc)
+    assert len(out) == 3, (out, res)
+    assert out == inp, out
+
+    # Now try to use a simple Python string as input -> this will fail as we
+    # cannot pass this by reference in C++
+    res = ""
+    try:
+        np.encodeNP(inp, res, True, nc)
+        has_error = False
+    except AssertionError:
+        has_error = True
+
+    assert has_error
+
+@report
+def testNumpressConfig():
+    """
+    """
+
+    n = pyopenms.MSNumpressCoder()
+    np = pyopenms.NumpressConfig()
+    np.np_compression = n.NumpressCompression.LINEAR
+    assert np.np_compression == n.NumpressCompression.LINEAR
+    np.numpressFixedPoint = 4.2
+    np.numpressErrorTolerance = 4.2
+    np.estimate_fixed_point = True
+    np.linear_fp_mass_acc = 4.2
+    np.setCompression("linear")
+
+@report
+def testBase64():
+    """
+    """
+
+    b = pyopenms.Base64()
+    out = pyopenms.String()
+    inp =  [1.0, 2.0, 3.0]
+    b.encode(inp, b.ByteOrder.BYTEORDER_LITTLEENDIAN, out, False)
+    res = str(out)
+    assert len(res) != 0
+    assert res != ""
+
+    convBack = []
+    b.decode(res, b.ByteOrder.BYTEORDER_LITTLEENDIAN, convBack, False)
+    assert convBack == inp, convBack
 
 @report
 def testPeakFileOptions():
@@ -4742,6 +4808,40 @@ def testModificationsDB():
     m = mdb.getBestModificationByMonoMass( 999999999, 0.20, b"T", pyopenms.ResidueModification.TermSpecificity.ANYWHERE)
     assert m is None
 
+@report
+def testExperimentalDesign():
+    """
+    @tests: ExperimentalDesign
+     ExperimentalDesign.__init__
+     ExperimentalDesign.getNumberOfSamples() == 8
+     ExperimentalDesign.getNumberOfFractions() == 3
+     ExperimentalDesign.getNumberOfLabels() == 4
+     ExperimentalDesign.getNumberOfMSFiles() == 6
+     ExperimentalDesign.getNumberOfFractionGroups() == 2
+     ExperimentalDesign.getSample(1, 1) == 1
+     ExperimentalDesign.getSample(2, 4) == 8
+     ExperimentalDesign.isFractionated()
+     ExperimentalDesign.sameNrOfMSFilesPerFraction()
+
+     ExperimentalDesignFile.__init__
+     ExperimentalDesignFile.load
+     """
+    f = pyopenms.ExperimentalDesignFile()
+    fourplex_fractionated_design = pyopenms.ExperimentalDesign()
+    ed_dirname = os.path.dirname(os.path.abspath(__file__))
+    ed_filename = os.path.join(ed_dirname, "ExperimentalDesign_input_2.tsv").encode()
+    fourplex_fractionated_design = f.load(ed_filename, False)
+    assert fourplex_fractionated_design.getNumberOfSamples() == 8
+    assert fourplex_fractionated_design.getNumberOfFractions() == 3
+    assert fourplex_fractionated_design.getNumberOfLabels() == 4
+    assert fourplex_fractionated_design.getNumberOfMSFiles() == 6
+    assert fourplex_fractionated_design.getNumberOfFractionGroups() == 2
+    assert fourplex_fractionated_design.getSample(1, 1) == 1
+    assert fourplex_fractionated_design.getSample(2, 4) == 8
+    assert fourplex_fractionated_design.isFractionated()
+    assert fourplex_fractionated_design.sameNrOfMSFilesPerFraction()
+ 
+@report
 def testString():
     pystr = pyopenms.String()
     pystr = pyopenms.String("blah")
@@ -4787,5 +4887,3 @@ def testString():
     pystr1 = pyopenms.String(u"bläh")
     pystr2 = pyopenms.String(u"bläh")
     assert(pystr1 == pystr2)
-
-

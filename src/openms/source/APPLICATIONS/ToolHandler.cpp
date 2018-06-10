@@ -211,6 +211,7 @@ namespace OpenMS
     util_map["MRMPairFinder"] = Internal::ToolDescription("MRMPairFinder", util_category);
     util_map["MSFraggerAdapter"] = Internal::ToolDescription("MSFraggerAdapter", util_category);
     util_map["MSSimulator"] = Internal::ToolDescription("MSSimulator", util_category);
+    util_map["MSstatsConverter"] = Internal::ToolDescription("MSstatsConverter", util_category);
     util_map["MultiplexResolver"] = Internal::ToolDescription("MultiplexResolver", util_category);
     util_map["MzMLSplitter"] = Internal::ToolDescription("MzMLSplitter", util_category);
     util_map["OpenPepXL"] = Internal::ToolDescription("OpenPepXL", util_category);
@@ -232,7 +233,6 @@ namespace OpenMS
     util_map["QCMerger"] = Internal::ToolDescription("QCMerger", util_category);
     util_map["QCShrinker"] = Internal::ToolDescription("QCExporter", util_category);
     util_map["RNADigestor"] = Internal::ToolDescription("RNADigestor", util_category);
-    util_map["RNPxl"] = Internal::ToolDescription("RNPxl", util_category);
     util_map["RNPxlSearch"] = Internal::ToolDescription("RNPxlSearch", util_category);
     util_map["RNPxlXICFilter"] = Internal::ToolDescription("RNPxlXICFilter", util_category);
     util_map["RTEvaluation"] = Internal::ToolDescription("RTEvaluation", util_category);
