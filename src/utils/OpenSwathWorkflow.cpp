@@ -775,6 +775,8 @@ protected:
     int batchSize = (int)getIntOption_("batchSize");
     Size debug_level = (Size)getIntOption_("debug");
 
+    double mz_extraction_window_ms1 = getDoubleOption_("mz_extraction_window_ms1");
+
     double min_rsq = getDoubleOption_("min_rsq");
     double min_coverage = getDoubleOption_("min_coverage");
 
