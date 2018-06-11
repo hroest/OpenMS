@@ -217,6 +217,7 @@ namespace OpenMS
     util_map["OpenPepXL"] = Internal::ToolDescription("OpenPepXL", util_category);
     util_map["OpenPepXLLF"] = Internal::ToolDescription("OpenPepXLLF", util_category);
     util_map["OpenSwathWorkflow"] = Internal::ToolDescription("OpenSwathWorkflow", util_category);
+    util_map["OpenSwathSlim"] = Internal::ToolDescription("OpenSwathSlim", util_category);
     util_map["OpenSwathRewriteToFeatureXML"] = Internal::ToolDescription("OpenSwathRewriteToFeatureXML", "Targeted Experiments");
     util_map["OpenSwathFileSplitter"] = Internal::ToolDescription("OpenSwathFileSplitter", "Targeted Experiments");
     util_map["OpenSwathDIAPreScoring"] = Internal::ToolDescription("OpenSwathDIAPreScoring", "Targeted Experiments");
