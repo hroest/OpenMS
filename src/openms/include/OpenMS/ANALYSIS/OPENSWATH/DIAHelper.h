@@ -34,8 +34,10 @@
 
 #pragma once
 
-#include <vector>
 #include <OpenMS/CHEMISTRY/AASequence.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/DataStructures.h>
+
+#include <vector>
 
 namespace OpenMS
 {
@@ -98,6 +100,10 @@ namespace OpenMS
     /// extract second from vector of pairs
     OPENMS_DLLAPI void extractSecond(const std::vector<std::pair<double, double> >& peaks, std::vector<double>& mass);
     
+    OPENMS_DLLAPI void fitSplineToPeak(OpenSwath::SpectrumPtr spectrum, const double left, const double right,
+                                       const std::vector<double> & newmz, const std::vector<double> & newint,
+                                       double& max_peak_mz );
+
     ///}@
   }
 }

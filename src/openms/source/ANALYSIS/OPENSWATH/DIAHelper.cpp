@@ -39,9 +39,14 @@
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmPickedHelperStructs.h>
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithm.h>
 
+#include <OpenMS/MATH/MISC/CubicSpline2d.h>
+#include <OpenMS/MATH/MISC/SplineBisection.h>
+#include <OpenMS/FILTERING/SMOOTHING/GaussFilterAlgorithm.h>
+
 #include <OpenMS/KERNEL/MSSpectrum.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
 
+#include <iostream>
 #include <utility>
 #include <boost/bind.hpp>
 
@@ -49,6 +54,57 @@ namespace OpenMS
 {
   namespace DIAHelpers
   {
+
+
+    void fitSplineToPeak(OpenSwath::SpectrumPtr spectrum, const double left, const double right,
+                         const std::vector<double> & newmz, const std::vector<double> & newint,
+                         double& max_peak_mz )
+    {
+#if 0
+      std::vector<double> fnewmz;
+      std::vector<double> fnewint;
+      GaussFilterAlgorithm f;
+      fnewmz.resize(newmz.size());
+      fnewint.resize(newint.size());
+      // void initialize(double gaussian_width, double spacing, double ppm_tolerance, bool use_ppm_tolerance);
+      f.initialize(10, 0.001, 10, true); // TODO algorithm params!
+      // f.initialize(10, 0.01, 1, true); // TODO algorithm params!
+      f.initialize(10, 0.001, 20, true); // TODO algorithm params!
+      f.filter< std::vector<double>::const_iterator, std::vector<double>::iterator >(newmz.begin(), newmz.end(), newint.begin(), fnewmz.begin(), fnewint.begin());
+#else
+      std::vector<double> fnewmz = newmz;
+      std::vector<double> fnewint = newint;
+#endif
+
+      std::map<double, double> peak_raw_data;
+      std::vector<double>::iterator central_mz_it;
+      size_t maxk = -1;
+
+      for (Size k = 0; k < fnewmz.size(); k++)
+      {
+        peak_raw_data[ fnewmz[k] ] = fnewint[k];
+        if (fnewint[maxk] < fnewint[k])
+        {
+          maxk = k;
+        }
+
+      }
+
+      // std::cout << " peak reaw data " << peak_raw_data.size() << std::endl;
+      max_peak_mz = -1;
+      if (peak_raw_data.size() < 3) {return;}
+      CubicSpline2d peak_spline (peak_raw_data);
+
+      // calculate maximum by evaluating the spline's 1st derivative
+      // (bisection method)
+      max_peak_mz = fnewmz[maxk];
+      double max_peak_int = fnewint[maxk];
+      double threshold = 1e-6;
+      double left_neighbor_mz = fnewmz[ std::max( (int)maxk-1, 0)];
+      double right_neighbor_mz = fnewmz[std::min( (Size)fnewmz.size()-1, maxk+1)];
+      OpenMS::Math::spline_bisection(peak_spline, left_neighbor_mz, right_neighbor_mz, max_peak_mz, max_peak_int, threshold);
+    }
+
     // for SWATH -- get the theoretical b and y series masses for a sequence
     void getBYSeries(const AASequence& a, //
                      std::vector<double>& bseries, //

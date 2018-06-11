@@ -49,8 +49,6 @@
 
 #include <OpenMS/CHEMISTRY/TheoreticalSpectrumGenerator.h>
 
-#include <OpenMS/MATH/MISC/SplineBisection.h>
-#include <OpenMS/MATH/MISC/CubicSpline2d.h>
 
 #include <numeric>
 #include <algorithm>
@@ -58,7 +56,7 @@
 
 #include <boost/bind.hpp>
 
-#define  MRMSCORING_TESTING
+// #define  MRMSCORING_TESTING
 
 const double C13C12_MASSDIFF_U = 1.0033548;
 
@@ -97,50 +95,6 @@ namespace OpenMS
         prev_mz = *mz_it;
       }
     }
-  }
-
-  void fit_spline(OpenSwath::SpectrumPtr spectrum, double left, double right,
-                     std::vector<double> & newmz, std::vector<double> & newint, double& max_peak_mz )
-  {
-    std::vector<double> fnewmz;
-    std::vector<double> fnewint;
-    size_t l = spectrum->getMZArray()->data.end() - spectrum->getMZArray()->data.end();
-    GaussFilterAlgorithm f;
-    fnewmz.resize(newmz.size());
-    fnewint.resize(newint.size());
-    f.initialize(10, 0.01, 10, true); // TODO algorithm params!
-    // f.initialize(10, 0.01, 1, true); // TODO algorithm params!
-    // f.initialize(10, 0.001, 20, true); // TODO algorithm params!
-    f.filter(newmz.begin(), newmz.end(), newint.begin(), fnewmz.begin(), fnewint.begin());
-
-    std::map<double, double> peak_raw_data;
-    std::vector<double>::iterator central_mz_it;
-    size_t maxk = -1;
-
-    for (Size k = 0; k < fnewmz.size(); k++)
-    {
-      peak_raw_data[ fnewmz[k] ] = fnewint[k];
-      // std::cout << " mz : " << fnewmz[k]  <<  " : " << fnewint[k] <<  "  --- raw: " << newmz[k]  <<  " : " << newint[k] << std::endl;
-      // peak_raw_data[ newmz[k] ] = newint[k];
-      if (fnewint[maxk] < fnewint[k])
-      {
-        maxk = k;
-      }
-
-    }
-
-    // std::cout << " found max k " << maxk << " at " << fnewmz[maxk] * 100 << std::endl;
-
-    CubicSpline2d peak_spline (peak_raw_data);
-
-    // calculate maximum by evaluating the spline's 1st derivative
-    // (bisection method)
-    max_peak_mz = fnewmz[maxk];
-    double max_peak_int = fnewint[maxk];
-    double threshold = 1e-6;
-    double left_neighbor_mz = fnewmz[ std::max( (int)maxk-1, 0)];
-    double right_neighbor_mz = fnewmz[std::min( (Size)fnewmz.size()-1, maxk+1)];
-    OpenMS::Math::spline_bisection(peak_spline, left_neighbor_mz, right_neighbor_mz, max_peak_mz, max_peak_int, threshold);
   }
 
   void adjustExtractionWindow(double& right, double& left, const double& dia_extract_window_, const bool& dia_extraction_ppm_)
@@ -202,7 +156,7 @@ namespace OpenMS
     //  generator->setParameters(p);
   }
 
-  DIAScoring::~DIAScoring() 
+  DIAScoring::~DIAScoring()
   {
     delete generator;
   }
@@ -266,7 +220,7 @@ namespace OpenMS
         double max_peak_mz;
         im_array_copy(spectrum, left, right, newmz, newint);
         if (newmz.size() < 2) {continue;}
-        fit_spline(spectrum, left, right, newmz, newint, max_peak_mz);
+        DIAHelpers::fitSplineToPeak(spectrum, left, right, newmz, newint, max_peak_mz);
         diff_ppm = std::fabs(max_peak_mz - transition->getProductMZ()) * 1000000 / transition->getProductMZ(); // new score
       }
       else
@@ -288,7 +242,7 @@ namespace OpenMS
   bool DIAScoring::dia_ms1_massdiff_score(double precursor_mz, SpectrumPtrType spectrum,
                                           double& ppm_score)
   {
-    std::cout << OPENMS_PRETTY_FUNCTION << std::endl;
+    // std::cout << OPENMS_PRETTY_FUNCTION << std::endl;
     ppm_score = -1;
     double mz, intensity;
     {
@@ -302,6 +256,7 @@ namespace OpenMS
       if (!signalFound)
       {
         ppm_score = dia_extract_window_ / precursor_mz * 1000000;
+        // ppm_score = dia_extraction_ppm_ ? dia_extract_window_ : dia_extract_window_ / precursor_mz * 1e6;
         return false;
       }
       else
@@ -320,17 +275,19 @@ namespace OpenMS
             ppm_score = dia_extract_window_ / precursor_mz * 1000000;
             return false;
           }
-          fit_spline(spectrum, left, right, newmz, newint, max_peak_mz);
+          DIAHelpers::fitSplineToPeak(spectrum, left, right, newmz, newint, max_peak_mz);
 
           ppm_score = std::fabs(mz - precursor_mz) * 1000000 / precursor_mz; // old score! 
+#if 0
           std::cout <<  " using weighted mass: " << ppm_score << std::endl;
           // std::cout <<  " from   " << left_neighbor_mz *100 << " to " << right_neighbor_mz  *100 << std::endl;
           std::cout <<  " found largest intensity at  : " << central_peak_mz *100 << " / " << central_peak_int << std::endl;
           std::cout <<  " alternative : " << max_peak_mz << " with ppm " << 
           std::fabs(max_peak_mz - precursor_mz) * 1000000 / precursor_mz << std::endl;
-
           ppm_score = std::fabs(max_peak_mz - precursor_mz) * 1000000 / precursor_mz; // new score
           std::cout <<  " return score : " << ppm_score << std::endl;
+#endif
+          ppm_score = std::fabs(max_peak_mz - precursor_mz) * 1000000 / precursor_mz; // new score
         }
         else
         {
