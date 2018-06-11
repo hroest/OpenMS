@@ -50,6 +50,30 @@ namespace OpenMS
     */
     ///@{
 
+
+    /**
+      @brief Integrate intensity in a spectrum from start to end
+
+      This function will integrate the intensity in a spectrum between mz_start
+      and mz_end, returning the total intensity and an intensity-weighted m/z
+      value.
+
+      @note If there is no signal, mz will be set to -1 and intensity to 0
+      @return Returns true if a signal was found (and false if no signal was found)
+
+    */
+    OPENMS_DLLAPI bool integrateWindow(const OpenSwath::SpectrumPtr spectrum, double mz_start,
+                                       double mz_end, double& mz, double& intensity, bool centroided = false);
+
+    /**
+      @brief Integrate intensities in a spectrum from start to end
+    */
+    OPENMS_DLLAPI void integrateWindows(const OpenSwath::SpectrumPtr spectrum, //!< [in] Spectrum
+                                        const std::vector<double>& windowsCenter, //!< [in] center location
+                                        double width,
+                                        std::vector<double>& integratedWindowsIntensity,
+                                        std::vector<double>& integratedWindowsMZ, bool remZero = false);
+
     /// compute the b and y series masses for a given AASequence
     OPENMS_DLLAPI void getBYSeries(const AASequence& a,
                                    std::vector<double>& bseries,
