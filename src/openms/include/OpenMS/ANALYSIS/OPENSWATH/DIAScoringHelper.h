@@ -44,10 +44,12 @@ namespace OpenMS
   class TheoreticalSpectrumGenerator;
   namespace DIAHelpers
   {
+
     /**
       @brief Helper functions for the DIA scoring of OpenSWATH
     */
     ///@{
+
     /// compute the b and y series masses for a given AASequence
     OPENMS_DLLAPI void getBYSeries(const AASequence& a,
                                    std::vector<double>& bseries,

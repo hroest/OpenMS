@@ -32,7 +32,7 @@
 // $Authors: Witold Wolski, Hannes Roest $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoringHelper.h>
 
 #include <OpenMS/CHEMISTRY/TheoreticalSpectrumGenerator.h>
 #include <OpenMS/CHEMISTRY/ISOTOPEDISTRIBUTION/CoarseIsotopePatternGenerator.h>
@@ -54,7 +54,6 @@ namespace OpenMS
 {
   namespace DIAHelpers
   {
-
 
     void fitSplineToPeak(OpenSwath::SpectrumPtr spectrum, const double left, const double right,
                          const std::vector<double> & newmz, const std::vector<double> & newint,

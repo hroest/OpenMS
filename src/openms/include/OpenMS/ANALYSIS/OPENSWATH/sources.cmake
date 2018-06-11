@@ -7,7 +7,7 @@ set(sources_list_h
   ChromatogramExtractor.h
   ChromatogramExtractorAlgorithm.h
   ConfidenceScoring.h
-  DIAHelper.h
+  DIAScoringHelper.h
   DIAPrescoring.h
   DIAScoring.h
   MRMFeaturePicker.h
