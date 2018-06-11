@@ -259,56 +259,56 @@ namespace OpenMS
     // Crossvalidation
     if (pairs_corrected.size() > 100)
     {
-    std::vector<size_t> item_list;
-    item_list.reserve(pairs_corrected.size());
-    for (Size k = 0; k < pairs_corrected.size(); k++) {item_list.push_back(k);}
-    std::random_shuffle(item_list.begin(), item_list.end());
+      std::vector<size_t> item_list;
+      item_list.reserve(pairs_corrected.size());
+      for (Size k = 0; k < pairs_corrected.size(); k++) {item_list.push_back(k);}
+      std::random_shuffle(item_list.begin(), item_list.end());
 
-    double xval_mean = 0;
-    double xval_mad = 0;
-    Size NR_XVAL = 5;
-    for (Size xval = 0; xval < NR_XVAL; xval++)
-    {
-      // select items
-      std::vector<std::pair<double, double> > list_train;
-      list_train.reserve(pairs_corrected.size());
-      std::vector<std::pair<double, double> > list_eval;
-      list_eval.reserve(pairs_corrected.size());
-      for (Size k = 0; k < pairs_corrected.size(); k++)
+      double xval_mean = 0;
+      double xval_mad = 0;
+      Size NR_XVAL = 5;
+      for (Size xval = 0; xval < NR_XVAL; xval++)
       {
-        if (int(k * NR_XVAL * 1.0 / pairs_corrected.size()) == xval) list_eval.push_back( pairs_corrected[k] );
-        else list_train.push_back(pairs_corrected[k]);
+        // select items
+        std::vector<std::pair<double, double> > list_train;
+        list_train.reserve(pairs_corrected.size());
+        std::vector<std::pair<double, double> > list_eval;
+        list_eval.reserve(pairs_corrected.size());
+        for (Size k = 0; k < pairs_corrected.size(); k++)
+        {
+          if (int(k * NR_XVAL * 1.0 / pairs_corrected.size()) == xval) list_eval.push_back( pairs_corrected[k] );
+          else list_train.push_back(pairs_corrected[k]);
+        }
+
+        std::cout << " got data " << list_train.size() << " and " << list_eval.size() << std::endl;
+        TransformationDescription trafo_eval;
+        trafo_eval.setDataPoints(list_train);
+
+        Param model_params;
+        model_params.setValue("symmetric_regression", "false");
+        model_params.setValue("span", irt_detection_param.getValue("lowess:span"));
+        model_params.setValue("num_nodes", irt_detection_param.getValue("b_spline:num_nodes"));
+        String model_type = irt_detection_param.getValue("alignmentMethod");
+        trafo_eval.fitModel(model_type, model_params);
+        trafo_eval.invert();
+
+        // Now evaluate on the evaluation dataset
+        double mean = 0;
+        std::vector<double> mad; // median absolute deviation
+        mad.reserve(list_eval.size());
+        for (const auto& e : list_eval)
+        {
+          mean += std::fabs( trafo_eval.apply( e.second ) - e.first) ;
+          mad.push_back( std::fabs( trafo_eval.apply( e.second ) - e.first) );
+        }
+        mean /= list_eval.size();
+        xval_mad += Math::median(mad.begin(), mad.end());
+        LOG_DEBUG << " mean error " << mean << std::endl;
+        xval_mean += mean;
       }
-
-      std::cout << " got data " << list_train.size() << " and " << list_eval.size() << std::endl;
-      TransformationDescription trafo_eval;
-      trafo_eval.setDataPoints(list_train);
-
-      Param model_params;
-      model_params.setValue("symmetric_regression", "false");
-      model_params.setValue("span", irt_detection_param.getValue("lowess:span"));
-      model_params.setValue("num_nodes", irt_detection_param.getValue("b_spline:num_nodes"));
-      String model_type = irt_detection_param.getValue("alignmentMethod");
-      trafo_eval.fitModel(model_type, model_params);
-      trafo_eval.invert();
-
-      // Now evaluate on the evaluation dataset
-      double mean = 0;
-      std::vector<double> mad; // median absolute deviation
-      mad.reserve(list_eval.size());
-      for (const auto& e : list_eval)
-      {
-        mean += std::fabs( trafo_eval.apply( e.second ) - e.first) ;
-        mad.push_back( std::fabs( trafo_eval.apply( e.second ) - e.first) );
-      }
-      mean /= list_eval.size();
-      xval_mad += Math::median(mad.begin(), mad.end());
-      LOG_DEBUG << " mean error " << mean << std::endl;
-      xval_mean += mean;
-    }
-    xval_mean /= NR_XVAL;
-    xval_mad /= NR_XVAL;
-    std::cout << "Model evaluation: mean of xval " << xval_mean << " mean of mad " << xval_mad << std::endl;
+      xval_mean /= NR_XVAL;
+      xval_mad /= NR_XVAL;
+      std::cout << "Model evaluation: mean of xval " << xval_mean << " mean of mad " << xval_mad << std::endl;
     }
 
     // 6. Correct m/z deviations using SwathMapMassCorrection
