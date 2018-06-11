@@ -42,6 +42,7 @@
 
 namespace OpenSwath
 {
+
   struct OPENSWATHALGO_DLLAPI IDataFrameWriter
   {
     virtual ~IDataFrameWriter();

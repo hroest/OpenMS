@@ -45,7 +45,6 @@
 #include "OpenMS/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h"
 #include "OpenMS/OPENSWATHALGO/ALGO/StatsHelpers.h"
 #include "OpenMS/OPENSWATHALGO/ALGO/Scoring.h"
-//#include "OpenMS/OPENSWATHALGO/ALGO/DIAHelpers.h"
 
 namespace OpenSwath
 {
