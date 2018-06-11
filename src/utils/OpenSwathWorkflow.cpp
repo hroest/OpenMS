@@ -461,7 +461,7 @@ protected:
     setValidStrings_("readOptions", ListUtils::create<String>("normal,cache,cacheWorkingInMemory,workingInMemory"));
 
     registerStringOption_("mz_correction_function", "<name>", "none", "Use the retention time normalization peptide MS2 masses to perform a mass correction (linear, weighted by intensity linear or quadratic) of all spectra.", false, true);
-    setValidStrings_("mz_correction_function", ListUtils::create<String>("none,unweighted_regression,weighted_regression,quadratic_regression,weighted_quadratic_regression,weighted_quadratic_regression_delta_ppm,quadratic_regression_delta_ppm"));
+    setValidStrings_("mz_correction_function", ListUtils::create<String>("none,regression_delta_ppm,unweighted_regression,weighted_regression,quadratic_regression,weighted_quadratic_regression,weighted_quadratic_regression_delta_ppm,quadratic_regression_delta_ppm"));
     registerDoubleOption_("irt_mz_extraction_window", "<double>", 0.05, "Extraction window used for iRT and m/z correction (in Thomson, use ppm use -ppm flag)", false, true);
     registerFlag_("ppm_irtwindow", "iRT m/z extraction_window is in ppm", true);
 
@@ -1017,10 +1017,10 @@ protected:
       wf.simpleExtractChromatograms(swath_maps, transition_exp_nl, chromatograms,
                                     trafo_rtnorm, cp_irt, sonar, load_into_memory);
 
-      TransformationDescription tr = wf.RTNormalization(transition_exp_nl, chromatograms, min_rsq,
-                                                        min_coverage, feature_finder_param, irt_detection_param,
-                                                        swath_maps, mz_correction_function,
-                                                        cp_irt.mz_extraction_window, cp_irt.ppm);
+      trafo_rtnorm = wf.RTNormalization(transition_exp_nl, chromatograms, min_rsq,
+                                        min_coverage, feature_finder_param, irt_detection_param,
+                                        swath_maps, mz_correction_function,
+                                        cp_irt.mz_extraction_window, cp_irt.ppm);
 
     }
 
