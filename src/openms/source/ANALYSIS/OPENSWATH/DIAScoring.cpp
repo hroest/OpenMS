@@ -282,7 +282,7 @@ namespace OpenMS
 #endif
     }
     ppm_score_weighted /= weights;
-    // ppm_score_weighted /= transitions.size();
+    ppm_score_weighted /= transitions.size();
   }
 
   bool DIAScoring::dia_ms1_massdiff_score(double precursor_mz, SpectrumPtrType spectrum,
