@@ -377,7 +377,7 @@ START_SECTION (void dia_massdiff_score(const std::vector< TransitionType > &tran
   diascoring.dia_massdiff_score(transitions, sptr, normalized_library_intensity, ppm_score, ppm_score_weighted);
 
   TEST_REAL_SIMILAR(ppm_score, 15 + 10); // 15 ppm and 10 ppm
-  TEST_REAL_SIMILAR(ppm_score_weighted, 15 * 0.7 + 10* 0.3); // weighted
+  TEST_REAL_SIMILAR(ppm_score_weighted, (15 * 0.7 + 10* 0.3) / 2.0); // weighted
 }
 END_SECTION
 
