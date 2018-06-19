@@ -68,7 +68,9 @@ using namespace std;
  
   @experimental This TOPP-tool is not well tested and not all features might be properly implemented and tested!
 
-  This tool can add several consecutive scans, increasing S/N ratio (for MS1 and above) or merge scans which stem from similar precursors (for MS2 and above).
+  This tool can add several consecutive scans, increasing S/N ratio (for MS1
+  and above) or merge scans which stem from similar precursors (for MS2 and
+  above).
 
   In any case, the number of scans will be reduced.
 
@@ -100,7 +102,7 @@ protected:
     setValidFormats_("out", ListUtils::create<String>("mzML"));
 
     registerStringOption_("merging_method", "<method>", "average_gaussian", "Method of merging which should be used.", false);
-    setValidStrings_("merging_method", ListUtils::create<String>("average_gaussian,average_tophat,precursor_method,block_method"));
+    setValidStrings_("merging_method", ListUtils::create<String>("average_gaussian,average_tophat,precursor_method,block_method,sum_im_method"));
 
     registerSubsection_("algorithm", "Algorithm section for merging spectra");
   }
@@ -152,6 +154,43 @@ protected:
     else if (merging_method == "average_tophat")
     {
       merger.average(exp, "tophat");
+    }
+    else if (merging_method == "sum_im_method")
+    {
+      MSExperiment out2;
+      for (auto s : exp)
+      {
+        MSSpectrum sout = s;
+        sout.clear(false);
+        double prev_mz = sout[0].getMZ();
+        Peak1D curr_p = Peak1D();
+        // curr_p.setIntensity(curr_p.getIntensity() + sout[0].getIntensity());
+        curr_p.setIntensity(0);
+        curr_p.setMZ(prev_mz);
+
+        if (s.getFloatDataArrays().empty() || s.getFloatDataArrays()[0].getName() != "Ion Mobility")
+        {
+          // s.getFloatDataArrays()[0].
+        }
+        sout.getFloatDataArrays().clear();
+
+        for (auto p : s)
+        {
+          // std::cout << " peak " << p << std::endl;
+          if ( std::fabs(p.getMZ() - curr_p.getMZ()) < 1e-9 )
+          {
+            curr_p.setIntensity(curr_p.getIntensity() + p.getIntensity());
+          }
+          else
+          {
+            sout.push_back(curr_p);
+            curr_p.setIntensity(p.getIntensity());
+            curr_p.setMZ(p.getMZ());
+          }
+        }
+        out2.addSpectrum(sout);
+      }
+      exp = out2;
     }
 
     //-------------------------------------------------------------
