@@ -552,7 +552,7 @@ private:
      *
     */
     template <typename TransitionExpT>
-    static String extract_id_(TransitionExpT& transition_exp_used, const String& id, int & prec_charge);
+    static String extract_id_(TransitionExpT& transition_exp_used, const String& id, int& prec_charge);
 
     /**
      * @brief This populates the chromatograms vector with empty chromatograms

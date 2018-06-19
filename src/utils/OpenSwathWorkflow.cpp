@@ -438,6 +438,13 @@ protected:
     registerDoubleOption_("ion_mobility_window", "<double>", -1, "Extraction window in ion mobility dimension (in 1/K0 or milliseconds). This is the full window size, e.g. a value of 10 milliseconds would extract 5 milliseconds on either side.", false);
     registerDoubleOption_("mz_extraction_window", "<double>", 0.05, "Extraction window used (in Thomson, to use ppm see -ppm flag)", false);
     setMinFloat_("mz_extraction_window", 0.0);
+    registerStringOption_("mz_extraction_window_unit", "<name>", "Th", "Unit for mz extraction", false, true);
+    setValidStrings_("mz_extraction_window_unit", ListUtils::create<String>("Th,ppm"));
+
+    registerDoubleOption_("mz_extraction_window_ms1", "<double>", 0.05, "Extraction window used (in Thomson, to use ppm see -ppm flag)", false);
+    registerStringOption_("mz_extraction_window_ms1_unit", "<name>", "Th", "Unit for ms1 extraction", false, true);
+    setValidStrings_("mz_extraction_window_ms1_unit", ListUtils::create<String>("Th,ppm"));
+    setMinFloat_("mz_extraction_window_ms1", 0.0);
     setMinFloat_("extra_rt_extraction_window", 0.0);
     registerFlag_("ppm", "m/z extraction_window is in ppm");
     registerFlag_("sonar", "data is scanning SWATH data");
@@ -459,6 +466,9 @@ protected:
     registerDoubleOption_("irt_mz_extraction_window", "<double>", 0.05, "Extraction window used for iRT and m/z correction (in Thomson, use ppm use -ppm flag)", false, true);
     registerDoubleOption_("irt_im_extraction_window", "<double>", -1, "Ion mobility extraction window used for iRT (in 1/K0 or milliseconds)", false, true);
     registerFlag_("ppm_irtwindow", "iRT m/z extraction_window is in ppm", true);
+    registerStringOption_("irt_mz_extraction_window_unit", "<name>", "Th", "Unit for mz extraction", false, true);
+    setValidStrings_("irt_mz_extraction_window_unit", ListUtils::create<String>("Th,ppm"));
+
 
     // TODO terminal slash !
     registerStringOption_("tempDirectory", "<tmp>", "/tmp/", "Temporary directory to store cached files for example", false, true);
@@ -714,8 +724,6 @@ protected:
     String trafo_in = getStringOption_("rt_norm");
 
     String out_chrom = getStringOption_("out_chrom");
-    bool ppm = getFlag_("ppm");
-    bool irt_ppm = getFlag_("ppm_irtwindow");
     bool split_file = getFlag_("split_file_input");
     bool use_emg_score = getFlag_("use_elution_model_score");
     bool force = getFlag_("force");
@@ -724,14 +732,6 @@ protected:
     bool use_ms1_traces = getFlag_("use_ms1_traces");
     bool use_ms1_im = getStringOption_("use_ms1_ion_mobility") == "true";
     bool enable_uis_scoring = getFlag_("enable_uis_scoring");
-    double min_upper_edge_dist = getDoubleOption_("min_upper_edge_dist");
-    double mz_extraction_window = getDoubleOption_("mz_extraction_window");
-    double irt_mz_extraction_window = getDoubleOption_("irt_mz_extraction_window");
-    double irt_im_extraction_window = getDoubleOption_("irt_im_extraction_window");
-    double rt_extraction_window = getDoubleOption_("rt_extraction_window");
-    double im_extraction_window = getDoubleOption_("ion_mobility_window");
-    double extra_rt_extract = getDoubleOption_("extra_rt_extraction_window");
-    String extraction_function = getStringOption_("extraction_function");
     String swath_windows_file = getStringOption_("swath_windows_file");
     int batchSize = (int)getIntOption_("batchSize");
     Size debug_level = (Size)getIntOption_("debug");
@@ -799,20 +799,25 @@ protected:
       }
     }
 
+    double min_upper_edge_dist = getDoubleOption_("min_upper_edge_dist");
     ChromExtractParams cp;
     cp.min_upper_edge_dist   = min_upper_edge_dist;
-    cp.mz_extraction_window  = mz_extraction_window;
-    cp.ppm                   = ppm;
-    cp.rt_extraction_window  = rt_extraction_window;
-    cp.im_extraction_window  = im_extraction_window;
-    cp.extraction_function   = extraction_function;
-    cp.extra_rt_extract      = extra_rt_extract;
+    cp.mz_extraction_window  = getDoubleOption_("mz_extraction_window");
+    cp.ppm                   = getStringOption_("mz_extraction_window_unit") == "ppm";
+    cp.rt_extraction_window  = getDoubleOption_("rt_extraction_window");
+    cp.im_extraction_window  = getDoubleOption_("ion_mobility_window");
+    cp.extraction_function   = getStringOption_("extraction_function");
+    cp.extra_rt_extract      = getDoubleOption_("extra_rt_extraction_window");
 
     ChromExtractParams cp_irt = cp;
     cp_irt.rt_extraction_window = -1; // extract the whole RT range for iRT measurements
-    cp_irt.mz_extraction_window = irt_mz_extraction_window;
-    cp_irt.im_extraction_window = irt_im_extraction_window;
-    cp_irt.ppm                  = irt_ppm;
+    cp_irt.mz_extraction_window = getDoubleOption_("irt_mz_extraction_window");
+    cp_irt.im_extraction_window = getDoubleOption_("irt_im_extraction_window");
+    cp_irt.ppm                  = getStringOption_("irt_mz_extraction_window_unit") == "ppm";
+
+    ChromExtractParams cp_ms1 = cp;
+    cp_ms1.mz_extraction_window  = getDoubleOption_("mz_extraction_window_ms1");
+    cp_ms1.ppm                   = getStringOption_("mz_extraction_window_ms1_unit") == "ppm";
 
     Param feature_finder_param = getParam_().copy("Scoring:", true);
     Param tsv_reader_param = getParam_().copy("Library:", true);
