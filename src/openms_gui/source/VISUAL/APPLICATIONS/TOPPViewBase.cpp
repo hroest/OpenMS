@@ -33,6 +33,7 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/VISUAL/APPLICATIONS/TOPPViewBase.h>
+#include <OpenMS/VISUAL/APPLICATIONS/MISC/QApplicationTOPP.h>
 
 #include <OpenMS/KERNEL/MSSpectrum.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
@@ -532,6 +533,7 @@ namespace OpenMS
 
     // switch between different view tabs
     connect(views_tabwidget_, SIGNAL(currentChanged(int)), this, SLOT(viewChanged(int)));
+    connect(views_tabwidget_, SIGNAL(tabBarDoubleClicked(int)), this, SLOT(viewTabwidgetDoubleClicked(int)));
 
     // add hide/show option to dock widget
     windows->addAction(views_dockwidget_->toggleViewAction());
@@ -2088,6 +2090,31 @@ namespace OpenMS
     updateViewBar();
   }
 
+    void TOPPViewBase::viewTabwidgetDoubleClicked(int tab_index)
+  {
+    if (!getActiveSpectrumWidget()) return;
+
+    // double click on disabled identification view
+    // enables it and creates an empty identification structure
+    if (views_tabwidget_->tabText(tab_index) == "Identification view"
+      && !views_tabwidget_-> isTabEnabled(tab_index))
+    {
+      views_tabwidget_->setTabEnabled(1, true); // enable identification view
+      views_tabwidget_->setCurrentIndex(1); // switch to identification view
+
+      spectraview_behavior_->deactivateBehavior();
+      layer_dock_widget_->show();
+      filter_dock_widget_->show();
+      if (getActive2DWidget()) // currently 2D window is open
+      {
+        showSpectrumAs1D(0);
+      }
+      identificationview_behavior_->activateBehavior();
+    }
+
+    updateViewBar();
+  }
+
   void TOPPViewBase::layerSelectionChange(int i)
   {
     // after adding a layer i is -1. TODO: check if this is the correct behaviour
@@ -2593,7 +2620,6 @@ namespace OpenMS
       connect(sw2->getHorizontalProjection(), SIGNAL(sendCursorStatus(double, double)), this, SLOT(showCursorStatus(double, double)));
       connect(sw2->getVerticalProjection(), SIGNAL(sendCursorStatus(double, double)), this, SLOT(showCursorStatusInvert(double, double)));
       connect(sw2, SIGNAL(showSpectrumAs1D(int)), this, SLOT(showSpectrumAs1D(int)));
-      connect(sw2, SIGNAL(showSpectrumAs1D(int)), identificationview_behavior_, SLOT(showSpectrumAs1D(int)));
 //      connect(sw2, SIGNAL(showSpectrumAs1D(std::vector<int, std::allocator<int> >)), this, SLOT(showSpectrumAs1D(std::vector<int, std::allocator<int> >)));
       connect(sw2, SIGNAL(showCurrentPeaksAs3D()), this, SLOT(showCurrentPeaksAs3D()));
     }
@@ -3201,6 +3227,7 @@ namespace OpenMS
         mapper.setParameters(p);
         mapper.annotate(*layer.getPeakDataMuteable(), identifications, protein_identifications, true);
         views_tabwidget_->setTabEnabled(1, true); // enable identification view
+        views_tabwidget_->setCurrentIndex(1); // switch to identification view
       }
       else if (layer.type == LayerData::DT_FEATURE)
       {
@@ -3417,7 +3444,6 @@ namespace OpenMS
         identificationview_behavior_->showSpectrumAs1D(index);
       }
     }
-
   }
 
   void TOPPViewBase::showSpectrumAs1D(std::vector<int, std::allocator<int> > indices)
@@ -3438,9 +3464,7 @@ namespace OpenMS
       {
         spectraview_behavior_->showSpectrumAs1D(indices);
       }
-
     }
-
   }
 
   void TOPPViewBase::showCurrentPeaksAs2D()
@@ -3551,7 +3575,6 @@ namespace OpenMS
     }
 
     // Get current spectrum
-    auto spidx = layer.getCurrentSpectrumIndex();
     MSSpectrum tmps = layer.getCurrentSpectrum();
 
     // Add spectra into a MSExperiment, sort and prepare it for display
@@ -3559,14 +3582,13 @@ namespace OpenMS
 
     // Collect all MS2 spectra with the same precursor as the current spectrum
     // (they are in the same SWATH window)
-    double upper(0), lower(0);
     String caption_add = "";
     if (!tmps.getPrecursors().empty())
     {
       // Get precursor isolation windows
       const auto& prec = tmps.getPrecursors()[0];
-      lower = prec.getMZ() - prec.getIsolationWindowLowerOffset();
-      upper = prec.getMZ() + prec.getIsolationWindowUpperOffset();
+      double lower = prec.getMZ() - prec.getIsolationWindowLowerOffset();
+      double upper = prec.getMZ() + prec.getIsolationWindowUpperOffset();
 
       Size k = 0;
       for (const auto& spec : (*layer.getPeakData() ) )
@@ -3714,47 +3736,7 @@ namespace OpenMS
 
   void TOPPViewBase::showAboutDialog()
   {
-    // dialog and grid layout
-    QDialog* dlg = new QDialog(this);
-    QGridLayout* grid = new QGridLayout(dlg);
-    dlg->setWindowTitle("About TOPPView");
-
-    // image
-    QLabel* label = new QLabel(dlg);
-    label->setPixmap(QPixmap(":/TOPP_about.png"));
-    grid->addWidget(label, 0, 0);
-
-    // text
-    QString text = QString("<BR>"
-                           "<FONT size=+3>TOPPView</font><BR>"
-                           "<BR>"
-                           "Version %1 %2"
-                           "<BR>"
-                           "OpenMS and TOPP is free software available under the<BR>"
-                           "BSD 3-Clause License (BSD-new)<BR>"
-                           "<BR>"
-                           "<BR>"
-                           "<BR>"
-                           "<BR>"
-                           "<BR>"
-                           "Any published work based on TOPP and OpenMS shall cite these papers:<BR>"
-                           "Roest, Sachsenberg, Aiche, Bielow, Weisser et al., Nat Methods (2016), 13(9):741-748<BR>"
-                           "Kohlbacher et al., Bioinformatics (2007), 23:e191-e197<BR>"
-                           ).arg(VersionInfo::getVersion().toQString()
-                           ).arg( // if we have a revision, embed it also into the shown version number
-                             VersionInfo::getRevision() != "" ? QString(" (") + VersionInfo::getRevision().toQString() + ")" : "");
-
-    label = new QLabel(text, dlg);
-
-    grid->addWidget(label, 0, 1, Qt::AlignTop | Qt::AlignLeft);
-
-    // close button
-    QPushButton* button = new QPushButton("Close", dlg);
-    grid->addWidget(button, 1, 1, Qt::AlignBottom | Qt::AlignRight);
-    connect(button, SIGNAL(clicked()), dlg, SLOT(close()));
-
-    // execute
-    dlg->exec();
+    QApplicationTOPP::showAboutDialog(this, "TOPPView");
   }
 
   void TOPPViewBase::updateProcessLog()

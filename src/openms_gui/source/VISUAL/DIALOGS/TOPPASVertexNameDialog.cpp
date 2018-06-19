@@ -37,6 +37,8 @@
 #include <ui_TOPPASVertexNameDialog.h>
 #include <QRegExpValidator> 
 
+#include <QRegExpValidator> 
+
 #include <iostream>
 
 namespace OpenMS

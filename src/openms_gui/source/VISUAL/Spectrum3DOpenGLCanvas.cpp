@@ -183,6 +183,8 @@ namespace OpenMS
 
   void Spectrum3DOpenGLCanvas::initializeGL()
   {
+    initializeOpenGLFunctions();
+
     // The following line triggered a bug where the whole screen would turn
     // black during scrolling (specifically it seems that multiple calls to
     // this function causes the issue):
@@ -308,7 +310,7 @@ namespace OpenMS
       }
 
       // draw axes legend
-      if (this->paintEngine()) // check if the paint device is properly initialized to surpress Qt warning
+      if (this->paintEngine()) // check if the paint device is properly initialized to suppress Qt warning
       {
         painter_ = new QPainter(this);
         if (painter_->isActive())
@@ -319,7 +321,6 @@ namespace OpenMS
         delete(painter_);
       }
     }
-    // update();
   }
 
   void Spectrum3DOpenGLCanvas::drawAxesLegend_()

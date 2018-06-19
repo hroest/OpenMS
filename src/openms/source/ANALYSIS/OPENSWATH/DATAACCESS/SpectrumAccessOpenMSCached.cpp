@@ -35,40 +35,22 @@
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessOpenMSCached.h>
 
 #include <OpenMS/FORMAT/MzMLFile.h>
-#include <OpenMS/FORMAT/CachedMzML.h>
+#include <OpenMS/FORMAT/HANDLERS/CachedMzMLHandler.h>
 
 namespace OpenMS
 {
 
-  SpectrumAccessOpenMSCached::SpectrumAccessOpenMSCached(String filename)
+  SpectrumAccessOpenMSCached::SpectrumAccessOpenMSCached(const String& filename) :
+    CachedmzML(filename)
   {
-    filename_cached_ = filename + ".cached";
-    filename_ = filename;
-
-    // Create the index from the given file
-    CachedmzML cache;
-    cache.createMemdumpIndex(filename_cached_);
-    spectra_index_ = cache.getSpectraIndex();
-    chrom_index_ = cache.getChromatogramIndex();;
-
-    // open the filestream
-    ifs_.open(filename_cached_.c_str(), std::ios::binary);
-
-    // load the meta data from disk
-    MzMLFile().load(filename, meta_ms_experiment_);
   }
 
   SpectrumAccessOpenMSCached::~SpectrumAccessOpenMSCached()
   {
-    ifs_.close();
   }
 
   SpectrumAccessOpenMSCached::SpectrumAccessOpenMSCached(const SpectrumAccessOpenMSCached & rhs) :
-    meta_ms_experiment_(rhs.meta_ms_experiment_),
-    ifs_(rhs.filename_cached_.c_str(), std::ios::binary),
-    filename_(rhs.filename_),
-    spectra_index_(rhs.spectra_index_),
-    chrom_index_(rhs.chrom_index_)
+    CachedmzML(rhs)
   {
   }
 
@@ -94,7 +76,7 @@ namespace OpenMS
     }
 
     OpenSwath::SpectrumPtr sptr(new OpenSwath::Spectrum);
-    sptr->getDataArrays() = CachedmzML::readSpectrumFast(ifs_, ms_level, rt); 
+    sptr->getDataArrays() = Internal::CachedMzMLHandler::readSpectrumFast(ifs_, ms_level, rt); 
     return sptr;
   }
 
@@ -114,9 +96,6 @@ namespace OpenMS
     OPENMS_PRECONDITION(id >= 0, "Id needs to be larger than zero");
     OPENMS_PRECONDITION(id < (int)getNrChromatograms(), "Id cannot be larger than number of chromatograms");
 
-    OpenSwath::BinaryDataArrayPtr rt_array(new OpenSwath::BinaryDataArray);
-    OpenSwath::BinaryDataArrayPtr intensity_array(new OpenSwath::BinaryDataArray);
-
     if ( !ifs_.seekg(chrom_index_[id]) )
     {
       std::cerr << "Error while reading chromatogram " << id << " - seekg created an error when trying to change position to " << chrom_index_[id] << "." << std::endl;
@@ -126,7 +105,7 @@ namespace OpenMS
     }
 
     OpenSwath::ChromatogramPtr cptr(new OpenSwath::Chromatogram);
-    cptr->getDataArrays() = CachedmzML::readChromatogramFast(ifs_);
+    cptr->getDataArrays() = Internal::CachedMzMLHandler::readChromatogramFast(ifs_);
     return cptr;
   }
 

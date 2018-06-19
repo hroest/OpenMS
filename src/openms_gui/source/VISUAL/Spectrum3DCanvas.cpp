@@ -195,7 +195,7 @@ namespace OpenMS
     // make sure OpenGL already properly initialized
     QOpenGLContext *ctx = QOpenGLContext::currentContext();
     if (!ctx || !ctx->isValid()) return;
-        
+    
     if (update_buffer_)
     {
       update_buffer_ = false;
@@ -204,10 +204,9 @@ namespace OpenMS
         openglwidget()->updateIntensityScale();
       }
       openglwidget()->initializeGL();
-      openglwidget()->scrollRepaint(); // maybe this works as well? -- this works !!! 
+      // openglwidget()->scrollRepaint(); // maybe this works as well? -- this works !!! 
     }
     openglwidget()->resizeGL(width(), height());
-    // openglwidget()->paintGL();
     openglwidget()->repaint();
   }
 
