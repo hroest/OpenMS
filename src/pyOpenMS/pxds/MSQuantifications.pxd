@@ -5,6 +5,7 @@ from ConsensusMap cimport *
 from String cimport *
 from Types cimport *
 from StringList cimport *
+from DataProcessing cimport *
 from ExperimentalSettings cimport *
 from DataProcessing cimport *
 from MetaInfo cimport *
@@ -21,8 +22,13 @@ cdef extern from "<OpenMS/METADATA/MSQuantifications.h>" namespace "OpenMS":
     cdef cppclass MSQuantifications(ExperimentalSettings):
         # wrap-inherits:
         #  ExperimentalSettings
+
         MSQuantifications()  nogil
         MSQuantifications(MSQuantifications) nogil
+
+        MSQuantifications(FeatureMap fm,
+                          ExperimentalSettings& es,
+                          libcpp_vector[DataProcessing]& dps) nogil except +
 
         bool operator==(MSQuantifications &) nogil
         bool operator!=(MSQuantifications &) nogil
