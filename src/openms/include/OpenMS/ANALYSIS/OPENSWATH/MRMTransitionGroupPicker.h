@@ -462,6 +462,7 @@ public:
         f.getConvexHulls().push_back(hull);
         f.setMetaValue("native_id", chromatogram.getNativeID());
         f.setMetaValue("peak_apex_int", peak_apex_int);
+        f.setMetaValue("total_xic", transition_total_xic); // TODO: remove this?
 
         f.setMZ(chromatogram.getProduct().getMZ());
         mrmFeature.setMZ(chromatogram.getPrecursor().getMZ());
