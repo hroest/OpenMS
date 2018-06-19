@@ -58,7 +58,8 @@
 
 #include <boost/bind.hpp>
 
-#define  MRMSCORING_TESTING
+#define MRMSCORING_TESTING
+#define OLD_BEHAVIOR
 
 const double C13C12_MASSDIFF_U = 1.0033548;
 
@@ -161,10 +162,17 @@ namespace OpenMS
     DefaultParamHandler("DIAScoring")
   {
 
+#ifdef OLD_BEHAVIOR
+    defaults_.setValue("dia_extraction_window", 0.05, "DIA extraction window in Th or ppm.");
+    defaults_.setMinFloat("dia_extraction_window", 0.0);
+    defaults_.setValue("dia_extraction_unit", "Th", "DIA extraction window unit");
+    defaults_.setValidStrings("dia_extraction_unit", ListUtils::create<String>("Th,ppm"));
+#else
     defaults_.setValue("dia_extraction_window", 50.0, "DIA extraction window in Th or ppm.");
     defaults_.setMinFloat("dia_extraction_window", 0.0);
     defaults_.setValue("dia_extraction_unit", "ppm", "DIA extraction window unit");
     defaults_.setValidStrings("dia_extraction_unit", ListUtils::create<String>("Th,ppm"));
+#endif
     defaults_.setValue("dia_centroided", "false", "Use centroided DIA data.");
     defaults_.setValidStrings("dia_centroided", ListUtils::create<String>("true,false"));
     defaults_.setValue("use_spline", "false", "Use spline to get mass delta.");
@@ -281,8 +289,10 @@ namespace OpenMS
       std::cout << " weighted int of the peak is " << mz << " diff is in ppm " << diff_ppm << " thus append " << diff_ppm * diff_ppm << " or weighted " << diff_ppm * normalized_library_intensity[k] << std::endl;
 #endif
     }
+#ifndef OLD_BEHAVIOR
     ppm_score_weighted /= weights;
     ppm_score_weighted /= transitions.size();
+#endif
   }
 
   bool DIAScoring::dia_ms1_massdiff_score(double precursor_mz, SpectrumPtrType spectrum,
@@ -299,6 +309,18 @@ namespace OpenMS
 
       // Catch if no signal was found and replace it with the most extreme
       // value. Otherwise calculate the difference in ppm.
+#ifdef OLD_BEHAVIOR
+       if (!signalFound)
+       {
+         ppm_score = dia_extract_window_ / precursor_mz * 1000000;
+         return false;
+       }
+       else
+       {
+         ppm_score = std::fabs(mz - precursor_mz) * 1000000 / precursor_mz;
+       }
+#else
+      // ppm_score = dia_extraction_ppm_ ? dia_extract_window_ : dia_extract_window_ / precursor_mz * 1e6;
       if (!signalFound)
       {
         ppm_score = dia_extraction_ppm_ ? dia_extract_window_ : dia_extract_window_ / precursor_mz * 1e6;
@@ -340,6 +362,7 @@ namespace OpenMS
         }
         return true;
       }
+#endif
     }
   }
 
