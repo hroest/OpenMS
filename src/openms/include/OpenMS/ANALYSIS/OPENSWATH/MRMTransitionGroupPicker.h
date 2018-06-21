@@ -185,10 +185,10 @@ public:
         if (mrm_feature.getIntensity() > 0)
         {
           features.push_back(mrm_feature);
+          cnt++;
         }
 
-        cnt++;
-        if (stop_after_feature_ > 0 && cnt > stop_after_feature_) {break;}
+        if (stop_after_feature_ > 0 && cnt >= stop_after_feature_) {break;}
         if (mrm_feature.getIntensity() > 0 && 
             mrm_feature.getIntensity() / (double)mrm_feature.getMetaValue("total_xic") < stop_after_intensity_ratio_)
         {
