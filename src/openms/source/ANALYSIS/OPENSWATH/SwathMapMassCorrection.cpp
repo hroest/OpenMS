@@ -42,14 +42,15 @@
 
 // Functions
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/SpectrumHelpers.h> // integrateWindow
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoringHelper.h>
 
-// #define SWATHMAPMASSCORRECTION_DEBUG
+#define SWATHMAPMASSCORRECTION_DEBUG
 
 namespace OpenMS
 {
 
   void SwathMapMassCorrection::correctMZ(
-    const OpenMS::MRMFeatureFinderScoring::TransitionGroupMapType & transition_group_map,
+    const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
     std::vector< OpenSwath::SwathMap > & swath_maps,
     const std::string& corr_type,
     const double mz_extr_window,
@@ -58,7 +59,8 @@ namespace OpenMS
     LOG_DEBUG << "SwathMapMassCorrection::correctMZ with type " << corr_type << " and window " << mz_extr_window << " in ppm " << ppm << std::endl;
 
     bool is_ppm = bool(corr_type == "quadratic_regression_delta_ppm" ||
-                       corr_type == "weighted_quadratic_regression_delta_ppm");
+                       corr_type == "weighted_quadratic_regression_delta_ppm" ||
+                       corr_type == "regression_delta_ppm");
 
     if (corr_type == "none")
     {
@@ -80,7 +82,7 @@ namespace OpenMS
     {
 
       // we need at least one feature to find the best one
-      auto transition_group = &trgroup_it->second;
+      auto transition_group = trgroup_it->second;
       if (transition_group->getFeatures().size() == 0)
       {
         continue;
@@ -133,7 +135,7 @@ namespace OpenMS
         }
 
         // integrate spectrum at the position of the theoretical mass
-        OpenSwath::integrateWindow(sp, left, right, mz, intensity, centroided);
+        DIAHelpers::integrateWindow(sp, left, right, mz, intensity, centroided);
 
         // skip empty windows
         if (mz == -1)
@@ -210,6 +212,16 @@ namespace OpenMS
       regression_params.push_back(qr.getA());
       regression_params.push_back(qr.getB());
       regression_params.push_back(qr.getC());
+    }
+    else if (corr_type == "regression_delta_ppm")
+    {
+      // Regression fit using ppm differences
+      double confidence_interval_P(0.0);
+      Math::LinearRegression lr;
+      lr.computeRegression(confidence_interval_P, exp_mz.begin(), exp_mz.end(), delta_ppm.begin());
+      regression_params.push_back(lr.getIntercept());
+      regression_params.push_back(lr.getSlope());
+      regression_params.push_back(0.0);
     }
     else if (corr_type == "weighted_quadratic_regression_delta_ppm")
     {

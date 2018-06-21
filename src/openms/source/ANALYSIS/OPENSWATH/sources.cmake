@@ -21,7 +21,7 @@ SpectrumAddition.cpp
 TargetedSpectraExtractor.cpp
 MRMFeaturePicker.cpp
 MRMTransitionGroupPicker.cpp
-DIAHelper.cpp
+DIAScoringHelper.cpp
 DIAScoring.cpp
 SONARScoring.cpp
 DIAPrescoring.cpp

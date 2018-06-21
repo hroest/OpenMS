@@ -32,16 +32,21 @@
 // $Authors: Witold Wolski, Hannes Roest $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoringHelper.h>
 
 #include <OpenMS/CHEMISTRY/TheoreticalSpectrumGenerator.h>
 #include <OpenMS/CHEMISTRY/ISOTOPEDISTRIBUTION/CoarseIsotopePatternGenerator.h>
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmPickedHelperStructs.h>
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithm.h>
 
+#include <OpenMS/MATH/MISC/CubicSpline2d.h>
+#include <OpenMS/MATH/MISC/SplineBisection.h>
+#include <OpenMS/FILTERING/SMOOTHING/GaussFilterAlgorithm.h>
+
 #include <OpenMS/KERNEL/MSSpectrum.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
 
+#include <iostream>
 #include <utility>
 #include <boost/bind.hpp>
 
@@ -49,6 +54,141 @@ namespace OpenMS
 {
   namespace DIAHelpers
   {
+
+    void fitSplineToPeak(OpenSwath::SpectrumPtr spectrum, const double left, const double right,
+                         const std::vector<double> & newmz, const std::vector<double> & newint,
+                         double& max_peak_mz )
+    {
+#if 0
+      std::vector<double> fnewmz;
+      std::vector<double> fnewint;
+      GaussFilterAlgorithm f;
+      fnewmz.resize(newmz.size());
+      fnewint.resize(newint.size());
+      // void initialize(double gaussian_width, double spacing, double ppm_tolerance, bool use_ppm_tolerance);
+      f.initialize(10, 0.001, 10, true); // TODO algorithm params!
+      // f.initialize(10, 0.01, 1, true); // TODO algorithm params!
+      f.initialize(10, 0.001, 20, true); // TODO algorithm params!
+      f.filter< std::vector<double>::const_iterator, std::vector<double>::iterator >(newmz.begin(), newmz.end(), newint.begin(), fnewmz.begin(), fnewint.begin());
+#else
+      std::vector<double> fnewmz = newmz;
+      std::vector<double> fnewint = newint;
+#endif
+
+      std::map<double, double> peak_raw_data;
+      std::vector<double>::iterator central_mz_it;
+      size_t maxk = -1;
+
+      for (Size k = 0; k < fnewmz.size(); k++)
+      {
+        peak_raw_data[ fnewmz[k] ] = fnewint[k];
+        if (fnewint[maxk] < fnewint[k])
+        {
+          maxk = k;
+        }
+
+      }
+
+      // std::cout << " peak reaw data " << peak_raw_data.size() << std::endl;
+      max_peak_mz = -1;
+      if (peak_raw_data.size() < 3) {return;}
+      CubicSpline2d peak_spline (peak_raw_data);
+
+      // calculate maximum by evaluating the spline's 1st derivative
+      // (bisection method)
+      max_peak_mz = fnewmz[maxk];
+      double max_peak_int = fnewint[maxk];
+      double threshold = 1e-6;
+      double left_neighbor_mz = fnewmz[ std::max( (int)maxk-1, 0)];
+      double right_neighbor_mz = fnewmz[std::min( (Size)fnewmz.size()-1, maxk+1)];
+      OpenMS::Math::spline_bisection(peak_spline, left_neighbor_mz, right_neighbor_mz, max_peak_mz, max_peak_int, threshold);
+    }
+
+    void integrateWindows(const OpenSwath::SpectrumPtr spectrum,
+                          const std::vector<double> & windowsCenter, double width,
+                          std::vector<double> & integratedWindowsIntensity,
+                          std::vector<double> & integratedWindowsMZ,
+                          bool remZero)
+    {
+      std::vector<double>::const_iterator beg = windowsCenter.begin();
+      std::vector<double>::const_iterator end = windowsCenter.end();
+      double mz, intensity;
+      for (; beg != end; ++beg)
+      {
+        double left = *beg - width / 2.0;
+        double right = *beg + width / 2.0;
+        if (integrateWindow(spectrum, left, right, mz, intensity, false))
+        {
+          integratedWindowsIntensity.push_back(intensity);
+          integratedWindowsMZ.push_back(mz);
+        }
+        else if (!remZero)
+        {
+          integratedWindowsIntensity.push_back(0.);
+          integratedWindowsMZ.push_back(*beg);
+        }
+        else
+        {
+        }
+      }
+    }
+
+    /// integrate all masses in window
+    bool integrateWindow(const OpenSwath::SpectrumPtr spectrum, double mz_start, double mz_end,
+                         double & mz, double & intensity, bool centroided)
+    {
+      OPENMS_PRECONDITION( std::adjacent_find(spectrum->getMZArray()->data.begin(),
+              spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
+            "Precondition violated: m/z vector needs to be sorted!" )
+
+      intensity = 0;
+      if (!centroided)
+      {
+        // get the weighted average for noncentroided data.
+        // TODO this is not optimal if there are two peaks in this window (e.g. if the window is too large)
+        typedef std::vector<double>::const_iterator itType;
+        mz = 0;
+        intensity = 0;
+
+        itType mz_arr_end = spectrum->getMZArray()->data.end();
+        itType int_it = spectrum->getIntensityArray()->data.begin();
+
+        // this assumes that the spectra are sorted!
+        itType mz_it = std::lower_bound(spectrum->getMZArray()->data.begin(),
+          spectrum->getMZArray()->data.end(), mz_start);
+        itType mz_it_end = std::lower_bound(mz_it, mz_arr_end, mz_end);
+
+        // also advance intensity iterator now
+        std::iterator_traits< itType >::difference_type iterator_pos = std::distance((itType)spectrum->getMZArray()->data.begin(), mz_it);
+        std::advance(int_it, iterator_pos);
+
+        for (; mz_it != mz_it_end; ++mz_it, ++int_it)
+        {
+          intensity += (*int_it);
+          mz += (*int_it) * (*mz_it);
+        }
+
+        if (intensity > 0.)
+        {
+          mz /= intensity;
+          return true;
+        }
+        else
+        {
+          mz = -1;
+          intensity = 0;
+          return false;
+        }
+
+      }
+      else
+      {
+        // not implemented
+        throw "Not implemented";
+      }
+    }
+
+
     // for SWATH -- get the theoretical b and y series masses for a sequence
     void getBYSeries(const AASequence& a, //
                      std::vector<double>& bseries, //

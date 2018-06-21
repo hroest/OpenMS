@@ -253,11 +253,17 @@ public:
      *
      * @throw Exception::IllegalArgument if RT values are expected (depending on @p rt_extraction_window) but not provided
     */
-    void prepare_coordinates(std::vector< OpenSwath::ChromatogramPtr > & output_chromatograms,
+    static void prepare_coordinates(std::vector< OpenSwath::ChromatogramPtr > & output_chromatograms,
                              std::vector< ExtractionCoordinates > & coordinates,
                              const OpenMS::TargetedExperiment & transition_exp,
                              const double rt_extraction_window,
-                             const bool ms1) const;
+                             const bool ms1);
+
+    static void prepare_coordinates(std::vector< OpenSwath::ChromatogramPtr > & output_chromatograms,
+      std::vector< ExtractionCoordinates > & coordinates,
+      const OpenSwath::LightTargetedExperiment & transition_exp_used,
+      const double rt_extraction_window,
+      const bool ms1);
 
     /**
      * @brief This converts the ChromatogramPtr to MSChromatogram and adds meta-information.
@@ -553,7 +559,7 @@ private:
      *
     */
     template <typename TransitionExpT>
-    static String extract_id_(TransitionExpT& transition_exp_used, const String& id, const int prec_charge);
+    static String extract_id_(TransitionExpT& transition_exp_used, const String& id, int & prec_charge);
 
     /**
      * @brief This populates the chromatograms vector with empty chromatograms
@@ -659,7 +665,7 @@ private:
   template<>
   inline String ChromatogramExtractor::extract_id_<OpenSwath::LightTargetedExperiment>(OpenSwath::LightTargetedExperiment& transition_exp_used,
                                                                                        const String& id,
-                                                                                       const int prec_charge)
+                                                                                       int & prec_charge)
   {
     const OpenSwath::LightCompound comp = transition_exp_used.getCompoundByRef(id);
     prec_charge = comp.charge;
@@ -678,7 +684,7 @@ private:
   template<>
   inline String ChromatogramExtractor::extract_id_<OpenMS::TargetedExperiment>(OpenMS::TargetedExperiment& transition_exp_used,
                                                                                const String& id,
-                                                                               const int prec_charge)
+                                                                               int & prec_charge)
   {
     if (transition_exp_used.hasPeptide(id))
     {

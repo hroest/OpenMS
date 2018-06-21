@@ -36,7 +36,7 @@
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/SpectrumHelpers.h>
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/TransitionHelper.h>
 #include <OpenMS/OPENSWATHALGO/ALGO/StatsHelpers.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoringHelper.h>
 
 #include <iostream>
 
@@ -147,8 +147,7 @@ namespace OpenMS
     std::vector<double>  theorint;
     DIAHelpers::extractSecond(spectrum, theorint);
     std::vector<double> intExp, mzExp;
-    integrateWindows(spec, theomasses, dia_extract_window_, intExp,
-                     mzExp);
+    DIAHelpers::integrateWindows(spec, theomasses, dia_extract_window_, intExp, mzExp);
     std::transform(intExp.begin(), intExp.end(), intExp.begin(), OpenSwath::mySqrt());
     std::transform(theorint.begin(), theorint.end(), theorint.begin(), OpenSwath::mySqrt());
 

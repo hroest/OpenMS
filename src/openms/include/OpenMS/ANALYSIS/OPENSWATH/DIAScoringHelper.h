@@ -34,18 +34,46 @@
 
 #pragma once
 
-#include <vector>
 #include <OpenMS/CHEMISTRY/AASequence.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/DataStructures.h>
+
+#include <vector>
 
 namespace OpenMS
 {
   class TheoreticalSpectrumGenerator;
   namespace DIAHelpers
   {
+
     /**
       @brief Helper functions for the DIA scoring of OpenSWATH
     */
     ///@{
+
+
+    /**
+      @brief Integrate intensity in a spectrum from start to end
+
+      This function will integrate the intensity in a spectrum between mz_start
+      and mz_end, returning the total intensity and an intensity-weighted m/z
+      value.
+
+      @note If there is no signal, mz will be set to -1 and intensity to 0
+      @return Returns true if a signal was found (and false if no signal was found)
+
+    */
+    OPENMS_DLLAPI bool integrateWindow(const OpenSwath::SpectrumPtr spectrum, double mz_start,
+                                       double mz_end, double& mz, double& intensity, bool centroided = false);
+
+    /**
+      @brief Integrate intensities in a spectrum from start to end
+    */
+    OPENMS_DLLAPI void integrateWindows(const OpenSwath::SpectrumPtr spectrum, //!< [in] Spectrum
+                                        const std::vector<double>& windowsCenter, //!< [in] center location
+                                        double width,
+                                        std::vector<double>& integratedWindowsIntensity,
+                                        std::vector<double>& integratedWindowsMZ, bool remZero = false);
+
     /// compute the b and y series masses for a given AASequence
     OPENMS_DLLAPI void getBYSeries(const AASequence& a,
                                    std::vector<double>& bseries,
@@ -98,6 +126,10 @@ namespace OpenMS
     /// extract second from vector of pairs
     OPENMS_DLLAPI void extractSecond(const std::vector<std::pair<double, double> >& peaks, std::vector<double>& mass);
     
+    OPENMS_DLLAPI void fitSplineToPeak(OpenSwath::SpectrumPtr spectrum, const double left, const double right,
+                                       const std::vector<double> & newmz, const std::vector<double> & newint,
+                                       double& max_peak_mz );
+
     ///}@
   }
 }
