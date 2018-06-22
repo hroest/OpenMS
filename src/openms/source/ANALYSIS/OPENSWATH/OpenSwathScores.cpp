@@ -38,92 +38,19 @@
 
 namespace OpenMS
 {
-    OpenSwath_Scores_Usage::OpenSwath_Scores_Usage() :
-      use_coelution_score_(true),
-      use_shape_score_(true),
-      use_rt_score_(true),
-      use_library_score_(true),
-      use_elution_model_score_(true),
-      use_intensity_score_(true),
-      use_total_xic_score_(true),
-      use_total_mi_score_(true),
-      use_nr_peaks_score_(true),
-      use_sn_score_(true),
-      use_mi_score_(true),
-      use_dia_scores_(true),
-      use_sonar_scores(true),
-      use_im_scores(true),
-      use_ms1_correlation(true),
-      use_ms1_fullscan(true),
-      use_ms1_mi(true),
-      use_uis_scores(true)
+    OpenSwath_Scores_Usage::OpenSwath_Scores_Usage()
     {}
 
-    OpenSwath_Scores::OpenSwath_Scores() :
-      elution_model_fit_score(0),
-      library_corr(0),
-      library_norm_manhattan(0),
-      library_rootmeansquare(0),
-      library_sangle(0),
-      norm_rt_score(0),
-      isotope_correlation(0),
-      ind_isotope_correlation(""),
-      isotope_overlap(0),
-      ind_isotope_overlap(""),
-      massdev_score(0),
-      ind_massdev_score(""),
-      xcorr_coelution_score(0),
-      ind_xcorr_coelution_score(""),
-      xcorr_shape_score(0),
-      ind_xcorr_shape_score(""),
-      yseries_score(0),
-      bseries_score(0),
-      log_sn_score(0),
-      ind_log_sn_score(""),
-      ind_num_transitions(0),
-      ind_transition_names(""),
-      ind_area_intensity(""),
-      ind_total_area_intensity(""),
-      ind_intensity_score(""),
-      ind_apex_intensity(""),
-      ind_total_mi(""),
-      ind_log_intensity(""),
-      ind_intensity_ratio(""),
-      ind_mi_ratio(""),
-      weighted_coelution_score(0),
-      weighted_xcorr_shape(0),
-      weighted_massdev_score(0),
-      xcorr_ms1_coelution_score(0),
-      xcorr_ms1_shape_score(0),
-      ms1_ppm_score(0),
-      ms1_isotope_correlation(0),
-      ms1_isotope_overlap(0),
-      ms1_mi_score(0),
-      sonar_sn(0),
-      sonar_diff(0),
-      sonar_trend(0),
-      sonar_rsq(0),
-      sonar_shape(0),
-      sonar_lag(0),
-      im_xcorr_coelution_score(0),
-      im_xcorr_shape_score(0),
-      im_delta_score(0),
-      library_manhattan(0),
-      library_dotprod(0),
-      intensity(0),
-      total_xic(0),
-      nr_peaks(0),
-      sn_ratio(0),
-      mi_score(0),
-      ind_mi_score(""),
-      weighted_mi_score(0),
-      dotprod_score_dia(0),
-      manhatt_score_dia(0)
+    OpenSwath_Scores::OpenSwath_Scores()
     {
     }
 
-    double OpenSwath_Scores::get_quick_lda_score(double library_corr_, double library_norm_manhattan_, double norm_rt_score_, double xcorr_coelution_score_,
-                               double xcorr_shape_score_, double log_sn_score_) const
+    double OpenSwath_Scores::get_quick_lda_score(double library_corr_,
+                                                 double library_norm_manhattan_,
+                                                 double norm_rt_score_,
+                                                 double xcorr_coelution_score_,
+                                                 double xcorr_shape_score_,
+                                                 double log_sn_score_) const
     {
       // some scores based on manual evaluation of 80 chromatograms
       // quick LDA average model on 100 2 x Crossvalidated runs (0.85 TPR/0.17 FDR)

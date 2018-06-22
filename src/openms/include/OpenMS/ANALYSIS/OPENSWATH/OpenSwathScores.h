@@ -48,24 +48,25 @@ namespace OpenMS
   struct OPENMS_DLLAPI OpenSwath_Scores_Usage
   {
     // Which scores to use
-    bool use_coelution_score_;
-    bool use_shape_score_;
-    bool use_rt_score_;
-    bool use_library_score_;
-    bool use_elution_model_score_;
-    bool use_intensity_score_;
-    bool use_total_xic_score_;
-    bool use_total_mi_score_;
-    bool use_nr_peaks_score_;
-    bool use_sn_score_;
-    bool use_mi_score_;
-    bool use_dia_scores_;
-    bool use_sonar_scores;
-    bool use_im_scores;
-    bool use_ms1_correlation;
-    bool use_ms1_fullscan;
-    bool use_ms1_mi;
-    bool use_uis_scores;
+    bool use_coelution_score_ = true;
+    bool use_shape_score_ = true;
+    bool use_rt_score_ = true;
+    bool use_library_score_ = true;
+    bool use_elution_model_score_ = true;
+    bool use_intensity_score_ = true;
+    bool use_total_xic_score_ = true;
+    bool use_total_mi_score_ = true;
+    bool use_nr_peaks_score_ = true;
+    bool use_sn_score_ = true;
+    bool use_sn_score_sub_ = false;
+    bool use_mi_score_ = true;
+    bool use_dia_scores_ = true;
+    bool use_sonar_scores = true;
+    bool use_im_scores = true;
+    bool use_ms1_correlation = true;
+    bool use_ms1_fullscan = true;
+    bool use_ms1_mi = true;
+    bool use_uis_scores = true;
     
     OpenSwath_Scores_Usage();
   };
@@ -80,27 +81,85 @@ namespace OpenMS
   */
   struct OPENMS_DLLAPI OpenSwath_Scores
   {
-    double elution_model_fit_score;
-    double library_corr;
-    double library_norm_manhattan;
-    double library_rootmeansquare;
-    double library_sangle;
-    double norm_rt_score;
-    double isotope_correlation;
-    std::string ind_isotope_correlation;
-    double isotope_overlap;
-    std::string ind_isotope_overlap;
-    double massdev_score;
-    std::string ind_massdev_score;
-    double xcorr_coelution_score;
-    std::string ind_xcorr_coelution_score;
-    double xcorr_shape_score;
-    std::string ind_xcorr_shape_score;
-    double yseries_score;
-    double bseries_score;
-    double log_sn_score;
-    std::string ind_log_sn_score;
+    double elution_model_fit_score = 0;
+    double library_corr = 0;
+    double library_norm_manhattan = 0;
+    double library_rootmeansquare = 0;
+    double library_sangle = 0;
+    double norm_rt_score = 0;
+    double isotope_correlation = 0;
+    double isotope_overlap = 0;
+    double massdev_score = 0;
+    double xcorr_coelution_score = 0;
+    double xcorr_shape_score = 0;
+    double yseries_score = 0;
+    double bseries_score = 0;
+    double log_sn_score = 0;
+
+    double weighted_coelution_score = 0;
+    double weighted_xcorr_shape = 0;
+    double weighted_massdev_score = 0;
+   
+    double xcorr_ms1_coelution_score = 0;
+    double xcorr_ms1_shape_score = 0;
+    double ms1_ppm_score = 0;
+    double ms1_isotope_correlation = 0;
+    double ms1_isotope_overlap = 0;
+    double ms1_mi_score = 0;
+
+    double sonar_sn = 0;
+    double sonar_diff = 0;
+    double sonar_trend = 0;
+    double sonar_rsq = 0;
+    double sonar_shape = 0;
+    double sonar_lag = 0;
+
+    double im_xcorr_coelution_score = 0;
+    double im_xcorr_shape_score = 0;
+    double im_delta_score = 0;
+
+    double library_manhattan = 0;
+    double library_dotprod = 0;
+    double intensity = 0;
+    double total_xic = 0;
+    // double total_mi = 0;
+    double nr_peaks = 0;
+    double sn_ratio = 0;
+    double mi_score = 0;
+    double weighted_mi_score = 0;
+
+    double rt_difference = 0;
+    double normalized_experimental_rt = 0;
+    double raw_rt_score = 0;
+
+    double dotprod_score_dia = 0;
+    double manhatt_score_dia = 0;
+
+    OpenSwath_Scores();
+
+    double get_quick_lda_score(double library_corr_,
+                               double library_norm_manhattan_,
+                               double norm_rt_score_,
+                               double xcorr_coelution_score_,
+                               double xcorr_shape_score_,
+                               double log_sn_score_) const;
+
+    double calculate_lda_prescore(const OpenSwath_Scores& scores) const;
+
+    double calculate_lda_single_transition(const OpenSwath_Scores& scores) const;
+
+    double calculate_swath_lda_prescore(const OpenSwath_Scores& scores) const;
+  };
+
+  struct OPENMS_DLLAPI OpenSwath_Ind_Scores
+  {
     int ind_num_transitions;
+    std::string ind_isotope_correlation;
+    std::string ind_isotope_overlap;
+    std::string ind_massdev_score;
+    std::string ind_xcorr_coelution_score;
+    std::string ind_xcorr_shape_score;
+    std::string ind_log_sn_score;
     std::string ind_transition_names;
     std::string ind_area_intensity;
     std::string ind_total_area_intensity;
@@ -110,57 +169,9 @@ namespace OpenMS
     std::string ind_log_intensity;
     std::string ind_intensity_ratio;
     std::string ind_mi_ratio;
-
-    double weighted_coelution_score;
-    double weighted_xcorr_shape;
-    double weighted_massdev_score;
-   
-    double xcorr_ms1_coelution_score;
-    double xcorr_ms1_shape_score;
-    double ms1_ppm_score;
-    double ms1_isotope_correlation;
-    double ms1_isotope_overlap;
-    double ms1_mi_score;
-
-    double sonar_sn;
-    double sonar_diff;
-    double sonar_trend;
-    double sonar_rsq;
-    double sonar_shape;
-    double sonar_lag;
-
-    double im_xcorr_coelution_score;
-    double im_xcorr_shape_score;
-    double im_delta_score;
-
-    double library_manhattan;
-    double library_dotprod;
-    double intensity;
-    double total_xic;
-    double nr_peaks;
-    double sn_ratio;
-    double mi_score;
     std::string ind_mi_score;
-    double weighted_mi_score;
-
-    double rt_difference;
-    double normalized_experimental_rt;
-    double raw_rt_score;
-
-    double dotprod_score_dia;
-    double manhatt_score_dia;
-
-    OpenSwath_Scores();
-
-    double get_quick_lda_score(double library_corr_, double library_norm_manhattan_, double norm_rt_score_, double xcorr_coelution_score_,
-                               double xcorr_shape_score_, double log_sn_score_) const;
-
-    double calculate_lda_prescore(const OpenSwath_Scores& scores) const;
-
-    double calculate_lda_single_transition(const OpenSwath_Scores& scores) const;
-
-    double calculate_swath_lda_prescore(const OpenSwath_Scores& scores) const;
   };
+
 
 }
 
