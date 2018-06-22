@@ -56,8 +56,6 @@ public:
     //@{
     /// Feature list type
     typedef std::vector<Feature> FeatureListType;
-    /// Peak group score type
-    typedef std::map<String, double> PGScoresType;
     //@}
 
     ///@name Constructors and Destructor
@@ -77,11 +75,30 @@ public:
 
     ///@name Accessors
     //@{
-    /// get all peakgroup scores
-    const PGScoresType & getScores() const;
 
-    /// get a single peakgroup score
-    double getScore(const String & score_name);
+    const double & getExpectedRT() const
+    {
+      return expected_rt_;
+    }
+    void setExpectedRT(double rt)
+    {
+      expected_rt_ = rt;
+    }
+
+    const double & getPeakApex() const
+    {
+      return peak_apex_;
+    }
+    void setPeakApex(double pa)
+    {
+      peak_apex_ = pa;
+    }
+
+    /// get all peakgroup scores
+    const OpenSwath_Scores & getScores() const;
+
+    /// get all peakgroup scores
+    OpenSwath_Scores & getScores();
 
     /// get a specified feature
     Feature & getFeature(const String& key);
@@ -90,10 +107,7 @@ public:
     const Feature & getFeature(const String& key) const;
 
     /// set all peakgroup scores
-    void setScores(const PGScoresType & scores);
-
-    /// set a single peakgroup score
-    void addScore(const String & score_name, double score);
+    void setScores(const OpenSwath_Scores & scores);
 
     /// Adds an feature from a single chromatogram into the feature.
     void addFeature(const Feature & feature, const String& key);
@@ -116,6 +130,8 @@ public:
     /// get a specified precursor feature (const)
     const Feature & getPrecursorFeature(String key) const;
 
+    void scoresAsMetaValue(bool ms1only, const OpenSwath_Scores_Usage&);
+
     void IDScoresAsMetaValue(bool decoy, const OpenSwath_Ind_Scores& idscores);
     //@}
 
@@ -123,10 +139,13 @@ protected:
 
     FeatureListType features_;
 
+    double expected_rt_;
+    double peak_apex_;
+
     FeatureListType precursor_features_;
 
-    /// peak group scores
-    PGScoresType pg_scores_;
+    /// OpenSwathScores
+    OpenSwath_Scores scores_;
 
     /// map native ids to the features
     std::map<String, int> feature_map_;
@@ -136,5 +155,4 @@ protected:
 
   };
 }
-
 

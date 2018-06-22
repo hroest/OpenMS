@@ -279,6 +279,8 @@ private:
                                           const double det_mi_ratio_score,
                                           const std::vector<OpenSwath::SwathMap>& swath_maps);
 
+    void prepareFeatureOut_(MRMFeature* mrmfeature, bool ms1only, int charge_state);
+
     /// Synchronize members with param class
     void updateMembers_() override;
 
