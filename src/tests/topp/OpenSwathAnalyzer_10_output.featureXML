@@ -58,10 +58,6 @@
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
 			</subordinate>
-			<PeptideIdentification identification_run_ref="PI_0" score_type="" higher_score_better="true" significance_threshold="0" >
-				<PeptideHit score="6.92258985582744" sequence="PEPTIDEA" charge="0">
-				</PeptideHit>
-			</PeptideIdentification>
 			<UserParam type="float" name="total_xic" value="3680.16062933207"/>
 			<UserParam type="float" name="total_mi" value="3.16013046017424"/>
 			<UserParam type="string" name="PeptideRef" value="tr_gr1"/>
@@ -91,8 +87,14 @@
 			<UserParam type="float" name="var_mi_weighted_score" value="3.8073549220576"/>
 			<UserParam type="float" name="var_mi_ratio_score" value="1.20480941215562"/>
 			<UserParam type="float" name="var_elution_model_fit_score" value="0.985403120517731"/>
-			<UserParam type="float" name="main_var_xx_lda_prelim_score" value="6.92258985582744"/>
-			<UserParam type="float" name="xx_lda_prelim_score" value="6.92258985582744"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0"/>
+			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
+			<UserParam type="float" name="var_massdev_score" value="0"/>
+			<UserParam type="float" name="var_massdev_score_weighted" value="0"/>
+			<UserParam type="float" name="var_bseries_score" value="0"/>
+			<UserParam type="float" name="var_yseries_score" value="0"/>
+			<UserParam type="float" name="var_dotprod_score" value="0"/>
+			<UserParam type="float" name="var_manhatt_score" value="0"/>
 			<UserParam type="float" name="PrecursorMZ" value="500"/>
 		</feature>
 		<feature id="f_15004869347769368353">
@@ -156,10 +158,6 @@
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
 			</subordinate>
-			<PeptideIdentification identification_run_ref="PI_0" score_type="" higher_score_better="true" significance_threshold="0" >
-				<PeptideHit score="1.95350659622369" sequence="PEPTIDEB" charge="0">
-				</PeptideHit>
-			</PeptideIdentification>
 			<UserParam type="float" name="total_xic" value="1610.27396595478"/>
 			<UserParam type="float" name="total_mi" value="3.84809216039442"/>
 			<UserParam type="string" name="PeptideRef" value="tr_gr2"/>
@@ -189,8 +187,14 @@
 			<UserParam type="float" name="var_mi_weighted_score" value="2.20105644479131"/>
 			<UserParam type="float" name="var_mi_ratio_score" value="0.455194183085335"/>
 			<UserParam type="float" name="var_elution_model_fit_score" value="0.88344943523407"/>
-			<UserParam type="float" name="main_var_xx_lda_prelim_score" value="1.95350659622369"/>
-			<UserParam type="float" name="xx_lda_prelim_score" value="1.95350659622369"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0"/>
+			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
+			<UserParam type="float" name="var_massdev_score" value="0"/>
+			<UserParam type="float" name="var_massdev_score_weighted" value="0"/>
+			<UserParam type="float" name="var_bseries_score" value="0"/>
+			<UserParam type="float" name="var_yseries_score" value="0"/>
+			<UserParam type="float" name="var_dotprod_score" value="0"/>
+			<UserParam type="float" name="var_manhatt_score" value="0"/>
 			<UserParam type="float" name="PrecursorMZ" value="501"/>
 		</feature>
 		<feature id="f_7804704400743266335">
@@ -254,10 +258,6 @@
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
 			</subordinate>
-			<PeptideIdentification identification_run_ref="PI_0" score_type="" higher_score_better="true" significance_threshold="0" >
-				<PeptideHit score="1.2483045614906" sequence="PEPTIDEB" charge="0">
-				</PeptideHit>
-			</PeptideIdentification>
 			<UserParam type="float" name="total_xic" value="1610.27396595478"/>
 			<UserParam type="float" name="total_mi" value="3.84809216039442"/>
 			<UserParam type="string" name="PeptideRef" value="tr_gr2"/>
@@ -287,8 +287,14 @@
 			<UserParam type="float" name="var_mi_weighted_score" value="3.56432195667905"/>
 			<UserParam type="float" name="var_mi_ratio_score" value="0.952289505151783"/>
 			<UserParam type="float" name="var_elution_model_fit_score" value="0.902114371458689"/>
-			<UserParam type="float" name="main_var_xx_lda_prelim_score" value="1.2483045614906"/>
-			<UserParam type="float" name="xx_lda_prelim_score" value="1.2483045614906"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0"/>
+			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
+			<UserParam type="float" name="var_massdev_score" value="0"/>
+			<UserParam type="float" name="var_massdev_score_weighted" value="0"/>
+			<UserParam type="float" name="var_bseries_score" value="0"/>
+			<UserParam type="float" name="var_yseries_score" value="0"/>
+			<UserParam type="float" name="var_dotprod_score" value="0"/>
+			<UserParam type="float" name="var_manhatt_score" value="0"/>
 			<UserParam type="float" name="PrecursorMZ" value="501"/>
 		</feature>
 	</featureList>

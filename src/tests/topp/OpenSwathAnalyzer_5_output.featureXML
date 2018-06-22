@@ -56,10 +56,6 @@
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
 			</subordinate>
-			<PeptideIdentification identification_run_ref="PI_0" score_type="" higher_score_better="true" significance_threshold="0" >
-				<PeptideHit score="0" sequence="PEPTIDEA" charge="0">
-				</PeptideHit>
-			</PeptideIdentification>
 			<UserParam type="float" name="total_xic" value="3680.16062933207"/>
 			<UserParam type="string" name="PeptideRef" value="tr_gr1"/>
 			<UserParam type="float" name="leftWidth" value="3096.28002929688"/>
@@ -85,18 +81,15 @@
 			<UserParam type="float" name="sn_ratio" value="86.0041379995282"/>
 			<UserParam type="float" name="var_log_sn_score" value="4.45439541136954"/>
 			<UserParam type="float" name="var_elution_model_fit_score" value="0.985403120517731"/>
-			<UserParam type="float" name="xx_lda_prelim_score" value="-21994.8526299932"/>
-			<UserParam type="float" name="var_isotope_correlation_score" value="0.998094062533601"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0.998094062655402"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
 			<UserParam type="float" name="var_massdev_score" value="0.698521654473665"/>
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.666143770195331"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.74853466634952"/>
-			<UserParam type="float" name="var_manhatt_score" value="0.790882633138255"/>
-			<UserParam type="float" name="main_var_xx_swath_prelim_score" value="-17581.8917975031"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.748534651332721"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.790882652898514"/>
 			<UserParam type="float" name="PrecursorMZ" value="500"/>
-			<UserParam type="float" name="xx_swath_prelim_score" value="0"/>
 		</feature>
 		<feature id="f_15004869347769368353">
 			<position dim="0">3055.58448187053</position>
@@ -156,10 +149,6 @@
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
 			</subordinate>
-			<PeptideIdentification identification_run_ref="PI_0" score_type="" higher_score_better="true" significance_threshold="0" >
-				<PeptideHit score="0" sequence="PEPTIDEB" charge="0">
-				</PeptideHit>
-			</PeptideIdentification>
 			<UserParam type="float" name="total_xic" value="1610.27396595478"/>
 			<UserParam type="string" name="PeptideRef" value="tr_gr2"/>
 			<UserParam type="float" name="leftWidth" value="3044.8798828125"/>
@@ -185,18 +174,15 @@
 			<UserParam type="float" name="sn_ratio" value="3.42378266973528"/>
 			<UserParam type="float" name="var_log_sn_score" value="1.23074598364098"/>
 			<UserParam type="float" name="var_elution_model_fit_score" value="0.88344943523407"/>
-			<UserParam type="float" name="xx_lda_prelim_score" value="-21551.8862238136"/>
-			<UserParam type="float" name="var_isotope_correlation_score" value="0.972666514028789"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0.972666515511428"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
 			<UserParam type="float" name="var_massdev_score" value="1.37354439334282"/>
 			<UserParam type="float" name="var_massdev_score_weighted" value="1.18664964107839"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.81994891194234"/>
-			<UserParam type="float" name="var_manhatt_score" value="0.655571507020288"/>
-			<UserParam type="float" name="main_var_xx_swath_prelim_score" value="-17227.5960779448"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.819948903888414"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.655571528760507"/>
 			<UserParam type="float" name="PrecursorMZ" value="501"/>
-			<UserParam type="float" name="xx_swath_prelim_score" value="0"/>
 		</feature>
 		<feature id="f_7804704400743266335">
 			<position dim="0">3119.06301053107</position>
@@ -256,10 +242,6 @@
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
 			</subordinate>
-			<PeptideIdentification identification_run_ref="PI_0" score_type="" higher_score_better="true" significance_threshold="0" >
-				<PeptideHit score="0" sequence="PEPTIDEB" charge="0">
-				</PeptideHit>
-			</PeptideIdentification>
 			<UserParam type="float" name="total_xic" value="1610.27396595478"/>
 			<UserParam type="string" name="PeptideRef" value="tr_gr2"/>
 			<UserParam type="float" name="leftWidth" value="3099.69995117188"/>
@@ -285,18 +267,15 @@
 			<UserParam type="float" name="sn_ratio" value="30.180081980405"/>
 			<UserParam type="float" name="var_log_sn_score" value="3.40718216971789"/>
 			<UserParam type="float" name="var_elution_model_fit_score" value="0.902114371458689"/>
-			<UserParam type="float" name="xx_lda_prelim_score" value="-22000.322668871"/>
-			<UserParam type="float" name="var_isotope_correlation_score" value="0.907549839418365"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0.907549838396596"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0.0754514560103416"/>
 			<UserParam type="float" name="var_massdev_score" value="1.44105090200075"/>
 			<UserParam type="float" name="var_massdev_score_weighted" value="1.08854278297821"/>
 			<UserParam type="float" name="var_bseries_score" value="1"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.648134858182765"/>
-			<UserParam type="float" name="var_manhatt_score" value="0.880571527463376"/>
-			<UserParam type="float" name="main_var_xx_swath_prelim_score" value="-17585.6606327128"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.64813485892195"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.880571525394889"/>
 			<UserParam type="float" name="PrecursorMZ" value="501"/>
-			<UserParam type="float" name="xx_swath_prelim_score" value="0"/>
 		</feature>
 	</featureList>
 </featureMap>
