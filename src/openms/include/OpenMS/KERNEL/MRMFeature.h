@@ -64,10 +64,10 @@ public:
     MRMFeature();
 
     /// Copy constructor
-    MRMFeature(const MRMFeature &rhs);
+    MRMFeature(const MRMFeature &rhs) = default;
 
     /// Assignment operator
-    MRMFeature & operator=(const MRMFeature & rhs);
+    MRMFeature & operator=(const MRMFeature & rhs) = default;
 
     /// Destructor
     ~MRMFeature() override;
@@ -83,15 +83,6 @@ public:
     void setExpectedRT(double rt)
     {
       expected_rt_ = rt;
-    }
-
-    const double & getPeakApex() const
-    {
-      return peak_apex_;
-    }
-    void setPeakApex(double pa)
-    {
-      peak_apex_ = pa;
     }
 
     /// get all peakgroup scores
@@ -130,8 +121,10 @@ public:
     /// get a specified precursor feature (const)
     const Feature & getPrecursorFeature(String key) const;
 
+    /// store scores as meta values
     void scoresAsMetaValue(bool ms1only, const OpenSwath_Scores_Usage&);
 
+    /// store id scores as meta values
     void IDScoresAsMetaValue(bool decoy, const OpenSwath_Ind_Scores& idscores);
     //@}
 
@@ -140,6 +133,7 @@ protected:
     FeatureListType features_;
 
     double expected_rt_;
+
     double peak_apex_;
 
     FeatureListType precursor_features_;
