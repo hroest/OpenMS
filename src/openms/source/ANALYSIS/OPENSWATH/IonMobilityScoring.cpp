@@ -332,6 +332,7 @@ namespace OpenMS
 
     double DRIFT_EXTRA = 0.25;
     double USE_SPLINE = false; // whether to use a spline for computing delta drift times
+    USE_SPLINE = true;
 
     double drift_width = fabs(drift_upper - drift_lower);
 
