@@ -3,6 +3,7 @@ set(directory source/ANALYSIS/OPENSWATH)
 
 ### list all header files of the directory here
 set(sources_list
+IonMobilityScoring.cpp
 MRMIonSeries.cpp
 MRMAssay.cpp
 MRMDecoy.cpp
