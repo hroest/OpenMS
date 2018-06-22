@@ -68,12 +68,11 @@ START_SECTION(MRMFeature(const MRMFeature &rhs))
 {
   MRMFeature tmp;
   tmp.setIntensity(100.0);
-  tmp.addScore("testscore", 200);
+  tmp.setExpectedRT(400.0);
 
   MRMFeature tmp2 (tmp);
-
-  TEST_EQUAL(tmp2.getScore("testscore"), 200)
   TEST_REAL_SIMILAR(tmp2.getIntensity(), 100.0)
+  TEST_REAL_SIMILAR(tmp2.getExpectedRT(), 400.0)
 }
 END_SECTION
 
@@ -81,27 +80,40 @@ START_SECTION(MRMFeature& operator=(const MRMFeature &rhs))
 {
   MRMFeature tmp;
   tmp.setIntensity(100.0);
-  tmp.addScore("testscore", 200);
+  tmp.setExpectedRT(400.0);
 
   MRMFeature tmp2;
   tmp2 = tmp;
 
-  TEST_EQUAL(tmp2.getScore("testscore"), 200)
   TEST_REAL_SIMILAR(tmp2.getIntensity(), 100.0)
+  TEST_REAL_SIMILAR(tmp2.getExpectedRT(), 400.0)
 }
 END_SECTION
 
-START_SECTION (const PGScoresType & getScores() const)
+START_SECTION(const double & getExpectedRT() const)
 {
-  // tested with set/add score
-  NOT_TESTABLE
+  MRMFeature tmp;
+  tmp.setExpectedRT(400.0);
+
+  TEST_REAL_SIMILAR(tmp.getExpectedRT(), 400.0)
 }
 END_SECTION
 
-START_SECTION (double getScore(const String & score_name))
+START_SECTION(void setExpectedRT(double rt))
+{
+  // tested above
+  NOT_TESTABLE
+}
+END_SECTION
+    
+START_SECTION (const OpenSwath_Scores & getScores() const)
 {
   // tested with set/add score
   NOT_TESTABLE
+  MRMFeature tmp;
+  OpenSwath_Scores tmp2 = tmp.getScores();
+  
+  TEST_REAL_SIMILAR(tmp2.library_manhattan, 0)
 }
 END_SECTION
 
@@ -114,34 +126,6 @@ START_SECTION (Feature & getFeature(String key))
   mrmfeature.addFeature(f1, "chromatogram1");
   mrmfeature.addFeature(f1, "chromatogram2");
   TEST_EQUAL(mrmfeature.getFeature("chromatogram1").getMetaValue("dummy"), 1)
-}
-END_SECTION
-
-START_SECTION (void setScores(const PGScoresType & scores))
-{
-  MRMFeature mrmfeature;
-  MRMFeature::PGScoresType scores;
-  scores["score1"] = 1;
-  scores["score2"] = 2;
-  mrmfeature.setScores(scores);
-  scores = mrmfeature.getScores();
-  TEST_EQUAL(mrmfeature.getScore("score1"), 1)
-  TEST_EQUAL(mrmfeature.getScore("score2"), 2)
-  TEST_EQUAL(scores[String("score1")], 1)
-  TEST_EQUAL(scores[String("score2")], 2)
-}
-END_SECTION
-
-START_SECTION (void addScore(const String & score_name, double score))
-{
-  MRMFeature mrmfeature;
-  mrmfeature.addScore("score1",1);
-  mrmfeature.addScore("score2",2);
-  MRMFeature::PGScoresType scores = mrmfeature.getScores();
-  TEST_EQUAL(mrmfeature.getScore("score1"), 1)
-  TEST_EQUAL(mrmfeature.getScore("score2"), 2)
-  TEST_EQUAL(scores[String("score1")], 1)
-  TEST_EQUAL(scores[String("score2")], 2)
 }
 END_SECTION
 
