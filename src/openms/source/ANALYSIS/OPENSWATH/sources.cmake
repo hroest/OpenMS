@@ -13,6 +13,7 @@ TransitionPQPFile.cpp
 SwathMapMassCorrection.cpp
 OpenSwathHelper.cpp
 OpenSwathScoring.cpp
+OpenSwathScores.cpp
 OpenSwathTSVWriter.cpp
 OpenSwathOSWWriter.cpp
 OpenSwathWorkflow.cpp

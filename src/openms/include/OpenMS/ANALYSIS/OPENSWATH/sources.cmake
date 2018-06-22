@@ -21,6 +21,7 @@ set(sources_list_h
   MasstraceCorrelator.h
   OpenSwathHelper.h
   OpenSwathScoring.h
+  OpenSwathScores.h
   OpenSwathTSVWriter.h
   OpenSwathOSWWriter.h
   OpenSwathWorkflow.h
