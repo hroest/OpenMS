@@ -42,34 +42,6 @@ namespace OpenMS
   {
   }
 
-  /// Copy constructor
-  MRMFeature::MRMFeature(const MRMFeature & rhs) :
-    Feature(rhs),
-    features_(rhs.features_),
-    precursor_features_(rhs.precursor_features_),
-    scores_(rhs.scores_),
-    feature_map_(rhs.feature_map_),
-    precursor_feature_map_(rhs.precursor_feature_map_)
-  {
-    setScores(rhs.getScores());
-  }
-
-  /// Assignment operator
-  MRMFeature & MRMFeature::operator = (const MRMFeature &rhs)
-  {
-    if (&rhs == this)
-      return *this;
-
-    Feature::operator = (rhs);
-    setScores(rhs.getScores());
-    features_ = rhs.features_;
-    precursor_features_ = rhs.precursor_features_;
-    feature_map_ = rhs.feature_map_;
-    precursor_feature_map_ = rhs.precursor_feature_map_;
-
-    return *this;
-  }
-
   MRMFeature::~MRMFeature()
   {
   }
