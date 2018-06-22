@@ -141,7 +141,7 @@ namespace OpenMS
           const std::vector<std::string>& native_ids_identification,
           const std::vector<std::string>& native_ids_detection,
           std::vector<OpenSwath::ISignalToNoisePtr>& signal_noise_estimators,
-          OpenSwath_Scores & scores);
+          OpenSwath_Ind_Scores & scores);
 
     /** @brief Score a single chromatographic feature against a spectral library
      *

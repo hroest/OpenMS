@@ -372,7 +372,7 @@ namespace OpenMS
         const std::vector<std::string>& native_ids_identification,
         const std::vector<std::string>& native_ids_detection,
         std::vector<OpenSwath::ISignalToNoisePtr>& signal_noise_estimators,
-        OpenSwath_Scores & idscores)
+        OpenSwath_Ind_Scores & idscores)
   {
     OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
 
