@@ -270,6 +270,8 @@ namespace OpenMS
         this->setMetaValue("var_im_xcorr_shape", scores_.im_xcorr_shape_score);
         this->setMetaValue("var_im_xcorr_coelution", scores_.im_xcorr_coelution_score);
         this->setMetaValue("var_im_delta_score", scores_.im_delta_score);
+        this->setMetaValue("im_drift", scores_.im_drift);
+        this->setMetaValue("im_drift_weighted", scores_.im_drift_weighted);
       }
 
       if (su_.use_sonar_scores)

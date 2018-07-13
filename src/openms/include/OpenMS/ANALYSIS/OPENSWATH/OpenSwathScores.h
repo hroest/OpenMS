@@ -117,6 +117,8 @@ namespace OpenMS
     double im_xcorr_coelution_score = 0;
     double im_xcorr_shape_score = 0;
     double im_delta_score = 0;
+    double im_drift = 0;
+    double im_drift_weighted = 0;
 
     double library_manhattan = 0;
     double library_dotprod = 0;

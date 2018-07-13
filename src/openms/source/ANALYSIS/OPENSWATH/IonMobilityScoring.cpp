@@ -346,6 +346,9 @@ namespace OpenMS
     typedef std::vector< std::pair<double, double> > IMProfile;
     double delta_drift = 0;
     std::vector< IMProfile > im_profiles;
+    double computed_im = 0;
+    double computed_im_weighted = 0;
+    double sum_intensity = 0;
     for (std::size_t k = 0; k < transitions.size(); k++)
     {
       const TransitionType* transition = &transitions[k];
@@ -359,11 +362,20 @@ namespace OpenMS
 
       delta_drift += fabs(drift_target - im);
       std::cout << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
+      computed_im += im;
+      computed_im_weighted += im * intensity;
+      sum_intensity += intensity;
       // delta_drift_weighted += delta_drift * normalized_library_intensity[k];
       // weights += normalized_library_intensity[k];
     }
     std::cout << " Scoring delta drift time " << delta_drift / transitions.size() << std::endl;
     scores.im_delta_score = delta_drift / transitions.size();
+
+    computed_im /= transitions.size();
+    computed_im_weighted /= sum_intensity;
+
+    scores.im_drift = computed_im;
+    scores.im_drift_weighted = computed_im_weighted;
 
     // Extract all ion mobility values across all transitions and produce a
     // grid of all permitted ion mobility values
