@@ -114,12 +114,16 @@ namespace OpenMS
   void OpenSwathScoring::initialize(double rt_normalization_factor,
                                     int add_up_spectra,
                                     double spacing_for_spectra_resampling,
+                                    const bool use_spline,
+                                    const double drift_extra,
                                     const OpenSwath_Scores_Usage & su,
                                     const std::string& spectrum_addition_method)
   {
     this->rt_normalization_factor_ = rt_normalization_factor;
     this->add_up_spectra_ = add_up_spectra;
     this->spectra_addition_method_ = spectrum_addition_method;
+    this->im_use_spline_ = use_spline;
+    this->im_drift_extra_pcnt_ = drift_extra;
     this->spacing_for_spectra_resampling_ = spacing_for_spectra_resampling;
     this->su_ = su;
   }
@@ -165,10 +169,11 @@ namespace OpenMS
     // score drift time dimension
     if (drift_upper > 0 && su_.use_im_scores)
     {
+      double dia_extract_window_ = (double)diascoring.getParameters().getValue("dia_extraction_window");
+      bool dia_extraction_ppm_ = diascoring.getParameters().getValue("dia_extraction_unit") == "ppm";
       IonMobilityScoring::driftScoring( fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, 0, 0),
-          transitions, scores, drift_lower, drift_upper, drift_target);
+          transitions, scores, drift_lower, drift_upper, drift_target, dia_extract_window_, dia_extraction_ppm_, im_use_spline_, im_drift_extra_pcnt_);
     }
-
 
     // Mass deviation score
     diascoring.dia_massdiff_score(transitions, spectrum, normalized_library_intensity,

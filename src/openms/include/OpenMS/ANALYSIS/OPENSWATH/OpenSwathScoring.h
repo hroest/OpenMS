@@ -66,6 +66,9 @@ namespace OpenMS
     double spacing_for_spectra_resampling_;
     int add_up_spectra_;
     std::string spectra_addition_method_;
+    bool im_use_spline_;
+    double im_drift_extra_pcnt_;
+
     OpenSwath_Scores_Usage su_;
 
   public:
@@ -87,11 +90,13 @@ namespace OpenMS
      * @param spectrum_addition_method Method to use for spectrum addition (valid: "simple", "resample")
      *
     */
-    void initialize(double rt_normalization_factor,
-                    int add_up_spectra,
-                    double spacing_for_spectra_resampling,
-                    const OpenSwath_Scores_Usage & su, 
-                    const std::string& spectrum_addition_method);
+  void initialize(double rt_normalization_factor,
+                  int add_up_spectra,
+                  double spacing_for_spectra_resampling,
+                  const bool use_spline,
+                  const double drift_extra,
+                  const OpenSwath_Scores_Usage & su,
+                  const std::string& spectrum_addition_method);
 
     /** @brief Score a single peakgroup in a chromatogram using only chromatographic properties.
      *

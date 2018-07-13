@@ -319,30 +319,31 @@ namespace OpenMS
   }
 
   void IonMobilityScoring::driftScoring(OpenSwath::SpectrumPtr spectrum, 
-                    const std::vector<TransitionType> & transitions,
-                    OpenSwath_Scores & scores,
-                    const double drift_lower,
-                    const double drift_upper,
-                    const double drift_target)
+                                        const std::vector<TransitionType> & transitions,
+                                        OpenSwath_Scores & scores,
+                                        const double drift_lower,
+                                        const double drift_upper,
+                                        const double drift_target,
+                                        const double dia_extract_window_,
+                                        const bool dia_extraction_ppm_,
+                                        const bool use_spline,
+                                        const double drift_extra)
   {
     OPENMS_PRECONDITION(spectrum != nullptr, "Spectrum cannot be null");
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
     auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
 
-    double DRIFT_EXTRA = 0.25;
-    double USE_SPLINE = false; // whether to use a spline for computing delta drift times
-    USE_SPLINE = true;
+    double DRIFT_EXTRA = drift_extra;
+    bool USE_SPLINE = use_spline; // whether to use a spline for computing delta drift times
 
     double drift_width = fabs(drift_upper - drift_lower);
 
     double drift_lower_used = drift_lower - drift_width * DRIFT_EXTRA;
     double drift_upper_used = drift_upper + drift_width * DRIFT_EXTRA;
 
-    double dia_extract_window_ = 0.05;
-    bool dia_extraction_ppm_ = false;
     // IMProfile: a data structure that holds points <im_value, intensity>
-    typedef std::vector<std::pair<double, double> > IMProfile;
+    typedef std::vector< std::pair<double, double> > IMProfile;
     double delta_drift = 0;
     std::vector< IMProfile > im_profiles;
     for (std::size_t k = 0; k < transitions.size(); k++)

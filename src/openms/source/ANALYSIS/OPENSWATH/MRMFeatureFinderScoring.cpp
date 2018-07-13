@@ -107,6 +107,11 @@ namespace OpenMS
     defaults_.setValue("scoring_model", "default", "Scoring model to use", ListUtils::create<String>("advanced"));
     defaults_.setValidStrings("scoring_model", ListUtils::create<String>("default,single_transition"));
 
+    defaults_.setValue("im_use_spline", "false", "Use spline for IM scoring", ListUtils::create<String>("advanced"));
+    defaults_.setValidStrings("im_use_spline", ListUtils::create<String>("true,false"));
+    defaults_.setValue("im_extra_drift", 0.0, "Extra drift time to extract for IM scoring (as a fraction, e.g. 0.25 means 25\% extra on each side)", ListUtils::create<String>("advanced"));
+    defaults_.setMinFloat("im_extra_drift", 0.0);
+
     defaults_.insert("TransitionGroupPicker:", MRMTransitionGroupPicker().getDefaults());
 
     defaults_.insert("DIAScoring:", DIAScoring().getDefaults());
@@ -548,7 +553,12 @@ namespace OpenMS
     double expected_rt = newtr.apply(pep->rt);
 
     OpenSwathScoring scorer;
-    scorer.initialize(rt_normalization_factor_, add_up_spectra_, spacing_for_spectra_resampling_, su_, spectrum_addition_method_);
+    scorer.initialize(rt_normalization_factor_, add_up_spectra_,
+                      spacing_for_spectra_resampling_,
+                      im_use_spline_,
+                      im_extra_drift_,
+                      su_,
+                      spectrum_addition_method_);
 
     size_t feature_idx = 0;
     // Go through all peak groups (found MRM features) and score them
@@ -811,6 +821,8 @@ namespace OpenMS
     add_up_spectra_ = param_.getValue("add_up_spectra");
     spectrum_addition_method_ = param_.getValue("spectrum_addition_method");
     spacing_for_spectra_resampling_ = param_.getValue("spacing_for_spectra_resampling");
+    im_use_spline_ = param_.getValue("im_use_spline") == "true";
+    im_extra_drift_ = (double)param_.getValue("im_extra_drift");
     uis_threshold_sn_ = param_.getValue("uis_threshold_sn");
     uis_threshold_peak_area_ = param_.getValue("uis_threshold_peak_area");
     scoring_model_ = param_.getValue("scoring_model");

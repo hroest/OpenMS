@@ -304,6 +304,9 @@ private:
     unsigned int sn_bin_count_;
     bool write_log_messages_;
 
+    bool im_use_spline_;
+    double im_extra_drift_;
+
     // members
     std::map<OpenMS::String, const PeptideType*> PeptideRefMap_;
     OpenSwath_Scores_Usage su_;
