@@ -349,6 +349,7 @@ namespace OpenMS
     double computed_im = 0;
     double computed_im_weighted = 0;
     double sum_intensity = 0;
+    int tr_used = 0;
     for (std::size_t k = 0; k < transitions.size(); k++)
     {
       const TransitionType* transition = &transitions[k];
@@ -360,6 +361,11 @@ namespace OpenMS
       integrateDriftSpectrum(spectrum, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
       im_profiles.push_back( res );
 
+      // TODO what do to about those that have no signal ?
+      if (intensity <= 0.0) {continue;} // note: im is -1 then
+
+      tr_used++;
+
       delta_drift += fabs(drift_target - im);
       std::cout << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
       computed_im += im;
@@ -368,11 +374,12 @@ namespace OpenMS
       // delta_drift_weighted += delta_drift * normalized_library_intensity[k];
       // weights += normalized_library_intensity[k];
     }
-    std::cout << " Scoring delta drift time " << delta_drift / transitions.size() << std::endl;
-    scores.im_delta_score = delta_drift / transitions.size();
+    std::cout << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
+    scores.im_delta_score = delta_drift / tr_used;
 
-    computed_im /= transitions.size();
-    computed_im_weighted /= sum_intensity;
+    // computed_im /= transitions.size();
+    computed_im /= tr_used;
+    computed_im_weighted /= sum_intensity; // TODO: check for division by zero
 
     scores.im_drift = computed_im;
     scores.im_drift_weighted = computed_im_weighted;
