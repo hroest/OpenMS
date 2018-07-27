@@ -446,7 +446,7 @@ protected:
     setValidStrings_("mz_extraction_window_ms1_unit", ListUtils::create<String>("Th,ppm"));
     setMinFloat_("mz_extraction_window_ms1", 0.0);
     setMinFloat_("extra_rt_extraction_window", 0.0);
-    registerFlag_("ppm", "m/z extraction_window is in ppm");
+    // registerFlag_("ppm", "m/z extraction_window is in ppm");
     registerFlag_("sonar", "data is scanning SWATH data");
 
     registerStringOption_("use_ms1_ion_mobility", "<name>", "true", "Also perform precursor extraction using the same ion mobility window as for fragment ion extraction", false, true);
@@ -469,10 +469,9 @@ protected:
     setValidStrings_("mz_correction_function", ListUtils::create<String>("none,regression_delta_ppm,unweighted_regression,weighted_regression,quadratic_regression,weighted_quadratic_regression,weighted_quadratic_regression_delta_ppm,quadratic_regression_delta_ppm"));
     registerDoubleOption_("irt_mz_extraction_window", "<double>", 0.05, "Extraction window used for iRT and m/z correction (in Thomson, use ppm use -ppm flag)", false, true);
     registerDoubleOption_("irt_im_extraction_window", "<double>", -1, "Ion mobility extraction window used for iRT (in 1/K0 or milliseconds)", false, true);
-    registerFlag_("ppm_irtwindow", "iRT m/z extraction_window is in ppm", true);
+    // registerFlag_("ppm_irtwindow", "iRT m/z extraction_window is in ppm", true);
     registerStringOption_("irt_mz_extraction_window_unit", "<name>", "Th", "Unit for mz extraction", false, true);
     setValidStrings_("irt_mz_extraction_window_unit", ListUtils::create<String>("Th,ppm"));
-
 
     // TODO terminal slash !
     registerStringOption_("tempDirectory", "<tmp>", "/tmp/", "Temporary directory to store cached files for example", false, true);
@@ -718,7 +717,6 @@ protected:
     cp_ms1.mz_extraction_window  = getDoubleOption_("mz_extraction_window_ms1");
     cp_ms1.ppm                   = getStringOption_("mz_extraction_window_ms1_unit") == "ppm";
 
-
     Param feature_finder_param = getParam_().copy("Scoring:", true);
     Param tsv_reader_param = getParam_().copy("Library:", true);
     if (use_emg_score)
@@ -751,9 +749,8 @@ protected:
       remove(out_osw.c_str());
       if (!out_osw.empty())
       {
-        std::ifstream  src(tr_file.c_str(), std::ios::binary);
-        std::ofstream  dst(out_osw.c_str(), std::ios::binary);
-
+        std::ifstream src(tr_file.c_str(), std::ios::binary);
+        std::ofstream dst(out_osw.c_str(), std::ios::binary);
         dst << src.rdbuf();
       }
     }
