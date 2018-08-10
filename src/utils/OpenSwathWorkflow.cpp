@@ -481,6 +481,7 @@ protected:
 
     registerIntOption_("batchSize", "<number>", 0, "The batch size of chromatograms to process (0 means to only have one batch, sensible values are around 500-1000)", false, true);
     setMinInt_("batchSize", 0);
+    registerIntOption_("outer_loop_threads", "<number>", -1, "How many threads should be used for the outer loop (-1 use all threads, use 4 to analyze 4 SWATH windows in memory at once).", false, true);
 
     registerSubsection_("Scoring", "Scoring parameters section");
     registerSubsection_("Library", "Library parameters section");
@@ -632,6 +633,7 @@ protected:
     bool enable_uis_scoring = getFlag_("enable_uis_scoring");
     String swath_windows_file = getStringOption_("swath_windows_file");
     int batchSize = (int)getIntOption_("batchSize");
+    int outer_loop_threads = (int)getIntOption_("outer_loop_threads");
     Size debug_level = (Size)getIntOption_("debug");
 
     double min_rsq = getDoubleOption_("min_rsq");
@@ -839,7 +841,7 @@ protected:
     }
     else
     {
-      OpenSwathWorkflow wf(use_ms1_traces, use_ms1_im);
+      OpenSwathWorkflow wf(use_ms1_traces, use_ms1_im, outer_loop_threads);
       wf.setLogType(log_type_);
       wf.performExtraction(swath_maps, trafo_rtnorm, cp, cp_ms1, feature_finder_param, transition_exp,
           out_featureFile, !out.empty(), tsvwriter, oswwriter, chromatogramConsumer, batchSize, load_into_memory);

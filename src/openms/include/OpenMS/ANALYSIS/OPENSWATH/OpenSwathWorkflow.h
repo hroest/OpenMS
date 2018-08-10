@@ -103,9 +103,17 @@ namespace OpenMS
 
 protected:
 
-    explicit OpenSwathWorkflowBase(bool use_ms1_traces, bool use_ms1_ion_mobility) :
+    OpenSwathWorkflowBase(bool use_ms1_traces, bool use_ms1_ion_mobility, int threads_outer_loop) :
       use_ms1_traces_(use_ms1_traces),
-      use_ms1_ion_mobility_(use_ms1_ion_mobility)
+      use_ms1_ion_mobility_(use_ms1_ion_mobility),
+      threads_outer_loop_(threads_outer_loop)
+    {
+    }
+
+    OpenSwathWorkflowBase(bool use_ms1_traces, bool use_ms1_ion_mobility) :
+      use_ms1_traces_(use_ms1_traces),
+      use_ms1_ion_mobility_(use_ms1_ion_mobility),
+      threads_outer_loop_(-1)
     {
     }
 
@@ -160,6 +168,12 @@ protected:
     /// Whether to use ion mobility extraction on MS1 traces
     bool use_ms1_ion_mobility_;
 
+    /// How many threads should be used for the outer loop (-1 use all
+    /// threads), the total number of threads should be divisible by this number
+    /// (e.g. use 8 in outer loop if you have 24 threads in total and 3 will be
+    /// used for the inner loop).
+    int threads_outer_loop_;
+
   };
 
   /** @brief Simple OpenSwathWorkflow to perform RT and m/z correction based on a set of known peptides
@@ -170,13 +184,13 @@ protected:
   {
   public:
 
-    explicit OpenSwathRetentionTimeNormalization() :
+    OpenSwathRetentionTimeNormalization() :
       OpenSwathWorkflowBase(false, false)
     {
     }
 
-    explicit OpenSwathRetentionTimeNormalization(bool use_ms1_traces, bool use_ms1_ion_mobility) :
-      OpenSwathWorkflowBase(use_ms1_traces, use_ms1_traces)
+    OpenSwathRetentionTimeNormalization(bool use_ms1_traces, bool use_ms1_ion_mobility) :
+      OpenSwathWorkflowBase(use_ms1_traces, use_ms1_ion_mobility)
     {
     }
 
@@ -269,8 +283,8 @@ protected:
 
   public:
 
-    explicit OpenSwathWorkflow(bool use_ms1_traces, bool use_ms1_ion_mobility) :
-      OpenSwathWorkflowBase(use_ms1_traces, use_ms1_ion_mobility)
+    explicit OpenSwathWorkflow(bool use_ms1_traces, bool use_ms1_ion_mobility, int threads_outer_loop) :
+      OpenSwathWorkflowBase(use_ms1_traces, use_ms1_ion_mobility, threads_outer_loop)
     {
     }
 
@@ -401,7 +415,7 @@ protected:
   public:
 
     explicit OpenSwathWorkflowSonar(bool use_ms1_traces) :
-      OpenSwathWorkflow(use_ms1_traces, false)
+      OpenSwathWorkflow(use_ms1_traces, false, -1)
     {}
 
     /** @brief Execute the OpenSWATH workflow on a set of SONAR SwathMaps and transitions.
