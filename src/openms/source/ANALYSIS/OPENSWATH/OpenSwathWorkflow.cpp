@@ -42,6 +42,8 @@
 namespace OpenMS
 {
 
+  int OUTER_THREAD_NUM = -1; // use all threads for outer loop parallelization
+
   TransformationDescription OpenSwathRetentionTimeNormalization::performRTNormalization(
     const OpenSwath::LightTargetedExperiment& irt_transitions,
     std::vector< OpenSwath::SwathMap > & swath_maps,
@@ -529,6 +531,13 @@ namespace OpenMS
     // in which they were given to the program / acquired. This gives much
     // better load balancing than static allocation.
 #ifdef _OPENMP
+    int total_nr_threads = omp_get_max_threads(); // store total number of threads we are allowed to use
+    if (OUTER_THREAD_NUM > -1)
+    {
+      omp_set_nested(1);
+      omp_set_dynamic(0);
+      omp_set_num_threads(std::min(OUTER_THREAD_NUM, omp_get_max_threads()) ); // use at most OUTER_THREAD_NUM threads here
+    }
 #pragma omp parallel for schedule(dynamic,1)
 #endif
     for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
@@ -573,8 +582,42 @@ namespace OpenMS
             "from SWATH " << i << " in batches of " << batch_size << std::endl;
           }
 
-          for (size_t pep_idx = 0; pep_idx <= (transition_exp_used_all.getCompounds().size() / batch_size); pep_idx++)
+          size_t nr_b = (transition_exp_used_all.getCompounds().size() / batch_size);
+#ifdef _OPENMP
+          // If we have a multiple of OUTER_THREAD_NUM here, then use second
+          // level parallelization here. E.g. if we use 8 outer threads but we
+          // have 24 cores available in total, each thread will then create a
+          // team of 3 threads to work on the batches individually.
+          // We should avoid oversubscribing the CPUs, therefore we use integer division.
+          // -- see https://docs.oracle.com/cd/E19059-01/stud.10/819-0501/2_nested.html
+          int outer_thread_nr = omp_get_thread_num();
+          omp_set_num_threads(std::max(1, total_nr_threads / OUTER_THREAD_NUM) );
+#pragma omp parallel for schedule(dynamic, 1)
+#endif
+          for (size_t pep_idx = 0; pep_idx <= nr_b; pep_idx++)
           {
+            OpenSwath::SpectrumAccessPtr current_swath_map_inner = current_swath_map;
+
+            // To ensure multi-threading safe access to the individual spectra, we
+            // need to use a light clone of the spectrum access (if multiple threads
+            // share a single filestream and call seek on it, chaos will ensue).
+            if (true)
+            {
+              current_swath_map_inner = current_swath_map->lightClone();
+            }
+
+#ifdef _OPENMP
+#pragma omp critical (featureFinderx)
+#endif
+          {
+            std::cout << "Thread " <<
+#ifdef _OPENMP
+            outer_thread_nr << "_" << omp_get_thread_num() << " " <<
+#endif
+            "out of  " << omp_get_num_threads() <<  " will analyzie batch "
+            << pep_idx << std::endl;
+          }
+
             // Create the new, batch-size transition experiment
             OpenSwath::LightTargetedExperiment transition_exp_used;
             selectCompoundsForBatch_(transition_exp_used_all, transition_exp_used, batch_size, pep_idx);
@@ -586,7 +629,7 @@ namespace OpenMS
 
             // Step 2.2: prepare the extraction coordinates and extract chromatograms
             prepareExtractionCoordinates_(chrom_list, coordinates, transition_exp_used, false, trafo_inverse, cp);
-            extractor.extractChromatograms(current_swath_map, chrom_list, coordinates, cp.mz_extraction_window,
+            extractor.extractChromatograms(current_swath_map_inner, chrom_list, coordinates, cp.mz_extraction_window,
                 cp.ppm, cp.im_extraction_window, cp.extraction_function);
 
             // Step 2.3: convert chromatograms back to OpenMS::MSChromatogram and write to output
@@ -594,10 +637,11 @@ namespace OpenMS
             extractor.return_chromatogram(chrom_list, coordinates, transition_exp_used,  SpectrumSettings(), 
                                           chrom_exp.getChromatograms(), false, cp.im_extraction_window);
 
+
             // Step 3: score these extracted transitions
             FeatureMap featureFile;
             std::vector< OpenSwath::SwathMap > tmp = {swath_maps[i]};
-            tmp.back().sptr = current_swath_map;
+            tmp.back().sptr = current_swath_map_inner;
             scoreAllChromatograms(chrom_exp.getChromatograms(), ms1_chromatograms, tmp, transition_exp_used,
                 feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer);
 
@@ -1038,7 +1082,7 @@ namespace OpenMS
       // gives much better load balancing than static allocation.
       // TODO: this means that there is possibly some overlap between threads accessing sptr ... !!
 #ifdef _OPENMP
-#pragma omp parallel for schedule(dynamic,1)
+#pragma omp parallel for schedule(dynamic, 1)
 #endif
       for (int sonar_idx = 0; sonar_idx < sonar_total_win; sonar_idx++)
       {
