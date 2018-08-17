@@ -149,15 +149,20 @@ namespace OpenMS
     }
 
     void integrateDriftSpectrum(OpenSwath::SpectrumPtr spectrum, 
-                                              double mz_start,
-                                              double mz_end,
-                                              double & im,
-                                              double & intensity,
-                                              std::vector<std::pair<double, double> >& res, 
-                                              double drift_start,
-                                              double drift_end)
+                                double mz_start,
+                                double mz_end,
+                                double & im,
+                                double & intensity,
+                                std::vector<std::pair<double, double> >& res, 
+                                double drift_start,
+                                double drift_end)
     {
       OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
+      OPENMS_PRECONDITION(spectrum->getMZArray()->data.size() == spectrum->getIntensityArray()->data.size(), "MZ and Intensity array need to have the same length.");
+      OPENMS_PRECONDITION(spectrum->getMZArray()->data.size() == spectrum->getDriftTimeArray()->data.size(), "MZ and Drift Time array need to have the same length.");
+      OPENMS_PRECONDITION(std::adjacent_find(spectrum->getMZArray()->data.begin(),
+              spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
+              "Precondition violated: m/z vector needs to be sorted!" )
 
       // rounding multiplier for the ion mobility value
       // TODO: how to improve this -- will work up to 42949.67296
@@ -225,6 +230,11 @@ namespace OpenMS
                                               double drift_end)
     {
       OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
+      OPENMS_PRECONDITION(spectrum->getMZArray()->data.size() == spectrum->getIntensityArray()->data.size(), "MZ and Intensity array need to have the same length.");
+      OPENMS_PRECONDITION(spectrum->getMZArray()->data.size() == spectrum->getDriftTimeArray()->data.size(), "MZ and Drift Time array need to have the same length.");
+      OPENMS_PRECONDITION(std::adjacent_find(spectrum->getMZArray()->data.begin(),
+              spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
+              "Precondition violated: m/z vector needs to be sorted!" )
 
       {
         // get the weighted average for noncentroided data.
@@ -271,13 +281,17 @@ namespace OpenMS
       }
     }
 
-    /// integrate all masses in window
-    bool integrateWindow(const OpenSwath::SpectrumPtr spectrum, double mz_start, double mz_end,
-                         double & mz, double & intensity, bool centroided)
+    bool integrateWindow(const OpenSwath::SpectrumPtr spectrum,
+                         double mz_start,
+                         double mz_end,
+                         double & mz,
+                         double & intensity,
+                         bool centroided)
     {
-      OPENMS_PRECONDITION( std::adjacent_find(spectrum->getMZArray()->data.begin(),
+      OPENMS_PRECONDITION(spectrum->getMZArray()->data.size() == spectrum->getIntensityArray()->data.size(), "MZ and Intensity array need to have the same length.");
+      OPENMS_PRECONDITION(std::adjacent_find(spectrum->getMZArray()->data.begin(),
               spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
-            "Precondition violated: m/z vector needs to be sorted!" )
+              "Precondition violated: m/z vector needs to be sorted!" )
 
       intensity = 0;
       if (!centroided)
