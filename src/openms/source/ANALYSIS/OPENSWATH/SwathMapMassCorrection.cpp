@@ -71,13 +71,20 @@ namespace OpenMS
     os_im.precision(writtenDigits(double()));
 #endif
 
+    std::vector<String> trgr_ids;
+    for (auto trgroup_it : transition_group_map) {trgr_ids.push_back(trgroup_it.first);}
+
+
     TransformationDescription::DataPoints data_im;
     std::vector<double> exp_im;
     std::vector<double> theo_im;
-    for (auto trgroup_it = transition_group_map.begin(); trgroup_it != transition_group_map.end(); ++trgroup_it)
+#ifdef _OPENMP
+#pragma omp parallel for 
+#endif
+    for (SignedSize k = 0; k < (SignedSize)trgr_ids.size(); k++)
     {
       // we need at least one feature to find the best one
-      auto transition_group = trgroup_it->second;
+      auto transition_group = transition_group_map.at(trgr_ids[k]);
       if (transition_group->getFeatures().size() == 0)
       {
         continue;
@@ -149,14 +156,18 @@ namespace OpenMS
           continue;
         }
 
-        // store result drift time
-        data_im.push_back(std::make_pair(im, drift_target));
-        exp_im.push_back(im);
-        theo_im.push_back(drift_target);
-
-#ifdef SWATHMAPMASSCORRECTION_DEBUG
-        os_im << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << std::endl;
+#ifdef _OPENMP
+#pragma omp critical
 #endif
+        {
+          // store result drift time
+          data_im.push_back(std::make_pair(im, drift_target));
+          exp_im.push_back(im);
+          theo_im.push_back(drift_target);
+#ifdef SWATHMAPMASSCORRECTION_DEBUG
+          os_im << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << std::endl;
+#endif
+        }
       }
     }
 
@@ -178,7 +189,7 @@ namespace OpenMS
     String model_type = "linear";
     im_trafo.fitModel(model_type, model_params);
 
-    LOG_DEBUG << "SwathMapMassCorrection::correctMZ done." << std::endl;
+    LOG_DEBUG << "SwathMapMassCorrection::correctIM done." << std::endl;
   }
 
   void SwathMapMassCorrection::correctMZ(
@@ -213,9 +224,6 @@ namespace OpenMS
     std::vector<double> theo_mz;
     std::vector<double> delta_ppm;
 
-    TransformationDescription::DataPoints data_im;
-    std::vector<double> exp_im;
-    std::vector<double> theo_im;
     for (auto trgroup_it = transition_group_map.begin(); trgroup_it != transition_group_map.end(); ++trgroup_it)
     {
 
