@@ -89,7 +89,7 @@ namespace OpenMS
     // perform RT and m/z correction on the data
     TransformationDescription tr = RTNormalization(irt_transitions,
         irt_chromatograms, im_trafo, min_rsq, min_coverage, feature_finder_param,
-        irt_detection_param, swath_maps, mz_correction_function, cp_irt.mz_extraction_window, cp_irt.ppm);
+        irt_detection_param, swath_maps, mz_correction_function, cp_irt.im_extraction_window, cp_irt.mz_extraction_window, cp_irt.ppm);
     return tr;
   }
 
@@ -103,6 +103,7 @@ namespace OpenMS
     const Param& irt_detection_param,
     std::vector< OpenSwath::SwathMap > & swath_maps,
     const String & mz_correction_function,
+    double im_extraction_window,
     double mz_extraction_window,
     bool ppm)
   {
@@ -313,9 +314,11 @@ namespace OpenMS
       std::cout << "Model evaluation: mean of xval " << xval_mean << " mean of mad " << xval_mad << std::endl;
     }
 
-    // 6. Correct m/z deviations using SwathMapMassCorrection
+    // 6. Correct m/z and drift time deviations using SwathMapMassCorrection
     SwathMapMassCorrection::correctMZ(trgrmap_final, swath_maps, im_trafo, targeted_exp,
         mz_correction_function, mz_extraction_window, ppm);
+    SwathMapMassCorrection::correctIM(trgrmap_final, swath_maps, im_trafo, targeted_exp,
+        im_extraction_window, mz_extraction_window, ppm);
 
     // 7. store transformation, using the selected model
     TransformationDescription trafo_out;

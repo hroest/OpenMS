@@ -83,6 +83,14 @@ public:
                           const double mz_extr_window = 0.05,
                           const bool ppm = false);
 
+    static void correctIM(const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
+                          const std::vector< OpenSwath::SwathMap > & swath_maps,
+                          TransformationDescription& im_trafo,
+                          const OpenSwath::LightTargetedExperiment& targeted_exp,
+                          const double im_extraction_win,
+                          const double mz_extr_window = 0.05,
+                          const bool ppm = false);
+
   };
 }
 

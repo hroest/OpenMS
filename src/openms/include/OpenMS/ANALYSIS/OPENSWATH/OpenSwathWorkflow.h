@@ -254,6 +254,7 @@ protected:
       const Param& irt_detection_param,
       std::vector< OpenSwath::SwathMap > & swath_maps,
       const String & mz_correction_function,
+      double im_extraction_window,
       double mz_extraction_window,
       bool ppm);
 

@@ -817,7 +817,7 @@ protected:
       trafo_rtnorm = wf.RTNormalization(transition_exp_nl, chromatograms, im_trafo, min_rsq,
                                         min_coverage, feature_finder_param, nonlinear_irt,
                                         swath_maps, mz_correction_function,
-                                        cp_irt.mz_extraction_window, cp_irt.ppm);
+                                        cp_irt.im_extraction_window, cp_irt.mz_extraction_window, cp_irt.ppm);
 
       TransformationDescription im_trafo_inv = im_trafo;
       im_trafo_inv.invert(); // theoretical -> experimental
@@ -825,8 +825,6 @@ protected:
       {
         for (auto & p : transition_exp.getCompounds())
         {
-          // std::cout << " changing " << 1 << " to " << im_trafo_inv.apply( 1.0 ) << std::endl;
-          // std::cout << " changing " << p.drift_time << " to " << im_trafo_inv.apply( p.drift_time ) << std::endl;
           p.drift_time = im_trafo_inv.apply(p.drift_time);
         }
       }

@@ -49,77 +49,137 @@
 namespace OpenMS
 {
 
-  void integrateDriftSpectrum_x(OpenSwath::SpectrumPtr spectrum, 
-                              double mz_start,
-                              double mz_end,
-                              double & im,
-                              double & intensity,
-                              std::vector<std::pair<double, double> >& res, 
-                              double drift_start,
-                              double drift_end)
+  void SwathMapMassCorrection::correctIM(
+    const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
+    const std::vector< OpenSwath::SwathMap > & swath_maps,
+    TransformationDescription& im_trafo,
+    const OpenSwath::LightTargetedExperiment& targeted_exp,
+    const double im_extraction_win,
+    const double mz_extr_window,
+    const bool ppm)
   {
-    OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
-    im = 0; intensity = 0;
+    LOG_DEBUG << "SwathMapMassCorrection::correctIM " << " window " << im_extraction_win << std::endl;
 
-    // rounding multiplier for the ion mobility value
-    // TODO: how to improve this -- will work up to 42949.67296
-    double IM_IDX_MULT = 10e5;
-
-    std::map< int, double> im_chrom;
+    if (im_extraction_win < 0)
     {
-      // get the weighted average for noncentroided data.
-      // TODO this is not optimal if there are two peaks in this window (e.g. if the window is too large)
-      typedef std::vector<double>::const_iterator itType;
+      return;
+    }
 
-      itType mz_arr_end = spectrum->getMZArray()->data.end();
-      itType int_it = spectrum->getIntensityArray()->data.begin();
-      itType im_it = spectrum->getDriftTimeArray()->data.begin();
+#ifdef SWATHMAPMASSCORRECTION_DEBUG
+    std::cout.precision(16);
+    std::ofstream os_im("debug_imdiff.txt");
+    os_im.precision(writtenDigits(double()));
+#endif
 
-      // this assumes that the spectra are sorted!
-      itType mz_it = std::lower_bound(spectrum->getMZArray()->data.begin(),
-        spectrum->getMZArray()->data.end(), mz_start);
-      itType mz_it_end = std::lower_bound(mz_it, mz_arr_end, mz_end);
-
-      // also advance intensity and ion mobility iterator now
-      std::iterator_traits< itType >::difference_type iterator_pos = std::distance((itType)spectrum->getMZArray()->data.begin(), mz_it);
-      std::advance(int_it, iterator_pos);
-      std::advance(im_it, iterator_pos);
-
-      // Iterate from mz start to end, only storing ion mobility values that are in the range
-      for (; mz_it != mz_it_end; ++mz_it, ++int_it, ++im_it)
+    TransformationDescription::DataPoints data_im;
+    std::vector<double> exp_im;
+    std::vector<double> theo_im;
+    for (auto trgroup_it = transition_group_map.begin(); trgroup_it != transition_group_map.end(); ++trgroup_it)
+    {
+      // we need at least one feature to find the best one
+      auto transition_group = trgroup_it->second;
+      if (transition_group->getFeatures().size() == 0)
       {
-        if ( *im_it >= drift_start && *im_it <= drift_end)
+        continue;
+      }
+
+      // Find the feature with the highest score
+      double bestRT = -1;
+      double highest_score = -1000;
+      for (auto mrmfeature = transition_group->getFeatures().begin(); mrmfeature != transition_group->getFeatures().end(); ++mrmfeature)
+      {
+        if (mrmfeature->getOverallQuality() > highest_score)
         {
-          // std::cout << "IM " << *im_it << " mz " << *mz_it << " int " << *int_it << " cum " << im << std::endl;
-          im_chrom[ int((*im_it)*IM_IDX_MULT) ] += *int_it;
-          intensity += (*int_it);
-          im += (*int_it) * (*im_it);
+          bestRT = mrmfeature->getRT();
+          highest_score = mrmfeature->getOverallQuality();
         }
       }
 
-      if (intensity > 0.)
+      // Get the corresponding SWATH map(s), for SONAR there will be more than one map
+      std::vector<OpenSwath::SwathMap> used_maps;
+      for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
       {
-        im /= intensity;
+        if (swath_maps[i].lower < transition_group->getTransitions()[0].precursor_mz &&
+            swath_maps[i].upper >= transition_group->getTransitions()[0].precursor_mz)
+        {
+          used_maps.push_back(swath_maps[i]);
+        }
       }
-      else
+
+      if (used_maps.empty())
       {
-        im = -1;
-        intensity = 0;
+        continue;
+      }
+
+      // Get the spectrum for this RT and extract raw data points for all the
+      // calibrating transitions (fragment m/z values) from the spectrum
+      OpenSwath::SpectrumPtr sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
+      for (std::vector< OpenMS::MRMFeatureFinderScoring::TransitionType >::const_iterator
+          tr = transition_group->getTransitions().begin();
+          tr != transition_group->getTransitions().end(); ++tr)
+      {
+        double mz(0), intensity(0), im(0);
+        double left = tr->product_mz - mz_extr_window / 2.0;
+        double right = tr->product_mz + mz_extr_window / 2.0;
+
+        auto pepref = tr->getPeptideRef();
+        auto t_exp = const_cast<OpenSwath::LightTargetedExperiment&>(targeted_exp);
+        double drift_target = t_exp.getPeptideByRef(pepref).getDriftTime();
+
+        if (ppm)
+        {
+          left = tr->product_mz - mz_extr_window / 2.0  * tr->product_mz * 1e-6;
+          right = tr->product_mz + mz_extr_window / 2.0 * tr->product_mz * 1e-6;
+        }
+
+        typedef std::vector< std::pair<double, double> > IMProfile;
+        IMProfile res;
+        double drift_lower_used(drift_target - im_extraction_win), drift_upper_used(drift_target + im_extraction_win);
+        DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
+
+        // skip empty windows
+        if (mz == -1)
+        {
+          continue;
+        }
+
+        // store result drift time
+        data_im.push_back(std::make_pair(im, drift_target));
+        exp_im.push_back(im);
+        theo_im.push_back(drift_target);
+
+#ifdef SWATHMAPMASSCORRECTION_DEBUG
+        os_im << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << std::endl;
+#endif
       }
     }
 
-    for (auto k : im_chrom) 
-    {
-      res.push_back(std::make_pair( k.first / IM_IDX_MULT, k.second ) );
-    }
+    std::vector<double> im_regression_params;
+    double confidence_interval_P(0.0);
+    Math::LinearRegression lr;
+    lr.computeRegression(confidence_interval_P, exp_im.begin(), exp_im.end(), theo_im.begin()); // to convert exp_im -> theoretical im
+    im_regression_params.push_back(lr.getIntercept());
+    im_regression_params.push_back(lr.getSlope());
+    im_regression_params.push_back(0.0);
 
+    std::cout << "# im regression parameters: Y = " << im_regression_params[0] << " + " <<
+      im_regression_params[1] << " X + " << im_regression_params[2] << " X^2" << std::endl;
+
+    // store IM transformation, using the selected model
+    im_trafo.setDataPoints(data_im);
+    Param model_params;
+    model_params.setValue("symmetric_regression", "false");
+    String model_type = "linear";
+    im_trafo.fitModel(model_type, model_params);
+
+    LOG_DEBUG << "SwathMapMassCorrection::correctMZ done." << std::endl;
   }
 
   void SwathMapMassCorrection::correctMZ(
     const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
     std::vector< OpenSwath::SwathMap > & swath_maps,
-    TransformationDescription& im_trafo,
-    const OpenSwath::LightTargetedExperiment& targeted_exp,
+    TransformationDescription& /* im_trafo */,
+    const OpenSwath::LightTargetedExperiment& /* targeted_exp */,
     const std::string& corr_type,
     const double mz_extr_window,
     const bool ppm)
@@ -139,10 +199,6 @@ namespace OpenMS
     std::cout.precision(16);
     std::ofstream os("debug_ppmdiff.txt");
     os.precision(writtenDigits(double()));
-
-    std::cout.precision(16);
-    std::ofstream os_im("debug_imdiff.txt");
-    os_im.precision(writtenDigits(double()));
 #endif
 
     TransformationDescription::DataPoints data_all;
@@ -203,12 +259,6 @@ namespace OpenMS
         double left = tr->product_mz - mz_extr_window / 2.0;
         double right = tr->product_mz + mz_extr_window / 2.0;
         bool centroided = false;
-
-        auto pepref = tr->getPeptideRef();
-        auto kk = const_cast<OpenSwath::LightTargetedExperiment&>(targeted_exp);
-
-        auto pep = kk.getPeptideByRef(pepref);
-
         if (ppm)
         {
           left = tr->product_mz - mz_extr_window / 2.0  * tr->product_mz * 1e-6;
@@ -218,39 +268,11 @@ namespace OpenMS
         // integrate spectrum at the position of the theoretical mass
         DIAHelpers::integrateWindow(sp, left, right, mz, intensity, centroided);
 
-        // IMProfile: a data structure that holds points <im_value, intensity>
-        typedef std::vector< std::pair<double, double> > IMProfile;
-        double delta_drift = 0;
-        std::vector< IMProfile > im_profiles;
-
-        double drift_lower(0), drift_upper(0), drift_target(0);
-        if (!transition_group->getChromatograms().empty())
-        {
-          auto & prec = transition_group->getChromatograms()[0].getPrecursor();
-          drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
-          drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
-          drift_target = prec.getDriftTime(); 
-        }
-        drift_target = pep.getDriftTime();
-
-        // double left(transition->getProductMZ()), right(transition->getProductMZ());
-        // adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
-        IMProfile res;
-        double im(0);
-        intensity = 0;
-        double drift_lower_used(drift_target - 0.1), drift_upper_used(drift_target + 0.1);
-        integrateDriftSpectrum_x(sp, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
-
         // skip empty windows
         if (mz == -1)
         {
           continue;
         }
-
-        // store result masses
-        data_im.push_back(std::make_pair(im, drift_target));
-        exp_im.push_back(im);
-        theo_im.push_back(drift_target);
 
         // store result masses
         data_all.push_back(std::make_pair(mz, tr->product_mz));
@@ -265,7 +287,6 @@ namespace OpenMS
 
 #ifdef SWATHMAPMASSCORRECTION_DEBUG
         os << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
-        os_im << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << std::endl;
 #endif
         LOG_DEBUG << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
       }
@@ -380,30 +401,6 @@ namespace OpenMS
       swath_maps[i].sptr = boost::shared_ptr<OpenSwath::ISpectrumAccess>(
         new SpectrumAccessQuadMZTransforming(swath_maps[i].sptr,
           regression_params[0], regression_params[1], regression_params[2], is_ppm));
-    }
-
-    {
-      std::vector<double> im_regression_params;
-      double confidence_interval_P(0.0);
-      Math::LinearRegression lr;
-      lr.computeRegression(confidence_interval_P, exp_im.begin(), exp_im.end(), theo_im.begin()); // to convert exp_im -> theoretical im
-      im_regression_params.push_back(lr.getIntercept());
-      im_regression_params.push_back(lr.getSlope());
-      im_regression_params.push_back(0.0);
-
-      std::cout << "# im regression parameters: Y = " << im_regression_params[0] << " + " <<
-        im_regression_params[1] << " X + " << im_regression_params[2] << " X^2" << std::endl;
-
-      // store IM transformation, using the selected model
-      im_trafo.setDataPoints(data_im);
-      Param model_params;
-      model_params.setValue("symmetric_regression", "false");
-      // model_params.setValue("span", irt_detection_param.getValue("lowess:span"));
-      // model_params.setValue("num_nodes", irt_detection_param.getValue("b_spline:num_nodes"));
-      String model_type = "linear";
-      im_trafo.fitModel(model_type, model_params);
-
-      // std::cout << " trafo transforms 1 to " << im_trafo.apply(1.0) << std::endl; // converts experimental IM to theorteical IM
     }
 
     LOG_DEBUG << "SwathMapMassCorrection::correctMZ done." << std::endl;
