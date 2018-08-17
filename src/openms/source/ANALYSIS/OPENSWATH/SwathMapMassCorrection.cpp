@@ -132,10 +132,8 @@ namespace OpenMS
           right = tr->product_mz + mz_extr_window / 2.0 * tr->product_mz * 1e-6;
         }
 
-        typedef std::vector< std::pair<double, double> > IMProfile;
-        IMProfile res;
         double drift_lower_used(drift_target - im_extraction_win), drift_upper_used(drift_target + im_extraction_win);
-        DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
+        DIAHelpers::integrateDriftSpectrum_x(sp, left, right, im, intensity, drift_lower_used, drift_upper_used);
 
         // skip empty windows
         if (mz == -1)

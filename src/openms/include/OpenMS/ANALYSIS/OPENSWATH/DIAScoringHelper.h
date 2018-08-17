@@ -98,6 +98,14 @@ namespace OpenMS
                                               double drift_end);
 
 
+    OPENMS_DLLAPI void integrateDriftSpectrum_x(OpenSwath::SpectrumPtr spectrum, 
+                                              double mz_start,
+                                              double mz_end,
+                                              double & im,
+                                              double & intensity,
+                                              double drift_start,
+                                              double drift_end);
+
     /// compute the b and y series masses for a given AASequence
     OPENMS_DLLAPI void getBYSeries(const AASequence& a,
                                    std::vector<double>& bseries,
