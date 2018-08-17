@@ -446,12 +446,11 @@ protected:
     setValidStrings_("mz_extraction_window_ms1_unit", ListUtils::create<String>("Th,ppm"));
     setMinFloat_("mz_extraction_window_ms1", 0.0);
     setMinFloat_("extra_rt_extraction_window", 0.0);
-    // registerFlag_("ppm", "m/z extraction_window is in ppm");
     registerFlag_("sonar", "data is scanning SWATH data");
 
     registerStringOption_("use_ms1_ion_mobility", "<name>", "true", "Also perform precursor extraction using the same ion mobility window as for fragment ion extraction", false, true);
     setValidStrings_("use_ms1_ion_mobility", ListUtils::create<String>("true,false"));
-    registerDoubleOption_("mz_extraction_window_ms1", "<double>", 0.05, "Extraction window used in MS1 (in ppm)", false);
+    registerDoubleOption_("mz_extraction_window_ms1", "<double>", 0.05, "Extraction window used in MS1", false);
     setMinFloat_("mz_extraction_window_ms1", 0.0);
     registerStringOption_("mz_extraction_window_ms1_unit", "<name>", "Th", "Unit of the MS1 m/z extraction window", false, true);
     setValidStrings_("mz_extraction_window_ms1_unit", ListUtils::create<String>("ppm,Th"));
@@ -469,7 +468,6 @@ protected:
     setValidStrings_("mz_correction_function", ListUtils::create<String>("none,regression_delta_ppm,unweighted_regression,weighted_regression,quadratic_regression,weighted_quadratic_regression,weighted_quadratic_regression_delta_ppm,quadratic_regression_delta_ppm"));
     registerDoubleOption_("irt_mz_extraction_window", "<double>", 0.05, "Extraction window used for iRT and m/z correction (in Thomson, use ppm use -ppm flag)", false, true);
     registerDoubleOption_("irt_im_extraction_window", "<double>", -1, "Ion mobility extraction window used for iRT (in 1/K0 or milliseconds)", false, true);
-    // registerFlag_("ppm_irtwindow", "iRT m/z extraction_window is in ppm", true);
     registerStringOption_("irt_mz_extraction_window_unit", "<name>", "Th", "Unit for mz extraction", false, true);
     setValidStrings_("irt_mz_extraction_window_unit", ListUtils::create<String>("Th,ppm"));
 
