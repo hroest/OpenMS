@@ -387,7 +387,7 @@ namespace OpenMS
               transition_exp_used, SpectrumSettings(), tmp_chromatograms, false, cp.im_extraction_window);
 
 #ifdef _OPENMP
-#pragma omp critical (featureFinder)
+#pragma omp critical (osw_stdout)
 #endif
           {
             LOG_DEBUG << "[simple] Extracted "  << tmp_chromatograms.size() << " chromatograms from SWATH map " <<
@@ -537,9 +537,14 @@ namespace OpenMS
     int total_nr_threads = omp_get_max_threads(); // store total number of threads we are allowed to use
     if (threads_outer_loop_ > -1)
     {
+      std::cout << "Setting up nested loop with " << std::min(threads_outer_loop_, omp_get_max_threads()) << " threads out of "<< omp_get_max_threads() << std::endl;
       omp_set_nested(1);
       omp_set_dynamic(0);
       omp_set_num_threads(std::min(threads_outer_loop_, omp_get_max_threads()) ); // use at most threads_outer_loop_ threads here
+    }
+    else
+    {
+      std::cout << "Use non-nested loop with " << total_nr_threads << " threads." << std::endl;
     }
 #pragma omp parallel for schedule(dynamic,1)
 #endif
@@ -573,12 +578,13 @@ namespace OpenMS
           }
 
 #ifdef _OPENMP
-#pragma omp critical (featureFinder)
+#pragma omp critical (osw_stdout)
 #endif
           {
             std::cout << "Thread " <<
 #ifdef _OPENMP
-            omp_get_thread_num() << " " <<
+            omp_get_thread_num() << " in a team of " <<
+            std::max(1, total_nr_threads / threads_outer_loop_)  << " "
 #endif
             "will analyze " << transition_exp_used_all.getCompounds().size() <<  " compounds and "
             << transition_exp_used_all.getTransitions().size() <<  " transitions "
@@ -610,7 +616,7 @@ namespace OpenMS
             }
 
 #ifdef _OPENMP
-#pragma omp critical (featureFinderx)
+#pragma omp critical (osw_stdout)
 #endif
           {
             std::cout << "Thread " <<
@@ -652,7 +658,7 @@ namespace OpenMS
             // (this needs to be done in a critical section since we only have one
             // output file and one output map).
 #ifdef _OPENMP
-#pragma omp critical (featureFinder)
+#pragma omp critical (osw_write_disk)
 #endif
             {
               writeOutFeaturesAndChroms_(chrom_exp.getChromatograms(), featureFile, out_featureFile, store_features, chromConsumer);
@@ -663,7 +669,7 @@ namespace OpenMS
       } // continue 1 (no continue due to OpenMP)
 
 #ifdef _OPENMP
-#pragma omp critical (progress)
+#pragma omp critical (osw_stdout)
 #endif
         this->setProgress(++progress);
 
@@ -1151,7 +1157,7 @@ namespace OpenMS
           }
 
 #ifdef _OPENMP
-#pragma omp critical (featureFinder)
+#pragma omp critical (osw_stdout)
 #endif
           {
             std::cout << "Thread " <<
@@ -1190,7 +1196,7 @@ namespace OpenMS
             // (this needs to be done in a critical section since we only have one
             // output file and one output map).
 #ifdef _OPENMP
-#pragma omp critical (featureFinder)
+#pragma omp critical (osw_write_disk)
 #endif
             {
               writeOutFeaturesAndChroms_(chrom_exp.getChromatograms(), featureFile, out_featureFile, store_features, chromConsumer);
@@ -1198,7 +1204,7 @@ namespace OpenMS
           }
         }
 #ifdef _OPENMP
-#pragma omp critical (progress)
+#pragma omp critical (osw_stdout)
 #endif
         this->setProgress(++progress);
       }
