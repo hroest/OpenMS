@@ -339,10 +339,10 @@ namespace OpenMS
     Size lastAA = peptide.sequence.size() -1;
     if (peptide.sequence[lastAA] == 'K')
     {
-      std::cout << " last AA " << peptide.sequence[lastAA]  << std::endl;
+      // std::cout << " last AA " << peptide.sequence[lastAA]  << std::endl;
       peptide.sequence[lastAA] = 'R';
-      std::cout << " last AA " << peptide.sequence[lastAA]  << std::endl;
-      std::cout << " after " << peptide.sequence << std::endl;
+      // std::cout << " last AA " << peptide.sequence[lastAA]  << std::endl;
+      // std::cout << " after " << peptide.sequence << std::endl;
     }
     else if (peptide.sequence[lastAA] == 'R')
     {
@@ -352,12 +352,14 @@ namespace OpenMS
     {
       // randomize
       int res_pos = (pseudoRNG() % aa_size);
+      // std::cout << " randomize to " << (char)aa[res_pos][0] << std::endl;
       peptide.sequence[lastAA] = (char)aa[res_pos][0];
     }
   }
 
   bool MRMDecoy::hasCNterminalMods_(const OpenMS::TargetedExperiment::Peptide& peptide, bool checkCterminalAA) const
   {
+
     for (Size j = 0; j < peptide.mods.size(); j++)
     {
       if (peptide.mods[j].location == -1 || peptide.mods[j].location == (int)peptide.sequence.size())
@@ -496,6 +498,7 @@ namespace OpenMS
       setProgress(++progress);
 
       String peptide_ref = pep_it->first;
+      // std::cout << " working pep ref " << peptide_ref << std::endl;
       String decoy_peptide_ref = decoy_tag + pep_it->first; // see above, the decoy peptide id is computed deterministically from the target id
       if (!dec.hasPeptide(decoy_peptide_ref)) {continue;}
       const TargetedExperiment::Peptide target_peptide = exp.getPeptideByRef(peptide_ref);
@@ -515,6 +518,8 @@ namespace OpenMS
       MRMIonSeries::IonSeries target_ionseries = mrmis.getIonSeries(target_peptide_sequence, target_charge,
             fragment_types, fragment_charges, enable_specific_losses,
             enable_unspecific_losses, round_decPow);
+
+      // std::cout << " working on " << target_peptide_sequence << " (leading to decoy " << decoy_peptide_sequence << std::endl;
 
       // Compute (new) decoy precursor m/z based on the K/R replacement and the AA changes in the shuffle algorithm
       double decoy_precursor_mz = decoy_peptide_sequence.getMonoWeight(Residue::Full, decoy_charge) / decoy_charge;
@@ -540,6 +545,9 @@ namespace OpenMS
         std::pair<String, double> targetion = mrmis.annotateIon(target_ionseries, tr.getProductMZ(), product_mz_threshold);
         std::pair<String, double> decoyion = mrmis.getIon(decoy_ionseries, targetion.first);
 
+        // std::cout << " annotate ion " << tr.getProductMZ() << " with  " << targetion.first << " / " << targetion.second << std::endl;
+        // std::cout << " annotate decoy ion " << " with  " << decoyion.first << " / " << decoyion.second << std::endl;
+
         if (method == "shift")
         {
           decoy_tr.setProductMZ(decoyion.second + product_mz_shift);
@@ -559,6 +567,7 @@ namespace OpenMS
           // transition could not be annotated, remove whole peptide
           exclusion_peptides.push_back(decoy_tr.getPeptideRef());
           LOG_DEBUG << "[peptide] Skipping " << decoy_tr.getPeptideRef() << " due to missing annotation" << std::endl;
+          // std::cout << "first " << decoyion.first << " sec " << decoyion.second <<  std::endl;
         }
       } // end loop over transitions
 
