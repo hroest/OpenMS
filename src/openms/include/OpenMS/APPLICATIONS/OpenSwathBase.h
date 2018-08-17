@@ -425,7 +425,8 @@ protected:
       // perform extraction
       OpenSwathRetentionTimeNormalization wf;
       wf.setLogType(log_type_);
-      trafo_rtnorm = wf.performRTNormalization(irt_transitions, swath_maps, min_rsq, min_coverage,
+      TransformationDescription im_trafo;
+      trafo_rtnorm = wf.performRTNormalization(irt_transitions, swath_maps, im_trafo, min_rsq, min_coverage,
       feature_finder_param, cp_irt, irt_detection_param, mz_correction_function, irt_mzml_out,
       debug_level, sonar, load_into_memory);
 

@@ -67,12 +67,18 @@ public:
      *
      * @param transition_group_map A MRMFeatureFinderScoring result map
      * @param swath_maps The raw swath maps from the current run
-     * @param corr_type Regression type, one of "none", "unweighted_regression", "weighted_regression", "quadratic_regression", "quadratic_regression_delta_ppm"
-     *
+     * @param im_trafo Computed transformation (transforms experimental values to theoretical values) 
+     * @param corr_type Regression type, one of "none",
+     * "unweighted_regression", "weighted_regression", "quadratic_regression",
+     * "quadratic_regression_delta_ppm"
+     * @param mz_extr_window Extraction window in m/z
+     * @param ppm Whether extraction window is in ppm
      *
      */
     static void correctMZ(const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *>& transition_group_map,
                           std::vector< OpenSwath::SwathMap > & swath_maps,
+                          TransformationDescription& im_trafo,
+                          const OpenSwath::LightTargetedExperiment& targeted_exp,
                           const std::string& corr_type,
                           const double mz_extr_window = 0.05,
                           const bool ppm = false);

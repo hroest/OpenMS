@@ -45,6 +45,7 @@ namespace OpenMS
   TransformationDescription OpenSwathRetentionTimeNormalization::performRTNormalization(
     const OpenSwath::LightTargetedExperiment& irt_transitions,
     std::vector< OpenSwath::SwathMap > & swath_maps,
+    TransformationDescription& im_trafo,
     double min_rsq,
     double min_coverage,
     const Param & feature_finder_param,
@@ -87,7 +88,7 @@ namespace OpenMS
 
     // perform RT and m/z correction on the data
     TransformationDescription tr = RTNormalization(irt_transitions,
-        irt_chromatograms, min_rsq, min_coverage, feature_finder_param,
+        irt_chromatograms, im_trafo, min_rsq, min_coverage, feature_finder_param,
         irt_detection_param, swath_maps, mz_correction_function, cp_irt.mz_extraction_window, cp_irt.ppm);
     return tr;
   }
@@ -95,6 +96,7 @@ namespace OpenMS
   TransformationDescription OpenSwathRetentionTimeNormalization::RTNormalization(
     const OpenSwath::LightTargetedExperiment& targeted_exp,
     const std::vector< OpenMS::MSChromatogram >& chromatograms,
+    TransformationDescription& im_trafo,
     double min_rsq,
     double min_coverage,
     const Param& default_ffparam,
@@ -312,7 +314,7 @@ namespace OpenMS
     }
 
     // 6. Correct m/z deviations using SwathMapMassCorrection
-    SwathMapMassCorrection::correctMZ(trgrmap_final, swath_maps,
+    SwathMapMassCorrection::correctMZ(trgrmap_final, swath_maps, im_trafo, targeted_exp,
         mz_correction_function, mz_extraction_window, ppm);
 
     // 7. store transformation, using the selected model

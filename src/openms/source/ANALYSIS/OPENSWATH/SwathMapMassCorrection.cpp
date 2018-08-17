@@ -49,9 +49,77 @@
 namespace OpenMS
 {
 
+  void integrateDriftSpectrum_x(OpenSwath::SpectrumPtr spectrum, 
+                              double mz_start,
+                              double mz_end,
+                              double & im,
+                              double & intensity,
+                              std::vector<std::pair<double, double> >& res, 
+                              double drift_start,
+                              double drift_end)
+  {
+    OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
+    im = 0; intensity = 0;
+
+    // rounding multiplier for the ion mobility value
+    // TODO: how to improve this -- will work up to 42949.67296
+    double IM_IDX_MULT = 10e5;
+
+    std::map< int, double> im_chrom;
+    {
+      // get the weighted average for noncentroided data.
+      // TODO this is not optimal if there are two peaks in this window (e.g. if the window is too large)
+      typedef std::vector<double>::const_iterator itType;
+
+      itType mz_arr_end = spectrum->getMZArray()->data.end();
+      itType int_it = spectrum->getIntensityArray()->data.begin();
+      itType im_it = spectrum->getDriftTimeArray()->data.begin();
+
+      // this assumes that the spectra are sorted!
+      itType mz_it = std::lower_bound(spectrum->getMZArray()->data.begin(),
+        spectrum->getMZArray()->data.end(), mz_start);
+      itType mz_it_end = std::lower_bound(mz_it, mz_arr_end, mz_end);
+
+      // also advance intensity and ion mobility iterator now
+      std::iterator_traits< itType >::difference_type iterator_pos = std::distance((itType)spectrum->getMZArray()->data.begin(), mz_it);
+      std::advance(int_it, iterator_pos);
+      std::advance(im_it, iterator_pos);
+
+      // Iterate from mz start to end, only storing ion mobility values that are in the range
+      for (; mz_it != mz_it_end; ++mz_it, ++int_it, ++im_it)
+      {
+        if ( *im_it >= drift_start && *im_it <= drift_end)
+        {
+          // std::cout << "IM " << *im_it << " mz " << *mz_it << " int " << *int_it << " cum " << im << std::endl;
+          im_chrom[ int((*im_it)*IM_IDX_MULT) ] += *int_it;
+          intensity += (*int_it);
+          im += (*int_it) * (*im_it);
+        }
+      }
+
+      if (intensity > 0.)
+      {
+        im /= intensity;
+      }
+      else
+      {
+        im = -1;
+        intensity = 0;
+      }
+    }
+
+    for (auto k : im_chrom) 
+    {
+      res.push_back(std::make_pair( k.first / IM_IDX_MULT, k.second ) );
+    }
+
+  }
+
   void SwathMapMassCorrection::correctMZ(
     const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
     std::vector< OpenSwath::SwathMap > & swath_maps,
+    TransformationDescription& im_trafo,
+    const OpenSwath::LightTargetedExperiment& targeted_exp,
     const std::string& corr_type,
     const double mz_extr_window,
     const bool ppm)
@@ -71,6 +139,10 @@ namespace OpenMS
     std::cout.precision(16);
     std::ofstream os("debug_ppmdiff.txt");
     os.precision(writtenDigits(double()));
+
+    std::cout.precision(16);
+    std::ofstream os_im("debug_imdiff.txt");
+    os_im.precision(writtenDigits(double()));
 #endif
 
     TransformationDescription::DataPoints data_all;
@@ -78,6 +150,10 @@ namespace OpenMS
     std::vector<double> exp_mz;
     std::vector<double> theo_mz;
     std::vector<double> delta_ppm;
+
+    TransformationDescription::DataPoints data_im;
+    std::vector<double> exp_im;
+    std::vector<double> theo_im;
     for (auto trgroup_it = transition_group_map.begin(); trgroup_it != transition_group_map.end(); ++trgroup_it)
     {
 
@@ -128,6 +204,11 @@ namespace OpenMS
         double right = tr->product_mz + mz_extr_window / 2.0;
         bool centroided = false;
 
+        auto pepref = tr->getPeptideRef();
+        auto kk = const_cast<OpenSwath::LightTargetedExperiment&>(targeted_exp);
+
+        auto pep = kk.getPeptideByRef(pepref);
+
         if (ppm)
         {
           left = tr->product_mz - mz_extr_window / 2.0  * tr->product_mz * 1e-6;
@@ -137,6 +218,31 @@ namespace OpenMS
         // integrate spectrum at the position of the theoretical mass
         DIAHelpers::integrateWindow(sp, left, right, mz, intensity, centroided);
 
+        // IMProfile: a data structure that holds points <im_value, intensity>
+        typedef std::vector< std::pair<double, double> > IMProfile;
+        double delta_drift = 0;
+        std::vector< IMProfile > im_profiles;
+
+        double drift_lower(0), drift_upper(0), drift_target(0);
+        if (!transition_group->getChromatograms().empty())
+        {
+          auto & prec = transition_group->getChromatograms()[0].getPrecursor();
+          drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
+          drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+          drift_target = prec.getDriftTime(); 
+        }
+        drift_target = pep.getDriftTime();
+
+        // double left(transition->getProductMZ()), right(transition->getProductMZ());
+        // adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+        IMProfile res;
+        double im(0);
+        intensity = 0;
+        double drift_lower_used(drift_target - 0.1), drift_upper_used(drift_target + 0.1);
+        integrateDriftSpectrum_x(sp, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
+        // std::cout << " extract " << pepref << " at " << drift_target << " from " << drift_lower << " to " << drift_upper << std::endl;
+        // std::cout << " found " << im << " vs " << drift_target << std::endl;
+
         // skip empty windows
         if (mz == -1)
         {
@@ -144,7 +250,11 @@ namespace OpenMS
         }
 
         // store result masses
+        data_im.push_back(std::make_pair(im, drift_target));
+        exp_im.push_back(im);
+        theo_im.push_back(drift_target);
 
+        // store result masses
         data_all.push_back(std::make_pair(mz, tr->product_mz));
         // regression weight is the log2 intensity
         weights.push_back( log(intensity) / log(2.0) );
@@ -157,6 +267,8 @@ namespace OpenMS
 
 #ifdef SWATHMAPMASSCORRECTION_DEBUG
         os << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
+        os_im << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << std::endl;
+        // std::cout << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
 #endif
         LOG_DEBUG << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
 
@@ -274,40 +386,74 @@ namespace OpenMS
           regression_params[0], regression_params[1], regression_params[2], is_ppm));
     }
 
+    {
+      std::vector<double> im_regression_params;
+      double confidence_interval_P(0.0);
+      Math::LinearRegression lr;
+      lr.computeRegression(confidence_interval_P, exp_im.begin(), exp_im.end(), theo_im.begin()); // to convert exp_im -> theoretical im
+      im_regression_params.push_back(lr.getIntercept());
+      im_regression_params.push_back(lr.getSlope());
+      im_regression_params.push_back(0.0);
+
+      std::cout << "# im regression parameters: Y = " << im_regression_params[0] << " + " <<
+        im_regression_params[1] << " X + " << im_regression_params[2] << " X^2" << std::endl;
+
+      // store IM transformation, using the selected model
+      im_trafo.setDataPoints(data_im);
+      Param model_params;
+      model_params.setValue("symmetric_regression", "false");
+      // model_params.setValue("span", irt_detection_param.getValue("lowess:span"));
+      // model_params.setValue("num_nodes", irt_detection_param.getValue("b_spline:num_nodes"));
+      String model_type = "linear";
+      im_trafo.fitModel(model_type, model_params);
+
+      // std::cout << " trafo transforms 1 to " << im_trafo.apply(1.0) << std::endl; // converts experimental IM to theorteical IM
+    }
+
     LOG_DEBUG << "SwathMapMassCorrection::correctMZ done." << std::endl;
   }
 
 /* display debug output in R
 
+# os << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
  df = read.csv("debug_ppmdiff.txt", sep="\t" , header=F)
+
+
+ pdf("/tmp/mz.pdf")
+ df = read.csv("/tmp/debug_ppmdiff.txt", sep="\t" , header=F)
  colnames(df) = c("mz", "theomz", "dppm", "int", "rt")
  df$absd = df$theomz-df$mz
  plot(df$mz, df$absd, main="m/z vs absolute deviation")
  plot(df$mz, df$dppm, main="m/z vs ppm deviation")
+ hist(df$absd, main="absolute deviation (before)", breaks=45)
+ abline(v=median(df$absd), col="red")
+ hist(df$dppm, main="deviation ppm (before)", breaks=45)
+ abline(v=median(df$dppm), col="red")
 
  linm = lm(theomz ~ mz, df)
  df$x2 = df$mz*df$mz
  quadm = lm(theomz ~ mz + x2, df)
 
- df$ppmdiff_pred = (df$theomz - predict(quadm))/df$mz * 1e6
-
- plot(df$mz, df$ppmdiff_pred, col="blue", cex=0.5)
- points(df$mz, df$dppm, col="red", cex=0.5)
- legend("bottomright", legend=c("original", "corrected") , col=c("red", "blue") )
-
-
-
- plot(df$mz, df$dppm, col="red", cex=0.5)
+ plot(df$mz, df$dppm, cex=0.5)
  quadm_ppm = lm(dppm ~ mz + x2, df)
 
  plot(df$mz, df$dppm, main="PPM difference and model fit")
  points(df$mz, predict(quadm_ppm), cex=0.3, col="red")
 
- points(df$mz, df$dppm - predict(quadm_ppm), col="blue")
+ plot(resid(linm), main="m/z residual (after linear fit)")
+ plot(resid(quadm), main="m/z residual (after quadratic fit)")
+ plot(resid(quadm_ppm), main="m/z residual (after quadratic ppm fit)")
+
+ hist(resid(linm), main="m/z residual (after linear fit)", breaks=45)
+ hist(resid(quadm), main="m/z residual (after quadratic fit)", breaks=45)
+ hist(resid(quadm_ppm), main="m/z residual (after quadratic fit)", breaks=45)
+
+ summary(resid(quadm_ppm))
+ quantile(resid(quadm_ppm), probs=c(0.05, 0.95))
+
+ 
 
 
- plot(df$mz, df$ppmdiff_pred, col="red", main="Cmp two model approaches")
- points(df$mz, df$dppm - predict(quadm_ppm), col="blue")
 
  sd(df$dppm)
  mean(df$dppm)
@@ -320,6 +466,37 @@ namespace OpenMS
 
 */
 
+/* display debug output in R
+
+ pdf("/tmp/im_calibration.pdf")
+ df = read.csv("/tmp/debug_imdiff.txt", sep="\t" , header=F)
+
+ colnames(df) = c("mz", "im", "theo_im", "rt")
+ df$absd = df$theo_im - df$im
+ linm = lm(theo_im ~ im, df)
+
+ plot(df$im, df$theo_im, main="Ion Mobility (before)")
+ abline(0, 1)
+ abline(lm(theo_im ~ im, df), col="red")
+
+ plot(df$im, df$absd, main="Ion Mobility residual (before)")
+ hist(df$absd, main="Ion Mobility residual (before)", breaks=45)
+
+ plot(resid(linm), main="Ion Mobility residual (after fit)")
+ hist(resid(linm), main="Ion Mobility residual (after fit)", breaks=45)
+ hist(resid(linm), main="Ion Mobility residual (after fit)", breaks=45, xlim=c(-0.03, 0.03))
+
+ scale = max(df$theo_im) - min(df$theo_im)
+ hist(resid(linm)/scale * 100, main="Ion Mobility residual (after fit)", breaks=45)
+ hist(resid(linm)/scale * 100, main="Ion Mobility residual (after fit)", breaks=45, xlim=c(-3,3))
+ summary(resid(linm)/scale * 100)
+
+ summary(resid(linm))
+ quantile(resid(linm), probs=c(0.05, 0.95))
+
+ dev.off()
+
+*/
 
 /*
 

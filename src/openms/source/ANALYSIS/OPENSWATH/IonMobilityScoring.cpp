@@ -299,9 +299,9 @@ namespace OpenMS
 
       if (intensity > 0.)
       {
-        std::cout << " before " << im << std::endl;
+        // std::cout << " before " << im << std::endl;
         im /= intensity;
-        std::cout << " after " << im << std::endl;
+        // std::cout << " after " << im << std::endl;
       }
       else
       {
@@ -367,14 +367,14 @@ namespace OpenMS
       tr_used++;
 
       delta_drift += fabs(drift_target - im);
-      std::cout << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
+      // std::cout << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
       computed_im += im;
       computed_im_weighted += im * intensity;
       sum_intensity += intensity;
       // delta_drift_weighted += delta_drift * normalized_library_intensity[k];
       // weights += normalized_library_intensity[k];
     }
-    std::cout << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
+    // std::cout << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
     scores.im_delta_score = delta_drift / tr_used;
 
     // computed_im /= transitions.size();
