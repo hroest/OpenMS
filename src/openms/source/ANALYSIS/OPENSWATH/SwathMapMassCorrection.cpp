@@ -125,6 +125,15 @@ namespace OpenMS
         auto pepref = tr->getPeptideRef();
         auto t_exp = const_cast<OpenSwath::LightTargetedExperiment&>(targeted_exp);
         double drift_target = t_exp.getPeptideByRef(pepref).getDriftTime();
+        double drift_lower_used(drift_target - im_extraction_win), drift_upper_used(drift_target + im_extraction_win);
+
+        // Check that the spectrum really has a drift time array
+        if (sp->getDriftTimeArray() == nullptr)
+        {
+          LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
+          for (auto m : used_maps) LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
+          continue;
+        }
 
         if (ppm)
         {
@@ -132,7 +141,6 @@ namespace OpenMS
           right = tr->product_mz + mz_extr_window / 2.0 * tr->product_mz * 1e-6;
         }
 
-        double drift_lower_used(drift_target - im_extraction_win), drift_upper_used(drift_target + im_extraction_win);
         DIAHelpers::integrateDriftSpectrum_x(sp, left, right, im, intensity, drift_lower_used, drift_upper_used);
 
         // skip empty windows
