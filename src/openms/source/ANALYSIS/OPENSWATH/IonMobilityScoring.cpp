@@ -49,6 +49,7 @@
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
 #include <OpenMS/MATH/STATISTICS/StatisticFunctions.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/SpectrumAddition.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoringHelper.h>
 
 namespace OpenMS
 {
@@ -247,9 +248,6 @@ namespace OpenMS
   {
   }
 
-  // see DIAScoring.cpp
-  void adjustExtractionWindow(double& right, double& left, const double& dia_extract_window_, const bool& dia_extraction_ppm_);
-
   void integrateDriftSpectrum(OpenSwath::SpectrumPtr spectrum, 
                               double mz_start,
                               double mz_end,
@@ -355,7 +353,7 @@ namespace OpenMS
       const TransitionType* transition = &transitions[k];
       // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
       double left(transition->getProductMZ()), right(transition->getProductMZ());
-      adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+      DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
       IMProfile res;
       double im(0), intensity(0);
       integrateDriftSpectrum(spectrum, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
