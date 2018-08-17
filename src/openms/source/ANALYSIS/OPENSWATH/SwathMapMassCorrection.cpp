@@ -240,8 +240,6 @@ namespace OpenMS
         intensity = 0;
         double drift_lower_used(drift_target - 0.1), drift_upper_used(drift_target + 0.1);
         integrateDriftSpectrum_x(sp, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
-        // std::cout << " extract " << pepref << " at " << drift_target << " from " << drift_lower << " to " << drift_upper << std::endl;
-        // std::cout << " found " << im << " vs " << drift_target << std::endl;
 
         // skip empty windows
         if (mz == -1)
@@ -268,10 +266,8 @@ namespace OpenMS
 #ifdef SWATHMAPMASSCORRECTION_DEBUG
         os << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
         os_im << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << std::endl;
-        // std::cout << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
 #endif
         LOG_DEBUG << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
-
       }
     }
 
@@ -412,111 +408,6 @@ namespace OpenMS
 
     LOG_DEBUG << "SwathMapMassCorrection::correctMZ done." << std::endl;
   }
-
-/* display debug output in R
-
-# os << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
- df = read.csv("debug_ppmdiff.txt", sep="\t" , header=F)
-
-
- pdf("/tmp/mz.pdf")
- df = read.csv("/tmp/debug_ppmdiff.txt", sep="\t" , header=F)
- colnames(df) = c("mz", "theomz", "dppm", "int", "rt")
- df$absd = df$theomz-df$mz
- plot(df$mz, df$absd, main="m/z vs absolute deviation")
- plot(df$mz, df$dppm, main="m/z vs ppm deviation")
- hist(df$absd, main="absolute deviation (before)", breaks=45)
- abline(v=median(df$absd), col="red")
- hist(df$dppm, main="deviation ppm (before)", breaks=45)
- abline(v=median(df$dppm), col="red")
-
- linm = lm(theomz ~ mz, df)
- df$x2 = df$mz*df$mz
- quadm = lm(theomz ~ mz + x2, df)
-
- plot(df$mz, df$dppm, cex=0.5)
- quadm_ppm = lm(dppm ~ mz + x2, df)
-
- plot(df$mz, df$dppm, main="PPM difference and model fit")
- points(df$mz, predict(quadm_ppm), cex=0.3, col="red")
-
- plot(resid(linm), main="m/z residual (after linear fit)")
- plot(resid(quadm), main="m/z residual (after quadratic fit)")
- plot(resid(quadm_ppm), main="m/z residual (after quadratic ppm fit)")
-
- hist(resid(linm), main="m/z residual (after linear fit)", breaks=45)
- hist(resid(quadm), main="m/z residual (after quadratic fit)", breaks=45)
- hist(resid(quadm_ppm), main="m/z residual (after quadratic fit)", breaks=45)
-
- summary(resid(quadm_ppm))
- quantile(resid(quadm_ppm), probs=c(0.05, 0.95))
-
- 
-
-
-
- sd(df$dppm)
- mean(df$dppm)
- sd(df$ppmdiff_pred)
- mean(df$ppmdiff_pred)
- sd(df$dppm - predict(quadm_ppm))
- mean(df$dppm - predict(quadm_ppm))
-
-
-
-*/
-
-/* display debug output in R
-
- pdf("/tmp/im_calibration.pdf")
- df = read.csv("/tmp/debug_imdiff.txt", sep="\t" , header=F)
-
- colnames(df) = c("mz", "im", "theo_im", "rt")
- df$absd = df$theo_im - df$im
- linm = lm(theo_im ~ im, df)
-
- plot(df$im, df$theo_im, main="Ion Mobility (before)")
- abline(0, 1)
- abline(lm(theo_im ~ im, df), col="red")
-
- plot(df$im, df$absd, main="Ion Mobility residual (before)")
- hist(df$absd, main="Ion Mobility residual (before)", breaks=45)
-
- plot(resid(linm), main="Ion Mobility residual (after fit)")
- hist(resid(linm), main="Ion Mobility residual (after fit)", breaks=45)
- hist(resid(linm), main="Ion Mobility residual (after fit)", breaks=45, xlim=c(-0.03, 0.03))
-
- scale = max(df$theo_im) - min(df$theo_im)
- hist(resid(linm)/scale * 100, main="Ion Mobility residual (after fit)", breaks=45)
- hist(resid(linm)/scale * 100, main="Ion Mobility residual (after fit)", breaks=45, xlim=c(-3,3))
- summary(resid(linm)/scale * 100)
-
- summary(resid(linm))
- quantile(resid(linm), probs=c(0.05, 0.95))
-
- dev.off()
-
-*/
-
-/*
-
-
-# mz regression parameters: Y = -0.0156725 + 1.00005 X + -3.7127e-08 X^2
-sum residual sq ppm before 394.0529252540293 / after 245.4905283249099
-rsq: 0.9993098240025888 points: 7
-
-# mz regression parameters: Y = 42.2354 + -0.107071 X + 6.87643e-05 X^2
-sum residual sq ppm before 394.0529252540293 / after 205.778656429406
-rsq: 0.9993098240025888 points: 7
-
-
--- done [took 4.53 s (CPU), 4.55 s (Wall)] --
-OpenSwathWorkflow took 23.92 s (wall), 23.73 s (CPU), 0.00 s (system), 23.73 s (user).
-
--- done [took 1.41 s (CPU), 1.41 s (Wall)] --
-OpenSwathWorkflow took 21.07 s (wall), 20.90 s (CPU), 0.00 s (system), 20.90 s (user).
-
-*/
 
 }
 
