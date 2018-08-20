@@ -56,17 +56,19 @@ namespace OpenMS
   namespace DIAHelpers
   {
 
-    void adjustExtractionWindow(double& right, double& left, const double& dia_extract_window_, const bool& dia_extraction_ppm_)
+    void adjustExtractionWindow(double& right, double& left, const double& mz_extraction_window, const bool& dia_extraction_ppm_)
     {
+      OPENMS_PRECONDITION(mz_extraction_window > 0, "MZ extraction window needst to be larger than zero.");
+
       if (dia_extraction_ppm_)
       {
-        left -= left * dia_extract_window_ / 2e6;
-        right += right * dia_extract_window_ / 2e6;
+        left -= left * mz_extraction_window / 2e6;
+        right += right * mz_extraction_window / 2e6;
       }
       else
       {
-        left -= dia_extract_window_ / 2.0;
-        right += dia_extract_window_ / 2.0;
+        left -= mz_extraction_window / 2.0;
+        right += mz_extraction_window / 2.0;
       }
     }
 
@@ -164,6 +166,9 @@ namespace OpenMS
               spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
               "Precondition violated: m/z vector needs to be sorted!" )
 
+      im = 0;
+      intensity = 0;
+
       // rounding multiplier for the ion mobility value
       // TODO: how to improve this -- will work up to 42949.67296
       double IM_IDX_MULT = 10e5;
@@ -236,49 +241,47 @@ namespace OpenMS
               spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
               "Precondition violated: m/z vector needs to be sorted!" )
 
-      {
-        // get the weighted average for noncentroided data.
-        // TODO this is not optimal if there are two peaks in this window (e.g. if the window is too large)
-        typedef std::vector<double>::const_iterator itType;
+      im = 0;
+      intensity = 0;
 
-        itType mz_arr_end = spectrum->getMZArray()->data.end();
-        itType int_it = spectrum->getIntensityArray()->data.begin();
-        itType im_it = spectrum->getDriftTimeArray()->data.begin();
+      // get the weighted average for noncentroided data.
+      // TODO this is not optimal if there are two peaks in this window (e.g. if the window is too large)
+      typedef std::vector<double>::const_iterator itType;
 
-        // this assumes that the spectra are sorted!
-        itType mz_it = std::lower_bound(spectrum->getMZArray()->data.begin(),
+      itType mz_arr_end = spectrum->getMZArray()->data.end();
+      itType int_it = spectrum->getIntensityArray()->data.begin();
+      itType im_it = spectrum->getDriftTimeArray()->data.begin();
+
+      // this assumes that the spectra are sorted!
+      itType mz_it = std::lower_bound(spectrum->getMZArray()->data.begin(),
           spectrum->getMZArray()->data.end(), mz_start);
-        itType mz_it_end = std::lower_bound(mz_it, mz_arr_end, mz_end);
+      itType mz_it_end = std::lower_bound(mz_it, mz_arr_end, mz_end);
 
-        // also advance intensity and ion mobility iterator now
-        std::iterator_traits< itType >::difference_type iterator_pos = std::distance((itType)spectrum->getMZArray()->data.begin(), mz_it);
-        std::advance(int_it, iterator_pos);
-        std::advance(im_it, iterator_pos);
+      // also advance intensity and ion mobility iterator now
+      std::iterator_traits< itType >::difference_type iterator_pos = std::distance((itType)spectrum->getMZArray()->data.begin(), mz_it);
+      std::advance(int_it, iterator_pos);
+      std::advance(im_it, iterator_pos);
 
-        // Iterate from mz start to end, only storing ion mobility values that are in the range
-        for (; mz_it != mz_it_end; ++mz_it, ++int_it, ++im_it)
+      // Iterate from mz start to end, only storing ion mobility values that are in the range
+      for (; mz_it != mz_it_end; ++mz_it, ++int_it, ++im_it)
+      {
+        if ( *im_it >= drift_start && *im_it <= drift_end)
         {
-          if ( *im_it >= drift_start && *im_it <= drift_end)
-          {
-            // std::cout << "IM " << *im_it << " mz " << *mz_it << " int " << *int_it << std::endl;
-            intensity += (*int_it);
-            im += (*int_it) * (*im_it);
-          }
+          intensity += (*int_it);
+          im += (*int_it) * (*im_it);
         }
-
-        if (intensity > 0.)
-        {
-          // std::cout << " before " << im << std::endl;
-          im /= intensity;
-          // std::cout << " after " << im << std::endl;
-        }
-        else
-        {
-          im = -1;
-          intensity = 0;
-        }
-
       }
+
+      if (intensity > 0.)
+      {
+        im /= intensity;
+      }
+      else
+      {
+        im = -1;
+        intensity = 0;
+      }
+
     }
 
     bool integrateWindow(const OpenSwath::SpectrumPtr spectrum,
@@ -293,14 +296,14 @@ namespace OpenMS
               spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
               "Precondition violated: m/z vector needs to be sorted!" )
 
+      mz = 0;
       intensity = 0;
+
       if (!centroided)
       {
         // get the weighted average for noncentroided data.
         // TODO this is not optimal if there are two peaks in this window (e.g. if the window is too large)
         typedef std::vector<double>::const_iterator itType;
-        mz = 0;
-        intensity = 0;
 
         itType mz_arr_end = spectrum->getMZArray()->data.end();
         itType int_it = spectrum->getIntensityArray()->data.begin();
