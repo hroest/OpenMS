@@ -269,17 +269,11 @@ namespace OpenMS
           tr = transition_group->getTransitions().begin();
           tr != transition_group->getTransitions().end(); ++tr)
       {
-        double mz, intensity;
-        double left = tr->product_mz - mz_extr_window / 2.0;
-        double right = tr->product_mz + mz_extr_window / 2.0;
+        double mz, intensity, left(tr->product_mz), right(tr->product_mz);
         bool centroided = false;
-        if (ppm)
-        {
-          left = tr->product_mz - mz_extr_window / 2.0  * tr->product_mz * 1e-6;
-          right = tr->product_mz + mz_extr_window / 2.0 * tr->product_mz * 1e-6;
-        }
 
         // integrate spectrum at the position of the theoretical mass
+        DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
         DIAHelpers::integrateWindow(sp, left, right, mz, intensity, centroided);
 
         // skip empty windows
