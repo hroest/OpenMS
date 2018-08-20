@@ -72,8 +72,15 @@ namespace OpenMS
 #endif
 
     std::vector<String> trgr_ids;
-    for (auto trgroup_it : transition_group_map) {trgr_ids.push_back(trgroup_it.first);}
-
+    std::map<std::string, double> pep_im_map;
+    for (auto trgroup_it : transition_group_map)
+    {
+      trgr_ids.push_back(trgroup_it.first);
+    }
+    for (auto cmp : targeted_exp.getCompounds())
+    {
+      pep_im_map[cmp.id] = cmp.drift_time;
+    }
 
     TransformationDescription::DataPoints data_im;
     std::vector<double> exp_im;
@@ -120,19 +127,28 @@ namespace OpenMS
 
       // Get the spectrum for this RT and extract raw data points for all the
       // calibrating transitions (fragment m/z values) from the spectrum
-      OpenSwath::SpectrumPtr sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
+      // Note that we are not using light clones of the underlying data here,
+      // so access to the data needs to be in a critical section.
+      OpenSwath::SpectrumPtr sp;
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+      {
+        sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
+      }
+
       for (std::vector< OpenMS::MRMFeatureFinderScoring::TransitionType >::const_iterator
           tr = transition_group->getTransitions().begin();
           tr != transition_group->getTransitions().end(); ++tr)
       {
-        double mz(0), intensity(0), im(0);
-        double left = tr->product_mz - mz_extr_window / 2.0;
-        double right = tr->product_mz + mz_extr_window / 2.0;
+        double intensity(0), im(0), left(tr->product_mz), right(tr->product_mz);
 
         auto pepref = tr->getPeptideRef();
-        auto t_exp = const_cast<OpenSwath::LightTargetedExperiment&>(targeted_exp);
-        double drift_target = t_exp.getPeptideByRef(pepref).getDriftTime();
-        double drift_lower_used(drift_target - im_extraction_win), drift_upper_used(drift_target + im_extraction_win);
+        // get drift time upper/lower offset (this assumes that all chromatograms
+        // are derived from the same precursor with the same drift time)
+        double drift_target = pep_im_map[pepref];
+        double drift_lower_used = drift_target - im_extraction_win;
+        double drift_upper_used = drift_target + im_extraction_win;
 
         // Check that the spectrum really has a drift time array
         if (sp->getDriftTimeArray() == nullptr)
@@ -142,16 +158,11 @@ namespace OpenMS
           continue;
         }
 
-        if (ppm)
-        {
-          left = tr->product_mz - mz_extr_window / 2.0  * tr->product_mz * 1e-6;
-          right = tr->product_mz + mz_extr_window / 2.0 * tr->product_mz * 1e-6;
-        }
-
+        DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
         DIAHelpers::integrateDriftSpectrum_x(sp, left, right, im, intensity, drift_lower_used, drift_upper_used);
 
         // skip empty windows
-        if (mz == -1)
+        if (im == -1)
         {
           continue;
         }
@@ -165,7 +176,7 @@ namespace OpenMS
           exp_im.push_back(im);
           theo_im.push_back(drift_target);
 #ifdef SWATHMAPMASSCORRECTION_DEBUG
-          os_im << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << std::endl;
+          os_im << tr->product_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << std::endl;
 #endif
         }
       }
