@@ -52,6 +52,7 @@ namespace OpenMS
   SpectrumAccessOpenMSCached::SpectrumAccessOpenMSCached(const SpectrumAccessOpenMSCached & rhs) :
     CachedmzML(rhs)
   {
+    // this only copies the indices and meta-data
   }
 
   boost::shared_ptr<OpenSwath::ISpectrumAccess> SpectrumAccessOpenMSCached::lightClone() const 

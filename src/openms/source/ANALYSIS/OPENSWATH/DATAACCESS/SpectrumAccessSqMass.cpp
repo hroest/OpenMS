@@ -76,17 +76,15 @@ namespace OpenMS
       }
     }
 
-    /// Destructor
     SpectrumAccessSqMass::~SpectrumAccessSqMass() {}
 
-    /// Copy constructor
     SpectrumAccessSqMass::SpectrumAccessSqMass(const SpectrumAccessSqMass & rhs) :
       handler_(rhs.handler_),
       sidx_(rhs.sidx_)
     {
+      // This only copies the indices and the handler
     }
 
-    /// Light clone operator (actual data will not get copied)
     boost::shared_ptr<OpenSwath::ISpectrumAccess> SpectrumAccessSqMass::lightClone() const
     {
       return boost::shared_ptr<SpectrumAccessSqMass>(new SpectrumAccessSqMass(*this));
