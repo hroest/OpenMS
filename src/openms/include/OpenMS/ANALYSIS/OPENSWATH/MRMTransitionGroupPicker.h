@@ -133,6 +133,7 @@ public:
         }
 
         MSChromatogram picked_chrom, smoothed_chrom;
+        smoothed_chrom.setNativeID(native_id);
         picker_.pickChromatogram(chromatogram, picked_chrom, smoothed_chrom);
         picked_chrom.sortByIntensity();
         picked_chroms_.push_back(picked_chrom);
