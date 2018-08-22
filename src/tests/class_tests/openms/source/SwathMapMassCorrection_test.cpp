@@ -123,8 +123,8 @@ START_SECTION( static void correctMZ(OpenMS::MRMFeatureFinderScoring::Transition
   addTransitions(transition_group);
 
   // Add one group to the map
-  OpenMS::MRMFeatureFinderScoring::TransitionGroupMapType transition_group_map;
-  transition_group_map["group1"] = transition_group;
+  std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> transition_group_map;
+  transition_group_map["group1"] = &transition_group;
 
   // Create a mock spectrum fitting to the transition group
   boost::shared_ptr<PeakMap > exp(new PeakMap);
