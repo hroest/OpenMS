@@ -213,6 +213,14 @@ public:
           transition_group.addFeature(mrm_feature);
         }
       }
+#if 0
+      std::vector<MSChromatogram > tmp;
+      for (Size k = 0; k < transition_group.getChromatograms().size(); k++)
+      {
+        tmp.push_back(smoothed_chroms_[k]);
+      }
+      transition_group.setChromatograms(tmp);
+#endif
 
     }
 

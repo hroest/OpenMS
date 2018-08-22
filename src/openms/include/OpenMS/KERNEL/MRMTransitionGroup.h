@@ -176,6 +176,11 @@ public:
       return chromatograms_;
     }
 
+    inline void setChromatograms(const std::vector<ChromatogramType>& c)
+    {
+      chromatograms_ = c;
+    }
+
     inline const std::vector<ChromatogramType> & getChromatograms() const
     {
       return chromatograms_;
