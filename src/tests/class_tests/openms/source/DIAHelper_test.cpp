@@ -32,7 +32,7 @@
 // $Authors: Witold Wolski, Hannes Roest $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoringHelper.h>
 
 #ifdef USE_BOOST_UNIT_TEST
 
