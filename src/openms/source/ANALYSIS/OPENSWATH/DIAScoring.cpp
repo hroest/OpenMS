@@ -309,6 +309,7 @@ namespace OpenMS
       }
 #endif
     }
+    return true;
   }
 
   /// Precursor isotope scores

@@ -36,6 +36,7 @@
 
 #include <OpenMS/KERNEL/ComparatorUtils.h>
 #include <OpenMS/CONCEPT/Macros.h>
+#include <OpenMS/CONCEPT/LogStream.h>
 
 #include <OpenMS/MATH/MISC/CubicSpline2d.h>
 #include <OpenMS/MATH/MISC/SplineBisection.h>
