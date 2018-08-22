@@ -77,8 +77,6 @@ public:
      */
     static void correctMZ(const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *>& transition_group_map,
                           std::vector< OpenSwath::SwathMap > & swath_maps,
-                          TransformationDescription& im_trafo,
-                          const OpenSwath::LightTargetedExperiment& targeted_exp,
                           const std::string& corr_type,
                           const double mz_extr_window = 0.05,
                           const bool ppm = false);

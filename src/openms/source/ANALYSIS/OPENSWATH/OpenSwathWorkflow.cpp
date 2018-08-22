@@ -315,7 +315,7 @@ namespace OpenMS
     }
 
     // 6. Correct m/z and drift time deviations using SwathMapMassCorrection
-    SwathMapMassCorrection::correctMZ(trgrmap_final, swath_maps, im_trafo, targeted_exp,
+    SwathMapMassCorrection::correctMZ(trgrmap_final, swath_maps,
         mz_correction_function, mz_extraction_window, ppm);
     SwathMapMassCorrection::correctIM(trgrmap_final, swath_maps, im_trafo, targeted_exp,
         im_extraction_window, mz_extraction_window, ppm);
