@@ -74,12 +74,15 @@ START_SECTION(~OpenSwathScoring())
 }
 END_SECTION
 
+bool use_spline = false;
+double drift_extra = 0.0;
+
 START_SECTION((void initialize(double rt_normalization_factor_, int add_up_spectra_, double spacing_for_spectra_resampling_, OpenSwath_Scores_Usage & su_, std::string spectrum_addition_method)))
 {
   ptr = new OpenSwathScoring();
   OpenSwath_Scores_Usage su;
   TEST_NOT_EQUAL(ptr, nullPointer)
-  ptr->initialize(100.0, 1, 0.01, su, "simple");
+  ptr->initialize(100.0, 1, 0.01, use_spline, drift_extra, su, "simple");
   delete ptr;
 }
 END_SECTION
@@ -177,7 +180,7 @@ START_SECTION((OpenSwath::SpectrumPtr OpenSwathScoring::fetchSpectrumSwath(std::
     TEST_EQUAL(swath_ptr->getNrSpectra(), 3)
     OpenSwathScoring sc;
     OpenSwath_Scores_Usage su;
-    sc.initialize(100.0, 1, 0.005, su, "resample");
+    sc.initialize(100.0, 1, 0.005, use_spline, drift_extra, su, "resample");
     OpenSwath::SpectrumPtr sp = sc.fetchSpectrumSwath(swath_ptr, 20.0, 3, 0, 0);
 
     TEST_EQUAL(sp->getMZArray()->data.size(), 1);
@@ -209,7 +212,7 @@ START_SECTION((OpenSwath::SpectrumPtr OpenSwathScoring::fetchSpectrumSwath(std::
     TEST_EQUAL(swath_ptr->getNrSpectra(), 2)
     OpenSwathScoring sc;
     OpenSwath_Scores_Usage su;
-    sc.initialize(100.0, 1, 0.005, su, "resample");
+    sc.initialize(100.0, 1, 0.005, use_spline, drift_extra, su, "resample");
     OpenSwath::SpectrumPtr sp = sc.fetchSpectrumSwath(swath_ptr, 20.0, 3, 0, 0);
 
     TEST_EQUAL(sp->getMZArray()->data.size(), 1);
