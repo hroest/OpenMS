@@ -622,8 +622,9 @@ namespace OpenMS
             std::cout << "Thread " <<
 #ifdef _OPENMP
             outer_thread_nr << "_" << omp_get_thread_num() << " " <<
+            "out of  " << omp_get_num_threads() <<  
 #endif
-            "out of  " << omp_get_num_threads() <<  " will analyzie batch "
+            " will analyzie batch "
             << pep_idx << std::endl;
           }
 
