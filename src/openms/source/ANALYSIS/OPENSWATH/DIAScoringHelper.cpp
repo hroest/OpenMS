@@ -93,7 +93,6 @@ namespace OpenMS
 #endif
 
       std::map<double, double> peak_raw_data;
-      std::vector<double>::iterator central_mz_it;
       size_t maxk = -1;
 
       for (Size k = 0; k < fnewmz.size(); k++)

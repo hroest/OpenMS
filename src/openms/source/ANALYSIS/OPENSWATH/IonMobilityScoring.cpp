@@ -409,8 +409,8 @@ namespace OpenMS
           }
         }
       }
-
     }
+    LOG_DEBUG << "eps used " << eps << std::endl;
 
     // Align the IMProfile vectors to the grid
     std::vector< IMProfile > im_profiles_aligned;

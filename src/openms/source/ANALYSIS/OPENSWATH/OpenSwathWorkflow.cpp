@@ -301,7 +301,7 @@ namespace OpenMS
         mad.reserve(list_eval.size());
         for (const auto& e : list_eval)
         {
-          mean += std::fabs( trafo_eval.apply( e.second ) - e.first) ;
+          mean += std::fabs( trafo_eval.apply( e.second ) - e.first);
           mad.push_back( std::fabs( trafo_eval.apply( e.second ) - e.first) );
         }
         mean /= list_eval.size();
