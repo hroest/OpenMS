@@ -275,7 +275,7 @@ protected:
     boost::shared_ptr<ExperimentalSettings> exp_meta(new ExperimentalSettings);
     std::vector< OpenSwath::SwathMap > swath_maps;
     bool split_file = false;
-    loadSwathFiles(file_list, exp_meta, swath_maps, split_file, tmp, readoptions, "", 
+    loadSwathFiles(file_list, exp_meta, swath_maps, split_file, tmp, readoptions, "",  false,
             min_upper_edge_dist, false, false, false);
 
     ///////////////////////////////////
@@ -319,11 +319,20 @@ protected:
       wf.simpleExtractChromatograms(swath_maps, transition_exp_nl, chromatograms,
                                     trafo_rtnorm, cp_irt, false, load_into_memory);
 
-      trafo_rtnorm = wf.RTNormalization(transition_exp_nl, chromatograms, min_rsq,
+      TransformationDescription im_trafo;
+      trafo_rtnorm = wf.RTNormalization(transition_exp_nl, chromatograms, im_trafo, min_rsq,
                                         min_coverage, feature_finder_param, irt_detection_param,
-                                        swath_maps, mz_correction_function,
+                                        swath_maps, mz_correction_function, cp_irt.im_extraction_window,
                                         cp_irt.mz_extraction_window, cp_irt.ppm);
 
+      TransformationDescription im_trafo_inv = im_trafo;
+      im_trafo_inv.invert(); // theoretical -> experimental
+
+      // We now modify the library as this is the easiest thing to do
+      for (auto & p : transition_exp.getCompounds())
+      {
+        p.drift_time = im_trafo_inv.apply(p.drift_time);
+      }
     }
 
     ///////////////////////////////////
@@ -343,7 +352,7 @@ protected:
     OpenSwathOSWWriter oswwriter(out_osw, file_list[0], use_ms1_traces, false, false); // only active if filename not empty
 
     {
-      OpenSwathWorkflow wf(use_ms1_traces);
+      OpenSwathWorkflow wf(use_ms1_traces, true, -1);
       wf.setLogType(log_type_);
       wf.performExtraction(swath_maps, trafo_rtnorm, cp, cp_ms1, feature_finder_param, transition_exp,
           out_featureFile, !out.empty(), tsvwriter, oswwriter, chromatogramConsumer, 0, load_into_memory);
