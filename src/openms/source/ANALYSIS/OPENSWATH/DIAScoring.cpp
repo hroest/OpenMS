@@ -233,7 +233,6 @@ namespace OpenMS
     }
 #ifndef OLD_BEHAVIOR
     ppm_score_weighted /= weights;
-    ppm_score_weighted /= transitions.size();
 #endif
   }
 
