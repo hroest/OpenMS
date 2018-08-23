@@ -162,7 +162,7 @@ namespace OpenMS
         DIAHelpers::integrateDriftSpectrum_x(sp, left, right, im, intensity, drift_lower_used, drift_upper_used);
 
         // skip empty windows
-        if (im == -1)
+        if (im <= 0)
         {
           continue;
         }
