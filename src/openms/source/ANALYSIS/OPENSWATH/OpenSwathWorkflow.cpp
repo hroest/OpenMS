@@ -591,7 +591,7 @@ namespace OpenMS
             "from SWATH " << i << " in batches of " << batch_size << std::endl;
           }
 
-          size_t nr_b = (transition_exp_used_all.getCompounds().size() / batch_size);
+          SignedSize nr_b = (SignedSize)(transition_exp_used_all.getCompounds().size() / batch_size);
 #ifdef _OPENMP
           // If we have a multiple of threads_outer_loop_ here, then use second
           // level parallelization here. E.g. if we use 8 outer threads but we
@@ -603,7 +603,7 @@ namespace OpenMS
           omp_set_num_threads(std::max(1, total_nr_threads / threads_outer_loop_) );
 #pragma omp parallel for schedule(dynamic, 1)
 #endif
-          for (size_t pep_idx = 0; pep_idx <= nr_b; pep_idx++)
+          for (SignedSize pep_idx = 0; pep_idx <= nr_b; pep_idx++)
           {
             OpenSwath::SpectrumAccessPtr current_swath_map_inner = current_swath_map;
 
