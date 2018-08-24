@@ -346,7 +346,7 @@ namespace OpenMS
     {
       scores.sn_ratio = mrmscore_.calcSNScore(imrmfeature, signal_noise_estimators);
       // everything below S/N 1 can be set to zero (and the log safely applied)
-      if (std::isnan(scores.sn_ratio || std::isinf(scores.sn_ratio))
+      if (std::isnan(scores.sn_ratio) || std::isinf(scores.sn_ratio))
       {
         scores.log_sn_score = 0;
       }
