@@ -48,6 +48,7 @@
 
 #include <boost/range/adaptor/map.hpp>
 #include <boost/foreach.hpp>
+#include <cmath>
 
 #define run_identifier "unique_run_identifier"
 
@@ -602,12 +603,16 @@ namespace OpenMS
         OpenSwath::MRMScoring mrmscore_;
         scores.sn_ratio = mrmscore_.calcSNScore(imrmfeature, ms1_signal_noise_estimators);
         // everything below S/N 1 can be set to zero (and the log safely applied)
-        if (scores.sn_ratio < 1)
-        { 
+        if (std::isnan(scores.sn_ratio))
+        {
+          scores.log_sn_score = 0;
+        }
+        else if (scores.sn_ratio < 1)
+        {
           scores.log_sn_score = 0;
         }
         else
-        { 
+        {
           scores.log_sn_score = std::log(scores.sn_ratio);
         }
         if (su_.use_sn_score_sub_) 
