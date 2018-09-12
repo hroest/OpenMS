@@ -429,6 +429,7 @@ namespace OpenSwath
 
     for (std::size_t k = 0; k < signal_noise_estimators.size(); k++)
     {
+      // TODO: test this! 
       double val = signal_noise_estimators[k]->getValueAtRT(mrmfeature->getRT());
       if (!std::isnan(val) && !std::isinf(val))
       {
