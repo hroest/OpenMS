@@ -435,25 +435,25 @@ protected:
     registerDoubleOption_("min_upper_edge_dist", "<double>", 0.0, "Minimal distance to the edge to still consider a precursor, in Thomson", false, true);
     registerDoubleOption_("rt_extraction_window", "<double>", 600.0, "Only extract RT around this value (-1 means extract over the whole range, a value of 600 means to extract around +/- 300 s of the expected elution).", false);
     registerDoubleOption_("extra_rt_extraction_window", "<double>", 0.0, "Output an XIC with a RT-window that by this much larger (e.g. to visually inspect a larger area of the chromatogram)", false, true);
+    setMinFloat_("extra_rt_extraction_window", 0.0);
     registerDoubleOption_("ion_mobility_window", "<double>", -1, "Extraction window in ion mobility dimension (in 1/K0 or milliseconds). This is the full window size, e.g. a value of 10 milliseconds would extract 5 milliseconds on either side.", false);
     registerDoubleOption_("mz_extraction_window", "<double>", 0.05, "Extraction window used (in Thomson, to use ppm see -ppm flag)", false);
     setMinFloat_("mz_extraction_window", 0.0);
+
     registerStringOption_("mz_extraction_window_unit", "<name>", "Th", "Unit for mz extraction", false, true);
     setValidStrings_("mz_extraction_window_unit", ListUtils::create<String>("Th,ppm"));
 
     registerDoubleOption_("mz_extraction_window_ms1", "<double>", 0.05, "Extraction window used (in Thomson, to use ppm see -ppm flag)", false);
+    setMinFloat_("mz_extraction_window_ms1", 0.0);
     registerStringOption_("mz_extraction_window_ms1_unit", "<name>", "Th", "Unit for ms1 extraction", false, true);
     setValidStrings_("mz_extraction_window_ms1_unit", ListUtils::create<String>("Th,ppm"));
-    setMinFloat_("mz_extraction_window_ms1", 0.0);
-    setMinFloat_("extra_rt_extraction_window", 0.0);
+
     registerFlag_("sonar", "data is scanning SWATH data");
 
     registerStringOption_("use_ms1_ion_mobility", "<name>", "true", "Also perform precursor extraction using the same ion mobility window as for fragment ion extraction", false, true);
     setValidStrings_("use_ms1_ion_mobility", ListUtils::create<String>("true,false"));
     registerDoubleOption_("mz_extraction_window_ms1", "<double>", 0.05, "Extraction window used in MS1", false);
     setMinFloat_("mz_extraction_window_ms1", 0.0);
-    registerStringOption_("mz_extraction_window_ms1_unit", "<name>", "Th", "Unit of the MS1 m/z extraction window", false, true);
-    setValidStrings_("mz_extraction_window_ms1_unit", ListUtils::create<String>("ppm,Th"));
 
     registerDoubleOption_("min_rsq", "<double>", 0.95, "Minimum r-squared of RT peptides regression", false, true);
     registerDoubleOption_("min_coverage", "<double>", 0.6, "Minimum relative amount of RT peptides to keep", false, true);
@@ -820,11 +820,10 @@ protected:
       TransformationDescription im_trafo_inv = im_trafo;
       im_trafo_inv.invert(); // theoretical -> experimental
 
+      // We now modify the library as this is the easiest thing to do
+      for (auto & p : transition_exp.getCompounds())
       {
-        for (auto & p : transition_exp.getCompounds())
-        {
-          p.drift_time = im_trafo_inv.apply(p.drift_time);
-        }
+        p.drift_time = im_trafo_inv.apply(p.drift_time);
       }
     }
 
