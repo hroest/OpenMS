@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -41,6 +41,7 @@
 #include <OpenMS/ANALYSIS/MAPMATCHING/TransformationDescription.h>
 
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
 
 namespace OpenMS
 {
@@ -254,16 +255,18 @@ public:
      * @throw Exception::IllegalArgument if RT values are expected (depending on @p rt_extraction_window) but not provided
     */
     static void prepare_coordinates(std::vector< OpenSwath::ChromatogramPtr > & output_chromatograms,
-                             std::vector< ExtractionCoordinates > & coordinates,
-                             const OpenMS::TargetedExperiment & transition_exp,
-                             const double rt_extraction_window,
-                             const bool ms1);
+                                    std::vector< ExtractionCoordinates > & coordinates,
+                                    const OpenMS::TargetedExperiment & transition_exp,
+                                    const double rt_extraction_window,
+                                    const bool ms1 = false,
+                                    const int ms1_isotopes = 0);
 
     static void prepare_coordinates(std::vector< OpenSwath::ChromatogramPtr > & output_chromatograms,
-      std::vector< ExtractionCoordinates > & coordinates,
-      const OpenSwath::LightTargetedExperiment & transition_exp_used,
-      const double rt_extraction_window,
-      const bool ms1);
+                                    std::vector< ExtractionCoordinates > & coordinates,
+                                    const OpenSwath::LightTargetedExperiment & transition_exp_used,
+                                    const double rt_extraction_window,
+                                    const bool ms1 = false,
+                                    const int ms1_isotopes = 0);
 
     /**
      * @brief This converts the ChromatogramPtr to MSChromatogram and adds meta-information.
@@ -317,10 +320,14 @@ public:
 
           // extract compound / peptide id from transition and store in
           // more-or-less default field
-          int prec_charge = 0;
-          String r = extract_id_(transition_exp_used, coord.id, prec_charge);
-          prec.setCharge(prec_charge);
-          prec.setMetaValue("peptide_sequence", r);
+          String transition_group_id = OpenSwathHelper::computeTransitionGroupId(coord.id);
+          if (!transition_group_id.empty())
+          {
+            int prec_charge = 0;
+            String r = extract_id_(transition_exp_used, transition_group_id, prec_charge);
+            prec.setCharge(prec_charge);
+            prec.setMetaValue("peptide_sequence", r);
+          }
         }
         else 
         {

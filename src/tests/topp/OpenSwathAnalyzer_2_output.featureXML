@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<featureMap version="1.9" id="fm_12999979801269632061" xsi:noNamespaceSchemaLocation="http://open-ms.sourceforge.net/schemas/FeatureXML_1_9.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<featureMap version="1.9" id="fm_12999979801269632061" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/OpenMS/OpenMS/develop/share/OpenMS/SCHEMAS/FeatureXML_1_9.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<dataProcessing completion_time="1999-12-31T23:59:59">
 		<software name="OpenSwathAnalyzer" version="version_string" />
 		<processingAction name="Quantitation" />
@@ -81,15 +81,17 @@
 			<UserParam type="float" name="sn_ratio" value="86.0041379995282"/>
 			<UserParam type="float" name="var_log_sn_score" value="4.45439541136954"/>
 			<UserParam type="float" name="var_elution_model_fit_score" value="0.985403120517731"/>
-			<UserParam type="float" name="var_isotope_correlation_score" value="0.998094062244988"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0.998094062344665"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
 			<UserParam type="float" name="var_massdev_score" value="0.698521654473665"/>
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.666143770195331"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.7485346541951"/>
-			<UserParam type="float" name="var_manhatt_score" value="0.790882648756222"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.748534665111203"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.7908826331829"/>
 			<UserParam type="float" name="PrecursorMZ" value="500"/>
+			<UserParam type="float" name="ms1_area_intensity" value="0"/>
+			<UserParam type="float" name="ms1_apex_intensity" value="0"/>
 		</feature>
 		<feature id="f_15004869347769368353">
 			<position dim="0">3055.58448187053</position>
@@ -174,15 +176,17 @@
 			<UserParam type="float" name="sn_ratio" value="3.42378266973528"/>
 			<UserParam type="float" name="var_log_sn_score" value="1.23074598364098"/>
 			<UserParam type="float" name="var_elution_model_fit_score" value="0.88344943523407"/>
-			<UserParam type="float" name="var_isotope_correlation_score" value="0.972666511998842"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0.97266651372368"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
 			<UserParam type="float" name="var_massdev_score" value="1.37354439334282"/>
 			<UserParam type="float" name="var_massdev_score_weighted" value="1.18664964107839"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.819948911852727"/>
-			<UserParam type="float" name="var_manhatt_score" value="0.655571507345144"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.819948901508185"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.655571525786666"/>
 			<UserParam type="float" name="PrecursorMZ" value="501"/>
+			<UserParam type="float" name="ms1_area_intensity" value="0"/>
+			<UserParam type="float" name="ms1_apex_intensity" value="0"/>
 		</feature>
 		<feature id="f_7804704400743266335">
 			<position dim="0">3119.06301053107</position>
@@ -267,15 +271,17 @@
 			<UserParam type="float" name="sn_ratio" value="30.180081980405"/>
 			<UserParam type="float" name="var_log_sn_score" value="3.40718216971789"/>
 			<UserParam type="float" name="var_elution_model_fit_score" value="0.902114371458689"/>
-			<UserParam type="float" name="var_isotope_correlation_score" value="0.907549840731491"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0.907549839307799"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0.0754514560103416"/>
 			<UserParam type="float" name="var_massdev_score" value="1.44105090200075"/>
 			<UserParam type="float" name="var_massdev_score_weighted" value="1.08854278297821"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.648134859905178"/>
-			<UserParam type="float" name="var_manhatt_score" value="0.88057152537884"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.648134859859414"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.880571521956972"/>
 			<UserParam type="float" name="PrecursorMZ" value="501"/>
+			<UserParam type="float" name="ms1_area_intensity" value="0"/>
+			<UserParam type="float" name="ms1_apex_intensity" value="0"/>
 		</feature>
 	</featureList>
 </featureMap>

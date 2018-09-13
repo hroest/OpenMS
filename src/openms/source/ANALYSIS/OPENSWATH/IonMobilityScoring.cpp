@@ -488,7 +488,7 @@ namespace OpenMS
     mrmscore_.initializeXCorrMatrix(raw_im_profiles_aligned);
 
     double xcorr_coelution_score = mrmscore_.calcXcorrCoelutionScore();
-    double xcorr_shape_score = mrmscore_.calcXcorrShape_score();
+    double xcorr_shape_score = mrmscore_.calcXcorrShapeScore();
 
     if (USE_SPLINE)
     {

@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -250,12 +250,27 @@ namespace OpenMS
         this->setMetaValue("var_manhatt_score", scores_.manhatt_score_dia);
         if (su_.use_ms1_correlation)
         {
-          this->setMetaValue("var_ms1_xcorr_shape", scores_.xcorr_ms1_shape_score);
-          this->setMetaValue("var_ms1_xcorr_coelution", scores_.xcorr_ms1_coelution_score);
+          if (scores_.ms1_xcorr_shape_score > -1)
+          {
+            this->setMetaValue("var_ms1_xcorr_shape", scores_.ms1_xcorr_shape_score);
+          }
+          if (scores_.ms1_xcorr_coelution_score > -1)
+          {
+            this->setMetaValue("var_ms1_xcorr_coelution", scores_.ms1_xcorr_coelution_score);
+          }
+          this->setMetaValue("var_ms1_xcorr_shape_contrast", scores_.ms1_xcorr_shape_contrast_score);
+          this->setMetaValue("var_ms1_xcorr_shape_combined", scores_.ms1_xcorr_shape_combined_score);
+          this->setMetaValue("var_ms1_xcorr_coelution_contrast", scores_.ms1_xcorr_coelution_contrast_score);
+          this->setMetaValue("var_ms1_xcorr_coelution_combined", scores_.ms1_xcorr_coelution_combined_score);
         }
         if (su_.use_ms1_mi)
         {
-          this->setMetaValue("var_ms1_mi_score", scores_.ms1_mi_score);
+          if (scores_.ms1_mi_score > -1)
+          {
+            this->setMetaValue("var_ms1_mi_score", scores_.ms1_mi_score);
+          }
+          this->setMetaValue("var_ms1_mi_contrast_score", scores_.ms1_mi_contrast_score);
+          this->setMetaValue("var_ms1_mi_combined_score", scores_.ms1_mi_combined_score);
         }
         if (su_.use_ms1_fullscan)
         {

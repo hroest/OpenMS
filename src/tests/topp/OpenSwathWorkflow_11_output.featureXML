@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<featureMap version="1.9" id="fm_1755235105885170967" xsi:noNamespaceSchemaLocation="http://open-ms.sourceforge.net/schemas/FeatureXML_1_9.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<featureMap version="1.9" id="fm_1755235105885170967" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/OpenMS/OpenMS/develop/share/OpenMS/SCHEMAS/FeatureXML_1_9.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<dataProcessing completion_time="1999-12-31T23:59:59">
 		<software name="OpenSwathWorkflow" version="version_string" />
 		<processingAction name="Quantitation" />
@@ -80,14 +80,14 @@
 			<UserParam type="float" name="nr_peaks" value="3"/>
 			<UserParam type="float" name="sn_ratio" value="2.0448098550324"/>
 			<UserParam type="float" name="var_log_sn_score" value="0.715304804747562"/>
-			<UserParam type="float" name="var_isotope_correlation_score" value="0.0260894297892524"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0.02608942869833"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
 			<UserParam type="float" name="var_massdev_score" value="27.1945494817822"/>
 			<UserParam type="float" name="var_massdev_score_weighted" value="20.3108685980962"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.602724783080099"/>
-			<UserParam type="float" name="var_manhatt_score" value="0.961743686520736"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.602724780390909"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.961743692788323"/>
 			<UserParam type="float" name="var_sonar_lag" value="0"/>
 			<UserParam type="float" name="var_sonar_shape" value="0.999910678869981"/>
 			<UserParam type="float" name="var_sonar_log_sn" value="1.82185752598802"/>
@@ -95,6 +95,8 @@
 			<UserParam type="float" name="var_sonar_log_trend" value="0"/>
 			<UserParam type="float" name="var_sonar_rsq" value="1"/>
 			<UserParam type="float" name="PrecursorMZ" value="412.5"/>
+			<UserParam type="float" name="ms1_area_intensity" value="0"/>
+			<UserParam type="float" name="ms1_apex_intensity" value="0"/>
 			<UserParam type="string" name="potentialOutlier" value="tr1"/>
 			<UserParam type="float" name="initialPeakQuality" value="1.25"/>
 			<UserParam type="float" name="delta_rt" value="-6.3948846218409e-14"/>
@@ -177,14 +179,14 @@
 			<UserParam type="float" name="nr_peaks" value="3"/>
 			<UserParam type="float" name="sn_ratio" value="1.63412592298157"/>
 			<UserParam type="float" name="var_log_sn_score" value="0.491108057716722"/>
-			<UserParam type="float" name="var_isotope_correlation_score" value="0.13514780536809"/>
+			<UserParam type="float" name="var_isotope_correlation_score" value="0.135147810417303"/>
 			<UserParam type="float" name="var_isotope_overlap_score" value="0"/>
 			<UserParam type="float" name="var_massdev_score" value="16.3566522647397"/>
 			<UserParam type="float" name="var_massdev_score_weighted" value="17.7471993510744"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.779355960852597"/>
-			<UserParam type="float" name="var_manhatt_score" value="0.67605722036251"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.779355963394873"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.676057214871847"/>
 			<UserParam type="float" name="var_sonar_lag" value="0"/>
 			<UserParam type="float" name="var_sonar_shape" value="1"/>
 			<UserParam type="float" name="var_sonar_log_sn" value="1.79175949465937"/>
@@ -192,6 +194,8 @@
 			<UserParam type="float" name="var_sonar_log_trend" value="0"/>
 			<UserParam type="float" name="var_sonar_rsq" value="0"/>
 			<UserParam type="float" name="PrecursorMZ" value="462.5"/>
+			<UserParam type="float" name="ms1_area_intensity" value="0"/>
+			<UserParam type="float" name="ms1_apex_intensity" value="0"/>
 			<UserParam type="string" name="potentialOutlier" value="7"/>
 			<UserParam type="float" name="initialPeakQuality" value="1.25"/>
 			<UserParam type="float" name="delta_rt" value="-7.105427357601e-14"/>

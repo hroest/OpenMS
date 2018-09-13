@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<featureMap version="1.9" id="fm_12999979801269632061" xsi:noNamespaceSchemaLocation="http://open-ms.sourceforge.net/schemas/FeatureXML_1_9.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<featureMap version="1.9" id="fm_12999979801269632061" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/OpenMS/OpenMS/develop/share/OpenMS/SCHEMAS/FeatureXML_1_9.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<dataProcessing completion_time="1999-12-31T23:59:59">
 		<software name="OpenSwathAnalyzer" version="version_string" />
 		<processingAction name="Quantitation" />
@@ -95,8 +95,11 @@
 			<UserParam type="float" name="var_yseries_score" value="0"/>
 			<UserParam type="float" name="var_dotprod_score" value="0"/>
 			<UserParam type="float" name="var_manhatt_score" value="0"/>
-			<UserParam type="float" name="var_ms1_mi_score" value="0"/>
+			<UserParam type="float" name="var_ms1_mi_contrast_score" value="0"/>
+			<UserParam type="float" name="var_ms1_mi_combined_score" value="0"/>
 			<UserParam type="float" name="PrecursorMZ" value="500"/>
+			<UserParam type="float" name="ms1_area_intensity" value="0"/>
+			<UserParam type="float" name="ms1_apex_intensity" value="0"/>
 		</feature>
 		<feature id="f_15004869347769368353">
 			<position dim="0">3055.58448187053</position>
@@ -196,8 +199,11 @@
 			<UserParam type="float" name="var_yseries_score" value="0"/>
 			<UserParam type="float" name="var_dotprod_score" value="0"/>
 			<UserParam type="float" name="var_manhatt_score" value="0"/>
-			<UserParam type="float" name="var_ms1_mi_score" value="0"/>
+			<UserParam type="float" name="var_ms1_mi_contrast_score" value="0"/>
+			<UserParam type="float" name="var_ms1_mi_combined_score" value="0"/>
 			<UserParam type="float" name="PrecursorMZ" value="501"/>
+			<UserParam type="float" name="ms1_area_intensity" value="0"/>
+			<UserParam type="float" name="ms1_apex_intensity" value="0"/>
 		</feature>
 		<feature id="f_7804704400743266335">
 			<position dim="0">3119.06301053107</position>
@@ -297,8 +303,11 @@
 			<UserParam type="float" name="var_yseries_score" value="0"/>
 			<UserParam type="float" name="var_dotprod_score" value="0"/>
 			<UserParam type="float" name="var_manhatt_score" value="0"/>
-			<UserParam type="float" name="var_ms1_mi_score" value="0"/>
+			<UserParam type="float" name="var_ms1_mi_contrast_score" value="0"/>
+			<UserParam type="float" name="var_ms1_mi_combined_score" value="0"/>
 			<UserParam type="float" name="PrecursorMZ" value="501"/>
+			<UserParam type="float" name="ms1_area_intensity" value="0"/>
+			<UserParam type="float" name="ms1_apex_intensity" value="0"/>
 		</feature>
 	</featureList>
 </featureMap>

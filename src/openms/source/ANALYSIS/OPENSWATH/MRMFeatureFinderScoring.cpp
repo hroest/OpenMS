@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -73,8 +73,8 @@ void processFeatureForOutput_(OpenMS::Feature& curr_feature,
   // Ensure a unique id is present
   curr_feature.ensureUniqueId();
 
-  // Sum up intensities of the MS2 features
-  if (curr_feature.getMZ() > quantification_cutoff_ && ms_level == "MS2")
+  // Sum up intensities of the features
+  if (curr_feature.getMZ() > quantification_cutoff_)
   {
     total_intensity += curr_feature.getIntensity();
     total_peak_apices += (double)curr_feature.getMetaValue("peak_apex_int");
@@ -527,6 +527,11 @@ namespace OpenMS
       drift_target = prec.getDriftTime(); 
     }
 
+    // TODO ?
+    double sn_win_len_ = (double)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_win_len");
+    unsigned int sn_bin_count_ = (unsigned int)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_bin_count");
+    bool write_log_messages = (bool)param_.getValue("TransitionGroupPicker:PeakPickerMRM:write_sn_log_messages").toBool();
+
     // currently we cannot do much about the log messages and they mostly occur in decoy transition signals
     for (Size k = 0; k < transition_group_detection.getChromatograms().size(); k++)
     {
@@ -661,25 +666,23 @@ namespace OpenMS
         OpenSwath::Scoring::normalize_sum(&normalized_library_intensity[0], boost::numeric_cast<int>(normalized_library_intensity.size()));
 
         std::vector<std::string> native_ids_detection;
-        std::string precursor_id;
         for (Size i = 0; i < transition_group_detection.size(); i++)
         {
-          native_ids_detection.push_back(transition_group_detection.getTransitions()[i].getNativeID());
+          std::string native_id = transition_group_detection.getTransitions()[i].getNativeID();
+          native_ids_detection.push_back(native_id);
         }
+
+        std::vector<std::string> precursor_ids;
         for (Size i = 0; i < transition_group_detection.getPrecursorChromatograms().size(); i++)
         {
-          // try to identify the correct precursor native id
-          String precursor_chrom_id = transition_group_detection.getPrecursorChromatograms()[i].getNativeID();
-          if (OpenSwathHelper::computePrecursorId(transition_group.getTransitionGroupID(), 0) == precursor_chrom_id)
-          {
-            precursor_id = precursor_chrom_id;
-          }
+          std::string precursor_id = transition_group_detection.getPrecursorChromatograms()[i].getNativeID();
+          precursor_ids.push_back(precursor_id);
         }
 
         ///////////////////////////////////
         // Library and chromatographic scores
         OpenSwath_Scores& scores = mrmfeature->getScores();
-        scorer.calculateChromatographicScores(imrmfeature, native_ids_detection, precursor_id, normalized_library_intensity,
+        scorer.calculateChromatographicScores(imrmfeature, native_ids_detection, precursor_ids, normalized_library_intensity,
                                               signal_noise_estimators, scores);
 
         double normalized_experimental_rt = trafo.apply(imrmfeature->getRT());
@@ -786,10 +789,13 @@ namespace OpenMS
     // features and then append all precursor subordinate features)
     std::vector<Feature> allFeatures = mrmfeature->getFeatures();
     double total_intensity = 0, total_peak_apices = 0;
+    double ms1_total_intensity = 0, ms1_total_peak_apices = 0;
+
     for (std::vector<Feature>::iterator f_it = allFeatures.begin(); f_it != allFeatures.end(); ++f_it)
     {
       processFeatureForOutput_(*f_it, write_convex_hull_, quantification_cutoff_, total_intensity, total_peak_apices, "MS2");
     }
+
     // Also append data for MS1 precursors
     std::vector<String> precursors_ids;
     mrmfeature->getPrecursorFeatureIDs(precursors_ids);
@@ -800,7 +806,7 @@ namespace OpenMS
       {
         curr_feature.setCharge(charge);
       }
-      processFeatureForOutput_(curr_feature, write_convex_hull_, quantification_cutoff_, total_intensity, total_peak_apices, "MS1");
+      processFeatureForOutput_(curr_feature, write_convex_hull_, quantification_cutoff_, ms1_total_intensity, ms1_total_peak_apices, "MS1");
       if (ms1only)
       {
         total_intensity += curr_feature.getIntensity();
@@ -813,6 +819,8 @@ namespace OpenMS
     // overwrite the reported intensities with those above the m/z cutoff
     mrmfeature->setIntensity(total_intensity);
     mrmfeature->setMetaValue("peak_apices_sum", total_peak_apices);
+    mrmfeature->setMetaValue("ms1_area_intensity", ms1_total_intensity);
+    mrmfeature->setMetaValue("ms1_apex_intensity", ms1_total_peak_apices);
   }
 
   void MRMFeatureFinderScoring::updateMembers_()

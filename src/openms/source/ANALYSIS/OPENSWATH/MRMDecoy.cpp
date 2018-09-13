@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -339,10 +339,7 @@ namespace OpenMS
     Size lastAA = peptide.sequence.size() -1;
     if (peptide.sequence[lastAA] == 'K')
     {
-      // std::cout << " last AA " << peptide.sequence[lastAA]  << std::endl;
       peptide.sequence[lastAA] = 'R';
-      // std::cout << " last AA " << peptide.sequence[lastAA]  << std::endl;
-      // std::cout << " after " << peptide.sequence << std::endl;
     }
     else if (peptide.sequence[lastAA] == 'R')
     {

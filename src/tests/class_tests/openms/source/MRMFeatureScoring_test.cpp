@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -86,9 +86,9 @@ END_SECTION
 ///////////////////////////////////////////////////////////////////////////
 // testing the individual scores that are produced
 // calcXcorrCoelutionScore
-// calcXcorrCoelutionScore_weighted
-// calcXcorrShape_score
-// calcXcorrShape_score_weighted
+// calcXcorrCoelutionWeightedScore
+// calcXcorrShapeScore
+// calcXcorrShapeWeightedScore
 // calcLibraryScore
 START_SECTION([EXTRA] test_scores())
 {
@@ -113,9 +113,9 @@ START_SECTION([EXTRA] test_scores())
   for(Size m =0; m<normalized_library_intensity.size();m++) { normalized_library_intensity[m] /= sumx;}
 
   TEST_REAL_SIMILAR(mrmscore.calcXcorrCoelutionScore(), 2.26491106406735)
-  TEST_REAL_SIMILAR(mrmscore.calcXcorrCoelutionScore_weighted(normalized_library_intensity), 1.375)
-  TEST_REAL_SIMILAR(mrmscore.calcXcorrShape_score(), 0.757687954406132)
-  TEST_REAL_SIMILAR(mrmscore.calcXcorrShape_score_weighted(normalized_library_intensity), 0.7130856895)
+  TEST_REAL_SIMILAR(mrmscore.calcXcorrCoelutionWeightedScore(normalized_library_intensity), 1.375)
+  TEST_REAL_SIMILAR(mrmscore.calcXcorrShapeScore(), 0.757687954406132)
+  TEST_REAL_SIMILAR(mrmscore.calcXcorrShapeWeightedScore(normalized_library_intensity), 0.7130856895)
 
   // numpy
   double library_corr, library_rmsd;
