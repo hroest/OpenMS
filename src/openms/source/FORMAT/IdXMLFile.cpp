@@ -33,6 +33,7 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/FORMAT/IdXMLFile.h>
+
 #include <OpenMS/FORMAT/FileHandler.h>
 #include <OpenMS/SYSTEM/File.h>
 
@@ -641,21 +642,21 @@ namespace OpenMS
         accession_string.split(' ', accessions);
         if (accession_string != "" && accessions.empty())
         {
-          accessions.push_back(accession_string);
+          accessions.push_back(std::move(accession_string));
         }
 
-        for (std::vector<String>::const_iterator it = accessions.begin(); it != accessions.end(); ++it)
+        for (const auto& it : accessions)
         {
-          std::map<String, String>::const_iterator it2 = proteinid_to_accession_.find(*it);
+          const auto& it2 = proteinid_to_accession_.find(it);
           if (it2 != proteinid_to_accession_.end())
           {
             PeptideEvidence pe;
             pe.setProteinAccession(it2->second);
-            peptide_evidences_.push_back(pe);
+            peptide_evidences_.push_back(std::move(pe));
           }
           else
           {
-            fatalError(LOAD, String("Invalid protein reference '") + *it + "'");
+            fatalError(LOAD, String("Invalid protein reference '") + it + "'");
           }
         }
       }
@@ -869,7 +870,7 @@ namespace OpenMS
     //PEPTIDES
     else if (tag == "PeptideIdentification")
     {
-      pep_ids_->push_back(pep_id_);
+      pep_ids_->push_back(std::move(pep_id_));
       pep_id_ = PeptideIdentification();
       last_meta_  = nullptr;
     }
