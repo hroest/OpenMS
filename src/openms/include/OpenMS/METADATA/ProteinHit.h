@@ -120,7 +120,7 @@ public:
     ProteinHit & operator=(const ProteinHit & source) = default;
 
     /// Move assignment operator
-    ProteinHit& operator=(ProteinHit&&) & = default;
+    ProteinHit& operator=(ProteinHit&&) = default;
 
     /// Assignment for MetaInfo
     ProteinHit & operator=(const MetaInfoInterface & source);
