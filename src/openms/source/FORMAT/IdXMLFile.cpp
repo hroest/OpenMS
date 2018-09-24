@@ -77,6 +77,7 @@ namespace OpenMS
     pep_ids_ = &peptide_ids;
     document_id_ = &document_id;
 
+    // peptide_ids.reserve(1058732); // 1271 MB
     parse_(filename, this);
 
     //reset members
@@ -586,6 +587,7 @@ namespace OpenMS
 
       //set identifier
       pep_id_.setIdentifier(prot_ids_->back().getIdentifier());
+      // setting this identifier alone is 50 MB (50 bytes / pepid)
 
       pep_id_.setScoreType(attributeAsString_(attributes, "score_type"));
 
@@ -619,6 +621,7 @@ namespace OpenMS
       if (!tmp3.empty())
       {
         pep_id_.setMetaValue("spectrum_reference", tmp3);
+        // this causes 200 MB of extra space with reserve [200 bytes per entry ]
       }
 
       last_meta_ = &pep_id_;
@@ -631,6 +634,7 @@ namespace OpenMS
       pep_hit_.setCharge(attributeAsInt_(attributes, "charge"));
       pep_hit_.setScore(attributeAsDouble_(attributes, "score"));
       pep_hit_.setSequence(AASequence::fromString(String(attributeAsString_(attributes, "sequence"))));
+      // this adds another 150 MB  = 150 bytes / entry [with reserve]
 
       //parse optional protein ids to determine accessions
       const XMLCh* refs = attributes.getValue(sm_.convert("protein_refs").c_str());
@@ -865,24 +869,29 @@ namespace OpenMS
     else if (tag == "ProteinHit")
     {
       prot_id_.insertHit(std::move(prot_hit_));
+      // 200 MB all protein hits
       last_meta_ = &prot_id_;
     }
     //PEPTIDES
     else if (tag == "PeptideIdentification")
     {
       pep_ids_->push_back(std::move(pep_id_));
+      // all PeptideIdentification (w/o PeptideHit) are 610 MB = 610 bytes per entry
+      // a set of empty peptide hits is 180 MB = 180 bytes / entry
       pep_id_ = PeptideIdentification();
       last_meta_  = nullptr;
     }
     else if (tag == "PeptideHit")
     {
-      pep_hit_.setPeptideEvidences(peptide_evidences_);
+      pep_hit_.setPeptideEvidences(peptide_evidences_); // TODO: std::move
+      // 280 MB of peptide evidence [reserve data] - 280 bytes per PeptideHit
       if (!current_analysis_result_.score_type.empty())
       {
         pep_hit_.addAnalysisResults(current_analysis_result_);
       }
       current_analysis_result_ = PeptideHit::PepXMLAnalysisResult();
       pep_id_.insertHit(std::move(pep_hit_));
+      // 500  MB of peptide hit [reserve data] - 500 bytes per PeptideHit
       last_meta_ = &pep_id_;
     }
   }
