@@ -1394,10 +1394,24 @@ protected:
 
 };
 
+
+#define SHOW_ISSUE
+
 int main(int argc, const char** argv)
 {
-  TOPPFileFilter tool;
-  return tool.main(argc, argv);
+  SysInfo::MemUsage mu;
+  std::vector<PeptideIdentification> pep_ids2;
+  {
+    pep_ids2.reserve(1e6);
+    for (Size k = 0; k < 1e6; k++)
+    {
+      PeptideIdentification p;
+      p.insertHit(PeptideHit());
+      pep_ids2.push_back(std::move(p));
+    }
+  }
+  std::cout << "\n" << pep_ids2.size() << std::endl;
+  std::cout << "\n" << mu.delta("loading data") << std::endl;
 }
 
 /// @endcond

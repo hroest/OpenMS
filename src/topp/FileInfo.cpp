@@ -35,6 +35,7 @@
 #include <boost/iostreams/device/null.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
+#include <unistd.h>
 #include <OpenMS/config.h>
 
 #include <OpenMS/APPLICATIONS/TOPPBase.h>
@@ -57,6 +58,8 @@
 #include <OpenMS/MATH/MISC/MathFunctions.h>
 #include <OpenMS/MATH/STATISTICS/StatisticFunctions.h>
 #include <OpenMS/SYSTEM/SysInfo.h>
+
+#include <OpenMS/METADATA/PeptideIdentification.h>
 
 #include <QtCore/QString>
 
@@ -626,6 +629,8 @@ protected:
       if (in_type == FileTypes::MZIDENTML)
       {
         MzIdentMLFile().load(in, id_data.proteins, id_data.peptides);
+        id_data.proteins.shrink_to_fit(); 
+        id_data.peptides.shrink_to_fit();
       }
       else
       {
@@ -1623,6 +1628,18 @@ protected:
 
 int main(int argc, const char **argv)
 {
+  std::cout << " sizeof(ProteinHit) " << sizeof(ProteinHit) << std::endl;
+  std::cout << " sizeof(PeptideIdentification) " << sizeof(PeptideIdentification) << std::endl;
+  std::cout << " -- sizeof(PeptideHit) " << sizeof(PeptideEvidence) << std::endl;
+  std::cout << "    -- sizeof(AASequence) " << sizeof(AASequence) << std::endl;
+  std::cout << "    -- sizeof(PeptideEvidence) " << sizeof(PeptideEvidence) << std::endl;
+  std::cout << "    -- sizeof(PeptideHit::PeakAnnotation) " << sizeof(PeptideHit::PeakAnnotation) << std::endl;
+  std::cout << "    -- sizeof(MetaInfo) " << sizeof(MetaInfo) << std::endl;
+  std::cout << "    -- sizeof(DataValue) " << sizeof(DataValue) << std::endl;
+
+  std::cout << "    -- sizeof(std::string) " << sizeof(std::string) << std::endl;
+  std::cout << "    -- sizeof(String) " << sizeof(String) << std::endl;
+
   TOPPFileInfo tool;
   return tool.main(argc, argv);
 }

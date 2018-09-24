@@ -55,6 +55,7 @@
 #include <OpenMS/FORMAT/DATAACCESS/MSDataWritingConsumer.h>
 #include <OpenMS/FORMAT/DATAACCESS/MSDataCachedConsumer.h>
 
+#include <OpenMS/SYSTEM/SysInfo.h>
 
 using namespace OpenMS;
 using namespace std;
@@ -823,10 +824,169 @@ protected:
 
 };
 
+template< class T >
+typename std::add_lvalue_reference<T>::type mydeclval() noexcept;
+
 int main(int argc, const char** argv)
 {
-  TOPPFileConverter tool;
-  return tool.main(argc, argv);
+
+
+#define SHOW_ISSUE
+
+  SysInfo::MemUsage mu;
+  std::vector<PeptideIdentification> pep_ids2;
+  std::vector<PeptideIdentification> pep_ids3;
+  {
+    std::cout << " here1" << std::endl;
+    std::vector<PeptideIdentification>* pep_ids = new std::vector<PeptideIdentification>();
+    // pep_ids->reserve(5);
+    for (Size k = 0; k < 5; k++)
+    {
+    std::cout << " loop1" << std::endl;
+      PeptideIdentification p;
+#ifdef SHOW_ISSUE
+      p.insertHit(PeptideHit());
+#endif
+      pep_ids->push_back(std::move(p));
+      std::cout << " cap " << pep_ids->capacity() << std::endl;
+
+    }
+    // 160 MB for 1e6 entries = default memory [170 bytes/entry] for only PeptideId
+    // 320 MB for pepid + pephit = 160 MB for all Peptide Hits
+    //
+    // 650 MB for entries + pephit
+    // 360 MB for entries (no reserve!) [360 bytes / entry]
+    std::cout << " here2" << std::endl;
+
+#ifndef SHOW_ISSUE
+    delete pep_ids;
+#endif
+    pep_ids2.reserve(1);
+    for (Size k = 0; k < 1; k++)
+    {
+    std::cout << " loop2" << std::endl;
+      PeptideIdentification p;
+      PeptideHit pp;
+      pp.setCharge(2);
+      p.insertHit(pp);
+      pep_ids2.push_back(std::move(p));
+    }
+#ifdef SHOW_ISSUE
+    delete pep_ids;
+#endif
+    std::cout << " here4" << std::endl;
+///    pep_ids3.reserve(1e6);
+///    for (Size k = 0; k < 1e6; k++)
+///    {
+///      PeptideIdentification p;
+///      PeptideHit pp;
+///      // pp.setCharge(2);
+///      p.insertHit(PeptideHit());
+///      pep_ids3.push_back(p);
+///    }
+  }
+  std::cout << pep_ids3.size() << pep_ids2.size() << std::endl;
+  std::cout << "\n" << mu.delta("loading data") << std::endl;
+
+
+  std::cout << "we are here! " << std::endl; // 168
+  PeptideIdentification p;
+  p.setMetaValue("m1", "test this");
+  p.setMetaValue("m2", "test this");
+  p.setMetaValue("m3", "test this");
+  p.setMetaValue("m4", "test this");
+  p.setMetaValue("m5", "test this");
+  p.setMetaValue("m6", "test this");
+
+
+
+
+  std::cout << "PeptideIdentification " << sizeof(PeptideIdentification) << std::endl; // 168
+  std::cout << "MetaInfoInterface " << sizeof(MetaInfoInterface) << std::endl; // 8
+  std::cout << "PeptideHit " << sizeof(PeptideHit) << std::endl; // 136
+  std::cout << "PeptideEvidence " << sizeof(PeptideEvidence) << std::endl; // 48
+  std::cout << "MetaInfo " << sizeof(MetaInfo) << std::endl; // 24
+  std::cout << "Int " << sizeof(Int) << std::endl; // 4
+
+
+
+  std::cout << " =========" << std::endl;
+
+  //outputs true if the copy constructor is declared noexcept
+  std::cout << " MetaInfo " << std::boolalpha << noexcept(MetaInfo(mydeclval<MetaInfo>())) << std::endl;
+  std::cout << " MetaInfoInterface " << std::boolalpha << noexcept(MetaInfoInterface(mydeclval<MetaInfoInterface>())) << std::endl;
+
+  std::cout << " MetaInfoInterface:" << std::endl;
+  std::cout << std::boolalpha << noexcept(MetaInfoInterface(std::declval<MetaInfoInterface&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<MetaInfoInterface&>() = declval<MetaInfoInterface const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<MetaInfoInterface&>() = declval<MetaInfoInterface &&>()) << std::endl;
+
+  std::cout << " PeptideIdentification:" << std::endl;
+  std::cout << std::boolalpha << noexcept(PeptideIdentification(std::declval<PeptideIdentification&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<PeptideIdentification&>() = declval<PeptideIdentification const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<PeptideIdentification&>() = declval<PeptideIdentification &&>()) << std::endl;
+
+  std::cout << " ProteinIdentification:" << std::endl;
+  std::cout << std::boolalpha << noexcept(ProteinIdentification(std::declval<ProteinIdentification&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<ProteinIdentification&>() = declval<ProteinIdentification const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<ProteinIdentification&>() = declval<ProteinIdentification &&>()) << std::endl;
+
+  std::cout << " ProteinHit:" << std::endl;
+  std::cout << std::boolalpha << noexcept(ProteinHit(std::declval<ProteinHit&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<ProteinHit&>() = declval<ProteinHit const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<ProteinHit&>() = declval<ProteinHit &&>()) << std::endl;
+
+  std::cout << " MSSpectrum:" << std::endl;
+  std::cout << std::boolalpha << noexcept(MSSpectrum(std::declval<MSSpectrum&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<MSSpectrum&>() = declval<MSSpectrum const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<MSSpectrum&>() = declval<MSSpectrum &&>()) << std::endl;
+
+  std::cout << " SpectrumSettings:" << std::endl;
+  std::cout << std::boolalpha << noexcept(SpectrumSettings(std::declval<SpectrumSettings&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<SpectrumSettings&>() = declval<SpectrumSettings const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<SpectrumSettings&>() = declval<SpectrumSettings &&>()) << std::endl;
+
+  // std::cout << " RangeManager<1>:" << std::endl;
+  // std::cout << std::boolalpha << noexcept(RangeManager<1>(std::declval<RangeManager<1>&&>())) << std::endl;
+  // std::cout << std::boolalpha << noexcept(declval<RangeManager<1>&>() = declval<RangeManager<1> const&>()) << std::endl;
+  // std::cout << std::boolalpha << noexcept(declval<RangeManager<1>&>() = declval<RangeManager<1> &&>()) << std::endl;
+
+  std::cout << " AcquisitionInfo:" << std::endl;
+  std::cout << std::boolalpha << noexcept(AcquisitionInfo(std::declval<AcquisitionInfo&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<AcquisitionInfo&>() = declval<AcquisitionInfo const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<AcquisitionInfo&>() = declval<AcquisitionInfo &&>()) << std::endl;
+
+  std::cout << " Acquisition:" << std::endl;
+  std::cout << std::boolalpha << noexcept(Acquisition(std::declval<Acquisition&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<Acquisition&>() = declval<Acquisition const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<Acquisition&>() = declval<Acquisition &&>()) << std::endl;
+
+  std::cout << " String:" << std::endl;
+  std::cout << std::boolalpha << noexcept(String(std::declval<String&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<String&>() = declval<String const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<String&>() = declval<String &&>()) << std::endl;
+
+  std::cout << " std::string:" << std::endl;
+  std::cout << std::boolalpha << noexcept(std::string(std::declval<std::string&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<std::string&>() = declval<std::string const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<std::string&>() = declval<std::string &&>()) << std::endl;
+
+  std::cout << " DataVAlue:" << std::endl;
+  std::cout << std::boolalpha << noexcept(DataValue(std::declval<DataValue&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<DataValue&>() = declval<DataValue const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<DataValue&>() = declval<DataValue &&>()) << std::endl;
+
+  std::cout << " PeptideEvidence:" << std::endl;
+  std::cout << std::boolalpha << noexcept(PeptideEvidence(std::declval<PeptideEvidence&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<PeptideEvidence&>() = declval<PeptideEvidence const&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<PeptideEvidence&>() = declval<PeptideEvidence &&>()) << std::endl;
+
+  std::cout << " FloatDataArray:" << std::endl;
+  std::cout << std::boolalpha << noexcept(OpenMS::DataArrays::FloatDataArray(std::declval<OpenMS::DataArrays::FloatDataArray&&>())) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<OpenMS::DataArrays::FloatDataArray&>() = declval<OpenMS::DataArrays::FloatDataArray&>()) << std::endl;
+  std::cout << std::boolalpha << noexcept(declval<OpenMS::DataArrays::FloatDataArray&>() = declval<OpenMS::DataArrays::FloatDataArray&&>()) << std::endl;
+
 }
+
 
 /// @endcond
