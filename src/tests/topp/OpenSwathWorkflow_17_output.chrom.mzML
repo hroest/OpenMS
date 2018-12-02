@@ -77,11 +77,11 @@
 						<cvParam cvRef="MS" accession="MS:1002746" name="MS-Numpress linear prediction compression followed by zlib compression" />
 						<binary>eJxzUGGAAy4g7sABALAcDS8=</binary>
 					</binaryDataArray>
-					<binaryDataArray encodedLength="20">
+					<binaryDataArray encodedLength="152">
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJxzeP//AAOdAAA3tgLv</binary>
+						<binary>eJxzONTFAAJbDk8/lXoh6+rVmyfuRj6c9WTG89hXH95Evp/zce/ng19Xf6/5afH7wZ/Sf7/+l/578Mfid83P1d8Pft37ec7HyPcf3sS+mvF81pPIhyfuXr2ZdTX1wvRTWw7b7nbcMHnB114EBABbE0tI</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
@@ -114,11 +114,11 @@
 						<cvParam cvRef="MS" accession="MS:1002746" name="MS-Numpress linear prediction compression followed by zlib compression" />
 						<binary>eJxzUGGAAy4g7sABALAcDS8=</binary>
 					</binaryDataArray>
-					<binaryDataArray encodedLength="20">
+					<binaryDataArray encodedLength="152">
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJxzeP//AAOdAAA3tgLv</binary>
+						<binary>eJxzONTFAAJbDk8/lXoh6+rVmyfuRj6c9WTG89hXH95Evp/zce/ng19Xf6/5afH7wZ/Sf7/+l/578Mfid83P1d8Pft37ec7HyPcf3sS+mvF81pPIhyfuXr2ZdTX1wvRTWw7b7nbcMHnB114EBABbE0tI</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
@@ -156,7 +156,7 @@
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJwBbACT/0DChoAAAAAAAACXidGisLFFvH7EN8vo0NbVMNoV3pvh0uTI54XqE+1277Tx0fPR9bf3hvk+++P8d/76/3f+4/w++4b5t/fR9dHztPF27xPtherI59Lkm+EV3jDa1tXo0DfLfsRFvLCx0aKXiW8HSHA=</binary>
+						<binary>eJwBbACT/0DCjYAAAAAAAABuibGilbEtvGnEJcvY0MjVI9oJ3pHhyeTA53/qDe1x77DxzvPP9bb3hfk+++T8eP77/3j+5Pw++4X5tvfP9c7zsPFx7w3tf+rA58nkkeEJ3iPayNXY0CXLacQtvJWxsaJuiQhDRlo=</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
@@ -194,7 +194,7 @@
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJwBbACT/0DBRoAAAAAAAABHkfeo47bJwHjIwM4Q1KvYu9xd4KfjqOZr6frrW+6V8K3ypvSE9kn4+fmU+x39lf7+/5X+Hf2U+/n5SfiE9qb0rfKV8Fvu+utr6ajmp+Nd4Lvcq9gQ1MDOeMjJwOO296hHkZemSYs=</binary>
+						<binary>eJwBbACT/0DBLYAAAAAAAADckW2pRrcewcLIAc9K1N7Y6NyF4Mvjx+aG6RHsb+6m8LvysfSN9k/4/PmV+xz9kv75/5L+HP2V+/z5T/iN9rH0u/Km8G/uEeyG6cfmy+OF4Ojc3thK1AHPwsgewUa3banckRhERxs=</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
@@ -356,15 +356,15 @@
 <indexList count="1">
 	<index name="chromatogram">
 		<offset idRef="PEPTIDEA_Precursor_i0">3268</offset>
-		<offset idRef="PEPTIDEB_Precursor_i0">5431</offset>
-		<offset idRef="tr1">7594</offset>
-		<offset idRef="4">10071</offset>
-		<offset idRef="tr2">12546</offset>
-		<offset idRef="5">15023</offset>
-		<offset idRef="3">17498</offset>
-		<offset idRef="6">19973</offset>
+		<offset idRef="PEPTIDEB_Precursor_i0">5564</offset>
+		<offset idRef="tr1">7860</offset>
+		<offset idRef="4">10337</offset>
+		<offset idRef="tr2">12812</offset>
+		<offset idRef="5">15289</offset>
+		<offset idRef="3">17764</offset>
+		<offset idRef="6">20239</offset>
 	</index>
 </indexList>
-<indexListOffset>22482</indexListOffset>
+<indexListOffset>22748</indexListOffset>
 <fileChecksum>0</fileChecksum>
 </indexedmzML>
