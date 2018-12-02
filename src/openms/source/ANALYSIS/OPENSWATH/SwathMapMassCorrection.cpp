@@ -49,15 +49,43 @@
 namespace OpenMS
 {
 
+  SwathMapMassCorrection::SwathMapMassCorrection() :
+    DefaultParamHandler("SwathMapMassCorrection")
+  {
+    defaults_.setValue("mz_extraction_window", -1.0, "M/z extraction window width");
+    defaults_.setValue("mz_extraction_window_ppm", "false", "Whether m/z extraction is in ppm", ListUtils::create<String>("advanced"));
+    defaults_.setValidStrings("mz_extraction_window_ppm", ListUtils::create<String>("true,false"));
+    defaults_.setValue("im_extraction_window", -1.0, "Ion mobility extraction window width");
+    defaults_.setValue("mz_correction_function", "none", "Type of normalization function for m/z calibration.");
+    defaults_.setValidStrings("mz_correction_function", ListUtils::create<String>("none,regression_delta_ppm,unweighted_regression,weighted_regression,quadratic_regression,weighted_quadratic_regression,weighted_quadratic_regression_delta_ppm,quadratic_regression_delta_ppm"));
+
+    defaults_.setValue("debug_im_file", "", "Debug file for Ion Mobility calibration.");
+    defaults_.setValue("debug_mz_file", "", "Debug file for m/z calibration.");
+
+    // write defaults into Param object param_
+    defaultsToParam_();
+  }
+
+  void SwathMapMassCorrection::updateMembers_()
+  {
+    mz_extraction_window_ = (double)param_.getValue("mz_extraction_window");
+    mz_extraction_window_ppm_ = param_.getValue("mz_extraction_window_ppm") == "true";
+    im_extraction_window_ = (double)param_.getValue("im_extraction_window");
+    mz_correction_function_ = param_.getValue("mz_correction_function");
+    debug_mz_file_ = param_.getValue("debug_mz_file");
+    debug_im_file_ = param_.getValue("debug_im_file");
+  }
+
   void SwathMapMassCorrection::correctIM(
     const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
     const std::vector< OpenSwath::SwathMap > & swath_maps,
     TransformationDescription& im_trafo,
-    const OpenSwath::LightTargetedExperiment& targeted_exp,
-    const double im_extraction_win,
-    const double mz_extr_window,
-    const bool ppm)
+    const OpenSwath::LightTargetedExperiment& targeted_exp)
   {
+    bool ppm = mz_extraction_window_ppm_;
+    double mz_extr_window = mz_extraction_window_;
+    double im_extraction_win = im_extraction_window_;
+
     LOG_DEBUG << "SwathMapMassCorrection::correctIM " << " window " << im_extraction_win << std::endl;
 
     if (im_extraction_win < 0)
@@ -205,11 +233,12 @@ namespace OpenMS
 
   void SwathMapMassCorrection::correctMZ(
     const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
-    std::vector< OpenSwath::SwathMap > & swath_maps,
-    const std::string& corr_type,
-    const double mz_extr_window,
-    const bool ppm)
+    std::vector< OpenSwath::SwathMap > & swath_maps)
   {
+    bool ppm = mz_extraction_window_ppm_;
+    double mz_extr_window = mz_extraction_window_;
+    std::string corr_type = mz_correction_function_;
+
     LOG_DEBUG << "SwathMapMassCorrection::correctMZ with type " << corr_type << " and window " << mz_extr_window << " in ppm " << ppm << std::endl;
 
     bool is_ppm = bool(corr_type == "quadratic_regression_delta_ppm" ||
