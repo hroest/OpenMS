@@ -139,13 +139,19 @@ namespace OpenMS
 
       // Get the corresponding SWATH map(s), for SONAR there will be more than one map
       std::vector<OpenSwath::SwathMap> used_maps;
-      for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
+      for (const auto& m : swath_maps)
       {
-        if (swath_maps[i].lower < transition_group->getTransitions()[0].precursor_mz &&
-            swath_maps[i].upper >= transition_group->getTransitions()[0].precursor_mz)
+        if (m.lower < transition_group->getTransitions()[0].precursor_mz &&
+            m.upper >= transition_group->getTransitions()[0].precursor_mz)
         {
-          used_maps.push_back(swath_maps[i]);
+          used_maps.push_back(m);
         }
+      }
+
+      std::vector<OpenSwath::SwathMap> ms1_maps;
+      for (const auto& m : swath_maps)
+      {
+        if (m.ms1) ms1_maps.push_back(m);
       }
 
       if (used_maps.empty())
@@ -158,20 +164,20 @@ namespace OpenMS
       // Note that we are not using light clones of the underlying data here,
       // so access to the data needs to be in a critical section.
       OpenSwath::SpectrumPtr sp;
+      OpenSwath::SpectrumPtr sp_ms1;
 #ifdef _OPENMP
 #pragma omp critical
 #endif
       {
         sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
+        sp_ms1 = OpenSwathScoring().fetchSpectrumSwath(ms1_maps, bestRT, 1, 0, 0);
       }
 
-      for (std::vector< OpenMS::MRMFeatureFinderScoring::TransitionType >::const_iterator
-          tr = transition_group->getTransitions().begin();
-          tr != transition_group->getTransitions().end(); ++tr)
+      for (const auto& tr : transition_group->getTransitions())
       {
-        double intensity(0), im(0), left(tr->product_mz), right(tr->product_mz);
+        double intensity(0), im(0), left(tr.product_mz), right(tr.product_mz);
 
-        auto pepref = tr->getPeptideRef();
+        auto pepref = tr.getPeptideRef();
         // get drift time upper/lower offset (this assumes that all chromatograms
         // are derived from the same precursor with the same drift time)
         double drift_target = pep_im_map[pepref];
@@ -204,9 +210,55 @@ namespace OpenMS
           exp_im.push_back(im);
           theo_im.push_back(drift_target);
 #ifdef SWATHMAPMASSCORRECTION_DEBUG
-          os_im << tr->product_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << std::endl;
+          os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
 #endif
         }
+        LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+      }
+
+      // Do MS1 extraction
+      if (!transition_group->getTransitions().empty())
+      {
+        const auto& tr = transition_group->getTransitions()[0];
+        double intensity(0), im(0), left(tr.precursor_mz), right(tr.precursor_mz);
+
+        auto pepref = tr.getPeptideRef();
+        // get drift time upper/lower offset (this assumes that all chromatograms
+        // are derived from the same precursor with the same drift time)
+        double drift_target = pep_im_map[pepref];
+        double drift_lower_used = drift_target - im_extraction_win;
+        double drift_upper_used = drift_target + im_extraction_win;
+
+        // Check that the spectrum really has a drift time array
+        if (sp_ms1->getDriftTimeArray() == nullptr)
+        {
+          LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
+          for (auto m : used_maps) LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
+          continue;
+        }
+
+        DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
+        DIAHelpers::integrateDriftSpectrum_x(sp_ms1, left, right, im, intensity, drift_lower_used, drift_upper_used);
+
+        // skip empty windows
+        if (im <= 0)
+        {
+          continue;
+        }
+
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+        {
+          // store result drift time
+          data_im.push_back(std::make_pair(im, drift_target));
+          exp_im.push_back(im);
+          theo_im.push_back(drift_target);
+#ifdef SWATHMAPMASSCORRECTION_DEBUG
+          os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+#endif
+        }
+        LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
       }
     }
 
