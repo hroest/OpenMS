@@ -81,7 +81,7 @@
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJxzONTFAAJbDk8/lXoh6+rVmyfuRj6c9WTG89hXH95Evp/zce/ng19Xf6/5afH7wZ/Sf7/+l/578Mfid83P1d8Pft37ec7HyPcf3sS+mvF81pPIhyfuXr2ZdTX1wvRTWw7b7nbcMHnB114EBABbE0tI</binary>
+						<binary>eJxzOBDdwAAECadDLsZe23Vr8j3WR0pPfz2f8Yrlrdv7pI+xn22+Mnxf98Pt15nfDn+X/Pv1f8k/h79nfrv9WveD4bvN19jPSR/d3rO8nfHq13Olp6yPJt/bdSv2WsjFhNPiR7buql9rMQ8BAcOZQPs=</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
@@ -118,7 +118,7 @@
 						<cvParam cvRef="MS" accession="MS:1000515" name="intensity array" unitAccession="MS:1000131" unitName="number of detector counts" unitCvRef="MS"/>
 						<cvParam cvRef="MS" accession="MS:1000523" name="64-bit float" />
 						<cvParam cvRef="MS" accession="MS:1002748" name="MS-Numpress short logged float compression followed by zlib compression" />
-						<binary>eJxzONTFAAJbDk8/lXoh6+rVmyfuRj6c9WTG89hXH95Evp/zce/ng19Xf6/5afH7wZ/Sf7/+l/578Mfid83P1d8Pft37ec7HyPcf3sS+mvF81pPIhyfuXr2ZdTX1wvRTWw7b7nbcMHnB114EBABbE0tI</binary>
+						<binary>eJxz2LOBAQQuXuS+Xn7b+/6aRxuf5r5488r8bcT7oI86n19+6f0m9WPSz5+//P5M/Xv238//Z/9N/ev35+evST+lfvR+e/lF53PQx4j35m/fvMp9sfHpmkfe98tvc1+/eDHntO7h/u3SqxAQAMhwRRY=</binary>
 					</binaryDataArray>
 				</binaryDataArrayList>
 			</chromatogram>
