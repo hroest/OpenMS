@@ -50,6 +50,7 @@ exp = MSExperiment()
 NR_RT_SAMPLES = 50
 NR_IM_BINS = 300
 NR_PEAKS = 5
+IM_RANGE = 500.0
 
 # Create MS1 spectra
 for rt_idx in range(NR_RT_SAMPLES):
@@ -69,24 +70,25 @@ for rt_idx in range(NR_RT_SAMPLES):
         p.setMZ(100+i)
         p.setIntensity(base_int+i)
         sp.push_back(p)
-        fda[i] = 10
+        fda[i] = 10 / IM_RANGE
 
     for i in range(10):
         p = Peak1D()
         p.setMZ(412.502)
-        p.setIntensity(base_int+ (i-5))
+        p.setIntensity(base_int* (5-abs(i-5))) 
         sp.push_back(p)
-        fda.push_back( 99 + (i-5) )
+        fda.push_back(98 / IM_RANGE)
 
     for i in range(10):
         p = Peak1D()
         p.setMZ(417.502)
-        p.setIntensity(base_int+ (i-5))
+        p.setIntensity(3*base_int * (5-abs(i-5)))
         sp.push_back(p)
-        fda.push_back( 152 + (i-5) )
+        fda.push_back(160 / IM_RANGE)
 
     sp.setFloatDataArrays([fda])
     exp.addSpectrum(sp)
+
 
 # Create MS2 spectra
 for rt_idx in range(NR_RT_SAMPLES):
@@ -124,7 +126,7 @@ for rt_idx in range(NR_RT_SAMPLES):
                 p.setIntensity(max(0, base_int * (i + 1) - base_int * (i + 1) * apex_dist / 10.0))
                 allmz.append(p.getMZ())
                 allint.append(p.getIntensity())
-                allim.append( im_idx / 500.0)
+                allim.append( im_idx / IM_RANGE)
 
         # peaks of a precursor at 417.5 m/z : 100, 101, 102, .. 100 + NR_PEAKS
         # and ion mobility 150
@@ -141,7 +143,7 @@ for rt_idx in range(NR_RT_SAMPLES):
                 p.setIntensity(max(0, base_int * (i + 1) - base_int * (i + 1) * apex_dist / 20.0))
                 allmz.append(p.getMZ())
                 allint.append(p.getIntensity())
-                allim.append( im_idx / 500.0)
+                allim.append( im_idx / IM_RANGE)
 
     mz = allmz
     intens = allint
