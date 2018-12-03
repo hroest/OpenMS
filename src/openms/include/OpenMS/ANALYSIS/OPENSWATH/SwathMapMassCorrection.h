@@ -104,7 +104,8 @@ public:
   private:
     double mz_extraction_window_;
     bool mz_extraction_window_ppm_;
-    bool im_extraction_window_;
+    bool ms1_im_;
+    double im_extraction_window_;
     String mz_correction_function_;
     String debug_im_file_;
     String debug_mz_file_;

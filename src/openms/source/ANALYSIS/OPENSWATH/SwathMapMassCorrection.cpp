@@ -55,6 +55,8 @@ namespace OpenMS
     defaults_.setValue("mz_extraction_window", -1.0, "M/z extraction window width");
     defaults_.setValue("mz_extraction_window_ppm", "false", "Whether m/z extraction is in ppm", ListUtils::create<String>("advanced"));
     defaults_.setValidStrings("mz_extraction_window_ppm", ListUtils::create<String>("true,false"));
+    defaults_.setValue("ms1_im_calibration", "false", "Whether to use MS1 precursor data for the ion mobility calibration (default = false, uses MS2 / fragment ions for calibration)", ListUtils::create<String>("advanced"));
+    defaults_.setValidStrings("ms1_im_calibration", ListUtils::create<String>("true,false"));
     defaults_.setValue("im_extraction_window", -1.0, "Ion mobility extraction window width");
     defaults_.setValue("mz_correction_function", "none", "Type of normalization function for m/z calibration.");
     defaults_.setValidStrings("mz_correction_function", ListUtils::create<String>("none,regression_delta_ppm,unweighted_regression,weighted_regression,quadratic_regression,weighted_quadratic_regression,weighted_quadratic_regression_delta_ppm,quadratic_regression_delta_ppm"));
@@ -70,6 +72,7 @@ namespace OpenMS
   {
     mz_extraction_window_ = (double)param_.getValue("mz_extraction_window");
     mz_extraction_window_ppm_ = param_.getValue("mz_extraction_window_ppm") == "true";
+    ms1_im_ = param_.getValue("ms1_im_calibration") == "true";
     im_extraction_window_ = (double)param_.getValue("im_extraction_window");
     mz_correction_function_ = param_.getValue("mz_correction_function");
     debug_mz_file_ = param_.getValue("debug_mz_file");
@@ -86,18 +89,21 @@ namespace OpenMS
     double mz_extr_window = mz_extraction_window_;
     double im_extraction_win = im_extraction_window_;
 
-    LOG_DEBUG << "SwathMapMassCorrection::correctIM " << " window " << im_extraction_win << std::endl;
+    LOG_DEBUG << "SwathMapMassCorrection::correctIM " << " window " << im_extraction_win << " mz window " << mz_extr_window << " in ppm " << ppm << std::endl;
 
     if (im_extraction_win < 0)
     {
       return;
     }
 
-#ifdef SWATHMAPMASSCORRECTION_DEBUG
-    std::cout.precision(16);
-    std::ofstream os_im("debug_imdiff.txt");
-    os_im.precision(writtenDigits(double()));
-#endif
+    std::ofstream os_im;
+    if (!debug_im_file_.empty())
+    {
+      std::cout.precision(16);
+      os_im.open(debug_im_file_);
+      os_im << "mz" << "\t" << "im" << "\t" << "theo_im" << "\t" << "RT" << "\t" << "intensity" << std::endl;
+      os_im.precision(writtenDigits(double()));
+    }
 
     std::vector<String> trgr_ids;
     std::map<std::string, double> pep_im_map;
@@ -169,12 +175,19 @@ namespace OpenMS
 #pragma omp critical
 #endif
       {
-        sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
-        sp_ms1 = OpenSwathScoring().fetchSpectrumSwath(ms1_maps, bestRT, 1, 0, 0);
+        if (ms1_im_)
+        {
+          sp_ms1 = OpenSwathScoring().fetchSpectrumSwath(ms1_maps, bestRT, 1, 0, 0);
+        }
+        else
+        {
+          sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
+        }
       }
 
       for (const auto& tr : transition_group->getTransitions())
       {
+        if (ms1_im_) {continue;}
         double intensity(0), im(0), left(tr.product_mz), right(tr.product_mz);
 
         auto pepref = tr.getPeptideRef();
@@ -209,15 +222,16 @@ namespace OpenMS
           data_im.push_back(std::make_pair(im, drift_target));
           exp_im.push_back(im);
           theo_im.push_back(drift_target);
-#ifdef SWATHMAPMASSCORRECTION_DEBUG
-          os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
-#endif
+          if (!debug_im_file_.empty())
+          {
+            os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+          }
         }
         LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
       }
 
       // Do MS1 extraction
-      if (!transition_group->getTransitions().empty())
+      if (!transition_group->getTransitions().empty() && ms1_im_)
       {
         const auto& tr = transition_group->getTransitions()[0];
         double intensity(0), im(0), left(tr.precursor_mz), right(tr.precursor_mz);
@@ -254,13 +268,16 @@ namespace OpenMS
           data_im.push_back(std::make_pair(im, drift_target));
           exp_im.push_back(im);
           theo_im.push_back(drift_target);
-#ifdef SWATHMAPMASSCORRECTION_DEBUG
-          os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
-#endif
+          if (!debug_im_file_.empty())
+          {
+            os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+          }
         }
         LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
       }
     }
+
+    if (!debug_im_file_.empty()) {os_im.close();}
 
     std::vector<double> im_regression_params;
     double confidence_interval_P(0.0);
@@ -302,11 +319,14 @@ namespace OpenMS
       return;
     }
 
-#ifdef SWATHMAPMASSCORRECTION_DEBUG
-    std::cout.precision(16);
-    std::ofstream os("debug_ppmdiff.txt");
-    os.precision(writtenDigits(double()));
-#endif
+    std::ofstream os;
+    if (!debug_mz_file_.empty())
+    {
+      std::cout.precision(16);
+      os.open(debug_mz_file_);
+      os << "mz" << "\t" << "theo_mz" << "\t" << "diff_ppm" << "\t" << "log_intensity" << "\t" << "RT" << std::endl;
+      os.precision(writtenDigits(double()));
+    }
 
     TransformationDescription::DataPoints data_all;
     std::vector<double> weights;
@@ -383,9 +403,10 @@ namespace OpenMS
         // y = target = delta-ppm
         delta_ppm.push_back(diff_ppm);
 
-#ifdef SWATHMAPMASSCORRECTION_DEBUG
-        os << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
-#endif
+        if (!debug_mz_file_.empty())
+        {
+          os << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
+        }
         LOG_DEBUG << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
       }
     }
@@ -473,8 +494,9 @@ namespace OpenMS
     LOG_DEBUG << "# mz regression parameters: Y = " << regression_params[0] << " + " <<
       regression_params[1] << " X + " << regression_params[2] << " X^2" << std::endl;
 
+    if (!debug_mz_file_.empty()) {os.close();}
+
 #ifdef SWATHMAPMASSCORRECTION_DEBUG
-    os.close();
     double s_ppm_before = 0;
     double s_ppm_after = 0;
     for (TransformationDescription::DataPoints::iterator d = data_all.begin(); d != data_all.end(); ++d)
