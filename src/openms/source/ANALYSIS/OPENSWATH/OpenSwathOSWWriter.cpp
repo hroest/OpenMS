@@ -32,6 +32,8 @@
 // $Authors: George Rosenberger $
 // --------------------------------------------------------------------------
 
+#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathOSWWriter.h>
+
 namespace OpenMS
 {
 }

@@ -317,6 +317,59 @@ namespace OpenMS
 
   }
 
+  void IonMobilityScoring::driftScoringMS1(OpenSwath::SpectrumPtr spectrum, 
+                                        const std::vector<TransitionType> & transitions,
+                                        OpenSwath_Scores & scores,
+                                        const double drift_lower,
+                                        const double drift_upper,
+                                        const double drift_target,
+                                        const double dia_extract_window_,
+                                        const bool dia_extraction_ppm_,
+                                        const bool /* use_spline */,
+                                        const double drift_extra)
+  {
+    OPENMS_PRECONDITION(spectrum != nullptr, "Spectrum cannot be null");
+    OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
+
+    auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
+
+    double DRIFT_EXTRA = drift_extra;
+
+    double drift_width = fabs(drift_upper - drift_lower);
+
+    double drift_lower_used = drift_lower - drift_width * DRIFT_EXTRA;
+    double drift_upper_used = drift_upper + drift_width * DRIFT_EXTRA;
+
+    // IMProfile: a data structure that holds points <im_value, intensity>
+    typedef std::vector< std::pair<double, double> > IMProfile;
+    double delta_drift = 0;
+    // double computed_im = 0;
+    // double computed_im_weighted = 0;
+    // double sum_intensity = 0;
+    // int tr_used = 0;
+    for (std::size_t k = 0; k < transitions.size(); k++)
+    {
+      const TransitionType* transition = &transitions[k];
+      // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
+      double left(transition->getPrecursorMZ()), right(transition->getPrecursorMZ());
+      DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+      IMProfile res;
+      double im(0), intensity(0);
+      integrateDriftSpectrum(spectrum, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
+
+      delta_drift += fabs(drift_target - im);
+      // std::cout << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
+      // computed_im += im;
+      // computed_im_weighted += im * intensity;
+      // sum_intensity += intensity;
+      // delta_drift_weighted += delta_drift * normalized_library_intensity[k];
+      // weights += normalized_library_intensity[k];
+      break; // only one transition needed
+    }
+    // std::cout << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
+    scores.im_ms1_delta_score = delta_drift;
+  }
+
   void IonMobilityScoring::driftScoring(OpenSwath::SpectrumPtr spectrum, 
                                         const std::vector<TransitionType> & transitions,
                                         OpenSwath_Scores & scores,
