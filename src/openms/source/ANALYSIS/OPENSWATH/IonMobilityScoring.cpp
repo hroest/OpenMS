@@ -331,6 +331,9 @@ namespace OpenMS
     OPENMS_PRECONDITION(spectrum != nullptr, "Spectrum cannot be null");
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
+    std::cout << " spectrum " << spectrum << std::endl;
+    std::cout << " spectrum drift time " << spectrum->getDriftTimeArray() << std::endl;
+
     auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
 
     double DRIFT_EXTRA = drift_extra;

@@ -28,6 +28,7 @@
 					<UserParam type="float" name="peak_apex_int" value="1436.19226074219"/>
 					<UserParam type="float" name="total_xic" value="14151.5089874268"/>
 					<UserParam type="float" name="total_mi" value="3.30055909239095"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.754007845849604"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -44,6 +45,7 @@
 					<UserParam type="float" name="peak_apex_int" value="718.096130371094"/>
 					<UserParam type="float" name="total_xic" value="7075.75449371338"/>
 					<UserParam type="float" name="total_mi" value="3.30055909239095"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.754007845849604"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -60,6 +62,7 @@
 					<UserParam type="float" name="peak_apex_int" value="478.730743408203"/>
 					<UserParam type="float" name="total_xic" value="4717.16970062256"/>
 					<UserParam type="float" name="total_mi" value="3.30055909239095"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.754007825635777"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -84,6 +87,7 @@
 			<UserParam type="float" name="leftWidth" value="11"/>
 			<UserParam type="float" name="rightWidth" value="191"/>
 			<UserParam type="float" name="peak_apices_sum" value="2633.01913452148"/>
+			<UserParam type="floatList" name="masserror_ppm" value="[500.01, 0.0195308594010019, 500.15, -0.0122033701934672, 500.25, 0]"/>
 			<UserParam type="float" name="var_xcorr_coelution" value="0"/>
 			<UserParam type="float" name="var_xcorr_coelution_weighted" value="0"/>
 			<UserParam type="float" name="var_xcorr_shape" value="1"/>
@@ -112,8 +116,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.0142403024987419"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.569372170286793"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.41687882089464"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.569372163964121"/>
+			<UserParam type="float" name="var_manhatt_score" value="1.41687882781186"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_contrast" value="0"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_combined" value="0.6"/>
 			<UserParam type="float" name="var_ms1_xcorr_coelution_contrast" value="19"/>
@@ -147,6 +151,7 @@
 					<UserParam type="float" name="peak_apex_int" value="1436.19226074219"/>
 					<UserParam type="float" name="total_xic" value="14100.3481216431"/>
 					<UserParam type="float" name="total_mi" value="3.40582225028569"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.749945748776714"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -163,6 +168,7 @@
 					<UserParam type="float" name="peak_apex_int" value="718.096130371094"/>
 					<UserParam type="float" name="total_xic" value="7050.17406082153"/>
 					<UserParam type="float" name="total_mi" value="3.40582225028569"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.749945748776714"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -179,6 +185,7 @@
 					<UserParam type="float" name="peak_apex_int" value="478.730743408203"/>
 					<UserParam type="float" name="total_xic" value="4700.11607933044"/>
 					<UserParam type="float" name="total_mi" value="3.40582225028569"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.749945728605632"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -203,6 +210,7 @@
 			<UserParam type="float" name="leftWidth" value="12"/>
 			<UserParam type="float" name="rightWidth" value="192"/>
 			<UserParam type="float" name="peak_apices_sum" value="2633.01913452148"/>
+			<UserParam type="floatList" name="masserror_ppm" value="[501.01, 0.0194918764278057, 501.15, -0.0121790194597678, 501.25, 0]"/>
 			<UserParam type="float" name="var_xcorr_coelution" value="0"/>
 			<UserParam type="float" name="var_xcorr_coelution_weighted" value="0"/>
 			<UserParam type="float" name="var_xcorr_shape" value="0.999999999999999"/>
@@ -231,8 +239,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.0142118811987165"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.569254618156646"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.41701522350076"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.569254616036007"/>
+			<UserParam type="float" name="var_manhatt_score" value="1.41701522697527"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_contrast" value="0"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_combined" value="0.6"/>
 			<UserParam type="float" name="var_ms1_xcorr_coelution_contrast" value="19"/>
@@ -266,6 +274,7 @@
 					<UserParam type="float" name="peak_apex_int" value="1436.19226074219"/>
 					<UserParam type="float" name="total_xic" value="13938.7174682617"/>
 					<UserParam type="float" name="total_mi" value="3.51108540818043"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.738242596855508"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -282,6 +291,7 @@
 					<UserParam type="float" name="peak_apex_int" value="718.096130371094"/>
 					<UserParam type="float" name="total_xic" value="6969.35873413086"/>
 					<UserParam type="float" name="total_mi" value="3.51108540818043"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.738242596855508"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -298,6 +308,7 @@
 					<UserParam type="float" name="peak_apex_int" value="478.730743408203"/>
 					<UserParam type="float" name="total_xic" value="4646.23919296265"/>
 					<UserParam type="float" name="total_mi" value="3.51108540818043"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.738242576145299"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -322,6 +333,7 @@
 			<UserParam type="float" name="leftWidth" value="33"/>
 			<UserParam type="float" name="rightWidth" value="193"/>
 			<UserParam type="float" name="peak_apices_sum" value="2633.01913452148"/>
+			<UserParam type="floatList" name="masserror_ppm" value="[502.01, 0.019453048762166, 502.15, -0.0121547657119638, 502.25, 0]"/>
 			<UserParam type="float" name="var_xcorr_coelution" value="0"/>
 			<UserParam type="float" name="var_xcorr_coelution_weighted" value="0"/>
 			<UserParam type="float" name="var_xcorr_shape" value="0.999999999999999"/>
@@ -350,8 +362,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.0141835731211933"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.568606595012116"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.41776652379047"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.568606598189453"/>
+			<UserParam type="float" name="var_manhatt_score" value="1.41776652373766"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_contrast" value="0"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_combined" value="0.6"/>
 			<UserParam type="float" name="var_ms1_xcorr_coelution_contrast" value="17"/>
@@ -385,6 +397,7 @@
 					<UserParam type="float" name="peak_apex_int" value="1436.19226074219"/>
 					<UserParam type="float" name="total_xic" value="13644.073764801"/>
 					<UserParam type="float" name="total_mi" value="3.61634856607517"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.831981918089203"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -401,6 +414,7 @@
 					<UserParam type="float" name="peak_apex_int" value="718.096130371094"/>
 					<UserParam type="float" name="total_xic" value="6822.03688240051"/>
 					<UserParam type="float" name="total_mi" value="3.61634856607517"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.831981918089203"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -417,6 +431,7 @@
 					<UserParam type="float" name="peak_apex_int" value="478.730743408203"/>
 					<UserParam type="float" name="total_xic" value="4548.02462768555"/>
 					<UserParam type="float" name="total_mi" value="3.61634856607517"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.831981897274276"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -441,6 +456,7 @@
 			<UserParam type="float" name="leftWidth" value="44"/>
 			<UserParam type="float" name="rightWidth" value="194"/>
 			<UserParam type="float" name="peak_apices_sum" value="2633.01913452148"/>
+			<UserParam type="floatList" name="masserror_ppm" value="[503.01, 0.0194143754778135, 503.15, -0.012130608371783, 503.25, 0]"/>
 			<UserParam type="float" name="var_xcorr_coelution" value="0"/>
 			<UserParam type="float" name="var_xcorr_coelution_weighted" value="0"/>
 			<UserParam type="float" name="var_xcorr_shape" value="0.999999999999999"/>
@@ -469,8 +485,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.0141553775909472"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.568489240672482"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.41790256393181"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.568489238554694"/>
+			<UserParam type="float" name="var_manhatt_score" value="1.41790256638639"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_contrast" value="0"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_combined" value="0.6"/>
 			<UserParam type="float" name="var_ms1_xcorr_coelution_contrast" value="16"/>
@@ -504,6 +520,7 @@
 					<UserParam type="float" name="peak_apex_int" value="1436.19226074219"/>
 					<UserParam type="float" name="total_xic" value="13185.1150016785"/>
 					<UserParam type="float" name="total_mi" value="3.7216117239699"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.812720763688243"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -520,6 +537,7 @@
 					<UserParam type="float" name="peak_apex_int" value="718.096130371094"/>
 					<UserParam type="float" name="total_xic" value="6592.55750083923"/>
 					<UserParam type="float" name="total_mi" value="3.7216117239699"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.812720763688243"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -536,6 +554,7 @@
 					<UserParam type="float" name="peak_apex_int" value="478.730743408203"/>
 					<UserParam type="float" name="total_xic" value="4395.03837323189"/>
 					<UserParam type="float" name="total_mi" value="3.7216117239699"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.812720742323742"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -560,6 +579,7 @@
 			<UserParam type="float" name="leftWidth" value="55"/>
 			<UserParam type="float" name="rightWidth" value="195"/>
 			<UserParam type="float" name="peak_apices_sum" value="2633.01913452148"/>
+			<UserParam type="floatList" name="masserror_ppm" value="[504.01, 0.0193758556558301, 504.15, -0.0121065468655413, 504.25, 0]"/>
 			<UserParam type="float" name="var_xcorr_coelution" value="0"/>
 			<UserParam type="float" name="var_xcorr_coelution_weighted" value="0"/>
 			<UserParam type="float" name="var_xcorr_shape" value="0.999999999999999"/>
@@ -588,8 +608,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.0141272939381115"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.565984100394688"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.42079939995697"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.565984080065326"/>
+			<UserParam type="float" name="var_manhatt_score" value="1.42079941831796"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_contrast" value="0.488849657452846"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_combined" value="0.846654897235853"/>
 			<UserParam type="float" name="var_ms1_xcorr_coelution_contrast" value="11"/>
@@ -623,6 +643,7 @@
 					<UserParam type="float" name="peak_apex_int" value="1436.19226074219"/>
 					<UserParam type="float" name="total_xic" value="13185.1150016785"/>
 					<UserParam type="float" name="total_mi" value="3.7216117239699"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.812720763688243"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -639,6 +660,7 @@
 					<UserParam type="float" name="peak_apex_int" value="718.096130371094"/>
 					<UserParam type="float" name="total_xic" value="6592.55750083923"/>
 					<UserParam type="float" name="total_mi" value="3.7216117239699"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.812720763688243"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -655,6 +677,7 @@
 					<UserParam type="float" name="peak_apex_int" value="478.730743408203"/>
 					<UserParam type="float" name="total_xic" value="4395.03837323189"/>
 					<UserParam type="float" name="total_mi" value="3.7216117239699"/>
+					<UserParam type="float" name="width_at_50" value="100"/>
 					<UserParam type="float" name="logSN" value="0.812720742323742"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -679,6 +702,7 @@
 			<UserParam type="float" name="leftWidth" value="55"/>
 			<UserParam type="float" name="rightWidth" value="195"/>
 			<UserParam type="float" name="peak_apices_sum" value="2633.01913452148"/>
+			<UserParam type="floatList" name="masserror_ppm" value="[504.01, 0.0193758556558301, 504.15, -0.0121065468655413, 504.25, 0]"/>
 			<UserParam type="float" name="var_xcorr_coelution" value="0"/>
 			<UserParam type="float" name="var_xcorr_coelution_weighted" value="0"/>
 			<UserParam type="float" name="var_xcorr_shape" value="0.999999999999999"/>
@@ -707,8 +731,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.0141272939381115"/>
 			<UserParam type="float" name="var_bseries_score" value="0"/>
 			<UserParam type="float" name="var_yseries_score" value="0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.565984100394688"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.42079939995697"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.565984080065326"/>
+			<UserParam type="float" name="var_manhatt_score" value="1.42079941831796"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_contrast" value="0.488849657452846"/>
 			<UserParam type="float" name="var_ms1_xcorr_shape_combined" value="0.846654897235853"/>
 			<UserParam type="float" name="var_ms1_xcorr_coelution_contrast" value="11"/>

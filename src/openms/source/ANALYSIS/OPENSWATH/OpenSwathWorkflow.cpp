@@ -319,7 +319,7 @@ namespace OpenMS
     mc.correctMZ(trgrmap_final, swath_maps);
     mc.correctIM(trgrmap_final, swath_maps, im_trafo, targeted_exp);
 
-    // 9. store transformation, using the selected model
+    // 9. store RT transformation, using the selected model
     TransformationDescription trafo_out;
     trafo_out.setDataPoints(pairs_corrected);
     Param model_params;
@@ -578,7 +578,7 @@ namespace OpenMS
           }
 
           SignedSize nr_batches = (transition_exp_used_all.getCompounds().size() / batch_size);
-#ifdef _OPENMP
+
           // If we have a multiple of threads_outer_loop_ here, then use nested
           // parallelization here. E.g. if we use 8 threads for the outer loop,
           // but we have a total of 24 cores available, each of the 8 threads
@@ -587,10 +587,11 @@ namespace OpenMS
           //
           // We should avoid oversubscribing the CPUs, therefore we use integer division.
           // -- see https://docs.oracle.com/cd/E19059-01/stud.10/819-0501/2_nested.html
+#ifdef _OPENMP
           int outer_thread_nr = omp_get_thread_num();
           omp_set_num_threads(std::max(1, total_nr_threads / threads_outer_loop_) );
-#pragma omp parallel for schedule(dynamic, 1)
 #endif
+#pragma omp parallel for schedule(dynamic, 1)
           for (SignedSize pep_idx = 0; pep_idx <= nr_batches; pep_idx++)
           {
             OpenSwath::SpectrumAccessPtr current_swath_map_inner = current_swath_map;
@@ -649,9 +650,7 @@ namespace OpenMS
             // Step 4: write all chromatograms and features out into an output object / file
             // (this needs to be done in a critical section since we only have one
             // output file and one output map).
-#ifdef _OPENMP
-#pragma omp critical (osw_write_out)
-#endif
+            #pragma omp critical (osw_write_out)
             {
               writeOutFeaturesAndChroms_(chrom_exp.getChromatograms(), featureFile, out_featureFile, store_features, chromConsumer);
             }
@@ -664,7 +663,6 @@ namespace OpenMS
 #pragma omp critical (osw_stdout)
 #endif
         this->setProgress(++progress);
-
     }
     this->endProgress();
     
@@ -778,7 +776,7 @@ namespace OpenMS
     const std::vector< OpenMS::MSChromatogram > & ms2_chromatograms,
     const std::vector< OpenMS::MSChromatogram > & ms1_chromatograms,
     const std::vector< OpenSwath::SwathMap >& swath_maps,
-    OpenSwath::LightTargetedExperiment& transition_exp,
+    const OpenSwath::LightTargetedExperiment& transition_exp,
     const Param& feature_finder_param,
     TransformationDescription trafo,
     const double rt_extraction_window,

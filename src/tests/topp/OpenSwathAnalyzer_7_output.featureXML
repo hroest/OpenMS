@@ -38,6 +38,7 @@
 					<UserParam type="string" name="native_id" value="tr1"/>
 					<UserParam type="float" name="peak_apex_int" value="165.115731239319"/>
 					<UserParam type="float" name="total_xic" value="812.494094371796"/>
+					<UserParam type="float" name="width_at_50" value="17.1300000000001"/>
 					<UserParam type="float" name="logSN" value="4.45869633337531"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -56,6 +57,7 @@
 					<UserParam type="string" name="native_id" value="tr2"/>
 					<UserParam type="float" name="peak_apex_int" value="562.293350696564"/>
 					<UserParam type="float" name="total_xic" value="2867.66653496027"/>
+					<UserParam type="float" name="width_at_50" value="17.1300000000001"/>
 					<UserParam type="float" name="logSN" value="4.45007591150298"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -121,6 +123,7 @@
 					<UserParam type="string" name="native_id" value="tr3"/>
 					<UserParam type="float" name="peak_apex_int" value="25.3897016048431"/>
 					<UserParam type="float" name="total_xic" value="412.092581033707"/>
+					<UserParam type="float" name="width_at_50" value="13.71"/>
 					<UserParam type="float" name="logSN" value="1.86739581779823"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -139,6 +142,7 @@
 					<UserParam type="string" name="native_id" value="tr4"/>
 					<UserParam type="float" name="peak_apex_int" value="0.118091635406017"/>
 					<UserParam type="float" name="total_xic" value="812.494094371796"/>
+					<UserParam type="float" name="width_at_50" value="17.1399999999999"/>
 					<UserParam type="float" name="logSN" value="0"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -157,6 +161,7 @@
 					<UserParam type="string" name="native_id" value="tr5"/>
 					<UserParam type="float" name="peak_apex_int" value="11.9154462814331"/>
 					<UserParam type="float" name="total_xic" value="385.687290549278"/>
+					<UserParam type="float" name="width_at_50" value="17.1399999999999"/>
 					<UserParam type="float" name="logSN" value="1.33498168074371"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -222,6 +227,7 @@
 					<UserParam type="string" name="native_id" value="tr3"/>
 					<UserParam type="float" name="peak_apex_int" value="1.20453500747681"/>
 					<UserParam type="float" name="total_xic" value="412.092581033707"/>
+					<UserParam type="float" name="width_at_50" value="44.5500000000002"/>
 					<UserParam type="float" name="logSN" value="0"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -240,6 +246,7 @@
 					<UserParam type="string" name="native_id" value="tr4"/>
 					<UserParam type="float" name="peak_apex_int" value="165.115731239319"/>
 					<UserParam type="float" name="total_xic" value="812.494094371796"/>
+					<UserParam type="float" name="width_at_50" value="17.1300000000001"/>
 					<UserParam type="float" name="logSN" value="4.45869633337531"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
@@ -258,6 +265,7 @@
 					<UserParam type="string" name="native_id" value="tr5"/>
 					<UserParam type="float" name="peak_apex_int" value="19.0481811761856"/>
 					<UserParam type="float" name="total_xic" value="385.687290549278"/>
+					<UserParam type="float" name="width_at_50" value="27.4099999999999"/>
 					<UserParam type="float" name="logSN" value="1.16692266163571"/>
 					<UserParam type="string" name="FeatureLevel" value="MS2"/>
 				</feature>
