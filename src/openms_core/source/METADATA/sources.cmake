@@ -59,7 +59,7 @@ foreach(i ${sources_list})
 endforeach(i)
 
 ### pass source file list to the upper instance
-set(OpenMS_sources ${OpenMS_sources} ${sources})
+set(OpenCoreMS_sources ${OpenMS_sources} ${sources})
 
 ### source group definition
 source_group("Source Files\\METADATA" FILES ${sources})
