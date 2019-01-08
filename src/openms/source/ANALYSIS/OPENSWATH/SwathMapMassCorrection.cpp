@@ -60,6 +60,8 @@ namespace OpenMS
     defaults_.setValue("im_extraction_window", -1.0, "Ion mobility extraction window width");
     defaults_.setValue("mz_correction_function", "none", "Type of normalization function for m/z calibration.");
     defaults_.setValidStrings("mz_correction_function", ListUtils::create<String>("none,regression_delta_ppm,unweighted_regression,weighted_regression,quadratic_regression,weighted_quadratic_regression,weighted_quadratic_regression_delta_ppm,quadratic_regression_delta_ppm"));
+    defaults_.setValue("im_correction_function", "linear", "Type of normalization function for IM calibration.");
+    defaults_.setValidStrings("im_correction_function", ListUtils::create<String>("none,linear"));
 
     defaults_.setValue("debug_im_file", "", "Debug file for Ion Mobility calibration.");
     defaults_.setValue("debug_mz_file", "", "Debug file for m/z calibration.");
@@ -75,6 +77,7 @@ namespace OpenMS
     ms1_im_ = param_.getValue("ms1_im_calibration") == "true";
     im_extraction_window_ = (double)param_.getValue("im_extraction_window");
     mz_correction_function_ = param_.getValue("mz_correction_function");
+    im_correction_function_ = param_.getValue("im_correction_function");
     debug_mz_file_ = param_.getValue("debug_mz_file");
     debug_im_file_ = param_.getValue("debug_im_file");
   }
@@ -95,6 +98,12 @@ namespace OpenMS
     {
       return;
     }
+
+    if (im_correction_function_ == "none")
+    {
+      return;
+    }
+    // if it is not none, then it must be linear
 
     std::ofstream os_im;
     if (!debug_im_file_.empty())
@@ -279,6 +288,7 @@ namespace OpenMS
 
     if (!debug_im_file_.empty()) {os_im.close();}
 
+    // linear correction is default (none returns in the beginning of the function)
     std::vector<double> im_regression_params;
     double confidence_interval_P(0.0);
     Math::LinearRegression lr;
