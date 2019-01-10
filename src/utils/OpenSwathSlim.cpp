@@ -284,12 +284,13 @@ protected:
     String irt_trafo_out; // = debug_params.getValue("irt_trafo");
     String irt_mzml_out; // = debug_params.getValue("irt_mzml");
     TransformationDescription trafo_rtnorm;
+    Param calibration_param = SwathMapMassCorrection().getDefaults();
+    calibration_param.setValue("mz_correction_function", mz_correction_function);
     if (nonlinear_irt_tr_file.empty())
     {
-      trafo_rtnorm = loadTrafoFile("", irt_tr_file, swath_maps,
-                                   min_rsq, min_coverage, feature_finder_param,
-                                   cp_irt, irt_detection_param, mz_correction_function, debug_level,
-                                   false, load_into_memory, irt_trafo_out, irt_mzml_out);
+      trafo_rtnorm = performCalibration("", irt_tr_file, swath_maps, min_rsq, min_coverage,
+                                   feature_finder_param, cp_irt, irt_detection_param, calibration_param,
+                                   debug_level, false, load_into_memory, irt_trafo_out, irt_mzml_out);
     }
     else
     {
@@ -299,10 +300,9 @@ protected:
 
       Param linear_irt = irt_detection_param;
       linear_irt.setValue("alignmentMethod", "linear");
-      trafo_rtnorm = loadTrafoFile("", irt_tr_file, swath_maps,
-                                   min_rsq, min_coverage, feature_finder_param,
-                                   cp_irt, linear_irt, "none", debug_level,
-                                   false, load_into_memory, irt_trafo_out, irt_mzml_out);
+      trafo_rtnorm = performCalibration("", irt_tr_file, swath_maps, min_rsq, min_coverage,
+                                   feature_finder_param, cp_irt, linear_irt, calibration_param, 
+                                   debug_level, false, load_into_memory, irt_trafo_out, irt_mzml_out);
 
       cp_irt.rt_extraction_window = 900; // extract some substantial part of the RT range (should be covered by linear correction)
       cp_irt.rt_extraction_window = 600; // extract some substantial part of the RT range (should be covered by linear correction)
@@ -314,16 +314,18 @@ protected:
       transition_exp_nl = loadTransitionList(FileHandler::getType(nonlinear_irt_tr_file), nonlinear_irt_tr_file, tsv_reader_param);
 
       std::vector< OpenMS::MSChromatogram > chromatograms;
-      OpenSwathRetentionTimeNormalization wf;
+      OpenSwathCalibrationWorkflow wf;
       wf.setLogType(log_type_);
-      wf.simpleExtractChromatograms(swath_maps, transition_exp_nl, chromatograms,
+      wf.simpleExtractChromatograms_(swath_maps, transition_exp_nl, chromatograms,
                                     trafo_rtnorm, cp_irt, false, load_into_memory);
 
+      Param nonlinear_irt = irt_detection_param;
+      nonlinear_irt.setValue("estimateBestPeptides", "true");
+
       TransformationDescription im_trafo;
-      trafo_rtnorm = wf.RTNormalization(transition_exp_nl, chromatograms, im_trafo, min_rsq,
-                                        min_coverage, feature_finder_param, irt_detection_param,
-                                        swath_maps, mz_correction_function, cp_irt.im_extraction_window,
-                                        cp_irt.mz_extraction_window, cp_irt.ppm);
+      trafo_rtnorm = wf.doDataNormalization_(transition_exp_nl, chromatograms, im_trafo, swath_maps,
+                                             min_rsq, min_coverage,
+                                             feature_finder_param, nonlinear_irt, calibration_param);
 
       TransformationDescription im_trafo_inv = im_trafo;
       im_trafo_inv.invert(); // theoretical -> experimental
@@ -355,7 +357,7 @@ protected:
       OpenSwathWorkflow wf(use_ms1_traces, true, -1);
       wf.setLogType(log_type_);
       wf.performExtraction(swath_maps, trafo_rtnorm, cp, cp_ms1, feature_finder_param, transition_exp,
-          out_featureFile, !out.empty(), tsvwriter, oswwriter, chromatogramConsumer, 0, load_into_memory);
+          out_featureFile, !out.empty(), tsvwriter, oswwriter, chromatogramConsumer, 0, 0, load_into_memory);
     }
 
     if (!out.empty())
