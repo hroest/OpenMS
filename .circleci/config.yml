@@ -20,7 +20,6 @@ jobs:
           command: source ${QT_ENV} && cmake -DCMAKE_PREFIX_PATH='/contrib-build/;/usr/;/usr/local' -DBOOST_USE_STATIC=OFF -DHAS_XSERVER=Off .
           environment:
             QT_ENV: /opt/qt57/bin/qt57-env.sh
-            # QT_ENV: $(find /opt -name 'qt*-env.sh')
       - run:
           name: Build OpenMS
           command: make OpenMS -j2
