@@ -55,12 +55,12 @@ namespace OpenMS
     // this only copies the indices and meta-data
   }
 
-  boost::shared_ptr<OpenSwath::ISpectrumAccess> SpectrumAccessOpenMSCached::lightClone() const 
+  boost::shared_ptr<OpenSwath::ISpectrumAccess> SpectrumAccessOpenMSCached::lightClone() const
   {
     return boost::shared_ptr<SpectrumAccessOpenMSCached>(new SpectrumAccessOpenMSCached(*this));
   }
 
-  OpenSwath::SpectrumPtr SpectrumAccessOpenMSCached::getSpectrumById(int id) 
+  OpenSwath::SpectrumPtr SpectrumAccessOpenMSCached::getSpectrumById(int id)
   {
     OPENMS_PRECONDITION(id >= 0, "Id needs to be larger than zero");
     OPENMS_PRECONDITION(id < (int)getNrSpectra(), "Id cannot be larger than number of spectra");
@@ -77,7 +77,8 @@ namespace OpenMS
     }
 
     OpenSwath::SpectrumPtr sptr(new OpenSwath::Spectrum);
-    sptr->getDataArrays() = Internal::CachedMzMLHandler::readSpectrumFast(ifs_, ms_level, rt); 
+    sptr->getDataArrays() = Internal::CachedMzMLHandler::readSpectrumFast(ifs_, ms_level, rt);
+
     return sptr;
   }
 
@@ -92,7 +93,7 @@ namespace OpenMS
     return meta;
   }
 
-  OpenSwath::ChromatogramPtr SpectrumAccessOpenMSCached::getChromatogramById(int id) 
+  OpenSwath::ChromatogramPtr SpectrumAccessOpenMSCached::getChromatogramById(int id)
   {
     OPENMS_PRECONDITION(id >= 0, "Id needs to be larger than zero");
     OPENMS_PRECONDITION(id < (int)getNrChromatograms(), "Id cannot be larger than number of chromatograms");
@@ -162,3 +163,4 @@ namespace OpenMS
   }
 
 } //end namespace OpenMS
+

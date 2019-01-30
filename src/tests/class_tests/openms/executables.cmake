@@ -383,6 +383,7 @@ set(chemistry_executables_list
   ResidueDB_test
   ResidueModification_test
   Residue_test
+  SimpleTSGXLMS_test
   SpectrumAnnotator_test
   SvmTheoreticalSpectrumGenerator_test
   SvmTheoreticalSpectrumGeneratorTrainer_test
@@ -628,7 +629,9 @@ if(NOT DISABLE_OPENSWATH)
     OpenSwathSpectrumAccessOpenMS_test
     OpenSwathDataAccessHelper_test
     MasstraceCorrelator_test
+    MRMBatchFeatureSelector_test
     MRMFeatureScoring_test
+    MRMFeatureSelector_test
     MRMFeatureFinderScoring_test
     MRMFeatureFilter_test
     MRMFeatureQC_test

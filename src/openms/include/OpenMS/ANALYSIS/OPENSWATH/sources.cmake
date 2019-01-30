@@ -17,6 +17,8 @@ set(sources_list_h
   MRMFeatureFinderScoring.h
   MRMFeaturePicker.h
   MRMFeatureQC.h
+  MRMBatchFeatureSelector.h
+  MRMFeatureSelector.h
   MRMIonSeries.h
   MRMRTNormalizer.h
   MRMTransitionGroupPicker.h
