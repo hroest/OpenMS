@@ -125,7 +125,7 @@ namespace OpenMS
         "RUN_ID INT NOT NULL," \
         "PRECURSOR_ID INT NOT NULL," \
         "EXP_RT REAL NOT NULL," \
-        "EXP_IM REAL NOT NULL," \
+        "EXP_IM REAL, " \
         "NORM_RT REAL NOT NULL," \
         "DELTA_RT REAL NOT NULL," \
         "LEFT_WIDTH REAL NOT NULL," \
