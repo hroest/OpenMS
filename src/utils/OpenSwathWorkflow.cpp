@@ -847,7 +847,7 @@ protected:
       qc_consumer.setSpectraProcessingFunc(qc.getSpectraProcessingFunc());
       qc_consumer.setExperimentalSettingsFunc(qc.getExpSettingsFunc());
       if (!loadSwathFiles(file_list, exp_meta, swath_maps, split_file, tmp_dir, readoptions, 
-                          swath_windows_file, min_upper_edge_dist, force,
+                          swath_windows_file, min_upper_edge_dist, throw_on_direct_sql_access, force,
                           sort_swath_maps, sonar, &qc_consumer))
       {
         return PARSE_ERROR;
@@ -857,7 +857,7 @@ protected:
     else
     {
       if (!loadSwathFiles(file_list, exp_meta, swath_maps, split_file, tmp_dir, readoptions, 
-                          swath_windows_file, throw_on_direct_sql_access, min_upper_edge_dist, force,
+                          swath_windows_file, min_upper_edge_dist, throw_on_direct_sql_access, force,
                           sort_swath_maps, sonar))
       {
         return PARSE_ERROR;
