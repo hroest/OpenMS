@@ -1566,7 +1566,7 @@ ${TOPP_BIN_PATH}/OpenSwathDecoyGenerator -test -in ${DATA_DIR_TOPP}/OpenSwathDec
 
   # Test iRT alignment, full workflow
   add_test("TOPP_OpenSwathSlim_1" ${TOPP_BIN_PATH}/OpenSwathSlim -in ${DATA_DIR_TOPP}/OpenSwathWorkflow_21_input.mzML -tr ${DATA_DIR_TOPP}/OpenSwathWorkflow_21_input.tsv -tr_irt ${DATA_DIR_TOPP}/OpenSwathWorkflow_21_input.irt.TraML -out_peaks OpenSwathSlim_1.tmp.featureXML -out_chrom OpenSwathSlim_1.mzML.tmp -test -ion_mobility_window 0.0 -rt_extraction_window 0.0 -mz_extraction_window 50)
-  add_test("TOPP_OpenSwathSlim_1_out1" ${DIFF} -in1 OpenSwathSlim_1.featureXML.tmp -in2 ${DATA_DIR_TOPP}/OpenSwathWorkflow_21_output.featureXML -whitelist "software")
+  add_test("TOPP_OpenSwathSlim_1_out1" ${DIFF} -in1 OpenSwathSlim_1.tmp.featureXML -in2 ${DATA_DIR_TOPP}/OpenSwathWorkflow_21_output.featureXML -whitelist "software")
   add_test("TOPP_OpenSwathSlim_1_out3" ${DIFF} -in1 OpenSwathSlim_1.mzML.tmp -in2 ${DATA_DIR_TOPP}/OpenSwathWorkflow_21_output.mzML -whitelist "software")
   set_tests_properties("TOPP_OpenSwathSlim_1_out1" PROPERTIES DEPENDS "TOPP_OpenSwathSlim_1")
   set_tests_properties("TOPP_OpenSwathSlim_1_out3" PROPERTIES DEPENDS "TOPP_OpenSwathSlim_1")
