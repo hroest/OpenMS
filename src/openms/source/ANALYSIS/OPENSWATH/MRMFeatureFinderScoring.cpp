@@ -912,6 +912,7 @@ namespace OpenMS
     mrmfeature->setMetaValue("peak_apices_sum", total_peak_apices);
     mrmfeature->setMetaValue("ms1_area_intensity", ms1_total_intensity);
     mrmfeature->setMetaValue("ms1_apex_intensity", ms1_total_peak_apices);
+    mrmfeature->setCharge(charge);
   }
 
   void MRMFeatureFinderScoring::updateMembers_()
