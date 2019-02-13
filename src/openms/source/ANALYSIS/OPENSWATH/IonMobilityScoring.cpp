@@ -331,8 +331,8 @@ namespace OpenMS
     OPENMS_PRECONDITION(spectrum != nullptr, "Spectrum cannot be null");
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
-    std::cout << " spectrum " << spectrum << std::endl;
-    std::cout << " spectrum drift time " << spectrum->getDriftTimeArray() << std::endl;
+    // std::cout << " spectrum " << spectrum << std::endl;
+    // std::cout << " spectrum drift time " << spectrum->getDriftTimeArray() << std::endl;
 
     auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
 
@@ -432,9 +432,16 @@ namespace OpenMS
     // std::cout << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
     scores.im_delta_score = delta_drift / tr_used;
 
-    // computed_im /= transitions.size();
-    computed_im /= tr_used;
-    computed_im_weighted /= sum_intensity; // TODO: check for division by zero
+    if (tr_used != 0)
+    {
+      computed_im /= tr_used;
+      computed_im_weighted /= sum_intensity;
+    }
+    else
+    {
+      computed_im = -1;
+      computed_im_weight = -1;
+    }
 
     scores.im_drift = computed_im;
     scores.im_drift_weighted = computed_im_weighted;
@@ -544,13 +551,13 @@ namespace OpenMS
     mrmscore_.initializeXCorrMatrix(raw_im_profiles_aligned);
 
     double xcorr_coelution_score = mrmscore_.calcXcorrCoelutionScore();
-    double xcorr_shape_score = mrmscore_.calcXcorrShapeScore();
+    double xcorr_shape_score = mrmscore_.calcXcorrShapeScore(); // can be nan!
 
     if (USE_SPLINE)
     {
       OpenSwath::mean_and_stddev delta_m;
       delta_m = std::for_each(delta_im.begin(), delta_im.end(), delta_m);
-      scores.im_delta_score = delta_m.mean();
+      scores.im_delta_score = delta_m.mean(); // can be nan!
     }
 
     scores.im_xcorr_coelution_score = xcorr_coelution_score;
