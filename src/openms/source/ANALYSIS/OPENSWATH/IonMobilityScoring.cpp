@@ -440,7 +440,7 @@ namespace OpenMS
     else
     {
       computed_im = -1;
-      computed_im_weight = -1;
+      computed_im_weighted = -1;
     }
 
     scores.im_drift = computed_im;
