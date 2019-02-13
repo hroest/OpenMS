@@ -268,8 +268,9 @@ namespace OpenMS
       {
         score = feature.getMetaValue(score_name).toString();
       }
+      if (score == "nan") score = "NULL";
 
-      return(score);
+      return score;
     }
 
     /**
@@ -294,7 +295,7 @@ namespace OpenMS
 
       for (Size i = 0; i < tmp_separated_scores.size(); ++i)
       {
-        if (tmp_separated_scores[i] == "")
+        if (tmp_separated_scores[i] == "" || tmp_separated_scores[i] == "nan")
         {
           separated_scores.push_back("NULL");
         }
@@ -304,7 +305,7 @@ namespace OpenMS
         }
       }
 
-      return(separated_scores);
+      return separated_scores;
     }
 
     /**
@@ -367,7 +368,7 @@ namespace OpenMS
                     << *(int64_t*)&run_id_ << "', " 
                     << id << ", " 
                     << feature_it->getRT() << ", " 
-                    << getScore(*feature_it, "im_drift") << ", " 
+                    << getScore(*feature_it, "im_drift") << ", "  // TODO: can be nan!
                     << feature_it->getMetaValue("norm_RT") << ", " 
                     << feature_it->getMetaValue("delta_rt") << ", " 
                     << feature_it->getMetaValue("leftWidth") << ", " 
@@ -415,9 +416,9 @@ namespace OpenMS
                         << getScore(*feature_it, "var_xcorr_shape_weighted") << ", " 
                         << getScore(*feature_it, "var_yseries_score") << ", " 
                         << getScore(*feature_it, "var_elution_model_fit_score") << ", " 
-                        << getScore(*feature_it, "var_im_xcorr_shape") << ", " 
+                        << getScore(*feature_it, "var_im_xcorr_shape") << ", "  // can be nan!
                         << getScore(*feature_it, "var_im_xcorr_coelution") << ", " 
-                        << getScore(*feature_it, "var_im_delta_score") << ", " 
+                        << getScore(*feature_it, "var_im_delta_score") << ", "  // can be nan!
                         << getScore(*feature_it, "var_sonar_lag") << ", "
                         << getScore(*feature_it, "var_sonar_shape") << ", " 
                         << getScore(*feature_it, "var_sonar_log_sn") << ", " 
