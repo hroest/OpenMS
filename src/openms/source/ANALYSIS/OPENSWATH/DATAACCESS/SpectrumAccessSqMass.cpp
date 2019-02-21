@@ -89,6 +89,9 @@ namespace OpenMS
 
     OpenSwath::SpectrumPtr SpectrumAccessSqMass::getSpectrumById(int id)
     {
+      OPENMS_PRECONDITION(id < getNrSpectra(), "Spectrum identifier " + id " is too large, needs to be smaller than number spectra: " +  getNrSpectra())
+      OPENMS_PRECONDITION(id >= 0, "Spectrum identifier " + id " needs to be a positive integer.")
+
       std::vector<int> indices;
       if (sidx_.empty())
       {
