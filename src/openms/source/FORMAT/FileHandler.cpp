@@ -42,6 +42,7 @@
 #include <OpenMS/FORMAT/MzDataFile.h>
 #include <OpenMS/FORMAT/MascotGenericFile.h>
 #include <OpenMS/FORMAT/MS2File.h>
+#include <OpenMS/FORMAT/SqMassFile.h>
 #include <OpenMS/FORMAT/XMassFile.h>
 
 #include <OpenMS/FORMAT/MsInspectFile.h>
@@ -559,81 +560,87 @@ if (first_line.hasSubstring("File	First Scan	Last Scan	Num of Scans	Charge	Monoi
     //load right file
     switch (type)
     {
-    case FileTypes::DTA:
-      exp.reset();
-      exp.resize(1);
-      DTAFile().load(filename, exp[0]);
-      break;
+      case FileTypes::DTA:
+        {
+          exp.reset();
+          exp.resize(1);
+          DTAFile().load(filename, exp[0]);
+          break;
+        }
 
-    case FileTypes::DTA2D:
-    {
-      DTA2DFile f;
-      f.getOptions() = options_;
-      f.setLogType(log);
-      f.load(filename, exp);
-    }
+      case FileTypes::DTA2D:
+        {
+          DTA2DFile f;
+          f.getOptions() = options_;
+          f.setLogType(log);
+          f.load(filename, exp);
+          break;
+        }
 
-    break;
+      case FileTypes::MZXML:
+        {
+          MzXMLFile f;
+          f.getOptions() = options_;
+          f.setLogType(log);
+          f.load(filename, exp);
+          break;
+        }
 
-    case FileTypes::MZXML:
-    {
-      MzXMLFile f;
-      f.getOptions() = options_;
-      f.setLogType(log);
-      f.load(filename, exp);
-    }
+      case FileTypes::MZDATA:
+        {
+          MzDataFile f;
+          f.getOptions() = options_;
+          f.setLogType(log);
+          f.load(filename, exp);
+          break;
+        }
 
-    break;
+      case FileTypes::MZML:
+        {
+          MzMLFile f;
+          f.getOptions() = options_;
+          f.setLogType(log);
+          f.load(filename, exp);
+          ChromatogramTools().convertSpectraToChromatograms<PeakMap>(exp, true);
+          break;
+        }
 
-    case FileTypes::MZDATA:
-    {
-      MzDataFile f;
-      f.getOptions() = options_;
-      f.setLogType(log);
-      f.load(filename, exp);
-    }
-    break;
+      case FileTypes::MGF:
+        {
+          MascotGenericFile f;
+          f.setLogType(log);
+          f.load(filename, exp);
+          break;
+        }
 
-    case FileTypes::MZML:
-    {
-      MzMLFile f;
-      f.getOptions() = options_;
-      f.setLogType(log);
-      f.load(filename, exp);
-      ChromatogramTools().convertSpectraToChromatograms<PeakMap>(exp, true);
-    }
-    break;
+      case FileTypes::MS2:
+        {
+          MS2File f;
+          f.setLogType(log);
+          f.load(filename, exp);
+          break;
+        }
 
-    case FileTypes::MGF:
-    {
-      MascotGenericFile f;
-      f.setLogType(log);
-      f.load(filename, exp);
-    }
+      case FileTypes::XMASS:
+        {
+          exp.reset();
+          exp.resize(1);
+          XMassFile().load(filename, exp[0]);
+          XMassFile().importExperimentalSettings(filename, exp);
+          break;
+        }
 
-    break;
+      case FileTypes::SQMASS:
+        {
+          SqMassFile f;
+          // f.setLogType(log);
+          f.load(filename, exp);
+          break;
+        }
 
-    case FileTypes::MS2:
-    {
-      MS2File f;
-      f.setLogType(log);
-      f.load(filename, exp);
-    }
-
-    break;
-
-    case FileTypes::XMASS:
-      exp.reset();
-      exp.resize(1);
-      XMassFile().load(filename, exp[0]);
-      XMassFile().importExperimentalSettings(filename, exp);
-
-      break;
-
-    default:
-      return false;
-
-      break;
+      default:
+        return false;
+        break;
     }
 
     if (rewrite_source_file)

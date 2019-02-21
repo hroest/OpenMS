@@ -47,6 +47,7 @@
 #include <OpenMS/FORMAT/DTA2DFile.h>
 #include <OpenMS/FORMAT/IBSpectraFile.h>
 #include <OpenMS/FORMAT/CachedMzML.h>
+#include <OpenMS/FORMAT/SqMassFile.h>
 #include <OpenMS/DATASTRUCTURES/StringListUtils.h>
 #include <OpenMS/APPLICATIONS/TOPPBase.h>
 #include <OpenMS/KERNEL/ConversionHelper.h>
@@ -54,7 +55,7 @@
 
 #include <OpenMS/FORMAT/DATAACCESS/MSDataWritingConsumer.h>
 #include <OpenMS/FORMAT/DATAACCESS/MSDataCachedConsumer.h>
-
+#include <OpenMS/FORMAT/DATAACCESS/MSDataSqlConsumer.h>
 
 using namespace OpenMS;
 using namespace std;
@@ -323,7 +324,7 @@ protected:
   {
     registerInputFile_("in", "<file>", "", "Input file to convert.");
     registerStringOption_("in_type", "<type>", "", "Input file type -- default: determined from file extension or content\n", false, true); // for TOPPAS
-    String formats("mzData,mzXML,mzML,cachedMzML,dta,dta2d,mgf,featureXML,consensusXML,ms2,fid,tsv,peplist,kroenik,edta");
+    String formats("mzData,mzXML,mzML,cachedMzML,dta,dta2d,mgf,featureXML,consensusXML,ms2,fid,tsv,peplist,kroenik,edta,sqmass");
     setValidFormats_("in", ListUtils::create<String>(formats));
     setValidStrings_("in_type", ListUtils::create<String>(formats));
     
@@ -331,7 +332,7 @@ protected:
     String method("none,ensure,reassign");
     setValidStrings_("UID_postprocessing", ListUtils::create<String>(method));
 
-    formats = "mzData,mzXML,mzML,cachedMzML,dta2d,mgf,featureXML,consensusXML,edta,csv";
+    formats = "mzData,mzXML,mzML,cachedMzML,dta2d,mgf,featureXML,consensusXML,edta,csv,sqmass";
     registerOutputFile_("out", "<file>", "", "Output file");
     setValidFormats_("out", ListUtils::create<String>(formats));
     registerStringOption_("out_type", "<type>", "", "Output file type -- default: determined from file extension or content\nNote: that not all conversion paths work or make sense.", false, true);
@@ -349,6 +350,8 @@ protected:
     setValidStrings_("write_scan_index", ListUtils::create<String>("true,false"));
     registerFlag_("lossy_compression", "Use numpress compression to achieve optimally small file size using linear compression for m/z domain and slof for intensity and float data arrays (attention: may cause small loss of precision; only for mzML data).", true);
     registerDoubleOption_("lossy_mass_accuracy", "<error>", -1.0, "Desired (absolute) m/z accuracy for lossy compression (e.g. use 0.0001 for a mass accuracy of 0.2 ppm at 500 m/z, default uses -1.0 for maximal accuracy).", false, true);
+    registerStringOption_("sqmass_full_meta", "<type>", "true", "SqMass: Write full meta information including the complete mzML XML structure into the sqMass file (may require large amounts of memory)", false);
+    setValidStrings_("sqmass_full_meta", ListUtils::create<String>("true,false"));
 
     registerFlag_("process_lowmemory", "Whether to process the file on the fly without loading the whole file into memory first (only for conversions of mzXML/mzML to mzML).\nNote: this flag will prevent conversion from spectra to chromatograms.", true);
   }
@@ -368,6 +371,7 @@ protected:
     bool convert_to_chromatograms = getFlag_("convert_to_chromatograms");
     bool lossy_compression = getFlag_("lossy_compression");
     double mass_acc = getDoubleOption_("lossy_mass_accuracy");
+    bool sqmass_full_meta = DataValue(getStringOption_("sqmass_full_meta")).toBool();
 
     //input file type
     FileHandler fh;
@@ -527,7 +531,10 @@ protected:
         throw Exception::NotImplemented(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
       }
 
-      if ((in_type == FileTypes::MZXML || in_type == FileTypes::MZML) && out_type == FileTypes::MZML)
+      if ( (in_type == FileTypes::MZXML ||
+            in_type == FileTypes::MZML ||
+            in_type == FileTypes::SQMASS)
+          && out_type == FileTypes::MZML)
       {
         // Prepare the consumer
         PlainMSDataWritingConsumer consumer(out);
@@ -558,6 +565,12 @@ protected:
           mzxmlfile.transform(in, &consumer, skip_full_count);
           return EXECUTION_OK;
         }
+        else if (in_type == FileTypes::SQMASS)
+        {
+          SqMassFile f;
+          f.transform(in, &consumer, skip_full_count, true);
+          return EXECUTION_OK;
+        }
       }
       else if (in_type == FileTypes::MZML && out_type == FileTypes::CACHEDMZML)
       {
@@ -573,6 +586,15 @@ protected:
         MzMLFile().transform(in, &consumer, exp_meta);
         cacher.writeMetadata(exp_meta, out_meta);
 
+        return EXECUTION_OK;
+      }
+      else if (in_type == FileTypes::MZML && out_type == FileTypes::SQMASS)
+      {
+        int batchSize = 500; // good guess
+        MSDataSqlConsumer consumer(out, batchSize, sqmass_full_meta, lossy_compression, mass_acc);
+        MzMLFile f;
+        f.getOptions().setMaxDataPoolSize(batchSize); 
+        f.transform(in, &consumer, true, true);
         return EXECUTION_OK;
       }
       else
@@ -834,6 +856,16 @@ protected:
 
       IBSpectraFile ibfile;
       ibfile.store(out, cm);
+    }
+    else if (out_type == FileTypes::SQMASS)
+    {
+      SqMassFile sqfile;
+      SqMassFile::SqMassConfig config;
+      config.write_full_meta = sqmass_full_meta;
+      config.use_lossy_numpress = lossy_compression;
+      config.linear_fp_mass_acc = mass_acc;
+      sqfile.setConfig(config);
+      sqfile.store(out, exp);
     }
     else
     {

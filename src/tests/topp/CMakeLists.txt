@@ -457,6 +457,16 @@ set_tests_properties("TOPP_FileConverter_30_out" PROPERTIES DEPENDS "TOPP_FileCo
 add_test("TOPP_FileConverter_31" ${TOPP_BIN_PATH}/FileConverter -test -in ${DATA_DIR_TOPP}/FileConverter_30_output.mzML -change_im_format single -out_type mzML -out FileConverter_31.tmp)
 add_test("TOPP_FileConverter_31_out" ${DIFF} -in1 FileConverter_31.tmp -in2 ${DATA_DIR_TOPP}/FileConverter_31_output.mzML -whitelist "location=" "<offset")
 set_tests_properties("TOPP_FileConverter_31_out" PROPERTIES DEPENDS "TOPP_FileConverter_31")
+add_test("TOPP_FileConverter_32_step1" ${TOPP_BIN_PATH}/FileConverter -in ${DATA_DIR_TOPP}/OpenSwathMzMLFileCacher_1_input.mzML -out FileConverter_32.tmp.sqMass -test -lossy_compression -lossy_mass_accuracy 1e-4)
+add_test("TOPP_FileConverter_32_step2" ${TOPP_BIN_PATH}/FileConverter -in FileConverter_32.tmp.sqMass -out FileConverter_32.tmp.mzML -test)
+add_test("TOPP_FileConverter_32_out1" ${DIFF} -whitelist ${INDEX_WHITELIST} -in1 FileConverter_32.tmp.mzML -in2 ${DATA_DIR_TOPP}/FileConverter_32_output.mzML)
+set_tests_properties("TOPP_FileConverter_32_step2" PROPERTIES DEPENDS "TOPP_FileConverter_32_step1")
+set_tests_properties("TOPP_FileConverter_32_out1" PROPERTIES DEPENDS "TOPP_FileConverter_32_step2")
+add_test("TOPP_FileConverter_33_step1" ${TOPP_BIN_PATH}/FileConverter -in ${DATA_DIR_TOPP}/OpenSwathMzMLFileCacher_1_input.mzML -out FileConverter_33.tmp.sqMass -test -lossy_compression -lossy_mass_accuracy 1e-4 -process_lowmemory)
+add_test("TOPP_FileConverter_33_step2" ${TOPP_BIN_PATH}/FileConverter -in FileConverter_33.tmp.sqMass -out FileConverter_33.tmp.mzML -test -process_lowmemory)
+add_test("TOPP_FileConverter_33_out1" ${DIFF} -whitelist ${INDEX_WHITELIST} -in1 FileConverter_33.tmp.mzML -in2 ${DATA_DIR_TOPP}/OpenSwathMzMLFileCacher_3_output.mzML)
+set_tests_properties("TOPP_FileConverter_33_step2" PROPERTIES DEPENDS "TOPP_FileConverter_33_step1")
+set_tests_properties("TOPP_FileConverter_33_out1" PROPERTIES DEPENDS "TOPP_FileConverter_33_step2")
 
 #------------------------------------------------------------------------------
 # FileFilter tests

@@ -84,6 +84,8 @@ namespace OpenMS
         {
           indices[k] = idx_start + k;
         }
+        if (indices.empty()) continue;
+
         std::vector<MSSpectrum> tmp_spectra;
         sql_mass.readSpectra(tmp_spectra, indices, false);
         for (Size k = 0; k < tmp_spectra.size(); k++)
@@ -107,6 +109,8 @@ namespace OpenMS
         {
           indices[k] = idx_start + k;
         }
+        if (indices.empty()) continue;
+
         std::vector<MSChromatogram> tmp_chroms;
         sql_mass.readChromatograms(tmp_chroms, indices, false);
         for (Size k = 0; k < tmp_chroms.size(); k++)
