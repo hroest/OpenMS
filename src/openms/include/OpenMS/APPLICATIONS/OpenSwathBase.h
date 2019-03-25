@@ -260,7 +260,7 @@ protected:
   {
     if (!out_chrom.empty())
     {
-      if (out_chrom.hasSuffix(".sqMass"))
+      if (out_chrom.lower().hasSuffix(".sqmass"))
       {
         bool full_meta = false; // can lead to very large files in memory
         bool lossy_compression = true;
