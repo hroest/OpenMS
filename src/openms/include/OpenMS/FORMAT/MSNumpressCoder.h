@@ -110,7 +110,7 @@ public:
 
         This is of type NumpressCompression  (see there)
       */
-      NumpressCompression np_compression
+      NumpressCompression np_compression;
       /**
         @brief Whether to estimate the fixed point used for encoding (highly recommended)
 

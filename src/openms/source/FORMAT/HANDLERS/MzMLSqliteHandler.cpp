@@ -113,6 +113,7 @@ namespace OpenMS
         Size id_orig = sqlite3_column_int( stmt, 0 );
 
         // map the sql table id to the index in the "containers" vector
+        //
         if (sql_container_map.find(id_orig) == sql_container_map.end()) 
         {
           Size tmp = sql_container_map.size();
@@ -131,7 +132,7 @@ namespace OpenMS
         if (native_id != containers[curr_id].getNativeID())
         {
           throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, 
-              "Native id for spectrum / chromatogram doesnt match");
+              "Native id for spectrum / chromatogram doesnt match: " + native_id + " != " + containers[curr_id].getNativeID());
         }
 
         int compression = sqlite3_column_int( stmt, 2 );
@@ -475,7 +476,7 @@ namespace OpenMS
                     "DATA.DATA as binary_data " \
                     "FROM CHROMATOGRAM " \
                     "INNER JOIN DATA ON CHROMATOGRAM.ID = DATA.CHROMATOGRAM_ID " \
-                    ";";
+                    "ORDER BY CHROMATOGRAM.ID;";
 
 
       // Execute SQL statement
@@ -501,7 +502,7 @@ namespace OpenMS
                           "FROM CHROMATOGRAM " \
                           "INNER JOIN DATA ON CHROMATOGRAM.ID = DATA.CHROMATOGRAM_ID " \
                           "WHERE CHROMATOGRAM.ID IN (";
-      select_sql += integerConcatenateHelper(indices) + ");";
+      select_sql += integerConcatenateHelper(indices) + ") ORDER BY CHROMATOGRAM.ID;";
 
       // Execute SQL statement
       sqlite3_stmt * stmt;
@@ -521,7 +522,7 @@ namespace OpenMS
                     "DATA.DATA as binary_data " \
                     "FROM SPECTRUM " \
                     "INNER JOIN DATA ON SPECTRUM.ID = DATA.SPECTRUM_ID " \
-                    ";";
+                    "ORDER BY SPECTRUM.ID;";
 
       // Execute SQL statement
       sqlite3_stmt * stmt;
@@ -546,7 +547,7 @@ namespace OpenMS
                           "FROM SPECTRUM " \
                           "INNER JOIN DATA ON SPECTRUM.ID = DATA.SPECTRUM_ID " \
                           "WHERE SPECTRUM.ID IN (";
-      select_sql += integerConcatenateHelper(indices) + ");";
+      select_sql += integerConcatenateHelper(indices) + ") ORDER BY SPECTRUM.ID;";
 
       // Execute SQL statement
       sqlite3_stmt * stmt;
@@ -579,13 +580,13 @@ namespace OpenMS
                     "FROM CHROMATOGRAM " \
                     "INNER JOIN PRECURSOR ON CHROMATOGRAM.ID = PRECURSOR.CHROMATOGRAM_ID " \
                     "INNER JOIN PRODUCT ON CHROMATOGRAM.ID = PRODUCT.CHROMATOGRAM_ID " \
-                    ";";
+
 
       if (!indices.empty())
       {
         select_sql += String("WHERE CHROMATOGRAM.ID IN (") + integerConcatenateHelper(indices) + ")";
       }
-      select_sql += ";";
+      select_sql += " ORDER BY CHROMATOGRAM.ID;";
 
       // See https://www.sqlite.org/c3ref/column_blob.html
       // The pointers returned are valid until a type conversion occurs as
@@ -668,7 +669,7 @@ namespace OpenMS
       {
         select_sql += String("WHERE SPECTRUM.ID IN (") + integerConcatenateHelper(indices) + ")";
       }
-      select_sql += ";";
+      select_sql += " ORDER BY SPECTRUM.ID;";
 
       // See https://www.sqlite.org/c3ref/column_blob.html
       // The pointers returned are valid until a type conversion occurs as
