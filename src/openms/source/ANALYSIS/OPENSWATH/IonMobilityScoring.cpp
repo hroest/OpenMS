@@ -422,14 +422,14 @@ namespace OpenMS
       tr_used++;
 
       delta_drift += fabs(drift_target - im);
-      // std::cout << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
+      LOG_DEBUG << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
       computed_im += im;
       computed_im_weighted += im * intensity;
       sum_intensity += intensity;
       // delta_drift_weighted += delta_drift * normalized_library_intensity[k];
       // weights += normalized_library_intensity[k];
     }
-    // std::cout << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
+    LOG_DEBUG << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
     scores.im_delta_score = delta_drift / tr_used;
 
     if (tr_used != 0)
@@ -443,6 +443,7 @@ namespace OpenMS
       computed_im_weighted = -1;
     }
 
+    LOG_DEBUG << " Scoring weighted delta drift time " << computed_im_weighted << " -> get difference " << std::fabs(computed_im_weighted - drift_target)<< std::endl;
     scores.im_drift = computed_im;
     scores.im_drift_weighted = computed_im_weighted;
 
