@@ -522,6 +522,29 @@ namespace OpenMS
           max_peak_idx = k;
         }
       }
+
+      // smooth / sum profiles ...
+      if (true)
+      {
+        int nadd = 4;
+        IMProfile tmp; // aligned profile (peak pairs)
+        std::vector< double > tmp2; // intensity values
+        std::vector< double > tmp3; // intensity values
+        for (int k = 0; k < (aligned_profile.size() - nadd + 1); k += nadd)
+        {
+          double s = 0;
+          for (int j = 0; j < nadd; j++) s += aligned_profile[k+j].second;
+          tmp.push_back( std::make_pair( aligned_profile[k].first, s) );
+          tmp2.push_back(s);
+          tmp3.push_back( aligned_profile[k].first );
+        }
+        // std::cout << " profile " << aligned_profile.size() << " after " << tmp.size() << std::endl;
+        aligned_profile.swap(tmp); // swap
+        al_int_values.swap(tmp2); // swap
+        al_im_values.swap(tmp3); // swap
+      }
+
+
       im_profiles_aligned.push_back(aligned_profile);
       raw_im_profiles_aligned.push_back(al_int_values);
 
