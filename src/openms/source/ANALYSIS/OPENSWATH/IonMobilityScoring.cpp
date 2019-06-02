@@ -527,106 +527,22 @@ namespace OpenMS
     scores.im_drift = computed_im;
     scores.im_drift_weighted = computed_im_weighted;
 
-    // Extract all ion mobility values across all transitions and produce a
-    // grid of all permitted ion mobility values
-    std::vector<double> im_grid;
     double eps = 1e-5; // eps for two grid cells to be considered equal
-    {
-      std::vector< double > tmp;
-      for (const auto & im_profile : im_profiles) 
-      {
-        for (const auto & k : im_profile) tmp.push_back(k.first);
-      }
-
-      std::sort(tmp.begin(), tmp.end());
-
-      // In some cases there are not enough datapoints available (one of the
-      // transitions has no datapoints)
-      if (!tmp.empty())
-      {
-        im_grid.push_back( tmp[0] );
-        for (Size k = 1; k < tmp.size(); k++) 
-        {
-          double diff = fabs(tmp[k] - tmp[k-1]);
-          if (diff > eps)
-          {
-            im_grid.push_back( tmp[k] );
-          }
-        }
-      }
-    }
+    std::vector<double> im_grid = computeGrid(im_profiles, eps);
     LOG_DEBUG << "eps used " << eps << std::endl;
 
     // Align the IMProfile vectors to the grid
-    std::vector< IMProfile > im_profiles_aligned;
     std::vector< std::vector< double > > raw_im_profiles_aligned;
     std::vector<double> delta_im;
     for (const auto & profile : im_profiles) 
     {
-      auto pr_it = profile.begin();
 
-      IMProfile aligned_profile; // aligned profile (peak pairs)
       std::vector< double > al_int_values; // intensity values
       std::vector< double > al_im_values; // ion mobility values
       Size max_peak_idx = 0;
-      double max_int = 0;
-      for (Size k = 0; k < im_grid.size(); k++)
-      {
-        // In each iteration, the IM value of pr_it should be equal to or
-        // larger than the master container. If it is equal, we add the current
-        // data point, if it is larger we add zero and advance the counter k.
-        if (pr_it != profile.end() && fabs(pr_it->first - im_grid[k] ) < 1e-4 ) 
-        {
-          aligned_profile.push_back(*pr_it);
-          al_int_values.push_back(pr_it->second);
-          al_im_values.push_back(pr_it->first);
-          ++pr_it;
-        }
-        else
-        {
-          aligned_profile.push_back( std::make_pair( im_grid[k], 0.0 ) );
-          al_int_values.push_back(0.0);
-          al_im_values.push_back( im_grid[k] );
-        }
+      alignToGrid(profile, im_grid, al_int_values,al_im_values, max_peak_idx);
 
-        // check that we did not advance past 
-        if (pr_it != profile.end() && (im_grid[k] - pr_it->first) > 1e-3)
-        {
-          std::cout << " This should never happen, pr_it has advanced past the master container: " << im_grid[k]  << "  / " <<  pr_it->first  << std::endl;
-          throw Exception::OutOfRange(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
-        }
-
-        // collect maxima
-        if (pr_it != profile.end() && pr_it->second > max_int)
-        {
-          max_int = pr_it->second;
-          max_peak_idx = k;
-        }
-      }
-
-      // smooth / sum profiles ...
-      if (true)
-      {
-        int nadd = 4;
-        IMProfile tmp; // aligned profile (peak pairs)
-        std::vector< double > tmp2; // intensity values
-        std::vector< double > tmp3; // intensity values
-        for (int k = 0; k < (aligned_profile.size() - nadd + 1); k += nadd)
-        {
-          double s = 0;
-          for (int j = 0; j < nadd; j++) s += aligned_profile[k+j].second;
-          tmp.push_back( std::make_pair( aligned_profile[k].first, s) );
-          tmp2.push_back(s);
-          tmp3.push_back( aligned_profile[k].first );
-        }
-        // std::cout << " profile " << aligned_profile.size() << " after " << tmp.size() << std::endl;
-        aligned_profile.swap(tmp); // swap
-        al_int_values.swap(tmp2); // swap
-        al_im_values.swap(tmp3); // swap
-      }
-
-
-      im_profiles_aligned.push_back(aligned_profile);
+      // im_profiles_aligned.push_back(aligned_profile);
       raw_im_profiles_aligned.push_back(al_int_values);
 
       if (!USE_SPLINE) {continue;}
