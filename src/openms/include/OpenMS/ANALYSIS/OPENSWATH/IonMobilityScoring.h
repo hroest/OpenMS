@@ -93,6 +93,16 @@ namespace OpenMS
                                           const bool use_spline,
                                           const double drift_extra);
 
+    static void driftScoringMS1Contrast(OpenSwath::SpectrumPtr spectrum, OpenSwath::SpectrumPtr ms1spectrum, 
+                                          const std::vector<TransitionType> & transitions,
+                                          OpenSwath_Scores & scores,
+                                          const double drift_lower,
+                                          const double drift_upper,
+                                          const double drift_target,
+                                          const double dia_extract_window_,
+                                          const bool dia_extraction_ppm_,
+                                          const bool use_spline,
+                                          const double drift_extra);
   };
 }
 

@@ -397,6 +397,128 @@ namespace OpenMS
 
   }
 
+  void IonMobilityScoring::driftScoringMS1Contrast(OpenSwath::SpectrumPtr spectrum, OpenSwath::SpectrumPtr ms1spectrum, 
+                                        const std::vector<TransitionType> & transitions,
+                                        OpenSwath_Scores & scores,
+                                        const double drift_lower,
+                                        const double drift_upper,
+                                        const double drift_target,
+                                        const double dia_extract_window_,
+                                        const bool dia_extraction_ppm_,
+                                        const bool /* use_spline */,
+                                        const double drift_extra)
+  {
+    OPENMS_PRECONDITION(spectrum != nullptr, "Spectrum cannot be null");
+    OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
+
+    double DRIFT_EXTRA = drift_extra;
+
+    double drift_width = fabs(drift_upper - drift_lower);
+
+    double drift_lower_used = drift_lower - drift_width * DRIFT_EXTRA;
+    double drift_upper_used = drift_upper + drift_width * DRIFT_EXTRA;
+
+    typedef std::vector< std::pair<double, double> > IMProfile;
+    double delta_drift = 0;
+    std::vector< IMProfile > im_profiles;
+    IMProfile ms1_profile;
+    double computed_im = 0;
+    double computed_im_weighted = 0;
+    double sum_intensity = 0;
+    int tr_used = 0;
+    double im(0), intensity(0);
+    for (std::size_t k = 0; k < transitions.size(); k++)
+    {
+      const TransitionType* transition = &transitions[k];
+      // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
+      double left(transition->getProductMZ()), right(transition->getProductMZ());
+      DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+      IMProfile res;
+      integrateDriftSpectrum(spectrum, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
+      im_profiles.push_back( std::move(res) );
+    }
+
+    for (std::size_t k = 0; k < transitions.size(); k++)
+    {
+      const TransitionType* transition = &transitions[k];
+      // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
+      double left(transition->getPrecursorMZ()), right(transition->getPrecursorMZ());
+      DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+      double im(0), intensity(0);
+      // TODO: aggregate over isotopes
+      integrateDriftSpectrum(ms1spectrum, left, right, im, intensity, ms1_profile, drift_lower_used, drift_upper_used);
+      break; // only one transition needed
+    }
+
+    double eps = 1e-5; // eps for two grid cells to be considered equal
+    im_profiles.push_back(ms1_profile);
+    std::vector<double> im_grid = computeGrid(im_profiles, eps);
+    im_profiles.pop_back();
+
+    // Align the IMProfile vectors to the grid
+    std::vector< std::vector< double > > raw_im_profiles_aligned;
+    std::vector<double> delta_im;
+    for (const auto & profile : im_profiles) 
+    {
+      std::vector< double > al_int_values; // intensity values
+      std::vector< double > al_im_values; // ion mobility values
+      Size max_peak_idx = 0;
+      alignToGrid(profile, im_grid, al_int_values, al_im_values, max_peak_idx);
+      raw_im_profiles_aligned.push_back(al_int_values);
+    }
+
+    std::vector< double > ms1_int_values; // intensity values
+    std::vector< double > ms1_im_values; // ion mobility values
+    Size max_peak_idx = 0;
+
+    alignToGrid(ms1_profile, im_grid, ms1_int_values, ms1_im_values, max_peak_idx);
+    std::cout << " ms1 length : " << ms1_profile.size() << std::endl;
+
+    {
+      OpenSwath::MRMScoring mrmscore_;
+      mrmscore_.initializeXCorrPrecursorContrastMatrix({ms1_int_values}, raw_im_profiles_aligned);
+      LOG_DEBUG << "all-all: Contrast Scores : coelution precursor : " << mrmscore_.calcXcorrPrecursorContrastCoelutionScore() << " / shape  precursor " << 
+        mrmscore_.calcXcorrPrecursorContrastShapeScore() << std::endl;
+      scores.im_ms1_contrast_coelution = mrmscore_.calcXcorrPrecursorContrastCoelutionScore();
+      scores.im_ms1_contrast_shape = mrmscore_.calcXcorrPrecursorContrastShapeScore();
+    }
+
+    // do contrast precursor vs summed fragment ions
+    std::vector<double> fragment_values;
+    fragment_values.resize(ms1_int_values.size(), 0);
+    for (Size k = 0; k < fragment_values.size(); k++)
+    {
+      for (Size i = 0; i < raw_im_profiles_aligned.size(); i++)
+      {
+        fragment_values[k] += raw_im_profiles_aligned[i][k];
+      }
+    }
+
+    // std::cout << " ms1 lenght / fragment " << ms1_int_values.size() << " : " << fragment_values.size() << std::endl;
+    //   std::cout << " Profiles : q = cbind(" ;
+    //     std::cout << "c( " ;
+    //     for (k : ms1_int_values ) std::cout << k << ", " ;
+    //     std::cout << "0)," ;
+    //     std::cout << "c( " ;
+    //     for (k : fragment_values ) std::cout << k << ", " ;
+    //     std::cout << "0)" ;
+    //   std::cout << std::endl;
+
+
+    // scores.ms1_xcorr_coelution_contrast_score = mrmscore_.calcXcorrPrecursorContrastCoelutionScore();
+    // scores.ms1_xcorr_shape_contrast_score = mrmscore_.calcXcorrPrecursorContrastShapeScore();
+
+    {
+      OpenSwath::MRMScoring mrmscore_;
+      mrmscore_.initializeXCorrPrecursorContrastMatrix({ms1_int_values}, {fragment_values});
+      LOG_DEBUG << "Contrast Scores : coelution precursor : " << mrmscore_.calcXcorrPrecursorContrastCoelutionScore() << " / shape  precursor " << 
+        mrmscore_.calcXcorrPrecursorContrastShapeScore() << std::endl;
+      scores.im_ms1_sum_contrast_coelution = mrmscore_.calcXcorrPrecursorContrastCoelutionScore();
+      scores.im_ms1_sum_contrast_shape = mrmscore_.calcXcorrPrecursorContrastShapeScore();
+    }
+
+  }
+
   void IonMobilityScoring::driftScoringMS1(OpenSwath::SpectrumPtr spectrum, 
                                         const std::vector<TransitionType> & transitions,
                                         OpenSwath_Scores & scores,
