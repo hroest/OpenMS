@@ -198,7 +198,6 @@ namespace OpenMS
         this->setMetaValue("var_norm_rt_score", scores_.norm_rt_score);
       }
 
-      // TODO do we really want these intensity scores
       if (su_.use_intensity_score_)
       {
         if ((double)this->getMetaValue("total_xic") > 0)
@@ -209,6 +208,8 @@ namespace OpenMS
         {
           this->setMetaValue("var_intensity_score", 0);
         }
+        if (this->getIntensity() > 0) this->setMetaValue("var_log_intensity_score", std::log(this->getIntensity()));
+        else this->setMetaValue("var_log_intensity_score", 0);
       }
       if (su_.use_nr_peaks_score_) { this->setMetaValue("nr_peaks", scores_.nr_peaks); }
       if (su_.use_sn_score_)
