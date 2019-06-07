@@ -579,7 +579,7 @@ namespace OpenMS
                     "PRECURSOR.ACTIVATION_ENERGY as prec_activation_en " \
                     "FROM CHROMATOGRAM " \
                     "INNER JOIN PRECURSOR ON CHROMATOGRAM.ID = PRECURSOR.CHROMATOGRAM_ID " \
-                    "INNER JOIN PRODUCT ON CHROMATOGRAM.ID = PRODUCT.CHROMATOGRAM_ID " \
+                    "INNER JOIN PRODUCT ON CHROMATOGRAM.ID = PRODUCT.CHROMATOGRAM_ID ";
 
 
       if (!indices.empty())
