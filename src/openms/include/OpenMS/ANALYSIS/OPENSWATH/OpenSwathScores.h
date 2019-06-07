@@ -104,9 +104,11 @@ namespace OpenMS
    
     double ms1_xcorr_coelution_score = -1;
     double ms1_xcorr_coelution_contrast_score = 0;
+    double ms1_xcorr_sum_coelution_contrast_score = 0;
     double ms1_xcorr_coelution_combined_score = 0;
     double ms1_xcorr_shape_score = -1;
     double ms1_xcorr_shape_contrast_score = 0;
+    double ms1_xcorr_sum_shape_contrast_score = 0;
     double ms1_xcorr_shape_combined_score = 0;
     double ms1_ppm_score = 0;
     double ms1_isotope_correlation = 0;
