@@ -250,9 +250,11 @@ namespace OpenMS
 
       if (compound.isPeptide())
       {
+        OpenMS::AASequence aas;
+        OpenSwathDataAccessHelper::convertPeptideToAASequence(compound, aas);
         diascoring.dia_ms1_isotope_scores(precursor_mz, ms1_spectrum,
                                           precursor_charge, scores.ms1_isotope_correlation,
-                                          scores.ms1_isotope_overlap);
+                                          scores.ms1_isotope_overlap, aas.getFormula().toString());
       }
       else
       {
