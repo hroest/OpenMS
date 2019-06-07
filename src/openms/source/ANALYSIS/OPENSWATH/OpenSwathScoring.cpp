@@ -172,12 +172,17 @@ namespace OpenMS
     // find spectrum that is closest to the apex of the peak using binary search
     OpenSwath::SpectrumPtr spectrum = fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, drift_lower, drift_upper);
 
+    // calculate drift extraction width for current spectrum (with some extra for cross-correlation)
+    double drift_width = fabs(drift_upper - drift_lower);
+    double drift_lower_used = drift_lower - drift_width * im_drift_extra_pcnt_;
+    double drift_upper_used = drift_upper + drift_width * im_drift_extra_pcnt_;
+
     // score drift time dimension
     if (drift_upper > 0 && su_.use_im_scores)
     {
       double dia_extract_window_ = (double)diascoring.getParameters().getValue("dia_extraction_window");
       bool dia_extraction_ppm_ = diascoring.getParameters().getValue("dia_extraction_unit") == "ppm";
-      IonMobilityScoring::driftScoring( fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, 0, 0),
+      IonMobilityScoring::driftScoring( fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, drift_lower_used, drift_upper_used),
           transitions, scores, drift_lower, drift_upper, drift_target, dia_extract_window_, dia_extraction_ppm_, im_use_spline_, im_drift_extra_pcnt_);
     }
 
