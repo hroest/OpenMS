@@ -126,6 +126,9 @@ public:
 
     /// Initialize the scoring object and building the cross-correlation matrix of chromatograms of precursor isotopes vs transitions
     void initializeXCorrPrecursorContrastMatrix(OpenSwath::IMRMFeature* mrmfeature, const std::vector<String>& precursor_ids, const std::vector<String>& native_ids);
+    void initializeXCorrSumPrecursorContrastMatrix(OpenSwath::IMRMFeature* mrmfeature, const std::vector<String>& precursor_ids, const std::vector<String>& native_ids);
+
+    void initializeXCorrPrecursorContrastMatrix(const std::vector< std::vector< double > >& data_precursor, const std::vector< std::vector< double > >& data_fragments);
 
     /// Initialize the scoring object and building the cross-correlation matrix of chromatograms of precursor isotopes and transitions
     void initializeXCorrPrecursorCombinedMatrix(OpenSwath::IMRMFeature* mrmfeature, const std::vector<String>& precursor_ids, const std::vector<String>& native_ids);
