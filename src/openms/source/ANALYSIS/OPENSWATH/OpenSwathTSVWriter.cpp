@@ -80,7 +80,7 @@ namespace OpenMS
           << "leftWidth" <<
         "\tmain_var_xx_swath_prelim_score\tnorm_RT\tnr_peaks\tpeak_apices_sum\tpotentialOutlier\tinitialPeakQuality" <<
         "\trightWidth\trt_score\tsn_ratio\ttotal_xic\tvar_bseries_score\tvar_dotprod_score" <<
-        "\tvar_intensity_score\tvar_isotope_correlation_score\tvar_isotope_overlap_score" <<
+        "\tvar_intensity_score\tvar_log_intensity_score\tvar_isotope_correlation_score\tvar_isotope_overlap_score" <<
         "\tvar_library_corr\tvar_library_dotprod\tvar_library_manhattan\tvar_library_rmsd" <<
         "\tvar_library_rootmeansquare\tvar_library_sangle\tvar_log_sn_score\tvar_manhatt_score" <<
         "\tvar_massdev_score\tvar_massdev_score_weighted\tvar_norm_rt_score\tvar_xcorr_coelution" <<
@@ -232,6 +232,7 @@ namespace OpenMS
             + "\t" + (String)feature_it->getMetaValue("var_bseries_score")
             + "\t" + (String)feature_it->getMetaValue("var_dotprod_score")
             + "\t" + (String)feature_it->getMetaValue("var_intensity_score")
+            + "\t" + (String)feature_it->getMetaValue("var_log_intensity_score")
             + "\t" + (String)feature_it->getMetaValue("var_isotope_correlation_score")
             + "\t" + (String)feature_it->getMetaValue("var_isotope_overlap_score")
             + "\t" + (String)feature_it->getMetaValue("var_library_corr")

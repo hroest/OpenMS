@@ -97,6 +97,7 @@ namespace OpenMS
       "VAR_BSERIES_SCORE REAL NULL," \
       "VAR_DOTPROD_SCORE REAL NULL," \
       "VAR_INTENSITY_SCORE REAL NULL," \
+      "VAR_LOG_INTENSITY_SCORE REAL NULL," \
       "VAR_ISOTOPE_CORRELATION_SCORE REAL NULL," \
       "VAR_ISOTOPE_OVERLAP_SCORE REAL NULL," \
       "VAR_LIBRARY_CORR REAL NULL," \
@@ -278,6 +279,7 @@ namespace OpenMS
                       << getScore(*feature_it, "var_bseries_score") << ", " 
                       << getScore(*feature_it, "var_dotprod_score") << ", " 
                       << getScore(*feature_it, "var_intensity_score") << ", " 
+                      << getScore(*feature_it, "var_log_intensity_score") << ", " 
                       << getScore(*feature_it, "var_isotope_correlation_score") << ", " 
                       << getScore(*feature_it, "var_isotope_overlap_score") << ", " 
                       << getScore(*feature_it, "var_library_corr") << ", " 
