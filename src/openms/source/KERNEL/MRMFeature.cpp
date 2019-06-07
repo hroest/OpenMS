@@ -171,11 +171,13 @@ namespace OpenMS
       if (su_.use_coelution_score_)
       {
         this->setMetaValue("var_xcorr_coelution", scores_.xcorr_coelution_score);
+        this->setMetaValue("var_xcorr_coelution_top3", scores_.xcorr_coelution_score_top3);
         this->setMetaValue("var_xcorr_coelution_weighted", scores_.weighted_coelution_score);
       }
       if (su_.use_shape_score_)
       {
         this->setMetaValue("var_xcorr_shape", scores_.xcorr_shape_score);
+        this->setMetaValue("var_xcorr_shape_top3", scores_.xcorr_shape_score_top3);
         this->setMetaValue("var_xcorr_shape_weighted", scores_.weighted_xcorr_shape);
       }
       if (su_.use_library_score_)
