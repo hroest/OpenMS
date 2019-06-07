@@ -262,8 +262,10 @@ namespace OpenMS
             this->setMetaValue("var_ms1_xcorr_coelution", scores_.ms1_xcorr_coelution_score);
           }
           this->setMetaValue("var_ms1_xcorr_shape_contrast", scores_.ms1_xcorr_shape_contrast_score);
+          this->setMetaValue("var_ms1_xcorr_sum_shape_contrast", scores_.ms1_xcorr_sum_shape_contrast_score);
           this->setMetaValue("var_ms1_xcorr_shape_combined", scores_.ms1_xcorr_shape_combined_score);
           this->setMetaValue("var_ms1_xcorr_coelution_contrast", scores_.ms1_xcorr_coelution_contrast_score);
+          this->setMetaValue("var_ms1_xcorr_sum_coelution_contrast", scores_.ms1_xcorr_sum_coelution_contrast_score);
           this->setMetaValue("var_ms1_xcorr_coelution_combined", scores_.ms1_xcorr_coelution_combined_score);
         }
         if (su_.use_ms1_mi)
