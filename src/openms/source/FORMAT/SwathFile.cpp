@@ -123,6 +123,12 @@ namespace OpenMS
         OpenSwathHelper::checkSwathMap(*exp.get(), lower, upper);
       }
 
+      if (lower == upper && lower == 0)
+      {
+        std::cout << "NOTE: File " << file_list[i] << "\n has a window of zero - I will assume it is the MS1 scan." << std::endl;
+        ms1 = true;
+      }
+
       swath_map.sptr = spectra_ptr;
       swath_map.lower = lower;
       swath_map.upper = upper;
