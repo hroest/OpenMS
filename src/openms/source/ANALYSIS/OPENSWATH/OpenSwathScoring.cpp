@@ -51,6 +51,9 @@
 #include <OpenMS/MATH/STATISTICS/StatisticFunctions.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/SpectrumAddition.h>
 
+#include <numeric>      // std::iota
+#include <algorithm>    // std::sort
+
 // basic file operations
 
 namespace OpenMS
@@ -320,11 +323,23 @@ namespace OpenMS
     OpenSwath::MRMScoring mrmscore_;
     mrmscore_.initializeXCorrMatrix(imrmfeature, native_ids);
 
+    // initialize original index locations
+    std::vector<size_t> idx(normalized_library_intensity.size());
+    std::iota(idx.begin(), idx.end(), 0);
+    // sort indexes based on comparing values in v
+    std::sort(idx.begin(), idx.end(),
+      [&normalized_library_intensity](size_t i1, size_t i2) {return normalized_library_intensity[i1] > normalized_library_intensity[i2];});
+    std::vector<std::string> top3_native_ids;
+    for (Size k = 0; k < native_ids.size() && k < 3; k++) top3_native_ids.push_back( native_ids[ idx[k] ] );
+    OpenSwath::MRMScoring mrmscore_top3;
+    mrmscore_top3.initializeXCorrMatrix(imrmfeature, top3_native_ids);
+
     // XCorr score (coelution)
     if (su_.use_coelution_score_)
     {
       scores.xcorr_coelution_score = mrmscore_.calcXcorrCoelutionScore();
       scores.weighted_coelution_score = mrmscore_.calcXcorrCoelutionWeightedScore(normalized_library_intensity);
+      scores.xcorr_coelution_score_top3 = mrmscore_top3.calcXcorrCoelutionScore();
     }
 
     // XCorr score (shape)
@@ -334,8 +349,8 @@ namespace OpenMS
     if (su_.use_shape_score_)
     {
       scores.xcorr_shape_score = mrmscore_.calcXcorrShapeScore();
-  // double MRMScoring::calcXcorrShapeScore()
       scores.weighted_xcorr_shape = mrmscore_.calcXcorrShapeWeightedScore(normalized_library_intensity);
+      scores.xcorr_shape_score_top3 = mrmscore_top3.calcXcorrShapeScore();
     }
 
     // check that the MS1 feature is present and that the MS1 correlation should be calculated

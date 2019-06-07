@@ -91,6 +91,8 @@ namespace OpenMS
     double massdev_score = 0;
     double xcorr_coelution_score = 0;
     double xcorr_shape_score = 0;
+    double xcorr_coelution_score_top3 = 0;
+    double xcorr_shape_score_top3 = 0;
 
     double yseries_score = 0;
     double bseries_score = 0;
