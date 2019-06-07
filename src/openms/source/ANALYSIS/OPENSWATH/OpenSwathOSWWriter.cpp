@@ -82,9 +82,11 @@ namespace OpenMS
       "VAR_IM_MS1_DELTA_SCORE REAL NULL," \
       "VAR_XCORR_COELUTION REAL NULL," \
       "VAR_XCORR_COELUTION_CONTRAST REAL NULL," \
+      "VAR_XCORR_SUM_COELUTION_CONTRAST REAL NULL," \
       "VAR_XCORR_COELUTION_COMBINED REAL NULL," \
       "VAR_XCORR_SHAPE REAL NULL," \
       "VAR_XCORR_SHAPE_CONTRAST REAL NULL," \
+      "VAR_XCORR_SUM_SHAPE_CONTRAST REAL NULL," \
       "VAR_XCORR_SHAPE_COMBINED REAL NULL); " \
 
       // MS2-level scores
@@ -332,9 +334,11 @@ namespace OpenMS
                         << getScore(*feature_it, "var_ms1_isotope_overlap") << ", " 
                         << getScore(*feature_it, "var_im_ms1_delta_score") << ", " 
                         << getScore(*feature_it, "var_ms1_xcorr_coelution") << ", " 
+                        << getScore(*feature_it, "var_ms1_xcorr_sum_coelution_contrast") << ", " 
                         << getScore(*feature_it, "var_ms1_xcorr_coelution_contrast") << ", " 
                         << getScore(*feature_it, "var_ms1_xcorr_coelution_combined") << ", " 
                         << getScore(*feature_it, "var_ms1_xcorr_shape") << ", " 
+                        << getScore(*feature_it, "var_ms1_xcorr_sum_shape_contrast") << ", " 
                         << getScore(*feature_it, "var_ms1_xcorr_shape_contrast") << ", " 
                         << getScore(*feature_it, "var_ms1_xcorr_shape_combined") << "); ";
       }

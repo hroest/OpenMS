@@ -265,7 +265,14 @@ namespace OpenMS
               + "\t" + (String)feature_it->getMetaValue("var_ms1_isotope_correlation")
               + "\t" + (String)feature_it->getMetaValue("var_ms1_isotope_overlap")
               + "\t" + (String)feature_it->getMetaValue("var_ms1_xcorr_coelution")
-              + "\t" + (String)feature_it->getMetaValue("var_ms1_xcorr_shape");
+              + "\t" + (String)feature_it->getMetaValue("var_ms1_xcorr_shape")
+
+              + "\t" + (String)feature_it->getMetaValue("var_ms1_xcorr_shape_contrast")
+              + "\t" + (String)feature_it->getMetaValue("var_ms1_xcorr_sum_shape_contrast")
+              + "\t" + (String)feature_it->getMetaValue("var_ms1_xcorr_shape_combined")
+              + "\t" + (String)feature_it->getMetaValue("var_ms1_xcorr_coelution_contrast")
+              + "\t" + (String)feature_it->getMetaValue("var_ms1_xcorr_sum_coelution_contrast")
+              + "\t" + (String)feature_it->getMetaValue("var_ms1_xcorr_coelution_combined");
             }
 
             line += "\t" + (String)feature_it->getMetaValue("xx_lda_prelim_score")
