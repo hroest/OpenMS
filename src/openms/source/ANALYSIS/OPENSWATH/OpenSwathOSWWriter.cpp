@@ -117,8 +117,10 @@ namespace OpenMS
       "VAR_MI_RATIO_SCORE REAL NULL," \
       "VAR_NORM_RT_SCORE REAL NULL," \
       "VAR_XCORR_COELUTION REAL NULL," \
+      "VAR_XCORR_COELUTION_TOP3 REAL NULL," \
       "VAR_XCORR_COELUTION_WEIGHTED REAL NULL," \
       "VAR_XCORR_SHAPE REAL NULL," \
+      "VAR_XCORR_SHAPE_TOP3 REAL NULL," \
       "VAR_XCORR_SHAPE_WEIGHTED REAL NULL," \
       "VAR_YSERIES_SCORE REAL NULL," \
       "VAR_ELUTION_MODEL_FIT_SCORE REAL NULL," \
@@ -268,7 +270,7 @@ namespace OpenMS
         "VAR_LIBRARY_DOTPROD, VAR_LIBRARY_MANHATTAN, VAR_LIBRARY_RMSD, VAR_LIBRARY_ROOTMEANSQUARE, "\
         "VAR_LIBRARY_SANGLE, VAR_LOG_SN_SCORE, VAR_MANHATTAN_SCORE, VAR_MASSDEV_SCORE, VAR_MASSDEV_SCORE_WEIGHTED, "\
         "VAR_MI_SCORE, VAR_MI_WEIGHTED_SCORE, VAR_MI_RATIO_SCORE, VAR_NORM_RT_SCORE, "\
-        "VAR_XCORR_COELUTION,VAR_XCORR_COELUTION_WEIGHTED, VAR_XCORR_SHAPE, "\
+        "VAR_XCORR_COELUTION,VAR_XCORR_COELUTION_TOP3,VAR_XCORR_COELUTION_WEIGHTED, VAR_XCORR_SHAPE,VAR_XCORR_SHAPE_TOP3,  "\
         "VAR_XCORR_SHAPE_WEIGHTED, VAR_YSERIES_SCORE, VAR_ELUTION_MODEL_FIT_SCORE, "\
         "VAR_IM_XCORR_SHAPE, VAR_IM_XCORR_COELUTION, VAR_IM_DELTA_SCORE, " \
         "VAR_SONAR_LAG, VAR_SONAR_SHAPE, VAR_SONAR_LOG_SN, VAR_SONAR_LOG_DIFF, VAR_SONAR_LOG_TREND, VAR_SONAR_RSQ "\
@@ -299,8 +301,10 @@ namespace OpenMS
                       << getScore(*feature_it, "var_mi_ratio_score") << ", " 
                       << getScore(*feature_it, "var_norm_rt_score") << ", " 
                       << getScore(*feature_it, "var_xcorr_coelution") << ", " 
+                      << getScore(*feature_it, "var_xcorr_coelution_top3") << ", " 
                       << getScore(*feature_it, "var_xcorr_coelution_weighted") << ", " 
                       << getScore(*feature_it, "var_xcorr_shape") << ", " 
+                      << getScore(*feature_it, "var_xcorr_shape_top3") << ", " 
                       << getScore(*feature_it, "var_xcorr_shape_weighted") << ", " 
                       << getScore(*feature_it, "var_yseries_score") << ", " 
                       << getScore(*feature_it, "var_elution_model_fit_score") << ", " 
