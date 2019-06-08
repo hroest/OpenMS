@@ -87,6 +87,7 @@ namespace OpenMS
         "\tvar_xcorr_coelution\tvar_xcorr_coelution_top3\tvar_xcorr_coelution_weighted" << 
         "\tvar_xcorr_shape\tvar_xcorr_shape_top3\tvar_xcorr_shape_weighted" <<
         "\tvar_im_xcorr_shape\tvar_im_xcorr_coelution\tvar_im_delta_score\tvar_im_ms1_delta_score" <<
+        "\tvar_im_ms1_contrast_coelution\tvar_im_ms1_contrast_shape\tvar_im_ms1_sum_contrast_coelution\tvar_im_ms1_sum_contrast_shape" <<
         "\tim_drift\tim_drift_weighted" <<
         "\tvar_yseries_score\tvar_elution_model_fit_score";
       if (use_ms1_traces_)
