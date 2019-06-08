@@ -83,8 +83,9 @@ namespace OpenMS
         "\tvar_intensity_score\tvar_log_intensity_score\tvar_isotope_correlation_score\tvar_isotope_overlap_score" <<
         "\tvar_library_corr\tvar_library_dotprod\tvar_library_manhattan\tvar_library_rmsd" <<
         "\tvar_library_rootmeansquare\tvar_library_sangle\tvar_log_sn_score\tvar_manhatt_score" <<
-        "\tvar_massdev_score\tvar_massdev_score_weighted\tvar_norm_rt_score\tvar_xcorr_coelution" <<
-        "\tvar_xcorr_coelution_weighted\tvar_xcorr_shape\tvar_xcorr_shape_weighted" <<
+        "\tvar_massdev_score\tvar_massdev_score_weighted\tvar_norm_rt_score" << 
+        "\tvar_xcorr_coelution\tvar_xcorr_coelution_top3\tvar_xcorr_coelution_weighted" << 
+        "\tvar_xcorr_shape\tvar_xcorr_shape_top3\tvar_xcorr_shape_weighted" <<
         "\tvar_im_xcorr_shape\tvar_im_xcorr_coelution\tvar_im_delta_score\tvar_im_ms1_delta_score" <<
         "\tim_drift\tim_drift_weighted" <<
         "\tvar_yseries_score\tvar_elution_model_fit_score";
@@ -247,8 +248,10 @@ namespace OpenMS
             + "\t" + (String)feature_it->getMetaValue("var_massdev_score_weighted")
             + "\t" + (String)feature_it->getMetaValue("var_norm_rt_score")
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_coelution")
+            + "\t" + (String)feature_it->getMetaValue("var_xcorr_coelution_top3")
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_coelution_weighted")
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_shape")
+            + "\t" + (String)feature_it->getMetaValue("var_xcorr_shape_top3")
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_shape_weighted")
             + "\t" + (String)feature_it->getMetaValue("var_im_xcorr_shape")
             + "\t" + (String)feature_it->getMetaValue("var_im_xcorr_coelution")
