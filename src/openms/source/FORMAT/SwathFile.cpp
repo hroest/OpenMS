@@ -137,7 +137,8 @@ namespace OpenMS
 #pragma omp critical (OPENMS_SwathFile_loadSplit)
 #endif
       {
-        LOG_DEBUG << "Adding Swath file " << file_list[i] << " with " << swath_map.lower << " to " << swath_map.upper << std::endl;
+        if (ms1) LOG_DEBUG << "Adding MS1 file " << file_list[i] << std::endl;
+        else LOG_DEBUG << "Adding Swath file " << file_list[i] << " with " << swath_map.lower << " to " << swath_map.upper << std::endl;
         swath_maps[i] = swath_map;
         setProgress(progress++);
       }
