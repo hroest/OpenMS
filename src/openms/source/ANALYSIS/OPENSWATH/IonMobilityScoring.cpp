@@ -301,7 +301,7 @@ namespace OpenMS
           al_int_values.push_back(0.0);
           al_im_values.push_back( im_grid[k] );
         }
-        // LOG_DEBUG << "grid position " << im_grid[k] << " profile position " << pr_it->first << std::endl;
+        // OPENMS_LOG_DEBUG << "grid position " << im_grid[k] << " profile position " << pr_it->first << std::endl;
 
         // check that we did not advance past 
         if (pr_it != profile.end() && (im_grid[k] - pr_it->first) > 1e-3)
@@ -476,7 +476,7 @@ namespace OpenMS
     {
       OpenSwath::MRMScoring mrmscore_;
       mrmscore_.initializeXCorrPrecursorContrastMatrix({ms1_int_values}, raw_im_profiles_aligned);
-      LOG_DEBUG << "all-all: Contrast Scores : coelution precursor : " << mrmscore_.calcXcorrPrecursorContrastCoelutionScore() << " / shape  precursor " << 
+      OPENMS_LOG_DEBUG << "all-all: Contrast Scores : coelution precursor : " << mrmscore_.calcXcorrPrecursorContrastCoelutionScore() << " / shape  precursor " << 
         mrmscore_.calcXcorrPrecursorContrastShapeScore() << std::endl;
       scores.im_ms1_contrast_coelution = mrmscore_.calcXcorrPrecursorContrastCoelutionScore();
       scores.im_ms1_contrast_shape = mrmscore_.calcXcorrPrecursorContrastShapeScore();
@@ -499,7 +499,7 @@ namespace OpenMS
     {
       OpenSwath::MRMScoring mrmscore_;
       mrmscore_.initializeXCorrPrecursorContrastMatrix({ms1_int_values}, {fragment_values});
-      LOG_DEBUG << "Contrast Scores : coelution precursor : " << mrmscore_.calcXcorrPrecursorContrastCoelutionScore() << " / shape  precursor " << 
+      OPENMS_LOG_DEBUG << "Contrast Scores : coelution precursor : " << mrmscore_.calcXcorrPrecursorContrastCoelutionScore() << " / shape  precursor " << 
         mrmscore_.calcXcorrPrecursorContrastShapeScore() << std::endl;
       scores.im_ms1_sum_contrast_coelution = mrmscore_.calcXcorrPrecursorContrastCoelutionScore();
       scores.im_ms1_sum_contrast_shape = mrmscore_.calcXcorrPrecursorContrastShapeScore();
@@ -613,14 +613,14 @@ namespace OpenMS
       tr_used++;
 
       delta_drift += fabs(drift_target - im);
-      LOG_DEBUG << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
+      OPENMS_LOG_DEBUG << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
       computed_im += im;
       computed_im_weighted += im * intensity;
       sum_intensity += intensity;
       // delta_drift_weighted += delta_drift * normalized_library_intensity[k];
       // weights += normalized_library_intensity[k];
     }
-    LOG_DEBUG << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
+    OPENMS_LOG_DEBUG << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
     scores.im_delta_score = delta_drift / tr_used;
 
     if (tr_used != 0)
@@ -634,13 +634,13 @@ namespace OpenMS
       computed_im_weighted = -1;
     }
 
-    LOG_DEBUG << " Scoring weighted delta drift time " << computed_im_weighted << " -> get difference " << std::fabs(computed_im_weighted - drift_target)<< std::endl;
+    OPENMS_LOG_DEBUG << " Scoring weighted delta drift time " << computed_im_weighted << " -> get difference " << std::fabs(computed_im_weighted - drift_target)<< std::endl;
     scores.im_drift = computed_im;
     scores.im_drift_weighted = computed_im_weighted;
 
     double eps = 1e-5; // eps for two grid cells to be considered equal
     std::vector<double> im_grid = computeGrid(im_profiles, eps);
-    LOG_DEBUG << "eps used " << eps << std::endl;
+    OPENMS_LOG_DEBUG << "eps used " << eps << std::endl;
 
     // Align the IMProfile vectors to the grid
     std::vector< std::vector< double > > raw_im_profiles_aligned;

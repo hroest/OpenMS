@@ -307,7 +307,7 @@ namespace OpenMS
         }
         mean /= list_eval.size();
         xval_mad += Math::median(mad.begin(), mad.end());
-        LOG_DEBUG << " mean error " << mean << std::endl;
+        OPENMS_LOG_DEBUG << " mean error " << mean << std::endl;
         xval_mean += mean;
       }
       xval_mean /= NR_XVAL;

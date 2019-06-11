@@ -92,7 +92,7 @@ namespace OpenMS
     double mz_extr_window = mz_extraction_window_;
     double im_extraction_win = im_extraction_window_;
 
-    LOG_DEBUG << "SwathMapMassCorrection::correctIM " << " window " << im_extraction_win << " mz window " << mz_extr_window << " in ppm " << ppm << std::endl;
+    OPENMS_LOG_DEBUG << "SwathMapMassCorrection::correctIM " << " window " << im_extraction_win << " mz window " << mz_extr_window << " in ppm " << ppm << std::endl;
 
     if (im_extraction_win < 0)
     {
@@ -209,8 +209,8 @@ namespace OpenMS
         // Check that the spectrum really has a drift time array
         if (sp->getDriftTimeArray() == nullptr)
         {
-          LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
-          for (auto m : used_maps) LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
+          OPENMS_LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
+          for (auto m : used_maps) OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
           continue;
         }
 
@@ -236,7 +236,7 @@ namespace OpenMS
             os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
           }
         }
-        LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+        OPENMS_LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
       }
 
       // Do MS1 extraction
@@ -255,8 +255,8 @@ namespace OpenMS
         // Check that the spectrum really has a drift time array
         if (sp_ms1->getDriftTimeArray() == nullptr)
         {
-          LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
-          for (auto m : used_maps) LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
+          OPENMS_LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
+          for (auto m : used_maps) OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
           continue;
         }
 
@@ -282,7 +282,7 @@ namespace OpenMS
             os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
           }
         }
-        LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+        OPENMS_LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
       }
     }
 
@@ -307,7 +307,7 @@ namespace OpenMS
     String model_type = "linear";
     im_trafo.fitModel(model_type, model_params);
 
-    LOG_DEBUG << "SwathMapMassCorrection::correctIM done." << std::endl;
+    OPENMS_LOG_DEBUG << "SwathMapMassCorrection::correctIM done." << std::endl;
   }
 
   void SwathMapMassCorrection::correctMZ(
