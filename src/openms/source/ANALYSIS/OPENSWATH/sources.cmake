@@ -8,7 +8,7 @@ set(sources_list
   ConfidenceScoring.cpp
   DIAPrescoring.cpp
   DIAScoring.cpp
-  DIAScoringHelper.cpp
+  DIAHelper.cpp
   IonMobilityScoring.cpp
   MasstraceCorrelator.cpp
   MRMAssay.cpp
