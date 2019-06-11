@@ -293,7 +293,13 @@ namespace OpenMS
         this->setMetaValue("var_im_ms1_delta_score", scores_.im_ms1_delta_score);
         this->setMetaValue("im_drift", scores_.im_drift);
         this->setMetaValue("im_drift_weighted", scores_.im_drift_weighted);
+
+        this->setMetaValue("var_im_ms1_contrast_coelution", scores_.im_ms1_contrast_coelution);
+        this->setMetaValue("var_im_ms1_contrast_shape", scores_.im_ms1_contrast_shape);
+        this->setMetaValue("var_im_ms1_sum_contrast_coelution", scores_.im_ms1_sum_contrast_coelution);
+        this->setMetaValue("var_im_ms1_sum_contrast_shape", scores_.im_ms1_sum_contrast_shape);
       }
+
 
       if (su_.use_sonar_scores)
       {
