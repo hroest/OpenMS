@@ -318,7 +318,7 @@ namespace OpenMS
     double mz_extr_window = mz_extraction_window_;
     std::string corr_type = mz_correction_function_;
 
-    LOG_DEBUG << "SwathMapMassCorrection::correctMZ with type " << corr_type << " and window " << mz_extr_window << " in ppm " << ppm << std::endl;
+    OPENMS_LOG_DEBUG << "SwathMapMassCorrection::correctMZ with type " << corr_type << " and window " << mz_extr_window << " in ppm " << ppm << std::endl;
 
     bool is_ppm = bool(corr_type == "quadratic_regression_delta_ppm" ||
                        corr_type == "weighted_quadratic_regression_delta_ppm" ||
@@ -417,7 +417,7 @@ namespace OpenMS
         {
           os << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
         }
-        LOG_DEBUG << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
+        OPENMS_LOG_DEBUG << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
       }
     }
 
@@ -501,7 +501,7 @@ namespace OpenMS
            regression_params[1],
            regression_params[2]);
 
-    LOG_DEBUG << "# mz regression parameters: Y = " << regression_params[0] << " + " <<
+    OPENMS_LOG_DEBUG << "# mz regression parameters: Y = " << regression_params[0] << " + " <<
       regression_params[1] << " X + " << regression_params[2] << " X^2" << std::endl;
 
     if (!debug_mz_file_.empty()) {os.close();}
@@ -533,7 +533,7 @@ namespace OpenMS
           regression_params[0], regression_params[1], regression_params[2], is_ppm));
     }
 
-    LOG_DEBUG << "SwathMapMassCorrection::correctMZ done." << std::endl;
+    OPENMS_LOG_DEBUG << "SwathMapMassCorrection::correctMZ done." << std::endl;
   }
 
 }

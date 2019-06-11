@@ -106,7 +106,7 @@ namespace OpenMS
       OpenSwath::SwathMap swath_map;
 
       bool ms1 = false;
-      double upper = -1, lower = -1;
+      double upper = -1, lower = -1, center = -1;
       if (exp->size() == 0)
       {
         std::cerr << "WARNING: File " << file_list[i] << "\n does not have any scans - I will skip it" << std::endl;
@@ -120,7 +120,7 @@ namespace OpenMS
       else
       {
         // Checks that this is really a SWATH map and extracts upper/lower window
-        OpenSwathHelper::checkSwathMap(*exp.get(), lower, upper);
+        OpenSwathHelper::checkSwathMap(*exp.get(), lower, upper, center);
       }
 
       if (lower == upper && lower == 0)
@@ -132,13 +132,14 @@ namespace OpenMS
       swath_map.sptr = spectra_ptr;
       swath_map.lower = lower;
       swath_map.upper = upper;
+      swath_map.center = center;
       swath_map.ms1 = ms1;
 #ifdef _OPENMP
 #pragma omp critical (OPENMS_SwathFile_loadSplit)
 #endif
       {
-        if (ms1) LOG_DEBUG << "Adding MS1 file " << file_list[i] << std::endl;
-        else LOG_DEBUG << "Adding Swath file " << file_list[i] << " with " << swath_map.lower << " to " << swath_map.upper << std::endl;
+        if (ms1) OPENMS_LOG_DEBUG << "Adding MS1 file " << file_list[i] << std::endl;
+        else OPENMS_LOG_DEBUG << "Adding Swath file " << file_list[i] << " with " << swath_map.lower << " to " << swath_map.upper << std::endl;
         swath_maps[i] = swath_map;
         setProgress(progress++);
       }
@@ -206,7 +207,7 @@ namespace OpenMS
     MSDataChainingConsumer chaining_consumer(consumer_list);
     MzMLFile().transform(file, &chaining_consumer);
 
-    LOG_DEBUG << "Finished parsing Swath file " << std::endl;
+    OPENMS_LOG_DEBUG << "Finished parsing Swath file " << std::endl;
     std::vector<OpenSwath::SwathMap> swath_maps;
     dataConsumer->retrieveSwathMaps(swath_maps);
     endProgress();
@@ -262,7 +263,7 @@ namespace OpenMS
       throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
         "Unknown or unsupported option " + readoptions);
     }
-    LOG_DEBUG << "Finished parsing Swath file " << std::endl;
+    OPENMS_LOG_DEBUG << "Finished parsing Swath file " << std::endl;
     std::vector<OpenSwath::SwathMap> swath_maps;
     dataConsumer->retrieveSwathMaps(swath_maps);
     delete dataConsumer;
@@ -379,7 +380,7 @@ namespace OpenMS
             boundary.center = center;
             known_window_boundaries.push_back(boundary);
 
-            LOG_DEBUG << "Adding Swath centered at " << center
+            OPENMS_LOG_DEBUG << "Adding Swath centered at " << center
               << " m/z with an isolation window of " << lower << " to " << upper
               << " m/z." << std::endl;
           }

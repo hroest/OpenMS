@@ -191,7 +191,7 @@ public:
       chromatograms_.push_back(chromatogram);
       chromatogram_map_[key] = boost::numeric_cast<int>(chromatograms_.size()) - 1;
 
-      // OPENMS_POSTCONDITION(chromatogramIdsMatch(), "Chromatogam ids do not match")
+      // OPENMS_POSTCONDITION(chromatogramIdsMatch(), "Chromatogram ids do not match")
     }
 
     inline bool hasChromatogram(const String& key) const

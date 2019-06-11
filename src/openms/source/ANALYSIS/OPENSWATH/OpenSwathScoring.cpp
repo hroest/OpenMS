@@ -332,7 +332,8 @@ namespace OpenMS
     OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
 
     OpenSwath::MRMScoring mrmscore_;
-    mrmscore_.initializeXCorrMatrix(imrmfeature, native_ids);
+    if (su_.use_coelution_score_ || su_.use_shape_score_ || (imrmfeature->getPrecursorIDs().size() > 0 && su_.use_ms1_correlation))
+      mrmscore_.initializeXCorrMatrix(imrmfeature, native_ids);
 
     // initialize original index locations
     std::vector<size_t> idx(normalized_library_intensity.size());
@@ -643,9 +644,7 @@ namespace OpenMS
       // Filter all spectra by drift time before further processing
       if (drift_upper > 0) 
       {
-        std::vector<OpenSwath::SpectrumPtr> tmp;
-        for (const auto& s: all_spectra) tmp.push_back( filterByDrift(s, drift_lower, drift_upper) );
-        all_spectra.swap(tmp);
+        for (auto& s: all_spectra) s = filterByDrift(s, drift_lower, drift_upper);
       }
 
       // add up all spectra

@@ -419,7 +419,7 @@ namespace OpenMS
     // experiment.
     Size progress = 0;
     startProgress(0, selection_list.size(), "Generating decoy peptides");
-    for (auto pep_idx : selection_list)
+    for (const auto& pep_idx : selection_list)
     {
       setProgress(++progress);
 
@@ -437,7 +437,7 @@ namespace OpenMS
         // exclude peptide if it has C/N terminal modifications because we can't do a (partial) reverse
         if (MRMDecoy::hasCNterminalMods_(peptide, do_switchKR))
         {
-          LOG_DEBUG << "[peptide] Skipping " << peptide.id << " due to C/N-terminal modifications" << std::endl;
+          OPENMS_LOG_DEBUG << "[peptide] Skipping " << peptide.id << " due to C/N-terminal modifications" << std::endl;
           exclusion_peptides.push_back(peptide.id);
         }
         else
@@ -451,7 +451,7 @@ namespace OpenMS
         // exclude peptide if it has C/N terminal modifications because we can't do a (partial) reverse
         if (MRMDecoy::hasCNterminalMods_(peptide, false))
         {
-          LOG_DEBUG << "[peptide] Skipping " << peptide.id << " due to C/N-terminal modifications" << std::endl;
+          OPENMS_LOG_DEBUG << "[peptide] Skipping " << peptide.id << " due to C/N-terminal modifications" << std::endl;
           exclusion_peptides.push_back(peptide.id);
         }
         else
@@ -464,7 +464,7 @@ namespace OpenMS
         peptide = MRMDecoy::shufflePeptide(peptide, identity_threshold, -1, max_attempts);
         if (do_switchKR && MRMDecoy::hasCNterminalMods_(peptide, do_switchKR))
         {
-          LOG_DEBUG << "[peptide] Skipping " << peptide.id << " due to C/N-terminal modifications" << std::endl;
+          OPENMS_LOG_DEBUG << "[peptide] Skipping " << peptide.id << " due to C/N-terminal modifications" << std::endl;
           exclusion_peptides.push_back(peptide.id);
         }
         else if (do_switchKR) switchKR(peptide);
@@ -563,8 +563,7 @@ namespace OpenMS
         {
           // transition could not be annotated, remove whole peptide
           exclusion_peptides.push_back(decoy_tr.getPeptideRef());
-          LOG_DEBUG << "[peptide] Skipping " << decoy_tr.getPeptideRef() << " due to missing annotation" << std::endl;
-          // std::cout << "first " << decoyion.first << " sec " << decoyion.second <<  std::endl;
+          OPENMS_LOG_DEBUG << "[peptide] Skipping " << decoy_tr.getPeptideRef() << " due to missing annotation" << std::endl;
         }
       } // end loop over transitions
 
@@ -597,7 +596,7 @@ namespace OpenMS
       }
       else
       {
-        LOG_DEBUG << "[peptide] Skipping " << peptide.id << " due to missing transitions" << std::endl;
+        OPENMS_LOG_DEBUG << "[peptide] Skipping " << peptide.id << " due to missing transitions" << std::endl;
       }
     }
 
@@ -612,7 +611,7 @@ namespace OpenMS
       }
       else
       {
-        LOG_DEBUG << "[protein] Skipping " << protein.id << " due to missing peptides" << std::endl;
+        OPENMS_LOG_DEBUG << "[protein] Skipping " << protein.id << " due to missing peptides" << std::endl;
       }
     }
 
