@@ -503,7 +503,7 @@ namespace OpenMS
   }
 
   double DIAScoring::scoreIsotopePattern_(double product_mz,
-                                          const std::vector<double>& isotopes_int,
+                                          const std::vector<double>& isotopes_int_tmp,
                                           int putative_fragment_charge,
                                           const std::string& sum_formula)
   {
@@ -526,10 +526,16 @@ namespace OpenMS
       isotope_dist = solver.estimateFromPeptideWeight(std::fabs(product_mz * putative_fragment_charge));
     }
 
-
-    for (IsotopeDistribution::Iterator it = isotope_dist.begin(); it != isotope_dist.end(); ++it)
+    double sum = 0; for (const auto& it : isotope_dist) sum += it.getIntensity();
+    std::vector<double> isotopes_int;
+    for (Size k = 0; k < isotope_dist.size(); k++)
     {
-      isotopes.intensity.push_back(it->getIntensity());
+      if (isotope_dist[k].getIntensity() > 0.05)
+      {
+        // skip isotopes less than 5% theoretical intensity
+        isotopes.intensity.push_back(isotope_dist[k].getIntensity());
+        isotopes_int.push_back(isotopes_int_tmp[k]);
+      }
     }
     isotopes.optional_begin = 0;
     isotopes.optional_end = dia_nr_isotopes_;
