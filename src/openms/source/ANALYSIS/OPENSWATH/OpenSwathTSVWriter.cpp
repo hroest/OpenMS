@@ -93,6 +93,7 @@ namespace OpenMS
       if (use_ms1_traces_)
       {
         ofs << "\tvar_ms1_ppm_diff\tvar_ms1_isotope_corr\tvar_ms1_isotope_overlap\tvar_ms1_xcorr_coelution\tvar_ms1_xcorr_shape";
+        ofs << "\tvar_ms1_xcorr_shape_contrast\tvar_ms1_xcorr_sum_shape_contrast\tvar_ms1_xcorr_shape_combined\tvar_ms1_xcorr_coelution_contrast\tvar_ms1_xcorr_sum_coelution_contrast\tvar_ms1_xcorr_coelution_combined";
       }
       ofs << "\txx_lda_prelim_score\txx_swath_prelim_score";
       if (sonar_)
@@ -258,6 +259,13 @@ namespace OpenMS
             + "\t" + (String)feature_it->getMetaValue("var_im_xcorr_coelution")
             + "\t" + (String)feature_it->getMetaValue("var_im_delta_score")
             + "\t" + (String)feature_it->getMetaValue("var_im_ms1_delta_score")
+
+            + "\t" + (String)feature_it->getMetaValue("var_im_ms1_contrast_coelution")
+            + "\t" + (String)feature_it->getMetaValue("var_im_ms1_contrast_shape")
+            + "\t" + (String)feature_it->getMetaValue("var_im_ms1_sum_contrast_coelution")
+            + "\t" + (String)feature_it->getMetaValue("var_im_ms1_sum_contrast_shape")
+
+
             + "\t" + (String)feature_it->getMetaValue("im_drift")
             + "\t" + (String)feature_it->getMetaValue("im_drift_weighted")
             + "\t" + (String)feature_it->getMetaValue("var_yseries_score")
