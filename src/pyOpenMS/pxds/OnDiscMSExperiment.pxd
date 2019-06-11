@@ -12,7 +12,7 @@ cdef extern from "<OpenMS/KERNEL/OnDiscMSExperiment.h>" namespace "OpenMS":
         OnDiscMSExperiment() nogil except +
         OnDiscMSExperiment(OnDiscMSExperiment &) nogil except +
 
-        bool openFile(String filename) nogil except +
+        bool openFile(String filename, bool skipLoadingMetaData) nogil except +
         Size getNrSpectra() nogil except +
         Size getNrChromatograms() nogil except +
 
