@@ -174,7 +174,6 @@ namespace OpenSwath
 
   void MRMScoring::initializeXCorrSumPrecursorContrastMatrix(OpenSwath::IMRMFeature* mrmfeature, const std::vector<String>& precursor_ids, const std::vector<String>& native_ids)
   {
-    std::cout << " 1" << std::endl;
     std::vector<double> intensityi, intensityj;
 
     String precursor_id = precursor_ids[0];
@@ -209,7 +208,6 @@ namespace OpenSwath
     xcorr_precursor_contrast_matrix_.resize(1);
     xcorr_precursor_contrast_matrix_[0].resize(1);
     xcorr_precursor_contrast_matrix_[0][0] = Scoring::normalizedCrossCorrelation(precursor_data, fragment_data, boost::numeric_cast<int>(precursor_data.size()), 1);
-    std::cout << " done!" << std::endl;
   }
 
   void MRMScoring::initializeXCorrPrecursorContrastMatrix(const std::vector< std::vector< double > >& data_precursor, const std::vector< std::vector< double > >& data_fragments)
@@ -224,7 +222,9 @@ namespace OpenSwath
         std::vector< double > tmp1(data_precursor[i]);
         std::vector< double > tmp2(data_fragments[j]);
         xcorr_precursor_contrast_matrix_[i][j] = Scoring::normalizedCrossCorrelation(tmp1, tmp2, boost::numeric_cast<int>(tmp1.size()), 1);
-        // std::cout << " fill xcorr_precursor_contrast_matrix_ "<< tmp1.size() << " / " << tmp2.size() << " : " << xcorr_precursor_contrast_matrix_[i][j].data.size() << std::endl;
+#ifdef MRMSCORING_TESTING
+        std::cout << " fill xcorr_precursor_contrast_matrix_ "<< tmp1.size() << " / " << tmp2.size() << " : " << xcorr_precursor_contrast_matrix_[i][j].data.size() << std::endl;
+#endif
       }
     }
   }
@@ -293,7 +293,6 @@ namespace OpenSwath
     double deltas_mean = msc.mean();
     double deltas_stdv = msc.sample_stddev();
 
-    std::cout << deltas_mean << " + " <<  deltas_stdv << std::endl;
     double xcorr_coelution_score = deltas_mean + deltas_stdv;
     return xcorr_coelution_score;
   }
@@ -411,7 +410,6 @@ namespace OpenSwath
 
   double MRMScoring::calcXcorrPrecursorContrastCoelutionScore()
   {
-    std::cout << " double MRMScoring::calcXcorrPrecursorContrastCoelutionScore() " << std::endl;
     OPENSWATH_PRECONDITION(xcorr_precursor_contrast_matrix_.size() > 0 && xcorr_precursor_contrast_matrix_[0].size() > 1, "Expect cross-correlation matrix of at least 1x2");
 
     std::vector<int> deltas;
@@ -432,9 +430,6 @@ namespace OpenSwath
     double deltas_mean = msc.mean();
     double deltas_stdv = msc.sample_stddev();
 
-    std::cout << "coelution: contrast " << deltas_mean  << " + " <<  deltas_stdv << std::endl;
-    // for (auto k : deltas) std::cout << k << " ";
-    // std::cout << std::endl;
     double xcorr_coelution_score = deltas_mean + deltas_stdv;
     return xcorr_coelution_score;
   }
@@ -461,7 +456,6 @@ namespace OpenSwath
     double deltas_mean = msc.mean();
     double deltas_stdv = msc.sample_stddev();
 
-    std::cout << " contrast " << deltas_mean  << " + " <<  deltas_stdv << std::endl;
     double xcorr_coelution_score = deltas_mean + deltas_stdv;
     return xcorr_coelution_score;
   }
