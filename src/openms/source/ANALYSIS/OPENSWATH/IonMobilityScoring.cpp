@@ -472,7 +472,6 @@ namespace OpenMS
     Size max_peak_idx = 0;
 
     alignToGrid(ms1_profile, im_grid, ms1_int_values, ms1_im_values, max_peak_idx);
-    std::cout << " ms1 length : " << ms1_profile.size() << std::endl;
 
     {
       OpenSwath::MRMScoring mrmscore_;
@@ -493,17 +492,6 @@ namespace OpenMS
         fragment_values[k] += raw_im_profiles_aligned[i][k];
       }
     }
-
-    // std::cout << " ms1 lenght / fragment " << ms1_int_values.size() << " : " << fragment_values.size() << std::endl;
-    //   std::cout << " Profiles : q = cbind(" ;
-    //     std::cout << "c( " ;
-    //     for (k : ms1_int_values ) std::cout << k << ", " ;
-    //     std::cout << "0)," ;
-    //     std::cout << "c( " ;
-    //     for (k : fragment_values ) std::cout << k << ", " ;
-    //     std::cout << "0)" ;
-    //   std::cout << std::endl;
-
 
     // scores.ms1_xcorr_coelution_contrast_score = mrmscore_.calcXcorrPrecursorContrastCoelutionScore();
     // scores.ms1_xcorr_shape_contrast_score = mrmscore_.calcXcorrPrecursorContrastShapeScore();
@@ -590,6 +578,7 @@ namespace OpenMS
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
     auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
+
 
     double DRIFT_EXTRA = drift_extra;
     bool USE_SPLINE = use_spline; // whether to use a spline for computing delta drift times
