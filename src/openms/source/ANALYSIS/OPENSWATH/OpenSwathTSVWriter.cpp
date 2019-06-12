@@ -289,24 +289,31 @@ namespace OpenMS
             line += "\t" + ListUtils::concatenate(aggr_Peak_Area, ";") + "\t" + ListUtils::concatenate(aggr_Peak_Apex, ";") + "\t" + ListUtils::concatenate(aggr_Fragment_Annotation, ";");
             if (enable_uis_scoring_)
             {
-              line += "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_transition_names").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_log_intensity").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_num_transitions").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_xcorr_coelution").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_xcorr_shape").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_log_sn_score").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_massdev_score").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_isotope_correlation").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_isotope_overlap").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_transition_names").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_log_intensity").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_num_transitions").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_xcorr_coelution").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_xcorr_shape").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_log_sn_score").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_massdev_score").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_isotope_correlation").toStringList(), ";")
-              + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_isotope_overlap").toStringList(), ";");
+              if (!feature_it->getMetaValue("id_target_transition_names").toString().empty() )
+              {
+                line += "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_transition_names").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_log_intensity").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_num_transitions").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_xcorr_coelution").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_xcorr_shape").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_log_sn_score").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_massdev_score").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_isotope_correlation").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_target_ind_isotope_overlap").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_transition_names").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_log_intensity").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_num_transitions").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_xcorr_coelution").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_xcorr_shape").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_log_sn_score").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_massdev_score").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_isotope_correlation").toStringList(), ";")
+                + "\t" + ListUtils::concatenate(feature_it->getMetaValue("id_decoy_ind_isotope_overlap").toStringList(), ";");
+              }
+              else
+              {
+                for (int k = 0; k < 18; k++) {line += String("\t");}
+              }
             }
             line += "\n";
             result += line;
