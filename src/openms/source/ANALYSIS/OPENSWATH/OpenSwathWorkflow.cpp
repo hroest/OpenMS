@@ -745,6 +745,10 @@ namespace OpenMS
       OpenSwath::SpectrumAccessPtr threadsafe_ms1 = ms1_map_->lightClone();
       featureFinder.setMS1Map( threadsafe_ms1 );
     }
+    else if (use_ms1_traces_ && !ms1_map_)
+    {
+      LOG_WARN << "WARNING: Attempted to use MS1 traces but no MS1 map was provided: Inconsistent input!" << std::endl;
+    }
 
     // If use_total_mi_score is defined, we need to instruct MRMTransitionGroupPicker to compute the score
     Param trgroup_picker_param = feature_finder_param.copy("TransitionGroupPicker:", true);
