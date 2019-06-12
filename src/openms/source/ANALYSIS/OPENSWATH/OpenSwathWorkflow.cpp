@@ -740,7 +740,7 @@ namespace OpenMS
     // To ensure multi-threading safe access to the individual spectra, we
     // need to use a light clone of the spectrum access (if multiple threads
     // share a single filestream and call seek on it, chaos will ensue).
-    if (use_ms1_traces_)
+    if (use_ms1_traces_ && ms1_map_)
     {
       OpenSwath::SpectrumAccessPtr threadsafe_ms1 = ms1_map_->lightClone();
       featureFinder.setMS1Map( threadsafe_ms1 );
