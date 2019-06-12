@@ -61,7 +61,7 @@ void OpenMS::MSstatsFile::checkConditionLFQ_(const ExperimentalDesign::SampleSec
   } 
 }
 
-void OpenMS::MSstatsFile::checkConditionISO_(const ExperimentalDesign::SampleSection sampleSection, const String& bioreplicate, const String& condition, const String& mixture)
+void OpenMS::MSstatsFile::checkConditionISO_(const ExperimentalDesign::SampleSection& sampleSection, const String& bioreplicate, const String& condition, const String& mixture)
 {
   checkConditionLFQ_(sampleSection, bioreplicate, condition);
   
@@ -154,19 +154,19 @@ void OpenMS::MSstatsFile::storeLFQ(const OpenMS::String &filename, const Consens
 
   if (!checkUnorderedContent_(spectra_paths, design_filenames))
   {
-    LOG_FATAL_ERROR << "The filenames (extension ignored) in the consensusXML file are not the same as in the experimental design" << endl;
-    LOG_FATAL_ERROR << "Spectra files (consensus map): \n";
+    OPENMS_LOG_FATAL_ERROR << "The filenames (extension ignored) in the consensusXML file are not the same as in the experimental design" << endl;
+    OPENMS_LOG_FATAL_ERROR << "Spectra files (consensus map): \n";
     for (auto const & s : spectra_paths)
     {
-      LOG_FATAL_ERROR << s << endl;
+      OPENMS_LOG_FATAL_ERROR << s << endl;
     }
-    LOG_FATAL_ERROR << "Spectra files (design): \n";
+    OPENMS_LOG_FATAL_ERROR << "Spectra files (design): \n";
     for (auto const & s : design_filenames)
     {
-      LOG_FATAL_ERROR << s << endl;
+      OPENMS_LOG_FATAL_ERROR << s << endl;
     }
     throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "The filenames (extension ignored) in the consensusXML file are not the same as in the experimental design");
-  };
+  }
 
   // Extract information from the consensus features.
   for (const ConsensusFeature &consensus_feature : consensus_map)
@@ -179,7 +179,7 @@ void OpenMS::MSstatsFile::storeLFQ(const OpenMS::String &filename, const Consens
     vector< unsigned > cf_labels;
 
     // Store the file names and the run intensities of this feature
-    const ConsensusFeature::HandleSetType fs(consensus_feature.getFeatures());
+    const ConsensusFeature::HandleSetType& fs(consensus_feature.getFeatures());
     for (ConsensusFeature::HandleSetType::const_iterator fit = fs.begin(); fit != fs.end(); ++fit)
     {
       filenames.push_back(spectra_paths[fit->getMapIndex()]);
@@ -243,8 +243,8 @@ void OpenMS::MSstatsFile::storeLFQ(const OpenMS::String &filename, const Consens
         const std::vector< PeptideEvidence > & original_peptide_evidences = pep_hit.getPeptideEvidences();
 
         // Decide whether to use original or placeholder iterator
-        const std::vector< PeptideHit::PeakAnnotation > & fragment_annotations = (original_fragment_annotations.size() == 0) ? placeholder_fragment_annotations : original_fragment_annotations;
-        const std::vector< PeptideEvidence> & peptide_evidences = (original_peptide_evidences.size() == 0) ? placeholder_peptide_evidences : original_peptide_evidences;
+        const std::vector< PeptideHit::PeakAnnotation > & fragment_annotations = (original_fragment_annotations.empty()) ? placeholder_fragment_annotations : original_fragment_annotations;
+        const std::vector< PeptideEvidence> & peptide_evidences = (original_peptide_evidences.empty()) ? placeholder_peptide_evidences : original_peptide_evidences;
 
         // Variables of the peptide hit
         // MSstats User manual 3.7.3: Unknown precursor charge should be set to 0
@@ -334,12 +334,12 @@ void OpenMS::MSstatsFile::storeLFQ(const OpenMS::String &filename, const Consens
   // test
   int count_similar = 0;
 
-  for (const pair< String, set< String> > &peptideseq_accessions : peptideseq_to_accessions)
+  for (const pair<const String, set< String> > &peptideseq_accessions : peptideseq_to_accessions)
   {
     // Only write if unique peptide
     if (peptideseq_accessions.second.size() == 1)
     {
-      for (const pair< MSstatsLine, set< pair< Intensity, Coordinate > > > &line :
+      for (const pair<const MSstatsLine, set< pair< Intensity, Coordinate > > > &line :
               peptideseq_to_prefix_to_intensities[peptideseq_accessions.first])
       {
         // First, we collect all retention times and intensities
@@ -349,7 +349,7 @@ void OpenMS::MSstatsFile::storeLFQ(const OpenMS::String &filename, const Consens
         {
           if (retention_times.find(p.second) != retention_times.end())
           {
-            LOG_WARN <<  "Peptide ion appears multiple times at the same retention time. This is not expected" << endl;
+            OPENMS_LOG_WARN <<  "Peptide ion appears multiple times at the same retention time. This is not expected" << endl;
           }
           else
           {
@@ -479,16 +479,16 @@ void OpenMS::MSstatsFile::storeISO(const OpenMS::String &filename, const Consens
 
   if (!checkUnorderedContent_(spectra_paths, design_filenames))
   {
-    LOG_FATAL_ERROR << "The filenames (extension ignored) in the consensusXML file are not the same as in the experimental design" << endl;
-    LOG_FATAL_ERROR << "Spectra files (consensus map): \n";
+    OPENMS_LOG_FATAL_ERROR << "The filenames (extension ignored) in the consensusXML file are not the same as in the experimental design" << endl;
+    OPENMS_LOG_FATAL_ERROR << "Spectra files (consensus map): \n";
     for (auto const & s : spectra_paths)
     {
-      LOG_FATAL_ERROR << s << endl;
+      OPENMS_LOG_FATAL_ERROR << s << endl;
     }
-    LOG_FATAL_ERROR << "Spectra files (design): \n";
+    OPENMS_LOG_FATAL_ERROR << "Spectra files (design): \n";
     for (auto const & s : design_filenames)
     {
-      LOG_FATAL_ERROR << s << endl;
+      OPENMS_LOG_FATAL_ERROR << s << endl;
     }
     throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "The filenames (extension ignored) in the consensusXML file are not the same as in the experimental design");
   }
@@ -559,7 +559,7 @@ void OpenMS::MSstatsFile::storeISO(const OpenMS::String &filename, const Consens
         const std::vector< PeptideEvidence > & original_peptide_evidences = pep_hit.getPeptideEvidences();
 
         // Decide whether to use original or placeholder iterator
-        const std::vector< PeptideEvidence> & peptide_evidences = (original_peptide_evidences.size() == 0) ? placeholder_peptide_evidences : original_peptide_evidences;
+        const std::vector< PeptideEvidence> & peptide_evidences = (original_peptide_evidences.empty()) ? placeholder_peptide_evidences : original_peptide_evidences;
 
         // Variables of the peptide hit
         // MSstats User manual 3.7.3: Unknown precursor charge should be set to 0
@@ -575,7 +575,7 @@ void OpenMS::MSstatsFile::storeISO(const OpenMS::String &filename, const Consens
 
               const Intensity intensity(consensus_feature_intensites[i][j]);
               const Coordinate retention_time(consensus_feature_retention_times[i][j]);
-              const unsigned channel(consensus_feature_labels[i][j]);
+              const unsigned channel(consensus_feature_labels[i][j] + 1);
 
               const String & accession = pep_ev.getProteinAccession();
               peptideseq_to_accessions[sequence].insert(accession);
@@ -624,12 +624,12 @@ void OpenMS::MSstatsFile::storeISO(const OpenMS::String &filename, const Consens
   // test
   int count_similar = 0;
 
-  for (const pair< String, set< String> > &peptideseq_accessions : peptideseq_to_accessions)
+  for (const pair<const String, set< String> > &peptideseq_accessions : peptideseq_to_accessions)
   {
     // Only write if unique peptide
     if (peptideseq_accessions.second.size() == 1)
     {
-      for (const pair< MSstatsTMTLine, set< pair< Intensity, Coordinate > > > &line :
+      for (const pair<const MSstatsTMTLine, set< pair< Intensity, Coordinate > > > &line :
               peptideseq_to_prefix_to_intensities[peptideseq_accessions.first])
       {
         // First, we collect all retention times and intensities
@@ -639,7 +639,7 @@ void OpenMS::MSstatsFile::storeISO(const OpenMS::String &filename, const Consens
         {
           if (retention_times.find(p.second) != retention_times.end())
           {
-            LOG_WARN <<  "Peptide ion appears multiple times at the same retention time. This is not expected" << endl;
+            OPENMS_LOG_WARN <<  "Peptide ion appears multiple times at the same retention time. This is not expected" << endl;
           }
           else
           {
