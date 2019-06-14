@@ -32,7 +32,7 @@
 // $Authors: Witold Wolski, Hannes Roest $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoringHelper.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
 
 #include <OpenMS/CHEMISTRY/TheoreticalSpectrumGenerator.h>
 #include <OpenMS/CHEMISTRY/ISOTOPEDISTRIBUTION/CoarseIsotopePatternGenerator.h>
