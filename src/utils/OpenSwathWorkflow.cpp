@@ -607,6 +607,7 @@ protected:
 
       feature_finder_param.remove("DIAScoring:dia_extraction_window");
       feature_finder_param.remove("DIAScoring:dia_extraction_unit");
+      feature_finder_param.remove("Scores:use_uis_scores");
 
       // remove these parameters
       feature_finder_param.remove("add_up_spectra");
