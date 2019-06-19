@@ -605,6 +605,9 @@ protected:
       feature_finder_param.remove("EMGScoring:tolerance_stdev_bounding_box");
       feature_finder_param.remove("EMGScoring:deltaAbsError");
 
+      feature_finder_param.remove("DIAScoring:dia_extraction_window");
+      feature_finder_param.remove("DIAScoring:dia_extraction_unit");
+
       // remove these parameters
       feature_finder_param.remove("add_up_spectra");
       feature_finder_param.remove("spacing_for_spectra_resampling");
@@ -808,6 +811,9 @@ protected:
     {
       feature_finder_param.setValue("Scores:use_uis_scores", "true");
     }
+
+    feature_finder_param.setValue("DIAScoring:dia_extraction_window", cp.mz_extraction_window);
+    feature_finder_param.setValue("DIAScoring:dia_extraction_unit", getStringOption_("mz_extraction_window_unit"));
 
     ///////////////////////////////////
     // Load the transitions
