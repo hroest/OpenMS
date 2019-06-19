@@ -98,8 +98,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.014240302498742"/>
 			<UserParam type="float" name="var_bseries_score" value="0.0"/>
 			<UserParam type="float" name="var_yseries_score" value="0.0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.569372148721686"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.416878842280752"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.773737605272678"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.706588314770083"/>
 			<UserParam type="float" name="var_ms1_mi_contrast_score" value="0.0"/>
 			<UserParam type="float" name="var_ms1_mi_combined_score" value="0.0"/>
 			<UserParam type="float" name="main_var_xx_swath_prelim_score" value="2.336126775091941"/>
@@ -201,8 +201,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.014211881198716"/>
 			<UserParam type="float" name="var_bseries_score" value="0.0"/>
 			<UserParam type="float" name="var_yseries_score" value="0.0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.569254616742887"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.417015226300854"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.773758857816489"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.706540170760166"/>
 			<UserParam type="float" name="var_ms1_mi_contrast_score" value="0.0"/>
 			<UserParam type="float" name="var_ms1_mi_combined_score" value="0.0"/>
 			<UserParam type="float" name="main_var_xx_swath_prelim_score" value="2.26317707228532"/>
@@ -304,8 +304,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.014183573121193"/>
 			<UserParam type="float" name="var_bseries_score" value="0.0"/>
 			<UserParam type="float" name="var_yseries_score" value="0.0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.568606596777303"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.417766522633594"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.773875336577406"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.706275583104721"/>
 			<UserParam type="float" name="var_ms1_mi_contrast_score" value="0.0"/>
 			<UserParam type="float" name="var_ms1_mi_combined_score" value="0.0"/>
 			<UserParam type="float" name="main_var_xx_swath_prelim_score" value="2.253341113091645"/>
@@ -407,8 +407,8 @@
 			<UserParam type="float" name="var_massdev_score_weighted" value="0.014155377590947"/>
 			<UserParam type="float" name="var_bseries_score" value="0.0"/>
 			<UserParam type="float" name="var_yseries_score" value="0.0"/>
-			<UserParam type="float" name="var_dotprod_score" value="0.568489263370595"/>
-			<UserParam type="float" name="var_manhatt_score" value="1.41790254406354"/>
+			<UserParam type="float" name="var_dotprod_score" value="0.773896444514623"/>
+			<UserParam type="float" name="var_manhatt_score" value="0.706227448037503"/>
 			<UserParam type="float" name="var_ms1_mi_contrast_score" value="0.0"/>
 			<UserParam type="float" name="var_ms1_mi_combined_score" value="0.0"/>
 			<UserParam type="float" name="main_var_xx_swath_prelim_score" value="2.3085832911318"/>
