@@ -816,17 +816,12 @@ namespace OpenMS
     // share a single filestream and call seek on it, chaos will ensue).
     if (use_ms1_traces_ && ms1_map_)
     {
-      if (ms1_map_ == nullptr) 
-      {
-        throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
-            "Error, attempted to use MS1 traces, but no MS1 map was provided." );
-      }
       OpenSwath::SpectrumAccessPtr threadsafe_ms1 = ms1_map_->lightClone();
       featureFinder.setMS1Map( threadsafe_ms1 );
     }
     else if (use_ms1_traces_ && !ms1_map_)
     {
-      LOG_WARN << "WARNING: Attempted to use MS1 traces but no MS1 map was provided: Inconsistent input!" << std::endl;
+      OPENMS_LOG_WARN << "WARNING: Attempted to use MS1 traces but no MS1 map was provided: Will not use MS1 signal!" << std::endl;
     }
 
     // If use_total_mi_score is defined, we need to instruct MRMTransitionGroupPicker to compute the score
