@@ -42,6 +42,7 @@
 
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
+#include <OpenMS/MATH/MISC/MathFunctions.h>
 
 namespace OpenMS
 {
@@ -400,17 +401,11 @@ public:
       }
 
       // calculate extraction window
-      double left, right;
-      if (ppm)
-      {
-        left  = mz - mz * extract_window / 2.0 * 1.0e-6;
-        right = mz + mz * extract_window / 2.0 * 1.0e-6;
-      }
-      else
-      {
-        left  = mz - extract_window / 2.0;
-        right = mz + extract_window / 2.0;
-      }
+      double left, right, delta;
+      if (ppm) delta = Math::ppmToMass(extract_window / 2.0, mz);
+      else delta = extract_window / 2.0;
+      left = mz - delta;
+      right = mz + delta;
 
       Size walker;
 
@@ -482,19 +477,12 @@ public:
       }
 
       // calculate extraction window
-      double left, right, half_window_size, weight;
-      if (ppm)
-      {
-        half_window_size = mz * extract_window / 2.0 * 1.0e-6;
-        left  = mz - mz * extract_window / 2.0 * 1.0e-6;
-        right = mz + mz * extract_window / 2.0 * 1.0e-6;
-      }
-      else
-      {
-        half_window_size = extract_window / 2.0;
-        left  = mz - extract_window / 2.0;
-        right = mz + extract_window / 2.0;
-      }
+      double left, right, delta, weight;
+      if (ppm) delta = Math::ppmToMass(extract_window / 2.0, mz);
+      else delta = extract_window / 2.0;
+      left = mz - delta;
+      right = mz + delta;
+      double half_window_size = delta;
 
       Size walker;
 
