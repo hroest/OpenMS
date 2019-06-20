@@ -148,6 +148,14 @@ public:
                              double& manhattan);
     //@}
 
+
+
+    /// Subfunction of dia_isotope_scores
+    void diaIsotopeScoresSub_(const std::vector<TransitionType>& transitions,
+                              SpectrumPtrType spectrum,
+                              std::map<std::string, double>& intensities,
+                              double& isotope_corr,
+                              double& isotope_overlap);
 private:
 
     /// Copy constructor (algorithm class)
@@ -159,13 +167,6 @@ private:
     /// Synchronize members with param class
     void updateMembers_() override;
 
-    /// Subfunction of dia_isotope_scores
-    void diaIsotopeScoresSub_(const std::vector<TransitionType>& transitions,
-                              SpectrumPtrType spectrum,
-                              std::map<std::string, double>& intensities,
-                              double& isotope_corr,
-                              double& isotope_overlap);
-
     /// retrieves intensities from MRMFeature
     /// computes a vector of relative intensities for each feature (output to intensities)
     void getFirstIsotopeRelativeIntensities_(const std::vector<TransitionType>& transitions,
@@ -173,7 +174,7 @@ private:
                                             std::map<std::string, double>& intensities //experimental intensities of transitions
                                             );
 
-private:
+public:
 
     /**
       @brief Determine whether the current m/z value is a monoisotopic peak 
