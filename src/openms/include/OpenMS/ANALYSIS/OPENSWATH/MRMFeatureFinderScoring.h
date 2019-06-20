@@ -188,6 +188,12 @@ public:
                          FeatureMap& output,
                          bool ms1only = false);
 
+    void scoreFullChromatograms(std::vector<MRMTransitionGroupType>& transition_group,
+                         const TransformationDescription & trafo,
+                         const std::vector<OpenSwath::SwathMap>& swath_maps,
+                         FeatureMap& output,
+                         bool ms1only = false);
+
     /** @brief Set the flag for strict mapping
     */
     void setStrictFlag(bool f)

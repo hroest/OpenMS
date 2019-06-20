@@ -46,11 +46,28 @@
 // Helpers
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
 #include <OpenMS/CHEMISTRY/ProteaseDigestion.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/SpectrumHelpers.h> // integrateWindow
+#include <OpenMS/MATH/MISC/MathFunctions.h> // getPPM
+#include <OpenMS/CONCEPT/Constants.h>
 
 #include <boost/range/adaptor/map.hpp>
 #include <boost/foreach.hpp>
 
 #define run_identifier "unique_run_identifier"
+
+  void adjustExtractionWindow(double& right, double& left, const double& dia_extract_window_, const bool& dia_extraction_ppm_)
+  {
+    if (dia_extraction_ppm_)
+    {
+      left -= left * dia_extract_window_ / 2e6;
+      right += right * dia_extract_window_ / 2e6;
+    }
+    else
+    {
+      left -= dia_extract_window_ / 2.0;
+      right += dia_extract_window_ / 2.0;
+    }
+  }
 
 bool SortDoubleDoublePairFirst(const std::pair<double, double>& left, const std::pair<double, double>& right)
 {
@@ -1011,6 +1028,362 @@ namespace OpenMS
 
     // store all data manipulation performed on the features of the transition group
     transition_group = transition_group_detection;
+  }
+
+  void MRMFeatureFinderScoring::scoreFullChromatograms(std::vector<MRMTransitionGroupType>& transition_groups,
+                                                const TransformationDescription& trafo, 
+                                                const std::vector<OpenSwath::SwathMap>& swath_maps,
+                                                FeatureMap& output, 
+                                                bool ms1only)
+  {
+    if (PeptideRefMap_.empty())
+    {
+      throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
+                                       "Error: Peptide reference map is empty, please call prepareProteinPeptideMaps_ first.");
+    }
+
+    if (!ms1_map_)
+    {
+      // since we dont have a precursor chromatogram there isnt a good place to write the scores...
+      std::cout << "WARNING: Cannot do full chromatogram extraction without MS1 present! " << std::endl;
+      return;
+    }
+
+    if (swath_maps.size() != 1)
+    {
+      throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
+                                       "Error: Only works on a single SWATH map.");
+    }
+
+    std::vector<int> transition_group_mapping(transition_groups.size(), 0);
+
+    std::vector<double> transition_group_firstpeak, transition_group_lastpeak;
+    for (Size k = 0; k < transition_groups.size(); ++k)
+    {
+      const MRMTransitionGroupType& transition_group_detection = transition_groups[k];
+      if (!transition_group_detection.getChromatograms().empty())
+      {
+        auto firstpeak = transition_group_detection.getChromatograms().front().front();
+        auto lastpeak = transition_group_detection.getChromatograms().front().back();
+        transition_group_firstpeak.push_back( firstpeak.getRT() );
+        transition_group_lastpeak.push_back( lastpeak.getRT() );
+      }
+      else
+      {
+        transition_group_firstpeak.push_back(-1);
+        transition_group_lastpeak.push_back(-1);
+      }
+    }
+
+    for (auto & trgr : transition_groups)
+    {
+      // calculate logSN score
+      for (auto & c : trgr.getChromatograms())
+      {
+        c.getFloatDataArrays().resize(4);
+        c.getFloatDataArrays()[0].setName("logSNScore");
+        c.getFloatDataArrays()[1].setName("MS2PPMScore");
+        c.getFloatDataArrays()[2].setName("MS2IsotopeCorr");
+        c.getFloatDataArrays()[3].setName("MS2IsotopeOverlap");
+      }
+      for (auto & c : trgr.getPrecursorChromatograms())
+      {
+        c.getFloatDataArrays().resize(17);
+        c.getFloatDataArrays()[0].setName("logSNScore");
+        c.getFloatDataArrays()[1].setName("RTScore");
+        c.getFloatDataArrays()[2].setName("MS1PPMScore");
+        c.getFloatDataArrays()[3].setName("MS1IsotopeCorrelationScore");
+        c.getFloatDataArrays()[4].setName("MS1IsotopeOverlapScore");
+
+        c.getFloatDataArrays()[5].setName("LibManhattan");
+        c.getFloatDataArrays()[6].setName("LibDotProd");
+        c.getFloatDataArrays()[7].setName("LibSAngle");
+        c.getFloatDataArrays()[8].setName("LibNormManhattan");
+        c.getFloatDataArrays()[9].setName("LibRMSD");
+        c.getFloatDataArrays()[10].setName("LibCorr");
+
+        c.getFloatDataArrays()[11].setName("GrpMassDevScore");
+        c.getFloatDataArrays()[12].setName("GrpWeighMassDevScore");
+        c.getFloatDataArrays()[13].setName("GrpDotProd");
+        c.getFloatDataArrays()[14].setName("GrpManhatt");
+
+        c.getFloatDataArrays()[15].setName("GrpIsotopeCorr");
+        c.getFloatDataArrays()[16].setName("GrpIsotopeOverlap");
+      }
+
+    }
+
+    for (auto & trgr : transition_groups)
+    {
+      // calculate logSN score
+      for (auto & c : trgr.getChromatograms())
+      {
+        auto vec = c;
+        std::nth_element(vec.begin(), vec.begin()+vec.size()/2, vec.end(), 
+            [](const ChromatogramPeak& a, const ChromatogramPeak& b) { return a.getIntensity() < b.getIntensity(); } );
+
+        double median_int = vec[ vec.size()/2 ].getIntensity();
+        for (auto & peak : c)
+        {
+          double v = peak.getIntensity() / median_int;
+          c.getFloatDataArrays()[0].push_back(std::log(v > 0.01 ? v : 0.01)); // deal with zero values
+        }
+      }
+      for (auto & c : trgr.getPrecursorChromatograms())
+      {
+        auto vec = c;
+        std::nth_element(vec.begin(), vec.begin()+vec.size()/2, vec.end(), 
+            [](const ChromatogramPeak& a, const ChromatogramPeak& b) { return a.getIntensity() < b.getIntensity(); } );
+
+        double median_int = vec[ vec.size()/2 ].getIntensity();
+        for (auto & peak : c)
+        {
+          double v = peak.getIntensity() / median_int;
+          c.getFloatDataArrays()[0].push_back(std::log(v > 0.01 ? v : 0.01)); // deal with zero values
+        }
+      }
+    }
+
+    OpenSwath::SwathMap swath_map = swath_maps[0];
+    auto input = swath_map.sptr;
+
+    int ms1_scan_idx = 0;
+
+    Size input_size = input->getNrSpectra();
+    for (Size scan_idx = 0; scan_idx < input_size; ++scan_idx)
+    {
+      OpenSwath::SpectrumPtr sptr = input->getSpectrumById(scan_idx);
+      OpenSwath::SpectrumMeta s_meta = input->getSpectrumMetaById(scan_idx);
+      double current_rt = s_meta.RT;
+      double normalized_experimental_rt = trafo.apply(current_rt);
+
+      if (sptr->getMZArray()->data.size() == 0)
+      {
+        continue;
+      }
+
+      // increase MS1 idx until we walk past, then go back one if necessary
+      while (ms1_map_ && ms1_scan_idx < ms1_map_->getNrSpectra() - 1 && 
+             ms1_map_->getSpectrumMetaById(ms1_scan_idx).RT < current_rt && ms1_scan_idx < ms1_map_->getNrSpectra()) 
+      {
+        ms1_scan_idx++;
+      }
+      if (ms1_map_ && ms1_scan_idx != 0 &&
+          std::fabs(ms1_map_->getSpectrumMetaById(ms1_scan_idx - 1).RT - current_rt) <
+          std::fabs(ms1_map_->getSpectrumMetaById(ms1_scan_idx).RT - current_rt))
+      {
+        ms1_scan_idx--;
+      }
+      OpenSwath::SpectrumPtr ms1_spectrum = nullptr;
+      if (ms1_map_) ms1_spectrum = input->getSpectrumById(ms1_scan_idx);
+
+      for (Size k = 0; k < transition_groups.size(); ++k)
+      {
+        if (current_rt < transition_group_firstpeak[k] || current_rt > transition_group_lastpeak[k])
+        {
+          continue;
+        }
+
+        int idx = transition_group_mapping[k];
+        transition_group_mapping[k]++; // advance the index
+        MRMTransitionGroupType& transition_group_detection = transition_groups[k];
+
+        std::vector<double> exp_intensities;
+        double total_intensity = 0;
+        for (auto & c : transition_group_detection.getChromatograms())
+        {
+          exp_intensities.push_back(c[idx].getIntensity());
+          total_intensity += exp_intensities.back();
+        }
+
+        // sanity check: the rt of the chromatogram should match the current_rt
+        // std::cout << "SANITY:" << transition_group_detection.getChromatograms().front()[idx].getRT()  << " rt " << current_rt << std::endl;
+
+        double precursor_mz = transition_group_detection.getTransitions()[0].getPrecursorMZ();
+
+        // get drift time upper/lower offset (this assumes that all chromatograms
+        // are derived from the same precursor with the same drift time)
+        double drift_lower(0), drift_upper(0);
+        if (!transition_group_detection.getChromatograms().empty())
+        {
+          auto & prec = transition_group_detection.getChromatograms()[0].getPrecursor();
+          drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
+          drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+        }
+        else if (!transition_group_detection.getPrecursorChromatograms().empty())
+        {
+          auto & prec = transition_group_detection.getPrecursorChromatograms()[0].getPrecursor();
+          drift_lower = prec.getDriftTime() - prec.getDriftTimeWindowLowerOffset();
+          drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
+        }
+
+        const PeptideType* pep = PeptideRefMap_[transition_group_detection.getTransitionGroupID()];
+        double expected_rt = pep->rt;
+
+        double rt_score = std::fabs(normalized_experimental_rt - expected_rt);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[1].push_back( rt_score );
+
+        // TODO: isotopes!
+        double ms1_ppm_score = -1;
+        diascoring_.dia_ms1_massdiff_score(precursor_mz, ms1_spectrum, ms1_ppm_score);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[2].push_back( ms1_ppm_score );
+
+        // derive precursor charge state (get from data if possible)
+        int precursor_charge = 1;
+        if (pep->getChargeState() != 0) 
+        {
+          precursor_charge = pep->getChargeState();
+        }
+
+        double ms1_isotope_correlation, ms1_isotope_overlap;
+        diascoring_.dia_ms1_isotope_scores(precursor_mz, ms1_spectrum,
+                                          precursor_charge,
+                                          ms1_isotope_correlation, ms1_isotope_overlap);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[3].push_back( ms1_isotope_correlation );
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[4].push_back( ms1_isotope_overlap );
+
+        // scorer.calculatePrecursorDIAScores(ms1_map_, diascoring_, precursor_mz, imrmfeature->getRT(), *pep, scores, drift_lower, drift_upper);
+
+        //// Transition level scoring
+        std::vector<double> normalized_library_intensity;
+        transition_group_detection.getLibraryIntensity(normalized_library_intensity);
+        OpenSwath::Scoring::normalize_sum(&normalized_library_intensity[0], boost::numeric_cast<int>(normalized_library_intensity.size()));
+
+        std::vector<std::string> native_ids_detection;
+        for (Size i = 0; i < transition_group_detection.size(); i++)
+        {
+          std::string native_id = transition_group_detection.getTransitions()[i].getNativeID();
+          native_ids_detection.push_back(native_id);
+        }
+
+        std::vector<std::string> precursor_ids;
+        for (Size i = 0; i < transition_group_detection.getPrecursorChromatograms().size(); i++)
+        {
+          std::string precursor_id = transition_group_detection.getPrecursorChromatograms()[i].getNativeID();
+          precursor_ids.push_back(precursor_id);
+        }
+
+        auto experimental_intensity = exp_intensities;
+        auto library_intensity = normalized_library_intensity;
+        double manhattan = OpenSwath::manhattanScoring(experimental_intensity, library_intensity);
+        double dotprod = OpenSwath::dotprodScoring(experimental_intensity, library_intensity);
+
+        double spectral_angle = OpenSwath::Scoring::SpectralAngle(&experimental_intensity[0], &library_intensity[0], experimental_intensity.size());
+
+        OpenSwath::Scoring::normalize_sum(&experimental_intensity[0], experimental_intensity.size());
+        OpenSwath::Scoring::normalize_sum(&library_intensity[0], experimental_intensity.size());
+
+        double norm_manhattan = OpenSwath::Scoring::NormalizedManhattanDist(&experimental_intensity[0], &library_intensity[0], experimental_intensity.size());
+        double rmsd = OpenSwath::Scoring::RootMeanSquareDeviation(&experimental_intensity[0], &library_intensity[0], experimental_intensity.size());
+        double correlation = OpenSwath::cor_pearson(experimental_intensity.begin(), experimental_intensity.end(), library_intensity.begin());
+
+        if (boost::math::isnan(correlation))
+        {
+          correlation = -1.0;
+        }
+
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[5].push_back(manhattan);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[6].push_back(dotprod);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[7].push_back(spectral_angle);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[8].push_back(norm_manhattan);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[9].push_back(rmsd);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[10].push_back(correlation);
+
+        const auto& transitions = transition_group_detection.getTransitions();
+
+        // for (auto & c : trgr.getChromatograms())
+        // for (auto & c : trgr.getTransitions())
+        double dia_extract_window_ = 20;
+        bool dia_extraction_ppm_ = true;
+        for (Size k = 0; k < transitions.size(); k++)
+        {
+          const TransitionType& transition = transitions[k];
+          double left(transition.getProductMZ()), right(transition.getProductMZ());
+          adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+          double mz, intensity;
+          bool signalFound = OpenSwath::integrateWindow(sptr, left, right, mz, intensity, false);
+
+          // Continue if no signal was found - we therefore don't make a statement
+          // about the mass difference if no signal is present.
+          if (!signalFound)
+          {
+            transition_group_detection.getChromatograms()[k].getFloatDataArrays()[1].push_back(-1);
+          }
+
+          double ppm = Math::getPPM(mz, transition.getProductMZ());
+          transition_group_detection.getChromatograms()[k].getFloatDataArrays()[1].push_back(std::fabs(ppm));
+          // std::cout << " push back " << ppm << std::endl;
+        }
+
+        double massdev_score, weighted_massdev_score;
+        std::vector<double> masserror_ppm;
+        diascoring_.dia_massdiff_score(transitions, sptr, normalized_library_intensity, massdev_score, weighted_massdev_score, masserror_ppm);
+        double dotprod_score_dia, manhatt_score_dia;
+        diascoring_.score_with_isotopes(sptr, transitions, dotprod_score_dia, manhatt_score_dia);
+
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[11].push_back(massdev_score);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[12].push_back(weighted_massdev_score);
+        // transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[13].push_back(masserror_ppm);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[13].push_back(dotprod_score_dia);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[14].push_back(manhatt_score_dia);
+
+        std::map<std::string, double> rel_intensity_map;
+        for (Size k = 0; k < transitions.size(); k++)
+        {
+          std::string native_id = transitions[k].getNativeID();
+          double rel_intensity = exp_intensities[k] / total_intensity;
+          rel_intensity_map.insert(std::pair<std::string, double>(native_id, rel_intensity));
+        }
+
+        double isotope_correlation, isotope_overlap;
+        diascoring_.diaIsotopeScoresSub_(transitions, sptr, rel_intensity_map, isotope_correlation, isotope_overlap);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[15].push_back(isotope_correlation);
+        transition_group_detection.getPrecursorChromatograms()[0].getFloatDataArrays()[16].push_back(isotope_overlap);
+
+        {
+          int dia_nr_isotopes_ = 4;
+          {
+            std::vector<double> isotopes_int;
+            double max_ratio;
+            int nr_occurences;
+            for (Size k = 0; k < transitions.size(); k++)
+            {
+              isotopes_int.clear();
+              const String native_id = transitions[k].getNativeID();
+              // double rel_intensity = intensities[native_id];
+
+              // If no charge is given, we assume it to be 1
+              int putative_fragment_charge = 1;
+              if (transitions[k].fragment_charge > 0)
+              {
+                putative_fragment_charge = transitions[k].fragment_charge;
+              }
+
+              // collect the potential isotopes of this peak
+              for (int iso = 0; iso <= dia_nr_isotopes_; ++iso)
+              {
+                double left = transitions[k].getProductMZ() +
+                                iso * Constants::C13C12_MASSDIFF_U / static_cast<double>(putative_fragment_charge);
+                double right = transitions[k].getProductMZ() +
+                                iso * Constants::C13C12_MASSDIFF_U / static_cast<double>(putative_fragment_charge);
+                adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+                double mz, intensity;
+                integrateWindow(sptr, left, right, mz, intensity, false);
+                isotopes_int.push_back(intensity);
+              }
+
+              // calculate the scores:
+              // isotope correlation (forward) and the isotope overlap (backward) scores
+              double score = diascoring_.scoreIsotopePattern_(transitions[k].getProductMZ(), isotopes_int, putative_fragment_charge);
+              transition_group_detection.getChromatograms()[k].getFloatDataArrays()[2].push_back(score);
+              diascoring_.largePeaksBeforeFirstIsotope_(sptr, transitions[k].getProductMZ(), isotopes_int[0], nr_occurences, max_ratio);
+              transition_group_detection.getChromatograms()[k].getFloatDataArrays()[3].push_back(nr_occurences);
+            }
+          }
+        }
+      }
+    }
+
   }
 
   void MRMFeatureFinderScoring::updateMembers_()
