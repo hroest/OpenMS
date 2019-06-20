@@ -54,8 +54,6 @@
 
 #include <boost/bind.hpp>
 
-const double C13C12_MASSDIFF_U = 1.0033548;
-
 namespace OpenMS
 {
 
@@ -224,8 +222,8 @@ namespace OpenMS
     std::vector<double> isotopes_int;
     for (int iso = 0; iso <= dia_nr_isotopes_; ++iso)
     {
-      double left  = precursor_mz + iso * C13C12_MASSDIFF_U / static_cast<double>(charge_state);
-      double right = precursor_mz + iso * C13C12_MASSDIFF_U / static_cast<double>(charge_state);
+      double left  = precursor_mz + iso * Constants::C13C12_MASSDIFF_U / static_cast<double>(charge_state);
+      double right = precursor_mz + iso * Constants::C13C12_MASSDIFF_U / static_cast<double>(charge_state);
       adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
       double mz, intensity;
       integrateWindow(spectrum, left, right, mz, intensity, dia_centroided_);
@@ -326,9 +324,9 @@ namespace OpenMS
       for (int iso = 0; iso <= dia_nr_isotopes_; ++iso)
       {
         double left = transitions[k].getProductMZ() +
-                        iso * C13C12_MASSDIFF_U / static_cast<double>(putative_fragment_charge);
+                        iso * Constants::C13C12_MASSDIFF_U / static_cast<double>(putative_fragment_charge);
         double right = transitions[k].getProductMZ() +
-                        iso * C13C12_MASSDIFF_U / static_cast<double>(putative_fragment_charge);
+                        iso * Constants::C13C12_MASSDIFF_U / static_cast<double>(putative_fragment_charge);
         adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
         double mz, intensity;
         integrateWindow(spectrum, left, right, mz, intensity, dia_centroided_);
@@ -352,8 +350,8 @@ namespace OpenMS
 
     for (int ch = 1; ch <= dia_nr_charges_; ++ch)
     {
-      double left = mono_mz  - C13C12_MASSDIFF_U / (double) ch;
-      double right = mono_mz - C13C12_MASSDIFF_U / (double) ch;
+      double left = mono_mz  - Constants::C13C12_MASSDIFF_U / (double) ch;
+      double right = mono_mz - Constants::C13C12_MASSDIFF_U / (double) ch;
       adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
       bool signalFound = integrateWindow(spectrum, left, right, mz, intensity, dia_centroided_);
 
