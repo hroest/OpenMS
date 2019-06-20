@@ -44,6 +44,7 @@
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
 #include <OpenMS/MATH/MISC/MathFunctions.h>
 
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoring.h>
 namespace OpenMS
 {
 
@@ -162,7 +163,6 @@ public:
             extract_value_bartlett(input[scan_idx], mz, peak_idx, integrated_intensity, mz_extraction_window, ppm);
           }
 
-
           p.setRT(current_rt);
           p.setIntensity(integrated_intensity);
           chromatograms[k].push_back(p);
@@ -171,7 +171,7 @@ public:
       endProgress();
 
       // add all the chromatograms to the output
-      output.setChromatograms(chromatograms);
+      output.setChromatograms(std::move(chromatograms));
     }
 
     /**
@@ -636,7 +636,21 @@ private:
 
     }
 
-     /// @note: TODO deprecate this function (use ChromatogramExtractorAlgorithm instead)
+    /* @brief Determine whether the current transition should be extracted the proposed RT coordinate
+     
+
+      Get the expected retention time, apply the RT-transformation
+      (which describes the normalization) and then take the difference.
+      Note that we inverted the transformation in the beginning because
+      we want to transform from normalized to real RTs here and not the
+      other way round.
+      
+      @param transition The transition in question
+      @param current_rt The proposed extraction RT for the transition
+      @param trafo The retention time normalization description 
+      
+      @note: TODO deprecate this function (use ChromatogramExtractorAlgorithm instead)
+    */
     bool outsideExtractionWindow_(const ReactionMonitoringTransition& transition,
                                   double current_rt,
                                   const TransformationDescription& trafo,
@@ -645,7 +659,11 @@ private:
      /// @note: TODO deprecate this function (use ChromatogramExtractorAlgorithm instead)
     int getFilterNr_(const String& filter);
 
-     /// @note: TODO deprecate this function (use ChromatogramExtractorAlgorithm instead)
+    /* @brief Map peptide retention times  to peptide ids
+    
+    
+      @note: TODO deprecate this function (use ChromatogramExtractorAlgorithm instead)
+    */
     void populatePeptideRTMap_(OpenMS::TargetedExperiment& transition_exp,
                                double rt_extraction_window);
 
