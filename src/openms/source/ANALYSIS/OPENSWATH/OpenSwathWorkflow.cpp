@@ -462,7 +462,7 @@ namespace OpenMS
       OpenSwath::LightTargetedExperiment transition_exp_used = transition_exp;
       scoreAllChromatograms_(std::vector<MSChromatogram>(), ms1_chromatograms, swath_maps, transition_exp_used, 
                             feature_finder_param, trafo,
-                            cp.rt_extraction_window, featureFile, tsv_writer, osw_writer, ms1_isotopes, true);
+                            cp.rt_extraction_window, featureFile, tsv_writer, osw_writer, chromConsumer, ms1_isotopes, true);
 
       // write features to output if so desired
       std::vector< OpenMS::MSChromatogram > chromatograms;
@@ -663,7 +663,7 @@ namespace OpenMS
             std::vector< OpenSwath::SwathMap > tmp = {swath_maps[i]};
             tmp.back().sptr = current_swath_map_inner;
             scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, tmp, transition_exp_used,
-                feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer, ms1_isotopes);
+                feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer, chromConsumer, ms1_isotopes);
 
             // Step 4: write all chromatograms and features out into an output object / file
             // (this needs to be done in a critical section since we only have one
@@ -705,7 +705,7 @@ namespace OpenMS
     {
       if (!chromatograms[chrom_idx].empty())
       {
-        chromConsumer->consumeChromatogram(chromatograms[chrom_idx]);
+        // chromConsumer->consumeChromatogram(chromatograms[chrom_idx]);
       }
     }
 
@@ -782,7 +782,7 @@ namespace OpenMS
                 )
             {
               // write MS1 chromatograms to disk
-              chromConsumer->consumeChromatogram( ms1_chromatograms[j] );
+              // chromConsumer->consumeChromatogram( ms1_chromatograms[j] );
             }
           }
 
@@ -802,6 +802,7 @@ namespace OpenMS
     FeatureMap& output, 
     OpenSwathTSVWriter & tsv_writer,
     OpenSwathOSWWriter & osw_writer,
+    Interfaces::IMSDataConsumer * chromConsumer,
     int nr_ms1_isotopes,
     bool ms1only) const
   {
@@ -874,6 +875,7 @@ namespace OpenMS
     // Start of main function
     // Iterating over all the assays
     ///////////////////////////////////
+    std::vector< MRMTransitionGroupType > trgroups;
     for (AssayMapT::iterator assay_it = assay_map.begin(); assay_it != assay_map.end(); ++assay_it)
     {
       // Create new MRMTransitionGroup
@@ -940,8 +942,12 @@ namespace OpenMS
       }
 
       // 3. / 4. Process the MRMTransitionGroup: find peakgroups and score them
-      trgroup_picker.pickTransitionGroup(transition_group);
-      featureFinder.scorePeakgroups(transition_group, trafo, swath_maps, output, ms1only);
+      if (true)
+      {
+        trgroup_picker.pickTransitionGroup(transition_group);
+        featureFinder.scorePeakgroups(transition_group, trafo, swath_maps, output, ms1only);
+        trgroups.push_back(std::move(transition_group));
+      }
 
       // Ensure that a detection transition is used to derive features for output
       if (detection_assay_it < 0 && output.size() > 0)
@@ -965,6 +971,29 @@ namespace OpenMS
         const TransitionType* transition = assay_it->second[detection_assay_it];
         to_osw_output.push_back(osw_writer.prepareLine(pep, transition, output, id));
       }
+    }
+
+    if (!trgroups.empty())
+    {
+      // perform scoring of full chromatograms and then write out all chromatograms to disk
+      featureFinder.scoreFullChromatograms(trgroups, trafo, swath_maps, output, ms1only);
+#ifdef _OPENMP
+#pragma omp critical (osw_write_out)
+#endif
+      {
+        for (auto & trgr : trgroups)
+        {
+          for (auto & c : trgr.getChromatograms())
+          {
+            if (!c.empty()) chromConsumer->consumeChromatogram(c);
+          }
+          for (auto & c : trgr.getPrecursorChromatograms())
+          {
+            if (!c.empty()) chromConsumer->consumeChromatogram(c);
+          }
+        }
+      }
+
     }
 
     // Only write at the very end since this is a step that needs a barrier
@@ -1213,7 +1242,7 @@ namespace OpenMS
             // Step 3: score these extracted transitions
             FeatureMap featureFile;
             scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, used_maps, transition_exp_used,
-                                   feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer);
+                                   feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer, chromConsumer);
 
             // Step 4: write all chromatograms and features out into an output object / file
             // (this needs to be done in a critical section since we only have one
