@@ -34,7 +34,7 @@
 
 #include <OpenMS/ANALYSIS/OPENSWATH/SONARScoring.h>
 
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoringHelper.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
 #include <OpenMS/OPENSWATHALGO/ALGO/StatsHelpers.h>
 
 #include <OpenMS/MATH/STATISTICS/LinearRegression.h>

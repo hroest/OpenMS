@@ -6,7 +6,7 @@ set(sources_list_h
   ChromatogramExtractor.h
   ChromatogramExtractorAlgorithm.h
   ConfidenceScoring.h
-  DIAScoringHelper.h
+  DIAHelper.h
   DIAPrescoring.h
   DIAScoring.h
   IonMobilityScoring.h

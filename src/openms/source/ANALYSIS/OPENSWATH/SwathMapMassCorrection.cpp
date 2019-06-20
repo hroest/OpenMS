@@ -42,7 +42,7 @@
 
 // Functions
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/SpectrumHelpers.h> // integrateWindow
-#include <OpenMS/ANALYSIS/OPENSWATH/DIAScoringHelper.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
 
 #define SWATHMAPMASSCORRECTION_DEBUG
 
