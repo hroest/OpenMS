@@ -389,8 +389,8 @@ namespace OpenMS
       std::vector<double> ind_log_intensity;
       std::vector<double> ind_intensity_ratio;
       std::vector<double> ind_mi_ratio;
-
       std::vector<double> ind_mi_score;
+
       if (su_.use_mi_score_)
       {
         ind_mi_score = idscores.ind_mi_score;
@@ -399,19 +399,15 @@ namespace OpenMS
       for (size_t i = 0; i < native_ids_identification.size(); i++)
       {
         ind_transition_names.push_back(native_ids_identification[i]);
-        if (idmrmfeature.getFeature(native_ids_identification[i]).getIntensity() > 0)
+        const Feature & f = idmrmfeature.getFeature(native_ids_identification[i]);
+        if (f.getIntensity() > 0)
         {
-          double intensity_score = double(idmrmfeature.getFeature(native_ids_identification[i]).getIntensity()) / double(idmrmfeature.getFeature(native_ids_identification[i]).getMetaValue("total_xic"));
+          double intensity_score = f.getIntensity() / double(f.getMetaValue("total_xic"));
+          double total_mi = su_.use_total_mi_score_ ? double(f.getMetaValue("total_mi")) : 0;
 
           double intensity_ratio = 0;
           if (det_intensity_ratio_score > 0) { intensity_ratio = intensity_score / det_intensity_ratio_score; }
           if (intensity_ratio > 1) { intensity_ratio = 1 / intensity_ratio; }
-
-          double total_mi = 0;
-          if (su_.use_total_mi_score_)
-          {
-            total_mi = double(idmrmfeature.getFeature(native_ids_identification[i]).getMetaValue("total_mi"));
-          }
 
           double mi_ratio = 0;
           if (su_.use_mi_score_ && su_.use_total_mi_score_)
@@ -420,12 +416,12 @@ namespace OpenMS
             if (mi_ratio > 1) { mi_ratio = 1 / mi_ratio; }
           }
 
-          ind_area_intensity.push_back(idmrmfeature.getFeature(native_ids_identification[i]).getIntensity());
-          ind_total_area_intensity.push_back(idmrmfeature.getFeature(native_ids_identification[i]).getMetaValue("total_xic"));
+          ind_area_intensity.push_back(f.getIntensity());
+          ind_total_area_intensity.push_back(f.getMetaValue("total_xic"));
           ind_intensity_score.push_back(intensity_score);
-          ind_apex_intensity.push_back(idmrmfeature.getFeature(native_ids_identification[i]).getMetaValue("peak_apex_int"));
-          ind_total_mi .push_back(total_mi);
-          ind_log_intensity.push_back(std::log(idmrmfeature.getFeature(native_ids_identification[i]).getIntensity()));
+          ind_apex_intensity.push_back(f.getMetaValue("peak_apex_int"));
+          ind_total_mi.push_back(total_mi);
+          ind_log_intensity.push_back(std::log(f.getIntensity()));
           ind_intensity_ratio.push_back(intensity_ratio);
           ind_mi_ratio.push_back(mi_ratio);
         }
