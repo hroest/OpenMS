@@ -88,17 +88,17 @@ namespace OpenMS
 
       @note If there is no signal, mz will be set to -1 and intensity to 0
     */
-    OPENMS_DLLAPI void integrateDriftSpectrum(OpenSwath::SpectrumPtr spectrum, 
+    OPENMS_DLLAPI void integrateDriftSpectrum(OpenSwath::SpectrumPtr spectrum,
                                               double mz_start,
                                               double mz_end,
                                               double & im,
                                               double & intensity,
-                                              std::vector<std::pair<double, double> >& res, 
+                                              std::vector<std::pair<double, double> >& res,
                                               double drift_start,
                                               double drift_end);
 
 
-    OPENMS_DLLAPI void integrateDriftSpectrum_x(OpenSwath::SpectrumPtr spectrum, 
+    OPENMS_DLLAPI void integrateDriftSpectrum_x(OpenSwath::SpectrumPtr spectrum,
                                               double mz_start,
                                               double mz_end,
                                               double & im,
@@ -121,7 +121,7 @@ namespace OpenMS
 
     /// get averagine distribution given mass
     OPENMS_DLLAPI void getAveragineIsotopeDistribution(const double product_mz,
-                                         std::vector<std::pair<double, double> >& isotopesSpec, 
+                                         std::vector<std::pair<double, double> >& isotopesSpec,
                                          const double charge = 1.,
                                          const int nr_isotopes = 4,
                                          const double mannmass = 1.00048);
