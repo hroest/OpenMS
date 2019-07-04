@@ -82,6 +82,33 @@ void processFeatureForOutput(OpenMS::Feature& curr_feature, bool write_convex_hu
 namespace OpenMS
 {
 
+  void IDScoresAsMetaValue(OpenMS::MRMFeature* mrmfeature,
+                           bool decoy,
+                           const OpenSwath_Ind_Scores& idscores)
+  {
+    String id = "id_target";
+    if (decoy) id = "id_decoy";
+
+    mrmfeature->setMetaValue(id + "transition_names", idscores.ind_transition_names);
+    mrmfeature->setMetaValue(id + "num_transitions", idscores.ind_num_transitions);
+    mrmfeature->setMetaValue(id + "area_intensity", idscores.ind_area_intensity);
+    mrmfeature->setMetaValue(id + "total_area_intensity", idscores.ind_total_area_intensity);
+    mrmfeature->setMetaValue(id + "intensity_score", idscores.ind_intensity_score);
+    mrmfeature->setMetaValue(id + "intensity_ratio_score", idscores.ind_intensity_ratio);
+    mrmfeature->setMetaValue(id + "apex_intensity", idscores.ind_apex_intensity);
+    mrmfeature->setMetaValue(id + "total_mi", idscores.ind_total_mi);
+    mrmfeature->setMetaValue(id + "ind_log_intensity", idscores.ind_log_intensity);
+    mrmfeature->setMetaValue(id + "ind_xcorr_coelution", idscores.ind_xcorr_coelution_score);
+    mrmfeature->setMetaValue(id + "ind_xcorr_shape", idscores.ind_xcorr_shape_score);
+    mrmfeature->setMetaValue(id + "ind_log_sn_score", idscores.ind_log_sn_score);
+    mrmfeature->setMetaValue(id + "ind_isotope_correlation", idscores.ind_isotope_correlation);
+    mrmfeature->setMetaValue(id + "ind_isotope_overlap", idscores.ind_isotope_overlap);
+    mrmfeature->setMetaValue(id + "ind_massdev_score", idscores.ind_massdev_score);
+    mrmfeature->setMetaValue(id + "ind_mi_score", idscores.ind_mi_score);
+    mrmfeature->setMetaValue(id + "ind_mi_ratio_score", idscores.ind_mi_ratio);
+  }
+
+
   MRMFeatureFinderScoring::MRMFeatureFinderScoring() :
     DefaultParamHandler("MRMFeatureFinderScoring"),
     ProgressLogger()
@@ -706,24 +733,7 @@ namespace OpenMS
                                                            write_log_messages_,
                                                            swath_maps);
 
-          mrmfeature->setMetaValue("id_target_transition_names", idscores.ind_transition_names);
-          mrmfeature->setMetaValue("id_target_num_transitions", idscores.ind_num_transitions);
-          mrmfeature->setMetaValue("id_target_area_intensity", idscores.ind_area_intensity);
-          mrmfeature->setMetaValue("id_target_total_area_intensity", idscores.ind_total_area_intensity);
-          mrmfeature->setMetaValue("id_target_intensity_score", idscores.ind_intensity_score);
-          mrmfeature->setMetaValue("id_target_intensity_ratio_score", idscores.ind_intensity_ratio);
-          mrmfeature->setMetaValue("id_target_apex_intensity", idscores.ind_apex_intensity);
-          mrmfeature->setMetaValue("id_target_total_mi", idscores.ind_total_mi);
-          mrmfeature->setMetaValue("id_target_ind_log_intensity", idscores.ind_log_intensity);
-          mrmfeature->setMetaValue("id_target_ind_xcorr_coelution", idscores.ind_xcorr_coelution_score);
-          mrmfeature->setMetaValue("id_target_ind_xcorr_shape", idscores.ind_xcorr_shape_score);
-          mrmfeature->setMetaValue("id_target_ind_log_sn_score", idscores.ind_log_sn_score);
-          mrmfeature->setMetaValue("id_target_ind_isotope_correlation", idscores.ind_isotope_correlation);
-          mrmfeature->setMetaValue("id_target_ind_isotope_overlap", idscores.ind_isotope_overlap);
-          mrmfeature->setMetaValue("id_target_ind_massdev_score", idscores.ind_massdev_score);
-          mrmfeature->setMetaValue("id_target_ind_mi_score", idscores.ind_mi_score);
-          mrmfeature->setMetaValue("id_target_ind_mi_ratio_score", idscores.ind_mi_ratio);
-
+          IDScoresAsMetaValue(&(*mrmfeature), false, idscores);
         }
 
         if (su_.use_uis_scores && transition_group_identification_decoy.getTransitions().size() > 0)
@@ -738,23 +748,7 @@ namespace OpenMS
                                                            write_log_messages_,
                                                            swath_maps);
 
-          mrmfeature->setMetaValue("id_decoy_transition_names", idscores.ind_transition_names);
-          mrmfeature->setMetaValue("id_decoy_num_transitions", idscores.ind_num_transitions);
-          mrmfeature->setMetaValue("id_decoy_area_intensity", idscores.ind_area_intensity);
-          mrmfeature->setMetaValue("id_decoy_total_area_intensity", idscores.ind_total_area_intensity);
-          mrmfeature->setMetaValue("id_decoy_intensity_score", idscores.ind_intensity_score);
-          mrmfeature->setMetaValue("id_decoy_intensity_ratio_score", idscores.ind_intensity_ratio);
-          mrmfeature->setMetaValue("id_decoy_apex_intensity", idscores.ind_apex_intensity);
-          mrmfeature->setMetaValue("id_decoy_total_mi", idscores.ind_total_mi);
-          mrmfeature->setMetaValue("id_decoy_ind_log_intensity", idscores.ind_log_intensity);
-          mrmfeature->setMetaValue("id_decoy_ind_xcorr_coelution", idscores.ind_xcorr_coelution_score);
-          mrmfeature->setMetaValue("id_decoy_ind_xcorr_shape", idscores.ind_xcorr_shape_score);
-          mrmfeature->setMetaValue("id_decoy_ind_log_sn_score", idscores.ind_log_sn_score);
-          mrmfeature->setMetaValue("id_decoy_ind_isotope_correlation", idscores.ind_isotope_correlation);
-          mrmfeature->setMetaValue("id_decoy_ind_isotope_overlap", idscores.ind_isotope_overlap);
-          mrmfeature->setMetaValue("id_decoy_ind_massdev_score", idscores.ind_massdev_score);
-          mrmfeature->setMetaValue("id_decoy_ind_mi_score", idscores.ind_mi_score);
-          mrmfeature->setMetaValue("id_decoy_ind_mi_ratio_score", idscores.ind_mi_ratio);
+          IDScoresAsMetaValue(&(*mrmfeature), true, idscores);
         }
 
         if (su_.use_coelution_score_)
