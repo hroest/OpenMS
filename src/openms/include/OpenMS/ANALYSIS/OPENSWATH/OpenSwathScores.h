@@ -135,6 +135,8 @@ namespace OpenMS
     double dotprod_score_dia = 0;
     double manhatt_score_dia = 0;
 
+    std::vector<double> masserror_ppm;
+
     OpenSwath_Scores() = default;
 
     double get_quick_lda_score(double library_corr_,
