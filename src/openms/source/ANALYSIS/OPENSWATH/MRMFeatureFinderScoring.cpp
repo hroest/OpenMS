@@ -568,9 +568,6 @@ namespace OpenMS
 
       bool swath_present = (!swath_maps.empty() && swath_maps[0].sptr->getNrSpectra() > 0);
       bool sonar_present = (swath_maps.size() > 1);
-
-      // TODO: this is not the best way of doing this -- another way of figuring out whether we have it ?
-      bool im_present = (drift_upper > 0.0);
       double precursor_mz(-1);
 
       if (ms1only)
@@ -626,6 +623,7 @@ namespace OpenMS
         double overall_score = -scores.calculate_lda_prescore(scores);
         if (scoring_model_ == "single_transition") {overall_score = -scores.calculate_lda_single_transition(scores); }
         mrmfeature->setOverallQuality(overall_score);
+        // mrmfeature->addScore("xx_lda_prelim_score", xx_lda_prescore);
         mrmfeature->scoresAsMetaValue(true, su_);
       }
       else //!ms1only
@@ -656,7 +654,7 @@ namespace OpenMS
         ///////////////////////////////////
         // Library and chromatographic scores
         OpenSwath_Scores& scores = mrmfeature->getScores();
-        scorer.calculateChromatographicScores(imrmfeature, native_ids_detection, precursor_id, normalized_library_intensity,
+        scorer.calculateChromatographicScores(imrmfeature, native_ids_detection, precursor_ids, normalized_library_intensity,
                                               signal_noise_estimators, scores);
 
         double normalized_experimental_rt = trafo.apply(imrmfeature->getRT());
@@ -734,37 +732,43 @@ namespace OpenMS
         if (scoring_model_ == "single_transition") {overall_score = -scores.calculate_lda_single_transition(scores);}
         mrmfeature->setOverallQuality(overall_score);
         if (swath_present && su_.use_dia_scores_) {mrmfeature->setOverallQuality(-scores.calculate_swath_lda_prescore(scores));}
-      }
 
-      ///////////////////////////////////////////////////////////////////////////
-      // add the peptide hit information to the feature
-      ///////////////////////////////////////////////////////////////////////////
-      PeptideIdentification pep_id_ = PeptideIdentification();
-      PeptideHit pep_hit_ = PeptideHit();
-
-      if (pep->getChargeState() != 0)
-      {
-        pep_hit_.setCharge(pep->getChargeState());
-      }
-      pep_hit_.setScore(xx_lda_prescore);
-      if (swath_present)
-      {
-        pep_hit_.setScore(mrmfeature->getScore("xx_swath_prelim_score"));
-      }
-
-      if (pep->isPeptide())
-      {
-        pep_hit_.setSequence(AASequence::fromString(pep->sequence));
-        mrmfeature->setMetaValue("missedCleavages", pd.peptideCount(pep_hit_.getSequence()) - 1);
-      }
+        // double xx_lda_prescore = -scores.calculate_lda_prescore(scores);
+        // mrmfeature->setMetaValue("xx_lda_prelim_score", xx_lda_prescore);
 
         ///////////////////////////////////
         // Store scores as meta values
         mrmfeature->scoresAsMetaValue(false, su_);
+
+        // double xx_lda_prescore = -1;
+
+        ///////////////////////////////////////////////////////////////////////////
+        // add the peptide hit information to the feature
+        ///////////////////////////////////////////////////////////////////////////
+        PeptideIdentification pep_id_ = PeptideIdentification();
+        PeptideHit pep_hit_ = PeptideHit();
+
+        if (pep->getChargeState() != 0)
+        {
+          pep_hit_.setCharge(pep->getChargeState());
+        }
+        // pep_hit_.setScore(mrmfeature->getMetaValue("xx_swath_prelim_score"));
+        if (swath_present)
+        {
+          // pep_hit_.setScore(mrmfeature->getMetaValue("xx_swath_prelim_score"));
+        }
+
+        if (pep->isPeptide())
+        {
+          pep_hit_.setSequence(AASequence::fromString(pep->sequence));
+          mrmfeature->setMetaValue("missedCleavages", pd.peptideCount(pep_hit_.getSequence()) - 1);
+        }
+
       }
 
       mrmfeature->setMetaValue("PrecursorMZ", precursor_mz);
       prepareFeatureOut_(&*mrmfeature, ms1only, pep->getChargeState());
+      mrmfeature->setMetaValue("xx_swath_prelim_score", 0.0);
       feature_list.push_back((*mrmfeature));
 
       feature_idx++;
@@ -790,6 +794,8 @@ namespace OpenMS
     // features and then append all precursor subordinate features)
     std::vector<Feature> allFeatures = mrmfeature->getFeatures();
     double total_intensity = 0, total_peak_apices = 0;
+		double ms1_total_intensity = 0, ms1_total_peak_apices = 0;
+
     for (std::vector<Feature>::iterator f_it = allFeatures.begin(); f_it != allFeatures.end(); ++f_it)
     {
       processFeatureForOutput_(*f_it, write_convex_hull_, quantification_cutoff_, total_intensity, total_peak_apices, "MS2");
@@ -804,7 +810,7 @@ namespace OpenMS
       {
         curr_feature.setCharge(charge);
       }
-      processFeatureForOutput_(curr_feature, write_convex_hull_, quantification_cutoff_, total_intensity, total_peak_apices, "MS1");
+      processFeatureForOutput_(curr_feature, write_convex_hull_, quantification_cutoff_, ms1_total_intensity, ms1_total_peak_apices, "MS1");
       if (ms1only)
       {
         total_intensity += curr_feature.getIntensity();
@@ -817,6 +823,8 @@ namespace OpenMS
     // overwrite the reported intensities with those above the m/z cutoff
     mrmfeature->setIntensity(total_intensity);
     mrmfeature->setMetaValue("peak_apices_sum", total_peak_apices);
+    mrmfeature->setMetaValue("ms1_area_intensity", ms1_total_intensity);
+    mrmfeature->setMetaValue("ms1_apex_intensity", ms1_total_peak_apices);
   }
 
   void MRMFeatureFinderScoring::updateMembers_()

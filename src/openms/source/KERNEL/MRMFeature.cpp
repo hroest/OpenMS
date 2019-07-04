@@ -241,6 +241,13 @@ namespace OpenMS
         this->setMetaValue("var_log_sn_score", scores_.log_sn_score);
       }
 
+#if 1
+        double overall_score = -scores_.calculate_lda_prescore(scores_);
+        // if (scoring_model_ == "single_transition") {overall_score = -scores.calculate_lda_single_transition(scores);}
+        // mrmfeature->setOverallQuality(overall_score);
+        this->setMetaValue("xx_lda_prelim_score", overall_score);
+        // if (swath_present && su_.use_dia_scores_) {mrmfeature->setOverallQuality(-scores.calculate_swath_lda_prescore(scores));}
+#endif
       if (su_.use_mi_score_)
       {
         this->setMetaValue("var_mi_score", scores_.mi_score);
@@ -276,12 +283,28 @@ namespace OpenMS
         this->setMetaValue("var_manhatt_score", scores_.manhatt_score_dia);
         if (su_.use_ms1_correlation)
         {
-          this->setMetaValue("var_ms1_xcorr_shape", scores_.xcorr_ms1_shape_score);
-          this->setMetaValue("var_ms1_xcorr_coelution", scores_.xcorr_ms1_coelution_score);
-        }
+          if (scores_.ms1_xcorr_shape_score > -1)
+          {
+            this->setMetaValue("var_ms1_xcorr_shape", scores_.ms1_xcorr_shape_score);
+          }
+          if (scores_.ms1_xcorr_coelution_score > -1)
+          {
+            this->setMetaValue("var_ms1_xcorr_coelution", scores_.ms1_xcorr_coelution_score);
+          }
+          this->setMetaValue("var_ms1_xcorr_shape_contrast", scores_.ms1_xcorr_shape_contrast_score);
+          this->setMetaValue("var_ms1_xcorr_shape_combined", scores_.ms1_xcorr_shape_combined_score);
+          this->setMetaValue("var_ms1_xcorr_coelution_contrast", scores_.ms1_xcorr_coelution_contrast_score);
+          this->setMetaValue("var_ms1_xcorr_coelution_combined", scores_.ms1_xcorr_coelution_combined_score);
+				}
+
         if (su_.use_ms1_mi)
         {
-          this->setMetaValue("var_ms1_mi_score", scores_.ms1_mi_score);
+          if (scores_.ms1_mi_score > -1)
+          {
+            this->setMetaValue("var_ms1_mi_score", scores_.ms1_mi_score);
+          }
+          this->setMetaValue("var_ms1_mi_contrast_score", scores_.ms1_mi_contrast_score);
+          this->setMetaValue("var_ms1_mi_combined_score", scores_.ms1_mi_combined_score);
         }
         if (su_.use_ms1_fullscan)
         {
@@ -289,13 +312,9 @@ namespace OpenMS
           this->setMetaValue("var_ms1_isotope_correlation", scores_.ms1_isotope_correlation);
           this->setMetaValue("var_ms1_isotope_overlap", scores_.ms1_isotope_overlap);
         }
-      }
 
-      if (su_.use_im_scores)
-      {
-        this->setMetaValue("var_im_xcorr_shape", scores_.im_xcorr_shape_score);
-        this->setMetaValue("var_im_xcorr_coelution", scores_.im_xcorr_coelution_score);
-        this->setMetaValue("var_im_delta_score", scores_.im_delta_score);
+        double xx_swath_prescore = -scores_.calculate_swath_lda_prescore(scores_);
+        this->setMetaValue("main_var_xx_swath_prelim_score", xx_swath_prescore);
       }
 
       if (su_.use_sonar_scores)
