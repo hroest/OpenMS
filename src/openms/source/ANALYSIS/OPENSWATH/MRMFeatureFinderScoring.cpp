@@ -134,8 +134,8 @@ namespace OpenMS
       mrmfeature->addScore("xx_lda_prelim_score", xx_lda_prescore);
       mrmfeature->setOverallQuality(xx_lda_prescore);
     }
+    else
     {
-
       ///////////////////////////////////
       // Call the scoring for fragment ions
       ///////////////////////////////////
