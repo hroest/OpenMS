@@ -12,6 +12,7 @@ from ProgressLogger cimport *
 from SpectrumAccessOpenMS cimport *
 from ISpectrumAccess cimport *
 from MRMTransitionGroup cimport *
+from MRMFeature cimport *
 
 from SpectrumAccessOpenMS cimport *
 from SpectrumAccessOpenMSCached cimport *
@@ -55,7 +56,7 @@ cdef extern from "<OpenMS/ANALYSIS/OPENSWATH/MRMFeatureFinderScoring.h>" namespa
         void scorePeakgroups(MRMTransitionGroup[MSChromatogram, LightTransition] transition_group,
                              TransformationDescription trafo,
                              libcpp_vector[ SwathMap ] swath_maps,
-                             FeatureMap& output,
+                             libcpp_vector[ MRMFeature ] & output,
                              bool ms1only) nogil except +
 
         void prepareProteinPeptideMaps_(LightTargetedExperiment& transition_exp) nogil except +
