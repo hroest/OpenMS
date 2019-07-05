@@ -850,7 +850,7 @@ namespace OpenMS
         {
           scorer.calculatePrecursorDIAScores(ms1_map_, diascoring_, precursor_mz, imrmfeature->getRT(), *pep, scores, drift_lower, drift_upper);
         }
-        storeFeatureScores(&(*mrmfeature), ms1only, su_, expected_rt, scoring_model_, swath_present, sonar_present, xx_lda_prescore);
+        // storeFeatureScores(&(*mrmfeature), ms1only, su_, expected_rt, scoring_model_, swath_present, sonar_present, xx_lda_prescore);
       }
       else //!ms1only
       {
@@ -958,7 +958,7 @@ namespace OpenMS
           scores.elution_model_fit_score = emgscoring_.calcElutionFitScore((*mrmfeature), transition_group_detection);
         }
 
-        storeFeatureScores(&(*mrmfeature), ms1only, su_, expected_rt, scoring_model_, swath_present, sonar_present, xx_lda_prescore);
+        // storeFeatureScores(&(*mrmfeature), ms1only, su_, expected_rt, scoring_model_, swath_present, sonar_present, xx_lda_prescore);
       }
 
       ///////////////////////////////////////////////////////////////////////////
