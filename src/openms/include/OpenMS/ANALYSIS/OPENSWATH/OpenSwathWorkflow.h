@@ -467,7 +467,7 @@ protected:
      * @note This should be wrapped in an OpenMP critical block
     */
     void writeOutFeaturesAndChroms_(std::vector< OpenMS::MSChromatogram > & chromatograms,
-                                    const FeatureMap & featureFile,
+                                    std::vector<MRMFeature>& featureFile,
                                     FeatureMap& out_featureFile,
                                     bool store_features,
                                     Interfaces::IMSDataConsumer * chromConsumer);
@@ -516,7 +516,7 @@ protected:
         const Param& feature_finder_param,
         TransformationDescription trafo,
         const double rt_extraction_window,
-        FeatureMap& output,
+        std::vector<MRMFeature>& output,
         OpenSwathTSVWriter & tsv_writer,
         OpenSwathOSWWriter & osw_writer,
         int nr_ms1_isotopes = 0,

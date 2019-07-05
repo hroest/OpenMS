@@ -34,6 +34,8 @@
 
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathTSVWriter.h>
 
+#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathScores.h>
+
 namespace OpenMS
 {
 
@@ -103,8 +105,9 @@ namespace OpenMS
     }
 
     String OpenSwathTSVWriter::prepareLine(const OpenSwath::LightCompound& pep,
-        const OpenSwath::LightTransition * transition,
-        const FeatureMap& output, const String id) const
+                                           const OpenSwath::LightTransition * transition,
+                                           const std::vector<MRMFeature>& output,
+                                           const String id) const
     {
         String result = "";
         String decoy = "0"; // 0 = false
@@ -114,7 +117,7 @@ namespace OpenMS
         }
 
         // iterator over MRMFeatures
-        for (FeatureMap::const_iterator feature_it = output.begin(); feature_it != output.end(); ++feature_it)
+        for (auto feature_it = output.begin(); feature_it != output.end(); ++feature_it)
         {
           StringList aggr_Peak_Area, aggr_Peak_Apex, aggr_Fragment_Annotation;
           StringList aggr_prec_Peak_Area, aggr_prec_Peak_Apex, aggr_prec_Fragment_Annotation;

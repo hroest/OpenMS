@@ -38,8 +38,10 @@
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
 
 #include <OpenMS/KERNEL/FeatureMap.h>
+#include <OpenMS/KERNEL/MRMFeature.h>
 
 #include <fstream>
+#include <vector>
 
 namespace OpenMS
 {
@@ -164,8 +166,9 @@ namespace OpenMS
      *
      */
     String prepareLine(const OpenSwath::LightCompound& pep,
-        const OpenSwath::LightTransition * transition,
-        const FeatureMap& output, const String id) const;
+                       const OpenSwath::LightTransition * transition,
+                       const std::vector<MRMFeature>& output,
+                       const String id) const;
 
     /**
      * @brief Write data to disk

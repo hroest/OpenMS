@@ -42,6 +42,7 @@
 // peak picking & noise estimation
 #include <OpenMS/OPENSWATHALGO/ALGO/MRMScoring.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/MRMTransitionGroupPicker.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathScores.h>
 
 // Helpers
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
@@ -422,8 +423,9 @@ namespace OpenMS
   }
 
   void MRMFeatureFinderScoring::pickExperiment(OpenSwath::SpectrumAccessPtr input,
-                                               FeatureMap& output, OpenSwath::LightTargetedExperiment& transition_exp,
-                                               TransformationDescription trafo, 
+                                               FeatureMap& output,
+                                               OpenSwath::LightTargetedExperiment& transition_exp,
+                                               TransformationDescription trafo,
                                                std::vector<OpenSwath::SwathMap> swath_maps,
                                                TransitionGroupMapType& transition_group_map)
   {
@@ -486,11 +488,12 @@ namespace OpenMS
       }
 
       trgroup_picker.pickTransitionGroup(transition_group);
-      scorePeakgroups(trgroup_it->second, trafo, swath_maps, output);
+      std::vector<MRMFeature> tmp;
+      scorePeakgroups(trgroup_it->second, trafo, swath_maps, tmp);
+      for (auto& t : tmp) output.push_back(std::move(t));
     }
     endProgress();
 
-    //output.sortByPosition(); // if the exact same order is needed
     return;
   }
 
@@ -560,7 +563,7 @@ namespace OpenMS
   {
     MRMFeature idmrmfeature = trgr_ident.getFeaturesMuteable()[feature_idx];
     OpenSwath::IMRMFeature* idimrmfeature;
-    idimrmfeature = new MRMFeatureOpenMS(idmrmfeature);  
+    idimrmfeature = new MRMFeatureOpenMS(idmrmfeature);
 
     // get drift time upper/lower offset (this assumes that all chromatograms
     // are derived from the same precursor with the same drift time)
@@ -586,7 +589,7 @@ namespace OpenMS
       OpenSwath::ISignalToNoisePtr snptr(new OpenMS::SignalToNoiseOpenMS< MSChromatogram >(
             trgr_ident.getChromatogram(trgr_ident.getTransitions()[i].getNativeID()),
             sn_win_len_, sn_bin_count_, write_log_messages_));
-      if (  (snptr->getValueAtRT(idmrmfeature.getRT()) > uis_threshold_sn_) 
+      if (  (snptr->getValueAtRT(idmrmfeature.getRT()) > uis_threshold_sn_)
             && (idmrmfeature.getFeature(trgr_ident.getTransitions()[i].getNativeID()).getIntensity() > uis_threshold_peak_area_))
       {
         signal_noise_estimators_identification.push_back(snptr);
@@ -598,7 +601,7 @@ namespace OpenMS
     if (native_ids_identification.size() > 0)
     {
       scorer.calculateChromatographicIdScores(idimrmfeature,
-                                              native_ids_identification, 
+                                              native_ids_identification,
                                               native_ids_detection,
                                               signal_noise_estimators_identification,
                                               idscores);
@@ -685,7 +688,7 @@ namespace OpenMS
       {
         OpenSwath_Scores tmp_scores;
 
-        scorer.calculateDIAIdScores(idimrmfeature, 
+        scorer.calculateDIAIdScores(idimrmfeature,
                                     trgr_ident.getTransition(native_ids_identification[i]),
                                     swath_maps, diascoring_, tmp_scores, drift_lower, drift_upper);
 
@@ -703,9 +706,9 @@ namespace OpenMS
   }
 
   void MRMFeatureFinderScoring::scorePeakgroups(MRMTransitionGroupType& transition_group,
-                                                const TransformationDescription& trafo, 
+                                                const TransformationDescription& trafo,
                                                 const std::vector<OpenSwath::SwathMap>& swath_maps,
-                                                FeatureMap& output, 
+                                                std::vector<MRMFeature>& output,
                                                 bool ms1only)
   {
     if (PeptideRefMap_.empty())
@@ -1043,11 +1046,11 @@ namespace OpenMS
     for (Size i = 0; i < feature_list.size(); i++)
     {
       if (stop_report_after_feature_ >= 0 && i >= (Size)stop_report_after_feature_) {break;}
-      output.push_back(feature_list[i]);
+      output.push_back(std::move(feature_list[i]));
     }
 
     // store all data manipulation performed on the features of the transition group
-    transition_group = transition_group_detection;
+    transition_group = std::move(transition_group_detection);
   }
 
   void MRMFeatureFinderScoring::updateMembers_()

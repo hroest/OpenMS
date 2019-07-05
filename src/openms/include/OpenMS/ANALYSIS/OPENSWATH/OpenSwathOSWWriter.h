@@ -40,6 +40,7 @@
 #include <OpenMS/CONCEPT/UniqueIdGenerator.h>
 
 #include <OpenMS/KERNEL/FeatureMap.h>
+#include <OpenMS/KERNEL/MRMFeature.h>
 
 #include <fstream>
 
@@ -187,8 +188,9 @@ namespace OpenMS
      *
      */
     String prepareLine(const OpenSwath::LightCompound& /* pep */,
-        const OpenSwath::LightTransition* /* transition */,
-        FeatureMap& output, String id) const;
+                       const OpenSwath::LightTransition* /* transition */,
+                       const std::vector<MRMFeature>& output,
+                       String id) const;
 
     /**
      * @brief Write data to disk

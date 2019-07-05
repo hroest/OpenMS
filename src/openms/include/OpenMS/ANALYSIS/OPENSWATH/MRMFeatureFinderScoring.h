@@ -185,7 +185,7 @@ public:
     void scorePeakgroups(MRMTransitionGroupType& transition_group,
                          const TransformationDescription & trafo,
                          const std::vector<OpenSwath::SwathMap>& swath_maps,
-                         FeatureMap& output,
+                         std::vector<MRMFeature>& output,
                          bool ms1only = false);
 
     /** @brief Set the flag for strict mapping

@@ -34,6 +34,7 @@
 
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathOSWWriter.h>
 
+#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathScores.h>
 #include <OpenMS/FORMAT/SqliteConnector.h>
 
 #include <sqlite3.h>
@@ -204,7 +205,7 @@ namespace OpenMS
 
   String OpenSwathOSWWriter::prepareLine(const OpenSwath::LightCompound& /* pep */,
                                          const OpenSwath::LightTransition* /* transition */,
-                                         FeatureMap& output,
+                                         const std::vector<MRMFeature>& output,
                                          String id) const
   {
     std::stringstream sql, sql_feature, sql_feature_ms1, sql_feature_ms1_precursor, sql_feature_ms2, sql_feature_ms2_transition, sql_feature_uis_transition;

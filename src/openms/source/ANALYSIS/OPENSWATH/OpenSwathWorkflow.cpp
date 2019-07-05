@@ -479,9 +479,8 @@ namespace OpenMS
       MS1Extraction_(ms1_map_, swath_maps, ms1_chromatograms, chromConsumer, ms1_cp,
                      transition_exp, trafo_inverse, ms1_only, ms1_isotopes);
 
-      FeatureMap featureFile;
+      std::vector<MRMFeature> featureFile;
       boost::shared_ptr<MSExperiment> empty_exp = boost::shared_ptr<MSExperiment>(new MSExperiment);
-
       OpenSwath::LightTargetedExperiment transition_exp_used = transition_exp;
       scoreAllChromatograms_(std::vector<MSChromatogram>(), ms1_chromatograms, swath_maps, transition_exp_used, 
                             feature_finder_param, trafo,
@@ -692,7 +691,7 @@ namespace OpenMS
 
 
             // Step 3: score these extracted transitions
-            FeatureMap featureFile;
+            std::vector<MRMFeature> featureFile;
             std::vector< OpenSwath::SwathMap > tmp = {swath_maps[i]};
             tmp.back().sptr = current_swath_map_inner;
             scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, tmp, transition_exp_used,
@@ -726,12 +725,11 @@ namespace OpenMS
 #endif    
   }
 
-  void OpenSwathWorkflow::writeOutFeaturesAndChroms_(
-    std::vector< OpenMS::MSChromatogram > & chromatograms,
-    const FeatureMap & featureFile,
-    FeatureMap& out_featureFile,
-    bool store_features,
-    Interfaces::IMSDataConsumer * chromConsumer)
+  void OpenSwathWorkflow::writeOutFeaturesAndChroms_(std::vector< OpenMS::MSChromatogram > & chromatograms,
+                                                     std::vector<MRMFeature>& featureFile,
+                                                     FeatureMap& out_featureFile,
+                                                     bool store_features,
+                                                     Interfaces::IMSDataConsumer * chromConsumer)
   {
     // write chromatograms to output if so desired
     for (Size chrom_idx = 0; chrom_idx < chromatograms.size(); ++chrom_idx)
@@ -745,17 +743,9 @@ namespace OpenMS
     // write features to output if so desired
     if (store_features)
     {
-      for (FeatureMap::const_iterator feature_it = featureFile.begin();
-           feature_it != featureFile.end(); ++feature_it)
+      for (auto& feature_it : featureFile)
       {
-        out_featureFile.push_back(*feature_it);
-      }
-      for (std::vector<ProteinIdentification>::const_iterator protid_it =
-             featureFile.getProteinIdentifications().begin();
-           protid_it != featureFile.getProteinIdentifications().end();
-           ++protid_it)
-      {
-        out_featureFile.getProteinIdentifications().push_back(*protid_it);
+        out_featureFile.push_back(std::move(feature_it));
       }
     }
   }
@@ -825,7 +815,7 @@ namespace OpenMS
     const Param& feature_finder_param,
     TransformationDescription trafo,
     const double rt_extraction_window,
-    FeatureMap& output, 
+    std::vector<MRMFeature>& output,
     OpenSwathTSVWriter & tsv_writer,
     OpenSwathOSWWriter & osw_writer,
     int nr_ms1_isotopes,
@@ -1243,7 +1233,7 @@ namespace OpenMS
                                                         chrom_exp.getChromatograms(), false, cp.im_extraction_window);
 
             // Step 3: score these extracted transitions
-            FeatureMap featureFile;
+            std::vector<MRMFeature> featureFile;
             scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, used_maps, transition_exp_used,
                                    feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer);
 
