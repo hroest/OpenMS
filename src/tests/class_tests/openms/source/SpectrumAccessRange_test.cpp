@@ -39,6 +39,7 @@
 
 ///////////////////////////
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessRange.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessOpenMSInMemory.h>
 ///////////////////////////
 
 using namespace OpenMS;
@@ -173,6 +174,30 @@ START_SECTION(OpenSwath::SpectrumPtr getSpectrumById(int id))
     TEST_EQUAL(spec1->getMZArray()->data.size(), 0)
     TEST_EQUAL(spec1->getIntensityArray()->data.size(), 0)
     TEST_EQUAL(spec1->getDriftTimeArray()->data.size(), 0)
+  }
+
+  {
+    boost::shared_ptr<PeakMap > exp2 = getData();
+    OpenSwath::SpectrumAccessPtr expptr2 = SimpleOpenMSSpectraFactory::getSpectrumAccessOpenMSPtr(exp2);
+    auto tmp = boost::shared_ptr<SpectrumAccessOpenMSInMemory>( new SpectrumAccessOpenMSInMemory(expptr2) );
+    boost::shared_ptr<SpectrumAccessRange> ptr2(new SpectrumAccessRange(tmp, 200, 100));
+    OpenSwath::SpectrumPtr spec1 = ptr2->getSpectrumById(0);
+    TEST_NOT_EQUAL(spec1.get(), nullPointer) // pointer is present
+    TEST_EQUAL(bool(spec1), true) // pointer is not null
+    TEST_EQUAL(spec1->getMZArray()->data.size(), 0)
+    TEST_EQUAL(spec1->getIntensityArray()->data.size(), 0)
+    TEST_EQUAL(spec1->getDriftTimeArray()->data.size(), 0)
+
+    // should not change the underlying data
+    {
+      boost::shared_ptr<SpectrumAccessRange> ptr2(new SpectrumAccessRange(tmp, 0, 1600));
+      OpenSwath::SpectrumPtr spec1 = ptr2->getSpectrumById(0);
+      TEST_NOT_EQUAL(spec1.get(), nullPointer) // pointer is present
+      TEST_EQUAL(bool(spec1), true) // pointer is not null
+      TEST_EQUAL(spec1->getMZArray()->data.size(), 3)
+      TEST_EQUAL(spec1->getIntensityArray()->data.size(), 3)
+      TEST_EQUAL(spec1->getDriftTimeArray()->data.size(), 3)
+    }
   }
 
 }
