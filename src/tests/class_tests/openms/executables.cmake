@@ -248,6 +248,7 @@ set(format_executables_list
   MSDataStoringConsumer_test
   MSDataAggregatingConsumer_test
   SpectrumAccessQuadMZTransforming_test
+  SpectrumAccessRange_test
   SpectrumAccessSqMass_test
   SiriusFragmentAnnotation_test
 )
