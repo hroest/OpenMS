@@ -44,25 +44,15 @@
 
 // Kernel and implementations
 #include <OpenMS/KERNEL/MSExperiment.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessOpenMS.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessTransforming.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessOpenMSInMemory.h>
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/SwathMap.h>
 
 // Helpers
-#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
-// #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SimpleOpenMSSpectraAccessFactory.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathTSVWriter.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathOSWWriter.h>
 
 // Algorithms
-#include <OpenMS/ANALYSIS/OPENSWATH/MRMRTNormalizer.h>
+#include <OpenMS/ANALYSIS/OPENSWATH/ChromatogramExtractorAlgorithm.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/ChromatogramExtractor.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/MRMFeatureFinderScoring.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/MRMTransitionGroupPicker.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/SwathMapMassCorrection.h>
-#include <OpenMS/FILTERING/TRANSFORMERS/LinearResamplerAlign.h>
 
 #include <cassert>
 #include <limits>
