@@ -34,7 +34,6 @@
 
 #pragma once
 
-
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SpectrumAccessTransforming.h>
 
 namespace OpenMS
@@ -58,7 +57,7 @@ public:
     */
     explicit SpectrumAccessRange(OpenSwath::SpectrumAccessPtr sptr,
         double mz_low, double mz_high);
-        
+
     ~SpectrumAccessRange() override;
 
     boost::shared_ptr<OpenSwath::ISpectrumAccess> lightClone() const override;

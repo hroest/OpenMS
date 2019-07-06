@@ -58,9 +58,32 @@ namespace OpenMS
           new SpectrumAccessRange(sptr_->lightClone(), mz_low_, mz_high_));
     }
 
+    OpenSwath::BinaryDataArrayPtr deepCopy(OpenSwath::BinaryDataArrayPtr d_)
+    {
+      OpenSwath::BinaryDataArrayPtr d (new OpenSwath::BinaryDataArray);
+      d->data = d_->data;
+      d->description = d_->description;
+      return d;
+    }
+
+    OpenSwath::SpectrumPtr deepCopy(OpenSwath::SpectrumPtr s_)
+    {
+      std::vector<OpenSwath::BinaryDataArrayPtr> tmp;
+      for (auto const &p: s_->getDataArrays())
+      {
+        tmp.push_back(deepCopy(p));
+      }
+
+      OpenSwath::SpectrumPtr s (new OpenSwath::Spectrum);
+      s->getDataArrays() = tmp;
+      return s;
+    }
+
     OpenSwath::SpectrumPtr SpectrumAccessRange::getSpectrumById(int id)
     {
-      OpenSwath::SpectrumPtr s = sptr_->getSpectrumById(id);
+      // NOTE: we may have gotten a reference - we should not change the
+      // underlying data structure but rather modify a copy of it.
+      OpenSwath::SpectrumPtr s = deepCopy(sptr_->getSpectrumById(id));
 
       // create filter array which stores whether to remove the datapoint
       // (default = true = remove it)
