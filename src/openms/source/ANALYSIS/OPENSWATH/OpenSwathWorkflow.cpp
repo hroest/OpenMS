@@ -485,7 +485,7 @@ namespace OpenMS
           "Error, you need to enable use_ms1_traces when run in MS1 mode." );
     }
 
-    if (use_ms1_traces_) ms1_map_ = loadMS1Map(swath_maps, load_into_memory);
+    if (use_ms1_traces_) ms1_map_ = loadMS1Map(swath_maps, false); // NOTE: we load the MS1 map into memory below
 
     // (ii) Precursor extraction only
     if (ms1_only)
