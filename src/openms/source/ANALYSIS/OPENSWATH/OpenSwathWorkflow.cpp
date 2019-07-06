@@ -498,7 +498,7 @@ namespace OpenMS
       boost::shared_ptr<MSExperiment> empty_exp = boost::shared_ptr<MSExperiment>(new MSExperiment);
 
       OpenSwath::LightTargetedExperiment transition_exp_used = transition_exp;
-      scoreAllChromatograms_(std::vector<MSChromatogram>(), ms1_chromatograms, swath_maps, transition_exp_used, 
+      scoreAllChromatograms_(std::vector<MSChromatogram>(), ms1_chromatograms, swath_maps, ms1_map_, transition_exp_used, 
                             feature_finder_param, trafo,
                             cp.rt_extraction_window, featureFile, tsv_writer, osw_writer, ms1_isotopes, true);
 
@@ -610,10 +610,16 @@ namespace OpenMS
         {
 
           OpenSwath::SpectrumAccessPtr current_swath_map = swath_maps[i].sptr;
+          OpenSwath::SpectrumAccessPtr current_ms1_map = ms1_map_->lightClone(); // create threadsafe copy of the ms1 map
           if (load_into_memory)
           {
             // This creates an InMemory object that keeps all data in memory
             current_swath_map = boost::shared_ptr<SpectrumAccessOpenMSInMemory>( new SpectrumAccessOpenMSInMemory(*current_swath_map) );
+            // This creates an InMemory MS1 object that keeps only the relevant part of the precursor space in memory
+            double extra_mz_space = 4.0;
+            auto tmp = boost::shared_ptr<SpectrumAccessRange>( new SpectrumAccessRange(ms1_map_, 
+                  swath_maps[i].lower - extra_mz_space, swath_maps[i].upper + extra_mz_space) );
+            current_ms1_map = boost::shared_ptr<SpectrumAccessOpenMSInMemory>( new SpectrumAccessOpenMSInMemory(*tmp) );
           }
 
           int batch_size;
@@ -682,10 +688,9 @@ namespace OpenMS
 
             // Extract MS1 chromatograms for this batch
             std::vector< MSChromatogram > ms1_chromatograms;
-            if (ms1_map_ != nullptr) 
+            if (current_ms1_map != nullptr)
             {
-              OpenSwath::SpectrumAccessPtr threadsafe_ms1 = ms1_map_->lightClone();
-              MS1Extraction_(threadsafe_ms1, swath_maps, ms1_chromatograms, chromConsumer, ms1_cp,
+              MS1Extraction_(current_ms1_map, swath_maps, ms1_chromatograms, chromConsumer, ms1_cp,
                   transition_exp_used, trafo_inverse, ms1_only, ms1_isotopes);
             }
 
@@ -710,7 +715,7 @@ namespace OpenMS
             FeatureMap featureFile;
             std::vector< OpenSwath::SwathMap > tmp = {swath_maps[i]};
             tmp.back().sptr = current_swath_map_inner;
-            scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, tmp, transition_exp_used,
+            scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, tmp, current_ms1_map, transition_exp_used,
                 feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer, ms1_isotopes);
 
             // Step 4: write all chromatograms and features out into an output object / file
@@ -836,6 +841,7 @@ namespace OpenMS
     const std::vector< OpenMS::MSChromatogram > & ms2_chromatograms,
     const std::vector< OpenMS::MSChromatogram > & ms1_chromatograms,
     const std::vector< OpenSwath::SwathMap >& swath_maps,
+    const OpenSwath::SpectrumAccessPtr ms1_map,
     const OpenSwath::LightTargetedExperiment& transition_exp,
     const Param& feature_finder_param,
     TransformationDescription trafo,
@@ -857,12 +863,12 @@ namespace OpenMS
     // share a single filestream and call seek on it, chaos will ensue).
     if (use_ms1_traces_)
     {
-      if (ms1_map_ == nullptr) 
+      if (ms1_map == nullptr) 
       {
         throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
             "Error, attempted to use MS1 traces, but no MS1 map was provided." );
       }
-      OpenSwath::SpectrumAccessPtr threadsafe_ms1 = ms1_map_->lightClone();
+      OpenSwath::SpectrumAccessPtr threadsafe_ms1 = ms1_map->lightClone();
       featureFinder.setMS1Map( threadsafe_ms1 );
     }
 
@@ -1259,7 +1265,7 @@ namespace OpenMS
 
             // Step 3: score these extracted transitions
             FeatureMap featureFile;
-            scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, used_maps, transition_exp_used,
+            scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, used_maps, ms1_map_, transition_exp_used,
                                    feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer);
 
             // Step 4: write all chromatograms and features out into an output object / file

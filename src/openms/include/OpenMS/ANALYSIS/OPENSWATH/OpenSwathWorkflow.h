@@ -502,6 +502,7 @@ protected:
         const std::vector< OpenMS::MSChromatogram > & ms2_chromatograms,
         const std::vector< OpenMS::MSChromatogram > & ms1_chromatograms,
         const std::vector< OpenSwath::SwathMap >& swath_maps,
+        const OpenSwath::SpectrumAccessPtr ms1_map,
         const OpenSwath::LightTargetedExperiment& transition_exp,
         const Param& feature_finder_param,
         TransformationDescription trafo,
