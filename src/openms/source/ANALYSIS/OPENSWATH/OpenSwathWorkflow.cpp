@@ -1271,7 +1271,7 @@ namespace OpenMS
 
             // Step 3: score these extracted transitions
             FeatureMap featureFile;
-            scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, used_maps, ms1_map_, transition_exp_used,
+            scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, used_maps, ms1_map_->lightClone(), transition_exp_used,
                                    feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer);
 
             // Step 4: write all chromatograms and features out into an output object / file
