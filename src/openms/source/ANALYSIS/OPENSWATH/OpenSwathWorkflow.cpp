@@ -868,8 +868,7 @@ namespace OpenMS
         throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
             "Error, attempted to use MS1 traces, but no MS1 map was provided." );
       }
-      OpenSwath::SpectrumAccessPtr threadsafe_ms1 = ms1_map->lightClone();
-      featureFinder.setMS1Map( threadsafe_ms1 );
+      featureFinder.setMS1Map( ms1_map );
     }
 
     // If use_total_mi_score is defined, we need to instruct MRMTransitionGroupPicker to compute the score
