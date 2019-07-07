@@ -82,6 +82,10 @@ public:
     /// Constructor
     explicit SpectrumAccessOpenMSInMemory(OpenSwath::ISpectrumAccess & origin);
 
+    explicit SpectrumAccessOpenMSInMemory(OpenSwath::SpectrumAccessPtr sptr) :
+      SpectrumAccessOpenMSInMemory(*sptr)
+    {}
+
     /// Destructor
     ~SpectrumAccessOpenMSInMemory() override;
 
