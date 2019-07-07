@@ -621,10 +621,10 @@ namespace OpenMS
             current_swath_map = boost::shared_ptr<SpectrumAccessOpenMSInMemory>( new SpectrumAccessOpenMSInMemory(*current_swath_map) );
 
             // This creates an InMemory MS1 object that keeps only the relevant part of the precursor space in memory
-            if (ms1_map_ != nullptr)
+            if (current_ms1_map != nullptr)
             {
               double extra_mz_space = 4.0;
-              auto tmp = boost::shared_ptr<SpectrumAccessRange>( new SpectrumAccessRange(ms1_map_, 
+              auto tmp = boost::shared_ptr<SpectrumAccessRange>( new SpectrumAccessRange(current_ms1_map, 
                     swath_maps[i].lower - extra_mz_space, swath_maps[i].upper + extra_mz_space) );
             current_ms1_map = boost::shared_ptr<SpectrumAccessOpenMSInMemory>( new SpectrumAccessOpenMSInMemory(*tmp) );
             }
