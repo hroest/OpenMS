@@ -609,16 +609,25 @@ namespace OpenMS
         {
 
           OpenSwath::SpectrumAccessPtr current_swath_map = swath_maps[i].sptr;
-          OpenSwath::SpectrumAccessPtr current_ms1_map = ms1_map_->lightClone(); // create threadsafe copy of the ms1 map
+          OpenSwath::SpectrumAccessPtr current_ms1_map;
+          if (ms1_map_ != nullptr) 
+          {
+            current_ms1_map = ms1_map_->lightClone(); // create threadsafe copy of the ms1 map
+          }
+
           if (load_into_memory)
           {
             // This creates an InMemory object that keeps all data in memory
             current_swath_map = boost::shared_ptr<SpectrumAccessOpenMSInMemory>( new SpectrumAccessOpenMSInMemory(*current_swath_map) );
+
             // This creates an InMemory MS1 object that keeps only the relevant part of the precursor space in memory
-            double extra_mz_space = 4.0;
-            auto tmp = boost::shared_ptr<SpectrumAccessRange>( new SpectrumAccessRange(ms1_map_, 
-                  swath_maps[i].lower - extra_mz_space, swath_maps[i].upper + extra_mz_space) );
+            if (ms1_map_ != nullptr)
+            {
+              double extra_mz_space = 4.0;
+              auto tmp = boost::shared_ptr<SpectrumAccessRange>( new SpectrumAccessRange(ms1_map_, 
+                    swath_maps[i].lower - extra_mz_space, swath_maps[i].upper + extra_mz_space) );
             current_ms1_map = boost::shared_ptr<SpectrumAccessOpenMSInMemory>( new SpectrumAccessOpenMSInMemory(*tmp) );
+            }
           }
 
           int batch_size;
