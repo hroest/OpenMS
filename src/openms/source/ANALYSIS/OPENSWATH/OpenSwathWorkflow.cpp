@@ -59,7 +59,6 @@ namespace OpenMS
     // store reference to MS1 map for later -> note that this is *not* threadsafe!
     for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
     {
-      // if (swath_maps[i].ms1 && use_ms1_traces_)
       if (swath_maps[i].ms1)
       {
         ms1_map = swath_maps[i].sptr;
