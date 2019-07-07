@@ -661,6 +661,10 @@ namespace OpenMS
           {
             OpenSwath::SpectrumAccessPtr current_swath_map_inner = current_swath_map;
 
+            // Create the new, batch-size transition experiment
+            OpenSwath::LightTargetedExperiment transition_exp_used;
+            selectCompoundsForBatch_(transition_exp_used_all, transition_exp_used, batch_size, pep_idx);
+
 #ifdef _OPENMP
 #ifdef MT_ENABLE_NESTED_OPENMP
             // To ensure multi-threading safe access to the individual spectra, we
@@ -684,15 +688,10 @@ namespace OpenMS
 #else
               "0" << 
 #endif
-              "will analyze " << transition_exp_used_all.getCompounds().size() <<  " compounds and "
-              << transition_exp_used_all.getTransitions().size() <<  " transitions "
+              "will analyze " << transition_exp_used.getCompounds().size() <<  " compounds and "
+              << transition_exp_used.getTransitions().size() <<  " transitions "
               "from SWATH " << i << " (batch " << pep_idx << " out of " << nr_batches << ")" << std::endl;
             }
-
-
-            // Create the new, batch-size transition experiment
-            OpenSwath::LightTargetedExperiment transition_exp_used;
-            selectCompoundsForBatch_(transition_exp_used_all, transition_exp_used, batch_size, pep_idx);
 
             // Extract MS1 chromatograms for this batch
             std::vector< MSChromatogram > ms1_chromatograms;
