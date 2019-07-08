@@ -61,22 +61,22 @@ namespace OpenMS
     OpenSwath::SpectrumPtr SpectrumAccessQuadMZTransforming::getSpectrumById(int id)
     {
       OpenSwath::SpectrumPtr s = sptr_->getSpectrumById(id);
-      for (size_t i = 0; i < s->getMZArray()->data.size(); i++)
+      for (auto& it : s->getMZArray()->data)
       {
         // mz = a + b * mz + c * mz^2
         double predict = 
           a_ + 
-          b_ * s->getMZArray()->data[i] +
-          c_ * s->getMZArray()->data[i] * s->getMZArray()->data[i];
+          b_ * it +
+          c_ * it * it;
 
         // If ppm is true, we predicted the ppm deviation, not the actual new mass
         if (ppm_)
         {
-          s->getMZArray()->data[i] = s->getMZArray()->data[i] - predict*s->getMZArray()->data[i]/1000000;
+          it = it - predict * it / 1000000;
         }
         else
         {
-          s->getMZArray()->data[i] = predict;
+          it = predict;
         }
       }
       return s;
