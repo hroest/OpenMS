@@ -93,16 +93,6 @@ namespace OpenMS
                                               double mz_end,
                                               double & im,
                                               double & intensity,
-                                              std::vector<std::pair<double, double> >& res,
-                                              double drift_start,
-                                              double drift_end);
-
-
-    OPENMS_DLLAPI void integrateDriftSpectrum_x(OpenSwath::SpectrumPtr spectrum,
-                                              double mz_start,
-                                              double mz_end,
-                                              double & im,
-                                              double & intensity,
                                               double drift_start,
                                               double drift_end);
 

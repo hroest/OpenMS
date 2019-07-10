@@ -215,7 +215,7 @@ namespace OpenMS
         }
 
         DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
-        DIAHelpers::integrateDriftSpectrum_x(sp, left, right, im, intensity, drift_lower_used, drift_upper_used);
+        DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, drift_lower_used, drift_upper_used);
 
         // skip empty windows
         if (im <= 0)
@@ -261,7 +261,7 @@ namespace OpenMS
         }
 
         DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
-        DIAHelpers::integrateDriftSpectrum_x(sp_ms1, left, right, im, intensity, drift_lower_used, drift_upper_used);
+        DIAHelpers::integrateDriftSpectrum(sp_ms1, left, right, im, intensity, drift_lower_used, drift_upper_used);
 
         // skip empty windows
         if (im <= 0)
