@@ -277,69 +277,81 @@ namespace OpenMS
     return im_grid;
   }
 
-  /// Extracts ion mobility values based on common grid
+  /*
+   @brief Extracts ion mobility values projected onto a grid
+
+   For a given ion mobility profile and a grid, compute an ion mobilogram
+   across the grid for each ion mobility data point. Returns two data arrays
+   for the ion mobilogram: intensity (y) and ion mobility (x). Zero values are
+   inserted if no data point was found for a given grid value.
+
+   @param profile The ion mobility data
+   @param im_grid The grid to be used
+   @param al_int_values The intensity vector (y)
+   @param al_im_values The ion mobility vector (x)
+   @param max_peak_idx The grid position of the maximum
+
+  */
   void alignToGrid(const IMProfile& profile,
                const std::vector<double>& im_grid,
                std::vector< double >& al_int_values,
                std::vector< double >& al_im_values,
-               Size & max_peak_idx
-               )
+               Size & max_peak_idx)
   {
-      // std::vector< double > al_int_values; // intensity values
-      // std::vector< double > al_im_values; // ion mobility values
-      auto pr_it = profile.begin();
-      max_peak_idx = 0;
-      double max_int = 0;
-      for (Size k = 0; k < im_grid.size(); k++)
+    auto pr_it = profile.begin();
+    max_peak_idx = 0;
+    double max_int = 0;
+    for (Size k = 0; k < im_grid.size(); k++)
+    {
+      // In each iteration, the IM value of pr_it should be equal to or
+      // larger than the master container. If it is equal, we add the current
+      // data point, if it is larger we add zero and advance the counter k.
+      if (pr_it != profile.end() && fabs(pr_it->first - im_grid[k] ) < 1e-4 ) 
       {
-        // In each iteration, the IM value of pr_it should be equal to or
-        // larger than the master container. If it is equal, we add the current
-        // data point, if it is larger we add zero and advance the counter k.
-        if (pr_it != profile.end() && fabs(pr_it->first - im_grid[k] ) < 1e-4 ) 
-        {
-          al_int_values.push_back(pr_it->second);
-          al_im_values.push_back(pr_it->first);
-          ++pr_it;
-        }
-        else
-        {
-          al_int_values.push_back(0.0);
-          al_im_values.push_back( im_grid[k] );
-        }
-        // OPENMS_LOG_DEBUG << "grid position " << im_grid[k] << " profile position " << pr_it->first << std::endl;
-
-        // check that we did not advance past 
-        if (pr_it != profile.end() && (im_grid[k] - pr_it->first) > 1e-3)
-        {
-          std::cout << " This should never happen, pr_it has advanced past the master container: " << im_grid[k]  << "  / " <<  pr_it->first  << std::endl;
-          throw Exception::OutOfRange(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
-        }
-
-        // collect maxima
-        if (pr_it != profile.end() && pr_it->second > max_int)
-        {
-          max_int = pr_it->second;
-          max_peak_idx = k;
-        }
+        al_int_values.push_back(pr_it->second);
+        al_im_values.push_back(pr_it->first);
+        ++pr_it;
       }
+      else
+      {
+        al_int_values.push_back(0.0);
+        al_im_values.push_back( im_grid[k] );
+      }
+      // OPENMS_LOG_DEBUG << "grid position " << im_grid[k] << " profile position " << pr_it->first << std::endl;
+
+      // check that we did not advance past 
+      if (pr_it != profile.end() && (im_grid[k] - pr_it->first) > 1e-3)
+      {
+        std::cout << " This should never happen, pr_it has advanced past the master container: " << im_grid[k]  << "  / " <<  pr_it->first  << std::endl;
+        throw Exception::OutOfRange(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
+      }
+
+      // collect maxima
+      if (pr_it != profile.end() && pr_it->second > max_int)
+      {
+        max_int = pr_it->second;
+        max_peak_idx = k;
+      }
+    }
   }
 
-  /// Constructor
-  IonMobilityScoring::IonMobilityScoring()
-  {
-  }
+  /**
+    @brief Integrate intensity in an ion mobility spectrum from start to end
 
-  /// Destructor
-  IonMobilityScoring::~IonMobilityScoring()
-  {
-  }
+    This function will integrate the intensity in a spectrum between mz_start
+    and mz_end, returning the total intensity and an intensity-weighted drift
+    time value.
 
+    This function also returns the full ion mobility profile in "res".
+
+    @note If there is no signal, mz will be set to -1 and intensity to 0
+  */
   void integrateDriftSpectrum(OpenSwath::SpectrumPtr spectrum, 
                               double mz_start,
                               double mz_end,
                               double & im,
                               double & intensity,
-                              std::vector<std::pair<double, double> >& res, 
+                              IMProfile& res, 
                               double drift_start,
                               double drift_end)
   {
@@ -400,6 +412,17 @@ namespace OpenMS
       res.push_back(std::make_pair( k.first / IM_IDX_MULT, k.second ) );
     }
 
+  }
+
+
+  /// Constructor
+  IonMobilityScoring::IonMobilityScoring()
+  {
+  }
+
+  /// Destructor
+  IonMobilityScoring::~IonMobilityScoring()
+  {
   }
 
   void IonMobilityScoring::driftScoringMS1Contrast(OpenSwath::SpectrumPtr spectrum, OpenSwath::SpectrumPtr ms1spectrum, 
@@ -594,7 +617,6 @@ namespace OpenMS
     double drift_upper_used = drift_upper + drift_width * DRIFT_EXTRA;
 
     // IMProfile: a data structure that holds points <im_value, intensity>
-    typedef std::vector< std::pair<double, double> > IMProfile;
     double delta_drift = 0;
     std::vector< IMProfile > im_profiles;
     double computed_im = 0;
@@ -656,7 +678,7 @@ namespace OpenMS
       std::vector< double > al_int_values; // intensity values
       std::vector< double > al_im_values; // ion mobility values
       Size max_peak_idx = 0;
-      alignToGrid(profile, im_grid, al_int_values,al_im_values, max_peak_idx);
+      alignToGrid(profile, im_grid, al_int_values, al_im_values, max_peak_idx);
 
       // im_profiles_aligned.push_back(aligned_profile);
       raw_im_profiles_aligned.push_back(al_int_values);
