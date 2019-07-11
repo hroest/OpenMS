@@ -239,32 +239,37 @@ namespace OpenMS
 namespace OpenMS
 {
 
-  typedef std::vector< std::pair<double, double> > IMProfile;
+  typedef std::pair<double, double> MobilityPeak;
+  typedef std::vector< MobilityPeak > IMProfile;
+
   std::vector<double> computeGrid(const std::vector< IMProfile >& im_profiles, double eps)
   {
     // Extract all ion mobility values across all transitions and produce a
     // grid of all permitted ion mobility values
     std::vector<double> im_grid;
     {
-      std::vector< double > tmp;
+      std::vector< double > mobilityValues;
       for (const auto & im_profile : im_profiles) 
       {
-        for (const auto & k : im_profile) tmp.push_back(k.first);
+        for (const auto & k : im_profile) mobilityValues.push_back(k.first);
       }
 
-      std::sort(tmp.begin(), tmp.end());
+      // sort all extracted values
+      std::sort(mobilityValues.begin(), mobilityValues.end());
 
+      // Reduce mobility values to grid (consider equal if closer than eps)
+      // 
       // In some cases there are not enough datapoints available (one of the
       // transitions has no datapoints)
-      if (!tmp.empty())
+      if (!mobilityValues.empty())
       {
-        im_grid.push_back( tmp[0] );
-        for (Size k = 1; k < tmp.size(); k++) 
+        im_grid.push_back( mobilityValues[0] );
+        for (Size k = 1; k < mobilityValues.size(); k++) 
         {
-          double diff = fabs(tmp[k] - tmp[k-1]);
+          double diff = fabs(mobilityValues[k] - mobilityValues[k-1]);
           if (diff > eps)
           {
-            im_grid.push_back( tmp[k] );
+            im_grid.push_back( mobilityValues[k] );
           }
         }
       }
