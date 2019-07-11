@@ -226,9 +226,10 @@ namespace OpenMS
         IonMobilityScoring::driftScoringMS1( fetchSpectrumSwath(ms1_map, imrmfeature->getRT(), add_up_spectra_, drift_lower_used, drift_upper_used),
             transitions, scores, drift_lower, drift_upper, drift_target, dia_extract_window_, dia_extraction_ppm_, im_use_spline_, im_drift_extra_pcnt_);
 
-        IonMobilityScoring::driftScoringMS1Contrast( fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, drift_lower_used, drift_upper_used),
+        IonMobilityScoring::driftScoringMS1Contrast(
+            fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, drift_lower_used, drift_upper_used),
             fetchSpectrumSwath(ms1_map, imrmfeature->getRT(), add_up_spectra_, drift_lower, drift_upper),
-            transitions, scores, drift_lower, drift_upper, drift_target, dia_extract_window_, dia_extraction_ppm_, im_use_spline_, im_drift_extra_pcnt_);
+            transitions, scores, drift_lower, drift_upper, dia_extract_window_, dia_extraction_ppm_, im_drift_extra_pcnt_);
       }
     }
 
