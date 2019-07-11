@@ -829,6 +829,41 @@ namespace OpenMS
         mrmfeature->scoresAsMetaValue(false, su_);
       }
 
+      ///////////////////////////////////////////////////////////////////////////
+      // add the peptide hit information to the feature
+      ///////////////////////////////////////////////////////////////////////////
+      PeptideIdentification pep_id_ = PeptideIdentification();
+      PeptideHit pep_hit_ = PeptideHit();
+
+      if (pep->getChargeState() != 0)
+      {
+        pep_hit_.setCharge(pep->getChargeState());
+      }
+      pep_hit_.setScore(xx_lda_prescore);
+      if (swath_present && mrmfeature->metaValueExists("xx_swath_prelim_score"))
+      {
+        pep_hit_.setScore(mrmfeature->getMetaValue("xx_swath_prelim_score"));
+      }
+
+      if (pep->isPeptide())
+      {
+        pep_hit_.setSequence(AASequence::fromString(pep->sequence));
+        mrmfeature->setMetaValue("missedCleavages", pd.peptideCount(pep_hit_.getSequence()) - 1);
+      }
+
+      // set protein accession numbers 
+      for (Size k = 0; k < pep->protein_refs.size(); k++)
+      {
+        PeptideEvidence pe;
+        pe.setProteinAccession(pep->protein_refs[k]);
+        pep_hit_.addPeptideEvidence(pe);
+      }
+      pep_id_.insertHit(pep_hit_);
+      pep_id_.setIdentifier(run_identifier);
+
+      mrmfeature->getPeptideIdentifications().push_back(pep_id_);
+      mrmfeature->ensureUniqueId();
+
       mrmfeature->setMetaValue("PrecursorMZ", precursor_mz);
       prepareFeatureOut_(&*mrmfeature, ms1only, pep->getChargeState());
       feature_list.push_back((*mrmfeature));
