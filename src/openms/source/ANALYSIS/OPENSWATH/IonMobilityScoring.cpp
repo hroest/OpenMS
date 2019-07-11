@@ -242,16 +242,16 @@ namespace OpenMS
 {
 
   typedef std::pair<double, double> MobilityPeak;
-  typedef std::vector< MobilityPeak > IMProfile;
+  typedef std::vector< MobilityPeak > IonMobilogram;
 
-  std::vector<double> computeGrid(const std::vector< IMProfile >& im_profiles, double eps)
+  std::vector<double> computeGrid(const std::vector< IonMobilogram >& mobilograms, double eps)
   {
     // Extract all ion mobility values across all transitions and produce a
     // grid of all permitted ion mobility values
     std::vector<double> im_grid;
     {
       std::vector< double > mobilityValues;
-      for (const auto & im_profile : im_profiles) 
+      for (const auto & im_profile : mobilograms) 
       {
         for (const auto & k : im_profile) mobilityValues.push_back(k.first);
       }
@@ -294,7 +294,7 @@ namespace OpenMS
    @param max_peak_idx The grid position of the maximum
 
   */
-  void alignToGrid(const IMProfile& profile,
+  void alignToGrid(const IonMobilogram& profile,
                const std::vector<double>& im_grid,
                std::vector< double >& al_int_values,
                std::vector< double >& al_im_values,
@@ -353,7 +353,7 @@ namespace OpenMS
                               double mz_end,
                               double & im,
                               double & intensity,
-                              IMProfile& res, 
+                              IonMobilogram& res, 
                               double drift_start,
                               double drift_end)
   {
@@ -448,60 +448,52 @@ namespace OpenMS
     double drift_lower_used = drift_lower - drift_width * drift_extra;
     double drift_upper_used = drift_upper + drift_width * drift_extra;
 
-    double delta_drift = 0;
-    std::vector< IMProfile > im_profiles;
-    double computed_im = 0;
-    double computed_im_weighted = 0;
-    double sum_intensity = 0;
-    int tr_used = 0;
+    std::vector< IonMobilogram > mobilograms;
 
     // Step 1: MS2 extraction
     for (std::size_t k = 0; k < transitions.size(); k++)
     {
       double im(0), intensity(0);
-      IMProfile res;
+      IonMobilogram res;
       const TransitionType transition = transitions[k];
       // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
       double left(transition.getProductMZ()), right(transition.getProductMZ());
       DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
 
       integrateDriftSpectrum(spectrum, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
-      im_profiles.push_back( std::move(res) );
+      mobilograms.push_back( std::move(res) );
     }
 
     // Step 2: MS1 extraction
     double im(0), intensity(0);
-    IMProfile ms1_profile;
+    IonMobilogram ms1_profile;
     double left(transitions[0].getPrecursorMZ()), right(transitions[0].getPrecursorMZ());
     DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
     integrateDriftSpectrum(ms1spectrum, left, right, im, intensity, ms1_profile, drift_lower_used, drift_upper_used); // TODO: aggregate over isotopes
-    im_profiles.push_back(ms1_profile);
+    mobilograms.push_back(ms1_profile);
 
-    std::vector<double> im_grid = computeGrid(im_profiles, eps); // ensure grid is based on all profiles!
-    im_profiles.pop_back();
+    std::vector<double> im_grid = computeGrid(mobilograms, eps); // ensure grid is based on all profiles!
+    mobilograms.pop_back();
 
-    // Step 3: Align the IMProfile vectors to the grid
-    std::vector< std::vector< double > > raw_im_profiles_aligned;
+    // Step 3: Align the IonMobilogram vectors to the grid
+    std::vector< std::vector< double > > aligned_mobilograms;
     std::vector<double> delta_im;
-    for (const auto & profile : im_profiles) 
+    for (const auto & mobilogram : mobilograms) 
     {
-      std::vector< double > al_int_values; // intensity values
-      std::vector< double > al_im_values; // ion mobility values
+      std::vector< double > arrInt, arrIM;
       Size max_peak_idx = 0;
-      alignToGrid(profile, im_grid, al_int_values, al_im_values, max_peak_idx);
-      raw_im_profiles_aligned.push_back(al_int_values);
+      alignToGrid(mobilogram, im_grid, arrInt, arrIM, max_peak_idx);
+      aligned_mobilograms.push_back(arrInt);
     }
 
-    std::vector< double > ms1_int_values; // intensity values
-    std::vector< double > ms1_im_values; // ion mobility values
+    std::vector< double > ms1_int_values, ms1_im_values;
     Size max_peak_idx = 0;
-
     alignToGrid(ms1_profile, im_grid, ms1_int_values, ms1_im_values, max_peak_idx);
 
     // Step 4: MS1 contrast scores
     {
       OpenSwath::MRMScoring mrmscore_;
-      mrmscore_.initializeXCorrPrecursorContrastMatrix({ms1_int_values}, raw_im_profiles_aligned);
+      mrmscore_.initializeXCorrPrecursorContrastMatrix({ms1_int_values}, aligned_mobilograms);
       OPENMS_LOG_DEBUG << "all-all: Contrast Scores : coelution precursor : " << mrmscore_.calcXcorrPrecursorContrastCoelutionScore() << " / shape  precursor " << 
         mrmscore_.calcXcorrPrecursorContrastShapeScore() << std::endl;
       scores.im_ms1_contrast_coelution = mrmscore_.calcXcorrPrecursorContrastCoelutionScore();
@@ -513,9 +505,9 @@ namespace OpenMS
     fragment_values.resize(ms1_int_values.size(), 0);
     for (Size k = 0; k < fragment_values.size(); k++)
     {
-      for (Size i = 0; i < raw_im_profiles_aligned.size(); i++)
+      for (Size i = 0; i < aligned_mobilograms.size(); i++)
       {
-        fragment_values[k] += raw_im_profiles_aligned[i][k];
+        fragment_values[k] += aligned_mobilograms[i][k];
       }
     }
     {
@@ -577,11 +569,9 @@ namespace OpenMS
     double drift_lower_used = drift_lower - drift_width * drift_extra;
     double drift_upper_used = drift_upper + drift_width * drift_extra;
 
-    auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
-
-    // IMProfile: a data structure that holds points <im_value, intensity>
+    // IonMobilogram: a data structure that holds points <im_value, intensity>
     double delta_drift = 0;
-    std::vector< IMProfile > im_profiles;
+    std::vector< IonMobilogram > mobilograms;
     double computed_im = 0;
     double computed_im_weighted = 0;
     double sum_intensity = 0;
@@ -591,14 +581,14 @@ namespace OpenMS
     for (std::size_t k = 0; k < transitions.size(); k++)
     {
       const TransitionType transition = transitions[k];
-      IMProfile res;
+      IonMobilogram res;
       double im(0), intensity(0);
 
       // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
       double left(transition.getProductMZ()), right(transition.getProductMZ());
       DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
       integrateDriftSpectrum(spectrum, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
-      im_profiles.push_back(res);
+      mobilograms.push_back(res);
 
       // TODO what do to about those that have no signal ?
       if (intensity <= 0.0) {continue;} // note: im is -1 then
@@ -631,25 +621,23 @@ namespace OpenMS
     scores.im_drift = computed_im;
     scores.im_drift_weighted = computed_im_weighted;
 
-    // Step 2: Align the IMProfile vectors to the grid
-    std::vector<double> im_grid = computeGrid(im_profiles, eps);
-    std::vector< std::vector< double > > raw_im_profiles_aligned;
+    // Step 2: Align the IonMobilogram vectors to the grid
+    std::vector<double> im_grid = computeGrid(mobilograms, eps);
+    std::vector< std::vector< double > > aligned_mobilograms;
     std::vector<double> delta_im;
-    for (const auto & profile : im_profiles) 
+    for (const auto & mobilogram : mobilograms) 
     {
-      std::vector< double > al_int_values; // intensity values
-      std::vector< double > al_im_values; // ion mobility values
+      std::vector< double > arrInt, arrIM;
       Size max_peak_idx = 0;
-      alignToGrid(profile, im_grid, al_int_values, al_im_values, max_peak_idx);
+      alignToGrid(mobilogram, im_grid, arrInt, arrIM, max_peak_idx);
+      aligned_mobilograms.push_back(arrInt);
 
-      // im_profiles_aligned.push_back(aligned_profile);
-      raw_im_profiles_aligned.push_back(al_int_values);
-
+#if 1
       if (!use_spline) {continue;}
 
       // We need at least 2 datapoints for the cubic spline
       // (sometimes there are just not enough datapoints available in the spectra)
-      if (al_im_values.size() < 2)
+      if (arrIM.size() < 2)
       {
         double max_diff = std::max( std::fabs(drift_target - drift_lower), std::fabs(drift_target - drift_upper) );
         delta_im.push_back(max_diff);
@@ -657,19 +645,20 @@ namespace OpenMS
       }
 
       // Use cubic spline interpolation to find exact minima / maxima
-      CubicSpline2d peak_spline (al_im_values, al_int_values);
+      CubicSpline2d peak_spline (arrIM, arrInt);
       double spline_im(0);
-      if (max_peak_idx > 0 && max_peak_idx < al_im_values.size() )
+      if (max_peak_idx > 0 && max_peak_idx < arrIM.size() )
       {
         double spline_int(0);
-        OpenMS::Math::spline_bisection(peak_spline, al_im_values[ max_peak_idx - 1], al_im_values[ max_peak_idx + 1], spline_im, spline_int);
+        OpenMS::Math::spline_bisection(peak_spline, arrIM[ max_peak_idx - 1], arrIM[ max_peak_idx + 1], spline_im, spline_int);
       }
       delta_im.push_back(fabs(drift_target - spline_im));
+#endif
     }
 
     // Step 3: Compute cross-correlation scores based on ion mobilograms
     OpenSwath::MRMScoring mrmscore_;
-    mrmscore_.initializeXCorrMatrix(raw_im_profiles_aligned);
+    mrmscore_.initializeXCorrMatrix(aligned_mobilograms);
 
     double xcorr_coelution_score = mrmscore_.calcXcorrCoelutionScore();
     double xcorr_shape_score = mrmscore_.calcXcorrShapeScore(); // can be nan!
