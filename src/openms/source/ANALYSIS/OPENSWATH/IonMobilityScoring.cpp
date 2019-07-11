@@ -52,6 +52,8 @@
 #include <OpenMS/ANALYSIS/OPENSWATH/SpectrumAddition.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
 
+// #define DEBUG_IMSCORING
+
 namespace OpenMS
 {
 
@@ -437,7 +439,10 @@ namespace OpenMS
                                         const double drift_extra)
   {
     OPENMS_PRECONDITION(spectrum != nullptr, "Spectrum cannot be null");
+    OPENMS_PRECONDITION(!transitions.empty(), "Need at least one transition");
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
+
+    double eps = 1e-5; // eps for two grid cells to be considered equal
 
     double drift_width = fabs(drift_upper - drift_lower);
     double drift_lower_used = drift_lower - drift_width * drift_extra;
@@ -445,41 +450,37 @@ namespace OpenMS
 
     double delta_drift = 0;
     std::vector< IMProfile > im_profiles;
-    IMProfile ms1_profile;
     double computed_im = 0;
     double computed_im_weighted = 0;
     double sum_intensity = 0;
     int tr_used = 0;
-    double im(0), intensity(0);
+
+    // Step 1: MS2 extraction
     for (std::size_t k = 0; k < transitions.size(); k++)
     {
-      const TransitionType* transition = &transitions[k];
-      // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
-      double left(transition->getProductMZ()), right(transition->getProductMZ());
-      DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+      double im(0), intensity(0);
       IMProfile res;
+      const TransitionType transition = transitions[k];
+      // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
+      double left(transition.getProductMZ()), right(transition.getProductMZ());
+      DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+
       integrateDriftSpectrum(spectrum, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
       im_profiles.push_back( std::move(res) );
     }
 
-    for (std::size_t k = 0; k < transitions.size(); k++)
-    {
-      const TransitionType* transition = &transitions[k];
-      // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
-      double left(transition->getPrecursorMZ()), right(transition->getPrecursorMZ());
-      DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
-      double im(0), intensity(0);
-      // TODO: aggregate over isotopes
-      integrateDriftSpectrum(ms1spectrum, left, right, im, intensity, ms1_profile, drift_lower_used, drift_upper_used);
-      break; // only one transition needed
-    }
-
-    double eps = 1e-5; // eps for two grid cells to be considered equal
+    // Step 2: MS1 extraction
+    double im(0), intensity(0);
+    IMProfile ms1_profile;
+    double left(transitions[0].getPrecursorMZ()), right(transitions[0].getPrecursorMZ());
+    DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+    integrateDriftSpectrum(ms1spectrum, left, right, im, intensity, ms1_profile, drift_lower_used, drift_upper_used); // TODO: aggregate over isotopes
     im_profiles.push_back(ms1_profile);
-    std::vector<double> im_grid = computeGrid(im_profiles, eps);
+
+    std::vector<double> im_grid = computeGrid(im_profiles, eps); // ensure grid is based on all profiles!
     im_profiles.pop_back();
 
-    // Align the IMProfile vectors to the grid
+    // Step 3: Align the IMProfile vectors to the grid
     std::vector< std::vector< double > > raw_im_profiles_aligned;
     std::vector<double> delta_im;
     for (const auto & profile : im_profiles) 
@@ -497,6 +498,7 @@ namespace OpenMS
 
     alignToGrid(ms1_profile, im_grid, ms1_int_values, ms1_im_values, max_peak_idx);
 
+    // Step 4: MS1 contrast scores
     {
       OpenSwath::MRMScoring mrmscore_;
       mrmscore_.initializeXCorrPrecursorContrastMatrix({ms1_int_values}, raw_im_profiles_aligned);
@@ -506,7 +508,7 @@ namespace OpenMS
       scores.im_ms1_contrast_shape = mrmscore_.calcXcorrPrecursorContrastShapeScore();
     }
 
-    // do contrast precursor vs summed fragment ions
+    // Step 5: contrast precursor vs summed fragment ions
     std::vector<double> fragment_values;
     fragment_values.resize(ms1_int_values.size(), 0);
     for (Size k = 0; k < fragment_values.size(); k++)
@@ -516,10 +518,6 @@ namespace OpenMS
         fragment_values[k] += raw_im_profiles_aligned[i][k];
       }
     }
-
-    // scores.ms1_xcorr_coelution_contrast_score = mrmscore_.calcXcorrPrecursorContrastCoelutionScore();
-    // scores.ms1_xcorr_shape_contrast_score = mrmscore_.calcXcorrPrecursorContrastShapeScore();
-
     {
       OpenSwath::MRMScoring mrmscore_;
       mrmscore_.initializeXCorrPrecursorContrastMatrix({ms1_int_values}, {fragment_values});
@@ -573,16 +571,13 @@ namespace OpenMS
     OPENMS_PRECONDITION(spectrum != nullptr, "Spectrum cannot be null");
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
-    auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
-
-
-    double DRIFT_EXTRA = drift_extra;
-    bool USE_SPLINE = use_spline; // whether to use a spline for computing delta drift times
+    double eps = 1e-5; // eps for two grid cells to be considered equal
 
     double drift_width = fabs(drift_upper - drift_lower);
+    double drift_lower_used = drift_lower - drift_width * drift_extra;
+    double drift_upper_used = drift_upper + drift_width * drift_extra;
 
-    double drift_lower_used = drift_lower - drift_width * DRIFT_EXTRA;
-    double drift_upper_used = drift_upper + drift_width * DRIFT_EXTRA;
+    auto im_range = MSDriftSpectrum::getIMValues(spectrum->getDriftTimeArray()->data);
 
     // IMProfile: a data structure that holds points <im_value, intensity>
     double delta_drift = 0;
@@ -591,16 +586,19 @@ namespace OpenMS
     double computed_im_weighted = 0;
     double sum_intensity = 0;
     int tr_used = 0;
+
+    // Step 1: MS2 extraction
     for (std::size_t k = 0; k < transitions.size(); k++)
     {
-      const TransitionType* transition = &transitions[k];
-      // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
-      double left(transition->getProductMZ()), right(transition->getProductMZ());
-      DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
+      const TransitionType transition = transitions[k];
       IMProfile res;
       double im(0), intensity(0);
+
+      // Calculate the difference of the theoretical ion mobility and the actually measured ion mobility
+      double left(transition.getProductMZ()), right(transition.getProductMZ());
+      DIAHelpers::adjustExtractionWindow(right, left, dia_extract_window_, dia_extraction_ppm_);
       integrateDriftSpectrum(spectrum, left, right, im, intensity, res, drift_lower_used, drift_upper_used);
-      im_profiles.push_back( res );
+      im_profiles.push_back(res);
 
       // TODO what do to about those that have no signal ?
       if (intensity <= 0.0) {continue;} // note: im is -1 then
@@ -633,16 +631,12 @@ namespace OpenMS
     scores.im_drift = computed_im;
     scores.im_drift_weighted = computed_im_weighted;
 
-    double eps = 1e-5; // eps for two grid cells to be considered equal
+    // Step 2: Align the IMProfile vectors to the grid
     std::vector<double> im_grid = computeGrid(im_profiles, eps);
-    OPENMS_LOG_DEBUG << "eps used " << eps << std::endl;
-
-    // Align the IMProfile vectors to the grid
     std::vector< std::vector< double > > raw_im_profiles_aligned;
     std::vector<double> delta_im;
     for (const auto & profile : im_profiles) 
     {
-
       std::vector< double > al_int_values; // intensity values
       std::vector< double > al_im_values; // ion mobility values
       Size max_peak_idx = 0;
@@ -651,7 +645,7 @@ namespace OpenMS
       // im_profiles_aligned.push_back(aligned_profile);
       raw_im_profiles_aligned.push_back(al_int_values);
 
-      if (!USE_SPLINE) {continue;}
+      if (!use_spline) {continue;}
 
       // We need at least 2 datapoints for the cubic spline
       // (sometimes there are just not enough datapoints available in the spectra)
@@ -673,13 +667,14 @@ namespace OpenMS
       delta_im.push_back(fabs(drift_target - spline_im));
     }
 
+    // Step 3: Compute cross-correlation scores based on ion mobilograms
     OpenSwath::MRMScoring mrmscore_;
     mrmscore_.initializeXCorrMatrix(raw_im_profiles_aligned);
 
     double xcorr_coelution_score = mrmscore_.calcXcorrCoelutionScore();
     double xcorr_shape_score = mrmscore_.calcXcorrShapeScore(); // can be nan!
 
-    if (USE_SPLINE)
+    if (use_spline)
     {
       OpenSwath::mean_and_stddev delta_m;
       delta_m = std::for_each(delta_im.begin(), delta_im.end(), delta_m);
@@ -688,8 +683,6 @@ namespace OpenMS
 
     scores.im_xcorr_coelution_score = xcorr_coelution_score;
     scores.im_xcorr_shape_score = xcorr_shape_score;
-
-
   }
 
 }
