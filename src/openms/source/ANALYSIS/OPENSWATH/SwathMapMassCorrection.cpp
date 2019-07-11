@@ -49,6 +49,38 @@
 namespace OpenMS
 {
 
+
+  void findBestFeature(const OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType& transition_group, double& bestRT)
+  {
+    // Find the feature with the highest score
+    bestRT = -1;
+    double highest_score = -1000;
+    for (const auto& mrmfeature : transition_group.getFeatures())
+    {
+      if (mrmfeature.getOverallQuality() > highest_score)
+      {
+        bestRT = mrmfeature.getRT();
+        highest_score = mrmfeature.getOverallQuality();
+      }
+    }
+  }
+
+  std::vector<OpenSwath::SwathMap> findSwathMaps(const OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType& transition_group,
+                                                 const std::vector< OpenSwath::SwathMap > & swath_maps) 
+  {
+    // Get the corresponding SWATH map(s), for SONAR there will be more than one map
+    std::vector<OpenSwath::SwathMap> used_maps;
+    for (const auto& m : swath_maps)
+    {
+      if (m.lower < transition_group.getTransitions()[0].precursor_mz &&
+          m.upper >= transition_group.getTransitions()[0].precursor_mz)
+      {
+        used_maps.push_back(m);
+      }
+    }
+    return used_maps;
+  }
+
   SwathMapMassCorrection::SwathMapMassCorrection() :
     DefaultParamHandler("SwathMapMassCorrection")
   {
@@ -116,11 +148,11 @@ namespace OpenMS
 
     std::vector<String> trgr_ids;
     std::map<std::string, double> pep_im_map;
-    for (auto trgroup_it : transition_group_map)
+    for (const auto& trgroup_it : transition_group_map)
     {
       trgr_ids.push_back(trgroup_it.first);
     }
-    for (auto cmp : targeted_exp.getCompounds())
+    for (const auto& cmp : targeted_exp.getCompounds())
     {
       pep_im_map[cmp.id] = cmp.drift_time;
     }
@@ -141,33 +173,13 @@ namespace OpenMS
       }
 
       // Find the feature with the highest score
-      double bestRT = -1;
-      double highest_score = -1000;
-      for (auto mrmfeature = transition_group->getFeatures().begin(); mrmfeature != transition_group->getFeatures().end(); ++mrmfeature)
-      {
-        if (mrmfeature->getOverallQuality() > highest_score)
-        {
-          bestRT = mrmfeature->getRT();
-          highest_score = mrmfeature->getOverallQuality();
-        }
-      }
-
+      double bestRT;
+      findBestFeature(*transition_group, bestRT);
       // Get the corresponding SWATH map(s), for SONAR there will be more than one map
-      std::vector<OpenSwath::SwathMap> used_maps;
-      for (const auto& m : swath_maps)
-      {
-        if (m.lower < transition_group->getTransitions()[0].precursor_mz &&
-            m.upper >= transition_group->getTransitions()[0].precursor_mz)
-        {
-          used_maps.push_back(m);
-        }
-      }
+      std::vector<OpenSwath::SwathMap> used_maps = findSwathMaps(*transition_group, swath_maps);
 
       std::vector<OpenSwath::SwathMap> ms1_maps;
-      for (const auto& m : swath_maps)
-      {
-        if (m.ms1) ms1_maps.push_back(m);
-      }
+      for (const auto& m : swath_maps) {if (m.ms1) ms1_maps.push_back(m);}
 
       if (used_maps.empty())
       {
@@ -355,27 +367,10 @@ namespace OpenMS
       }
 
       // Find the feature with the highest score
-      double bestRT = -1;
-      double highest_score = -1000;
-      for (auto mrmfeature = transition_group->getFeatures().begin(); mrmfeature != transition_group->getFeatures().end(); ++mrmfeature)
-      {
-        if (mrmfeature->getOverallQuality() > highest_score)
-        {
-          bestRT = mrmfeature->getRT();
-          highest_score = mrmfeature->getOverallQuality();
-        }
-      }
-
+      double bestRT;
+      findBestFeature(*transition_group, bestRT);
       // Get the corresponding SWATH map(s), for SONAR there will be more than one map
-      std::vector<OpenSwath::SwathMap> used_maps;
-      for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
-      {
-        if (swath_maps[i].lower < transition_group->getTransitions()[0].precursor_mz &&
-            swath_maps[i].upper >= transition_group->getTransitions()[0].precursor_mz)
-        {
-          used_maps.push_back(swath_maps[i]);
-        }
-      }
+      std::vector<OpenSwath::SwathMap> used_maps = findSwathMaps(*transition_group, swath_maps);
 
       if (used_maps.empty())
       {
@@ -385,11 +380,9 @@ namespace OpenMS
       // Get the spectrum for this RT and extract raw data points for all the
       // calibrating transitions (fragment m/z values) from the spectrum
       OpenSwath::SpectrumPtr sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
-      for (std::vector< OpenMS::MRMFeatureFinderScoring::TransitionType >::const_iterator
-          tr = transition_group->getTransitions().begin();
-          tr != transition_group->getTransitions().end(); ++tr)
+      for (const auto& tr : transition_group->getTransitions())
       {
-        double mz, intensity, left(tr->product_mz), right(tr->product_mz);
+        double mz, intensity, left(tr.product_mz), right(tr.product_mz);
         bool centroided = false;
 
         // integrate spectrum at the position of the theoretical mass
@@ -403,21 +396,21 @@ namespace OpenMS
         }
 
         // store result masses
-        data_all.push_back(std::make_pair(mz, tr->product_mz));
+        data_all.push_back(std::make_pair(mz, tr.product_mz));
         // regression weight is the log2 intensity
         weights.push_back( log(intensity) / log(2.0) );
         exp_mz.push_back( mz );
         // y = target = theoretical
-        theo_mz.push_back( tr->product_mz );
-        double diff_ppm = (mz - tr->product_mz) * 1000000 / mz;
+        theo_mz.push_back( tr.product_mz );
+        double diff_ppm = (mz - tr.product_mz) * 1000000 / mz;
         // y = target = delta-ppm
         delta_ppm.push_back(diff_ppm);
 
         if (!debug_mz_file_.empty())
         {
-          os << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
+          os << mz << "\t" << tr.product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
         }
-        OPENMS_LOG_DEBUG << mz << "\t" << tr->product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
+        OPENMS_LOG_DEBUG << mz << "\t" << tr.product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
       }
     }
 
