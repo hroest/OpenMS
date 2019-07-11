@@ -61,6 +61,11 @@ namespace OpenMS
     scores_ = scores;
   }
 
+  void MRMFeature::addScore(const String & score_name, double score)
+  {
+    setMetaValue(score_name, score);
+  }
+
   void MRMFeature::addFeature(const Feature & feature, const String& key)
   {
     features_.push_back(feature);

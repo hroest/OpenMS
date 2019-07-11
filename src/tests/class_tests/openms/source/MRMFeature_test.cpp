@@ -71,6 +71,8 @@ START_SECTION(MRMFeature(const MRMFeature &rhs))
   tmp.setExpectedRT(400.0);
 
   MRMFeature tmp2 (tmp);
+
+  TEST_REAL_SIMILAR(tmp2.getMetaValue("testscore"), 200)
   TEST_REAL_SIMILAR(tmp2.getIntensity(), 100.0)
   TEST_REAL_SIMILAR(tmp2.getExpectedRT(), 400.0)
 }
@@ -85,6 +87,7 @@ START_SECTION(MRMFeature& operator=(const MRMFeature &rhs))
   MRMFeature tmp2;
   tmp2 = tmp;
 
+  TEST_REAL_SIMILAR(tmp2.getMetaValue("testscore"), 200)
   TEST_REAL_SIMILAR(tmp2.getIntensity(), 100.0)
   TEST_REAL_SIMILAR(tmp2.getExpectedRT(), 400.0)
 }
@@ -126,6 +129,27 @@ START_SECTION (Feature & getFeature(String key))
   mrmfeature.addFeature(f1, "chromatogram1");
   mrmfeature.addFeature(f1, "chromatogram2");
   TEST_EQUAL(mrmfeature.getFeature("chromatogram1").getMetaValue("dummy"), 1)
+}
+END_SECTION
+
+START_SECTION (void setScores(const PGScoresType & scores))
+{
+  MRMFeature mrmfeature;
+  OpenSwath_Scores scores;
+  scores.library_sangle = 99;
+  mrmfeature.setScores(scores);
+
+  TEST_REAL_SIMILAR(scores.library_sangle, mrmfeature.getScores().library_sangle)
+}
+END_SECTION
+
+START_SECTION (void addScore(const String & score_name, double score))
+{
+  MRMFeature mrmfeature;
+  mrmfeature.addScore("score1",1);
+  mrmfeature.addScore("score2",2);
+  TEST_REAL_SIMILAR(mrmfeature.getMetaValue("score1"), 1)
+  TEST_REAL_SIMILAR(mrmfeature.getMetaValue("score2"), 2)
 }
 END_SECTION
 

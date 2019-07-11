@@ -36,7 +36,6 @@
 
 #include <OpenMS/KERNEL/Feature.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathScores.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathScoring.h>
 
 namespace OpenMS
 {
@@ -101,6 +100,9 @@ public:
     /// set all peakgroup scores
     void setScores(const OpenSwath_Scores & scores);
 
+    /// set a single peakgroup score
+    void addScore(const String & score_name, double score);
+
     /// Adds an feature from a single chromatogram into the feature.
     void addFeature(const Feature & feature, const String& key);
 
@@ -139,7 +141,7 @@ protected:
 
     FeatureListType precursor_features_;
 
-    /// OpenSwathScores
+    /// peak group scores
     OpenSwath_Scores scores_;
 
     /// map native ids to the features

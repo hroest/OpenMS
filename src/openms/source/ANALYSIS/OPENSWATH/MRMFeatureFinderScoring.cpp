@@ -524,11 +524,6 @@ namespace OpenMS
       drift_target = prec.getDriftTime(); 
     }
 
-    // TODO ?
-    double sn_win_len_ = (double)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_win_len");
-    unsigned int sn_bin_count_ = (unsigned int)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_bin_count");
-    bool write_log_messages = (bool)param_.getValue("TransitionGroupPicker:PeakPickerMRM:write_sn_log_messages").toBool();
-
     // currently we cannot do much about the log messages and they mostly occur in decoy transition signals
     for (Size k = 0; k < transition_group_detection.getChromatograms().size(); k++)
     {
@@ -731,7 +726,7 @@ namespace OpenMS
                                                            sn_bin_count_,
                                                            det_intensity_ratio_score,
                                                            det_mi_ratio_score,
-                                                           write_log_messages,
+                                                           write_log_messages_,
                                                            swath_maps);
 
           /// mrmfeature->IDScoresAsMetaValue(false, idscores);
@@ -764,7 +759,7 @@ namespace OpenMS
                                                            sn_bin_count_,
                                                            det_intensity_ratio_score,
                                                            det_mi_ratio_score,
-                                                           write_log_messages,
+                                                           write_log_messages_,
                                                            swath_maps);
           /*
   OpenSwath_Ind_Scores MRMFeatureFinderScoring::scoreIdentification_(MRMTransitionGroupType& trgr_ident,
@@ -974,7 +969,7 @@ namespace OpenMS
       const TransitionType* transition = &transition_exp.getTransitions()[i];
       if (chromatogram_map.find(transition->getNativeID()) == chromatogram_map.end())
       {
-        std::cerr << "Error: Transition " + transition->getNativeID() + " from group " +
+        OPENMS_LOG_DEBUG << "Error: Transition " + transition->getNativeID() + " from group " +
           transition->getPeptideRef() + " does not have a corresponding chromatogram" << std::endl;
         if (strict_)
         {
