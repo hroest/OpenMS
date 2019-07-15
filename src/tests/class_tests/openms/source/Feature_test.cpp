@@ -242,17 +242,6 @@ START_SECTION((Feature(const Feature&& source)))
   // Ensure that Feature has a no-except move constructor (otherwise
   // std::vector is inefficient and will copy instead of move).
   TEST_EQUAL(noexcept(Feature(std::declval<Feature&&>())), true)
-  TEST_EQUAL(noexcept(BaseFeature(std::declval<BaseFeature&&>())), true)
-  // TEST_EQUAL(noexcept(RichPeak2D(std::declval<RichPeak2D&&>())), true)
-  // TEST_EQUAL(noexcept(Peak2D(std::declval<Peak2D&&>())), true)
-  //TEST_EQUAL(noexcept(MetaInfoInterface(std::declval<MetaInfoInterface&&>())), true) // ok
-  // TEST_EQUAL(noexcept(UniqueIdInterface(std::declval<UniqueIdInterface&&>())), true)
-  /*
-
-    public Peak2D,
-    public MetaInfoInterface,
-    public UniqueIdInterface
-*/
 
   Feature::PositionType pos;
   pos[0] = 21.21;
