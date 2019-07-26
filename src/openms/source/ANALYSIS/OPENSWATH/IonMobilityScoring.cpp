@@ -440,6 +440,11 @@ namespace OpenMS
     OPENMS_PRECONDITION(!transitions.empty(), "Need at least one transition");
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
+    if (ms1spectrum->getDriftTimeArray() == nullptr)
+    {
+      OPENMS_LOG_DEBUG << " ERROR: Drift time is missing in ion mobility spectrum!" << std::endl;
+    }
+
     double eps = 1e-5; // eps for two grid cells to be considered equal
 
     double drift_width = fabs(drift_upper - drift_lower);
@@ -534,6 +539,11 @@ namespace OpenMS
     OPENMS_PRECONDITION(!transitions.empty(), "Need at least one transition");
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
 
+    if (spectrum->getDriftTimeArray() == nullptr)
+    {
+      OPENMS_LOG_DEBUG << " ERROR: Drift time is missing in ion mobility spectrum!" << std::endl;
+    }
+
     double drift_width = fabs(drift_upper - drift_lower);
     double drift_lower_used = drift_lower - drift_width * drift_extra;
     double drift_upper_used = drift_upper + drift_width * drift_extra;
@@ -560,6 +570,11 @@ namespace OpenMS
   {
     OPENMS_PRECONDITION(spectrum != nullptr, "Spectrum cannot be null");
     OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot score drift time if no drift time is available.");
+
+    if (spectrum->getDriftTimeArray() == nullptr)
+    {
+      OPENMS_LOG_DEBUG << " ERROR: Drift time is missing in ion mobility spectrum!" << std::endl;
+    }
 
     double eps = 1e-5; // eps for two grid cells to be considered equal
 
