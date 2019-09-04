@@ -1285,6 +1285,7 @@ namespace OpenMS
         }
 
         // Load all data into memory
+        OPENMS_LOG_INFO << "INFO: will start loading data into memory " << std::endl;
         if (!parsing_success)
         {
           fh.loadExperiment(abs_filename, *peak_map_sptr, file_type, ProgressLogger::GUI);
