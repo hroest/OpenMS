@@ -38,6 +38,7 @@
 #include <OpenMS/CHEMISTRY/ISOTOPEDISTRIBUTION/CoarseIsotopePatternGenerator.h>
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmPickedHelperStructs.h>
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithm.h>
+#include <OpenMS/CONCEPT/LogStream.h>
 
 #include <OpenMS/MATH/MISC/CubicSpline2d.h>
 #include <OpenMS/MATH/MISC/SplineBisection.h>
@@ -163,6 +164,10 @@ namespace OpenMS
       OPENMS_PRECONDITION(std::adjacent_find(spectrum->getMZArray()->data.begin(),
               spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
               "Precondition violated: m/z vector needs to be sorted!" )
+      if (spectrum->getDriftTimeArray() == nullptr)
+      {
+        OPENMS_LOG_DEBUG << "Cannot filter by drift time if no drift time is available." << std::endl;
+      }
 
       im = 0;
       intensity = 0;
