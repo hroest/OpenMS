@@ -50,7 +50,6 @@ namespace OpenMS
     */
     ///@{
 
-
     /**
       @brief Integrate intensity in a spectrum from start to end
 

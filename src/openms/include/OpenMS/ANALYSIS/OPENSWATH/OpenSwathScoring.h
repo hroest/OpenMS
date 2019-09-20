@@ -64,9 +64,9 @@ namespace OpenMS
     typedef OpenSwath::LightTransition TransitionType;
 
     double rt_normalization_factor_;
-    double spacing_for_spectra_resampling_;
     int add_up_spectra_;
     std::string spectra_addition_method_;
+    double spacing_for_spectra_resampling_;
     bool im_use_spline_;
     double im_drift_extra_pcnt_;
 

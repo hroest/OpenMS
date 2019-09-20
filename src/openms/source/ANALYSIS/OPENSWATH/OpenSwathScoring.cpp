@@ -100,6 +100,49 @@ namespace OpenMS
 namespace OpenMS
 {
 
+  void sortSpectrumByMZ(OpenSwath::Spectrum& spec)
+  {
+    //sort index list
+    std::vector<std::pair<double, Size> > sorted_indices;
+    sorted_indices.reserve(spec.getMZArray()->data.size());
+    auto mz_it = spec.getMZArray()->data.begin();
+    for (Size i = 0; i < spec.getMZArray()->data.size(); ++i)
+    {
+      sorted_indices.emplace_back(*mz_it, i);
+      ++mz_it;
+    }
+    std::stable_sort(sorted_indices.begin(), sorted_indices.end(), PairComparatorFirstElement<std::pair<double, Size> >());
+
+    // extract list of indices
+    std::vector<Size> select_indices;
+    select_indices.reserve(sorted_indices.size());
+    for (const auto& sidx : sorted_indices)
+    {
+      select_indices.push_back(sidx.second);
+    }
+
+    for (auto& da : spec.getDataArrays() )
+    {
+      if (da->data.empty()) continue;
+      OpenSwath::BinaryDataArrayPtr tmp(new OpenSwath::BinaryDataArray);
+      tmp->description = da->description;
+      tmp->data.reserve(select_indices.size());
+      for (Size i = 0; i < select_indices.size(); ++i)
+      {
+        tmp->data.push_back( da->data[ select_indices[i] ] );
+      }
+      da = tmp;
+    }
+
+    OPENMS_POSTCONDITION( std::adjacent_find(spec.getMZArray()->data.begin(),
+           spec.getMZArray()->data.end(), std::greater<double>()) == spec.getMZArray()->data.end(),
+           "Postcondition violated: m/z vector needs to be sorted!" )
+  }
+}
+
+namespace OpenMS
+{
+
   /// Constructor
   OpenSwathScoring::OpenSwathScoring() :
     rt_normalization_factor_(1.0),
@@ -600,6 +643,7 @@ namespace OpenMS
     return output;
   }
 
+
   OpenSwath::SpectrumPtr OpenSwathScoring::getAddedSpectra_(OpenSwath::SpectrumAccessPtr swath_map,
                                                             double RT, int nr_spectra_to_add, const double drift_lower, const double drift_upper)
   {
@@ -654,7 +698,6 @@ namespace OpenMS
       // add up all spectra
       if (spectra_addition_method_ == "simple")
       {
-
         // Ensure that we have the same number of data arrays as in the input spectrum
         if (!all_spectra.empty() && all_spectra[0]->getDataArrays().size() > 2)
         {
@@ -678,7 +721,7 @@ namespace OpenMS
             v1.insert( v1.end(), v2.begin(), v2.end() );
           }
         }
-        sortSpectrumByMZ(added_spec);
+        sortSpectrumByMZ(*added_spec);
       }
       else
       {
