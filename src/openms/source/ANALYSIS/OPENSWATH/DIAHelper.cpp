@@ -271,7 +271,6 @@ namespace OpenMS
       }
     }
 
-
     // for SWATH -- get the theoretical b and y series masses for a sequence
     void getBYSeries(const AASequence& a, //
                      std::vector<double>& bseries, //

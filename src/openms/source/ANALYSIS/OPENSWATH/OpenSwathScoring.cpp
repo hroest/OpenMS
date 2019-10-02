@@ -148,7 +148,8 @@ namespace OpenMS
     rt_normalization_factor_(1.0),
     spacing_for_spectra_resampling_(0.005),
     add_up_spectra_(1),
-    spectra_addition_method_("simple")
+    spectra_addition_method_("simple"),
+    im_drift_extra_pcnt_(0.0)
   {
   }
 
@@ -182,8 +183,8 @@ namespace OpenMS
                                             const CompoundType& compound,
                                             OpenSwath_Scores& scores,
                                             std::vector<double>& masserror_ppm,
-                                            double drift_lower,
-                                            double drift_upper,
+                                            const double drift_lower,
+                                            const double drift_upper,
                                             const double drift_target)
   {
     OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
@@ -225,8 +226,11 @@ namespace OpenMS
     {
       double dia_extract_window_ = (double)diascoring.getParameters().getValue("dia_extraction_window");
       bool dia_extraction_ppm_ = diascoring.getParameters().getValue("dia_extraction_unit") == "ppm";
-      IonMobilityScoring::driftScoring( fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, drift_lower_used, drift_upper_used),
-          transitions, scores, drift_lower, drift_upper, drift_target, dia_extract_window_, dia_extraction_ppm_, im_use_spline_, im_drift_extra_pcnt_);
+      auto drift_spectrum = fetchSpectrumSwath(used_swath_maps, imrmfeature->getRT(), add_up_spectra_, drift_lower_used, drift_upper_used);
+      IonMobilityScoring::driftScoring(drift_spectrum, transitions, scores,
+                                       drift_lower, drift_upper, drift_target,
+                                       dia_extract_window_, dia_extraction_ppm_,
+                                       false, im_drift_extra_pcnt_);
     }
 
     // Mass deviation score
@@ -374,7 +378,6 @@ namespace OpenMS
         OpenSwath_Scores & scores)
   {
     OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
-
     OpenSwath::MRMScoring mrmscore_;
     if (su_.use_coelution_score_ || su_.use_shape_score_ || (imrmfeature->getPrecursorIDs().size() > 0 && su_.use_ms1_correlation))
       mrmscore_.initializeXCorrMatrix(imrmfeature, native_ids);
@@ -489,7 +492,6 @@ namespace OpenMS
         OpenSwath_Ind_Scores & idscores)
   {
     OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
-
     OpenSwath::MRMScoring mrmscore_;
     mrmscore_.initializeXCorrContrastMatrix(imrmfeature, native_ids_identification, native_ids_detection);
 
@@ -525,7 +527,6 @@ namespace OpenMS
         OpenSwath_Scores & scores)
   {
     OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
-
     std::vector<double> normalized_library_intensity;
     getNormalized_library_intensities_(transitions, normalized_library_intensity);
 

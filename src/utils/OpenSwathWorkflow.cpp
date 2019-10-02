@@ -920,6 +920,7 @@ protected:
       wf.simpleExtractChromatograms_(swath_maps, transition_exp_nl, chromatograms,
                                     trafo_rtnorm, cp_irt, sonar, load_into_memory);
 
+      // always use estimateBestPeptides for the nonlinear approach
       Param nonlinear_irt = irt_detection_param;
       nonlinear_irt.setValue("estimateBestPeptides", "true");
 

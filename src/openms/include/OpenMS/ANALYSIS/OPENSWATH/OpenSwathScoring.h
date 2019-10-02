@@ -64,12 +64,11 @@ namespace OpenMS
     typedef OpenSwath::LightTransition TransitionType;
 
     double rt_normalization_factor_;
+    double spacing_for_spectra_resampling_;
     int add_up_spectra_;
     std::string spectra_addition_method_;
-    double spacing_for_spectra_resampling_;
     bool im_use_spline_;
     double im_drift_extra_pcnt_;
-
     OpenSwath_Scores_Usage su_;
 
   public:
@@ -192,10 +191,10 @@ namespace OpenMS
                             OpenMS::DIAScoring& diascoring,
                             const CompoundType& compound,
                             OpenSwath_Scores& scores,
-                            std::vector<double>& mzerror_ppm, // new
-                            double drift_lower,
-                            double drift_upper,
-                            double drift_target);
+                            std::vector<double>& mzerror_ppm,
+                            const double drift_lower,
+                            const double drift_upper,
+                            const double drift_target);
 
     /** @brief Score a single chromatographic feature using the precursor map.
      *
@@ -258,7 +257,7 @@ namespace OpenMS
      * isolation windows) around the given retention time and return an
      * "averaged" spectrum which may contain less noise.
      *
-     * @param[in] swath_maps The map containing the spectra
+     * @param[in] swath_maps The map(s) containing the spectra
      * @param[in] RT The target retention time
      * @param[in] nr_spectra_to_add How many spectra to add up
      * @param drift_lower Drift time lower extraction boundary

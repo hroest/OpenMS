@@ -233,6 +233,7 @@ namespace OpenMS
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_shape")
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_shape_top3")
             + "\t" + (String)feature_it->getMetaValue("var_xcorr_shape_weighted")
+
             + "\t" + (String)feature_it->getMetaValue("var_im_xcorr_shape")
             + "\t" + (String)feature_it->getMetaValue("var_im_xcorr_coelution")
             + "\t" + (String)feature_it->getMetaValue("var_im_delta_score")
@@ -243,9 +244,9 @@ namespace OpenMS
             + "\t" + (String)feature_it->getMetaValue("var_im_ms1_sum_contrast_coelution")
             + "\t" + (String)feature_it->getMetaValue("var_im_ms1_sum_contrast_shape")
 
-
             + "\t" + (String)feature_it->getMetaValue("im_drift")
             + "\t" + (String)feature_it->getMetaValue("im_drift_weighted")
+
             + "\t" + (String)feature_it->getMetaValue("var_yseries_score")
             + "\t" + (String)feature_it->getMetaValue("var_elution_model_fit_score");
 

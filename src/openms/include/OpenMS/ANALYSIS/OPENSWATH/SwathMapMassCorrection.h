@@ -82,7 +82,7 @@ public:
      *
      */
     void correctMZ(const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *>& transition_group_map,
-                   std::vector< OpenSwath::SwathMap > & swath_maps);
+                   std::vector< OpenSwath::SwathMap > & swath_maps, const OpenSwath::LightTargetedExperiment& targeted_exp);
 
     /**
      * @brief Correct the ion mobility values of a SWATH map based on the RT-normalization peptides
@@ -101,6 +101,7 @@ public:
                    const std::vector< OpenSwath::SwathMap > & swath_maps,
                    TransformationDescription& im_trafo,
                    const OpenSwath::LightTargetedExperiment& targeted_exp);
+
   private:
     double mz_extraction_window_;
     bool mz_extraction_window_ppm_;

@@ -183,8 +183,8 @@ namespace OpenMS
     {
       score = feature.getMetaValue(score_name).toString();
     }
-    if (score == "nan") score = "NULL";
-    if (score == "-nan") score = "NULL";
+    if (score.toLower() == "nan") score = "NULL";
+    if (score.toLower() == "-nan") score = "NULL";
 
     return score;
   }
@@ -271,9 +271,9 @@ namespace OpenMS
                   <<  static_cast<int64_t >(run_id_ & ~(1ULL << 63)) << ", "
                   << id << ", "
                   << feature_it.getRT() << ", "
-                  << getScore(feature_it, "im_drift") << ", "  // TODO: can be nan!
-                  << feature_it.getMetaValue("norm_RT") << ", "
-                  << feature_it.getMetaValue("delta_rt") << ", "
+                  << getScore(feature_it, "im_drift") << ", "
+                  << norm_rt << ", "
+                  << delta_rt << ", "
                   << feature_it.getMetaValue("leftWidth") << ", "
                   << feature_it.getMetaValue("rightWidth") << "); ";
 
@@ -322,9 +322,9 @@ namespace OpenMS
                       << getScore(feature_it, "var_xcorr_shape_weighted") << ", "
                       << getScore(feature_it, "var_yseries_score") << ", "
                       << getScore(feature_it, "var_elution_model_fit_score") << ", "
-                      << getScore(feature_it, "var_im_xcorr_shape") << ", "  // can be nan!
+                      << getScore(feature_it, "var_im_xcorr_shape") << ", "
                       << getScore(feature_it, "var_im_xcorr_coelution") << ", "
-                      << getScore(feature_it, "var_im_delta_score") << ", "  // can be nan!
+                      << getScore(feature_it, "var_im_delta_score") << ", "
                       << getScore(feature_it, "var_sonar_lag") << ", "
                       << getScore(feature_it, "var_sonar_shape") << ", "
                       << getScore(feature_it, "var_sonar_log_sn") << ", "
@@ -335,7 +335,8 @@ namespace OpenMS
       if (use_ms1_traces_)
       {
         sql_feature_ms1 << "INSERT INTO FEATURE_MS1 "\
-          "(FEATURE_ID, AREA_INTENSITY, APEX_INTENSITY, VAR_MASSDEV_SCORE, "\
+          "(FEATURE_ID, AREA_INTENSITY, APEX_INTENSITY, "\
+          " VAR_MASSDEV_SCORE, VAR_IM_MS1_DELTA_SCORE, "\
           " VAR_MI_SCORE, VAR_MI_CONTRAST_SCORE, VAR_MI_COMBINED_SCORE, VAR_ISOTOPE_CORRELATION_SCORE, "\
           " VAR_ISOTOPE_OVERLAP_SCORE, VAR_IM_MS1_DELTA_SCORE, "\
           " VAR_XCORR_COELUTION, VAR_XCORR_COELUTION_CONTRAST, VAR_XCORR_SUM_COELUTION_CONTRAST, "\
@@ -345,6 +346,7 @@ namespace OpenMS
                         << getScore(feature_it, "ms1_area_intensity") << ", "
                         << getScore(feature_it, "ms1_apex_intensity") << ", "
                         << getScore(feature_it, "var_ms1_ppm_diff") << ", "
+                        << getScore(feature_it, "var_im_ms1_delta_score") << ", "
                         << getScore(feature_it, "var_ms1_mi_score") << ", "
                         << getScore(feature_it, "var_ms1_mi_contrast_score") << ", "
                         << getScore(feature_it, "var_ms1_mi_combined_score") << ", "

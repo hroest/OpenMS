@@ -167,10 +167,7 @@ namespace OpenMS
     {
       // we need at least one feature to find the best one
       auto transition_group = transition_group_map.at(trgr_ids[k]);
-      if (transition_group->getFeatures().size() == 0)
-      {
-        continue;
-      }
+      if (transition_group->getFeatures().empty()) continue;
 
       // Find the feature with the highest score
       double bestRT;
@@ -211,23 +208,23 @@ namespace OpenMS
         if (ms1_im_) {continue;}
         double intensity(0), im(0), left(tr.product_mz), right(tr.product_mz);
 
-        auto pepref = tr.getPeptideRef();
         // get drift time upper/lower offset (this assumes that all chromatograms
         // are derived from the same precursor with the same drift time)
+        auto pepref = tr.getPeptideRef();
         double drift_target = pep_im_map[pepref];
-        double drift_lower_used = drift_target - im_extraction_win;
-        double drift_upper_used = drift_target + im_extraction_win;
+        double drift_left(drift_target), drift_right(drift_target);
+        DIAHelpers::adjustExtractionWindow(drift_right, drift_left, im_extraction_win, false);
 
         // Check that the spectrum really has a drift time array
         if (sp->getDriftTimeArray() == nullptr)
         {
           OPENMS_LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
-          for (auto m : used_maps) OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
+          for (const auto& m : used_maps) OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
           continue;
         }
 
         DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
-        DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, drift_lower_used, drift_upper_used);
+        DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, drift_left, drift_right);
 
         // skip empty windows
         if (im <= 0)
@@ -257,23 +254,23 @@ namespace OpenMS
         const auto& tr = transition_group->getTransitions()[0];
         double intensity(0), im(0), left(tr.precursor_mz), right(tr.precursor_mz);
 
-        auto pepref = tr.getPeptideRef();
         // get drift time upper/lower offset (this assumes that all chromatograms
         // are derived from the same precursor with the same drift time)
+        auto pepref = tr.getPeptideRef();
         double drift_target = pep_im_map[pepref];
-        double drift_lower_used = drift_target - im_extraction_win;
-        double drift_upper_used = drift_target + im_extraction_win;
+        double drift_left(drift_target), drift_right(drift_target);
+        DIAHelpers::adjustExtractionWindow(drift_right, drift_left, im_extraction_win, false);
 
         // Check that the spectrum really has a drift time array
         if (sp_ms1->getDriftTimeArray() == nullptr)
         {
           OPENMS_LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
-          for (auto m : used_maps) OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
+          for (const auto& m : used_maps) OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
           continue;
         }
 
         DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
-        DIAHelpers::integrateDriftSpectrum(sp_ms1, left, right, im, intensity, drift_lower_used, drift_upper_used);
+        DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, drift_left, drift_right);
 
         // skip empty windows
         if (im <= 0)
@@ -324,7 +321,8 @@ namespace OpenMS
 
   void SwathMapMassCorrection::correctMZ(
     const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
-    std::vector< OpenSwath::SwathMap > & swath_maps)
+    std::vector< OpenSwath::SwathMap > & swath_maps,
+    const OpenSwath::LightTargetedExperiment& targeted_exp)
   {
     bool ppm = mz_extraction_window_ppm_;
     double mz_extr_window = mz_extraction_window_;
@@ -346,7 +344,7 @@ namespace OpenMS
     {
       std::cout.precision(16);
       os.open(debug_mz_file_);
-      os << "mz" << "\t" << "theo_mz" << "\t" << "diff_ppm" << "\t" << "log_intensity" << "\t" << "RT" << std::endl;
+      os << "mz" << "\t" << "theo_mz" << "\t" << "drift_time" << "\t" << "diff_ppm" << "\t" << "log_intensity" << "\t" << "RT" << std::endl;
       os.precision(writtenDigits(double()));
     }
 
@@ -356,15 +354,22 @@ namespace OpenMS
     std::vector<double> theo_mz;
     std::vector<double> delta_ppm;
 
-    for (auto trgroup_it = transition_group_map.begin(); trgroup_it != transition_group_map.end(); ++trgroup_it)
+    std::map<std::string, double> pep_im_map;
+    for (const auto& cmp : targeted_exp.getCompounds())
     {
+      pep_im_map[cmp.id] = cmp.drift_time;
+    }
 
+    for (auto & trgroup_it : transition_group_map)
+    {
       // we need at least one feature to find the best one
-      auto transition_group = trgroup_it->second;
-      if (transition_group->getFeatures().size() == 0)
-      {
-        continue;
-      }
+      auto transition_group = trgroup_it.second;
+
+      const auto& tr = transition_group->getTransitions()[0];
+      auto pepref = tr.getPeptideRef();
+      double drift_target = pep_im_map[pepref];
+
+      if (transition_group->getFeatures().empty()) continue;
 
       // Find the feature with the highest score
       double bestRT;
@@ -408,7 +413,7 @@ namespace OpenMS
 
         if (!debug_mz_file_.empty())
         {
-          os << mz << "\t" << tr.product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
+          os << mz << "\t" << tr.product_mz << "\t" << drift_target << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
         }
         OPENMS_LOG_DEBUG << mz << "\t" << tr.product_mz << "\t" << diff_ppm << "\t" << log(intensity) / log(2.0) << "\t" << bestRT << std::endl;
       }

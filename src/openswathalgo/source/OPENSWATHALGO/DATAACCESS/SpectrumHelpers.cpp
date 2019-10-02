@@ -39,3 +39,7 @@
 #include <numeric>
 #include <stdexcept>
 
+namespace OpenSwath
+{
+
+}

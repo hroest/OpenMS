@@ -112,7 +112,7 @@ namespace OpenMS
 
     // perform RT and m/z correction on the data
     TransformationDescription tr = doDataNormalization_(irt_transitions,
-        irt_chromatograms, im_trafo, swath_maps, 
+        irt_chromatograms, im_trafo, swath_maps,
         min_rsq, min_coverage, feature_finder_param,
         irt_detection_param, calibration_param);
     return tr;
@@ -340,7 +340,7 @@ namespace OpenMS
     // 8. Correct m/z deviations using SwathMapMassCorrection
     SwathMapMassCorrection mc;
     mc.setParameters(calibration_param);
-    mc.correctMZ(trgrmap_final, swath_maps);
+    mc.correctMZ(trgrmap_final, swath_maps, targeted_exp);
     mc.correctIM(trgrmap_final, swath_maps, im_trafo, targeted_exp);
 
     // 9. store RT transformation, using the selected model
