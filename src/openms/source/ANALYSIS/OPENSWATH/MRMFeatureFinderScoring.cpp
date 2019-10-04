@@ -1002,22 +1002,22 @@ namespace OpenMS
 
   void MRMFeatureFinderScoring::updateMembers_()
   {
-    stop_report_after_feature_ = (int)param_.getValue("stop_report_after_feature");
-    rt_extraction_window_ = (double)param_.getValue("rt_extraction_window");
-    rt_normalization_factor_ = (double)param_.getValue("rt_normalization_factor");
-    quantification_cutoff_ = (double)param_.getValue("quantification_cutoff");
+    stop_report_after_feature_ = param_.getValue("stop_report_after_feature");
+    rt_extraction_window_ = param_.getValue("rt_extraction_window");
+    rt_normalization_factor_ = param_.getValue("rt_normalization_factor");
+    quantification_cutoff_ = param_.getValue("quantification_cutoff");
     write_convex_hull_ = param_.getValue("write_convex_hull").toBool();
     add_up_spectra_ = param_.getValue("add_up_spectra");
     spectrum_addition_method_ = param_.getValue("spectrum_addition_method");
     spacing_for_spectra_resampling_ = param_.getValue("spacing_for_spectra_resampling");
-    im_extra_drift_ = (double)param_.getValue("im_extra_drift");
+    im_extra_drift_ = param_.getValue("im_extra_drift");
     uis_threshold_sn_ = param_.getValue("uis_threshold_sn");
     uis_threshold_peak_area_ = param_.getValue("uis_threshold_peak_area");
     scoring_model_ = param_.getValue("scoring_model");
 
-    sn_win_len_ = (double)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_win_len");
-    sn_bin_count_ = (unsigned int)param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_bin_count");
-    write_log_messages_ = (bool)param_.getValue("TransitionGroupPicker:PeakPickerMRM:write_sn_log_messages").toBool();
+    sn_win_len_ = param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_win_len");
+    sn_bin_count_ = param_.getValue("TransitionGroupPicker:PeakPickerMRM:sn_bin_count");
+    write_log_messages_ = param_.getValue("TransitionGroupPicker:PeakPickerMRM:write_sn_log_messages").toBool();
 
     // set SONAR values
     Param p = sonarscoring_.getDefaults();
