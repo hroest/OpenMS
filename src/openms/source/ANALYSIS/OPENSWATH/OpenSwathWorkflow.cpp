@@ -316,9 +316,7 @@ namespace OpenMS
     trafo_inverse.invert();
 
     this->startProgress(0, 1, "Extract iRT chromatograms");
-#ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic,1)
-#endif
     for (SignedSize map_idx = 0; map_idx < boost::numeric_cast<SignedSize>(swath_maps.size()); ++map_idx)
     {
       std::vector< OpenMS::MSChromatogram > tmp_chromatograms;
@@ -348,9 +346,7 @@ namespace OpenMS
           extractor.return_chromatogram(tmp_out, coordinates,
               transition_exp_used, SpectrumSettings(), tmp_chromatograms, false, cp.im_extraction_window);
 
-#ifdef _OPENMP
 #pragma omp critical (osw_write_chroms)
-#endif
           {
             int nr_empty_chromatograms = 0;
             OPENMS_LOG_DEBUG << "[simple] Extracted "  << tmp_chromatograms.size() << " chromatograms from SWATH map " <<
@@ -541,7 +537,6 @@ namespace OpenMS
     // We set dynamic scheduling such that the maps are worked on in the order
     // in which they were given to the program / acquired. This gives much
     // better load balancing than static allocation.
-#ifdef _OPENMP
 #ifdef MT_ENABLE_NESTED_OPENMP
     int total_nr_threads = omp_get_max_threads(); // store total number of threads we are allowed to use
     if (threads_outer_loop_ > -1)
@@ -552,7 +547,6 @@ namespace OpenMS
     }
 #endif
 #pragma omp parallel for schedule(dynamic,1)
-#endif
     for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
     {
       if (!swath_maps[i].ms1) // skip MS1
@@ -623,7 +617,6 @@ namespace OpenMS
 
           SignedSize nr_batches = (transition_exp_used_all.getCompounds().size() / batch_size);
 
-#ifdef _OPENMP
 #ifdef MT_ENABLE_NESTED_OPENMP
           // If we have a multiple of threads_outer_loop_ here, then use nested
           // parallelization here. E.g. if we use 8 threads for the outer loop,
@@ -637,12 +630,10 @@ namespace OpenMS
           omp_set_num_threads(std::max(1, total_nr_threads / threads_outer_loop_) );
 #pragma omp parallel for schedule(dynamic, 1)
 #endif
-#endif
           for (SignedSize pep_idx = 0; pep_idx <= nr_batches; pep_idx++)
           {
             OpenSwath::SpectrumAccessPtr current_swath_map_inner = current_swath_map;
 
-#ifdef _OPENMP
 #ifdef MT_ENABLE_NESTED_OPENMP
             // To ensure multi-threading safe access to the individual spectra, we
             // need to use a light clone of the spectrum access (if multiple threads
@@ -653,7 +644,6 @@ namespace OpenMS
             }
 #endif
 #pragma omp critical (osw_write_stdout)
-#endif
             {
               std::cout << "Thread " <<
 #ifdef _OPENMP
@@ -725,13 +715,11 @@ namespace OpenMS
     }
     this->endProgress();
     
-#ifdef _OPENMP
 #ifdef MT_ENABLE_NESTED_OPENMP
     if (threads_outer_loop_ > -1)
     {
       omp_set_num_threads(total_nr_threads); // set number of available threads back to initial value
     }
-#endif    
 #endif    
   }
 
@@ -795,9 +783,7 @@ namespace OpenMS
     {
       if (ms1_chromatograms[j].empty()) continue; // skip empty chromatograms
 
-#ifdef _OPENMP
 #pragma omp critical (osw_write_out)
-#endif
       {
         // write MS1 chromatograms to disk
         chromConsumer->consumeChromatogram( ms1_chromatograms[j] );
@@ -986,9 +972,7 @@ namespace OpenMS
     // Only write at the very end since this is a step that needs a barrier
     if (tsv_writer.isActive())
     {
-#ifdef _OPENMP
-#pragma omp critical (osw_write_tsv)
-#endif
+      #pragma omp critical (osw_write_tsv)
       {
         tsv_writer.writeLines(to_tsv_output);
       }
@@ -997,9 +981,7 @@ namespace OpenMS
     // Only write at the very end since this is a step that needs a barrier
     if (osw_writer.isActive())
     {
-#ifdef _OPENMP
-#pragma omp critical (osw_write_tsv)
-#endif
+      #pragma omp critical (osw_write_tsv)
       {
         osw_writer.writeLines(to_osw_output);
       }
@@ -1128,9 +1110,7 @@ namespace OpenMS
       // the order in which they were given to the program / acquired. This
       // gives much better load balancing than static allocation.
       // TODO: this means that there is possibly some overlap between threads accessing sptr ... !!
-#ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic, 1)
-#endif
       for (int sonar_idx = 0; sonar_idx < sonar_total_win; sonar_idx++)
       {
         double currwin_start = sonar_start + sonar_idx * sonar_winsize;
@@ -1171,9 +1151,7 @@ namespace OpenMS
           ////////////////////////////////// 
           for (Size i = 0; i < used_maps.size(); i++)
           {
-#ifdef _OPENMP
 #pragma omp critical (loadMemory)
-#endif
             {
               // Loading the maps is not threadsafe if they overlap (e.g.
               // multiple threads could access the same maps) which often
@@ -1200,9 +1178,7 @@ namespace OpenMS
             batch_size = batchSize;
           }
 
-#ifdef _OPENMP
 #pragma omp critical (osw_write_stdout)
-#endif
           {
             std::cout << "Thread " <<
 #ifdef _OPENMP
@@ -1247,9 +1223,7 @@ namespace OpenMS
             }
           }
         }
-#ifdef _OPENMP
 #pragma omp critical (progress)
-#endif
         this->setProgress(++progress);
       }
       this->endProgress();
