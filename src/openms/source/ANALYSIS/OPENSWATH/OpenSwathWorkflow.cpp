@@ -42,13 +42,9 @@ namespace OpenMS
   {
     OpenSwath::SpectrumAccessPtr ms1_map;
     // store reference to MS1 map for later -> note that this is *not* threadsafe!
-    for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
+    for (const auto& map : swath_maps)
     {
-      // if (swath_maps[i].ms1 && use_ms1_traces_)
-      if (swath_maps[i].ms1)
-      {
-        ms1_map = swath_maps[i].sptr;
-      }
+      if (map.ms1) ms1_map = map.sptr;
     }
     if (load_into_memory)
     {
@@ -138,10 +134,7 @@ namespace OpenMS
 
     // 2. Store the peptide retention times in an intermediate map
     std::map<OpenMS::String, double> PeptideRTMap;
-    for (Size i = 0; i < targeted_exp.getCompounds().size(); i++)
-    {
-      PeptideRTMap[targeted_exp.getCompounds()[i].id] = targeted_exp.getCompounds()[i].rt;
-    }
+    for (const auto& c : targeted_exp.getCompounds()) PeptideRTMap[c.id] = c.rt;
 
     // 3. Pick input chromatograms to identify RT pairs from the input data
     OpenSwath::LightTargetedExperiment transition_exp_used = targeted_exp;
@@ -192,12 +185,12 @@ namespace OpenMS
 
     // Create pairs vector and store peaks
     std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> trgrmap_allpeaks; // store all peaks above cutoff
-    for (std::map<std::string, double>::iterator it = best_features.begin(); it != best_features.end(); ++it)
+    for (const auto& fit : best_features)
     {
-      pairs.push_back(std::make_pair(it->second, PeptideRTMap[it->first])); // pair<exp_rt, theor_rt>
-      if (transition_group_map.find(it->first) != transition_group_map.end())
+      pairs.emplace_back(fit.second, PeptideRTMap[fit.first]); // pair<exp_rt, theor_rt>
+      if (transition_group_map.find(fit.first) != transition_group_map.end())
       {
-        trgrmap_allpeaks[ it->first ] = &transition_group_map[ it->first];
+        trgrmap_allpeaks[ fit.first ] = &transition_group_map[ fit.first];
       }
     }
 
@@ -266,9 +259,9 @@ namespace OpenMS
       // linear RT regression (using other features may result in wrong
       // calibration values).
       // Matching only by RT is not perfect but should work for most cases.
-      for (Size pit = 0; pit < pairs_corrected.size(); pit++)
+      for (const auto& pit : pairs_corrected)
       {
-        if (fabs(feat.getRT() - pairs_corrected[pit].first ) < 1e-2)
+        if (fabs(feat.getRT() - pit.first ) < 1e-2)
         {
           trgrmap_final[ it.first ] = it.second;
           break;
@@ -293,10 +286,7 @@ namespace OpenMS
     trafo_out.fitModel(model_type, model_params);
 
     OPENMS_LOG_DEBUG << "Final RT mapping:" << std::endl;
-    for (Size i = 0; i < pairs_corrected.size(); i++)
-    {
-      OPENMS_LOG_DEBUG << pairs_corrected[i].first << " " <<  pairs_corrected[i].second << std::endl;
-    }
+    for (const auto& pit : pairs_corrected) OPENMS_LOG_DEBUG << pit.first << " " <<  pit.second << std::endl;
     OPENMS_LOG_DEBUG << "End of doDataNormalization_ method" << std::endl;
 
     this->endProgress();
@@ -400,13 +390,10 @@ namespace OpenMS
         chr_map[ chromatograms[i].getNativeID() ].push_back(i);
       }
 
-      for (std::map<std::string, std::vector<int> >::iterator it = chr_map.begin(); it != chr_map.end(); ++it)
+      for (const auto& chr_map_it : chr_map)
       {
         MSChromatogram chrom_acc; // accumulator
-        for (Size i = 0; i < it->second.size(); i++)
-        {
-          addChromatograms(chrom_acc, chromatograms[ it->second[i] ] );
-        }
+        for (const auto& chrom_id : chr_map_it.second) addChromatograms(chrom_acc, chromatograms[chrom_id] );
         chromatograms_new.push_back(chrom_acc);
       }
       chromatograms = chromatograms_new; // switch
@@ -505,24 +492,25 @@ namespace OpenMS
       // each peptide from a single window and we assume that PRM windows are
       // centered around the target peptide. We therefore select for each peptide
       // the best-matching PRM / DIA window:
+      // prm_map at position k contains the SWATH-window for transition k
       prm_map.resize(transition_exp.transitions.size(), -1);
-      for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
+      for (Size i = 0; i < swath_maps.size(); ++i)
       {
         for (Size k = 0; k < transition_exp.transitions.size(); k++)
         {
-          const OpenSwath::LightTransition& tr = transition_exp.transitions[k];
+          double prec_mz = transition_exp.transitions[k].getPrecursorMZ();
 
           // If the transition falls inside the current PRM / DIA window, check
           // if the window is potentially a better match for extraction than
           // the one previously stored in the map:
-          if (swath_maps[i].lower < tr.getPrecursorMZ() && tr.getPrecursorMZ() < swath_maps[i].upper &&
-              std::fabs(swath_maps[i].upper - tr.getPrecursorMZ()) >= cp.min_upper_edge_dist)
+          if (swath_maps[i].lower < prec_mz && prec_mz < swath_maps[i].upper &&
+              std::fabs(swath_maps[i].upper - prec_mz) >= cp.min_upper_edge_dist)
           {
 
             if (prm_map[k] == -1) prm_map[k] = i;
-            if (
-                std::fabs(swath_maps[ prm_map[k] ].center - tr.getPrecursorMZ() ) > 
-                std::fabs(swath_maps[ i ].center - tr.getPrecursorMZ() ) )
+            else if (
+                std::fabs(swath_maps[ prm_map[k] ].center - prec_mz ) > 
+                std::fabs(swath_maps[ i ].center - prec_mz ) )
             {
               // current PRM / DIA window "i" is a better match
               prm_map[k] = i;
@@ -575,22 +563,19 @@ namespace OpenMS
           }
 
           std::set<std::string> matching_proteins;
-          for (Size i = 0; i < transition_exp.compounds.size(); i++)
+          for (const auto& comp : transition_exp.compounds)
           {
-            if (matching_compounds.find(transition_exp.compounds[i].id) != matching_compounds.end())
+            if (matching_compounds.find(comp.id) != matching_compounds.end())
             {
-              transition_exp_used_all.compounds.push_back( transition_exp.compounds[i] );
-              for (Size j = 0; j < transition_exp.compounds[i].protein_refs.size(); j++)
-              {
-                matching_proteins.insert(transition_exp.compounds[i].protein_refs[j]);
-              }
+              transition_exp_used_all.compounds.push_back(comp);
+              for (const auto& prot : comp.protein_refs) matching_proteins.insert(prot);
             }
           }
-          for (Size i = 0; i < transition_exp.proteins.size(); i++)
+          for (const auto& prot : transition_exp.proteins)
           {
-            if (matching_proteins.find(transition_exp.proteins[i].id) != matching_proteins.end())
+            if (matching_proteins.find(prot.id) != matching_proteins.end())
             {
-              transition_exp_used_all.proteins.push_back( transition_exp.proteins[i] );
+              transition_exp_used_all.proteins.push_back(prot);
             }
           }
         }
@@ -731,28 +716,18 @@ namespace OpenMS
     Interfaces::IMSDataConsumer * chromConsumer)
   {
     // write chromatograms to output if so desired
-    for (Size chrom_idx = 0; chrom_idx < chromatograms.size(); ++chrom_idx)
+    for (auto& chrom : chromatograms)
     {
-      if (!chromatograms[chrom_idx].empty())
-      {
-        chromConsumer->consumeChromatogram(chromatograms[chrom_idx]);
-      }
+      if (!chrom.empty()) chromConsumer->consumeChromatogram(chrom);
     }
 
     // write features to output if so desired
     if (store_features)
     {
-      for (FeatureMap::const_iterator feature_it = featureFile.begin();
-           feature_it != featureFile.end(); ++feature_it)
+      for (const auto& feature : featureFile) out_featureFile.push_back(feature);
+      for (const auto& protein : featureFile.getProteinIdentifications())
       {
-        out_featureFile.push_back(*feature_it);
-      }
-      for (std::vector<ProteinIdentification>::const_iterator protid_it =
-             featureFile.getProteinIdentifications().begin();
-           protid_it != featureFile.getProteinIdentifications().end();
-           ++protid_it)
-      {
-        out_featureFile.getProteinIdentifications().push_back(*protid_it);
+        out_featureFile.getProteinIdentifications().push_back(protein);
       }
     }
   }
@@ -764,7 +739,7 @@ namespace OpenMS
                                              const ChromExtractParams& cp,
                                              const OpenSwath::LightTargetedExperiment& transition_exp,
                                              const TransformationDescription& trafo_inverse,
-                                             bool ms1_only,
+                                             bool /* ms1_only */,
                                              int ms1_isotopes)
   {
     std::vector< OpenSwath::ChromatogramPtr > chrom_list;
@@ -843,7 +818,6 @@ namespace OpenMS
     {
       ms1_chromatogram_map[ms1_chromatograms[i].getNativeID()] = boost::numeric_cast<int>(i);
     }
-
     // Map chromatogram id to sequence number
     std::map<String, int> chromatogram_map;
     for (Size i = 0; i < ms2_chromatograms.size(); i++)
@@ -862,24 +836,18 @@ namespace OpenMS
     AssayMapT assay_map;
     // create an entry for each member (ensure there is one even if we don't
     // have any transitions for it, e.g. in the case of ms1 only)
-    for (Size i = 0; i < transition_exp.getCompounds().size(); i++)
-    {
-      assay_map[transition_exp.getCompounds()[i].id] = std::vector< const TransitionType* >();
-    }
-    for (Size i = 0; i < transition_exp.getTransitions().size(); i++)
-    {
-      assay_map[transition_exp.getTransitions()[i].getPeptideRef()].push_back(&transition_exp.getTransitions()[i]);
-    }
+    for (const auto& c : transition_exp.getCompounds()) assay_map[c.id] = std::vector< const TransitionType* >();
+    for (const auto& tr : transition_exp.getTransitions()) assay_map[tr.getPeptideRef()].push_back(&tr);
 
     std::vector<String> to_tsv_output, to_osw_output;
     ///////////////////////////////////
     // Start of main function
     // Iterating over all the assays
     ///////////////////////////////////
-    for (AssayMapT::iterator assay_it = assay_map.begin(); assay_it != assay_map.end(); ++assay_it)
+    for (const auto& assay_it : assay_map)
     {
       // Create new MRMTransitionGroup
-      String id = assay_it->first;
+      String id = assay_it.first;
       MRMTransitionGroupType transition_group;
       transition_group.setTransitionGroupID(id);
       double expected_rt = transition_exp.getCompounds()[ assay_peptide_map[id] ].rt;
@@ -887,10 +855,9 @@ namespace OpenMS
       // 1. Go through all transitions, for each transition get chromatogram
       // and the chromatogram and the assay to the MRMTransitionGroup
       int detection_assay_it = -1; // store index for the last detection transition
-      for (Size i = 0; i < assay_it->second.size(); i++)
+      for (Size i = 0; i < assay_it.second.size(); i++)
       {
-        const TransitionType* transition = assay_it->second[i];
-
+        const TransitionType* transition = assay_it.second[i];
         if (transition->isDetectingTransition())
         {
           detection_assay_it = i;
@@ -956,7 +923,7 @@ namespace OpenMS
       if (tsv_writer.isActive() && output.size() > 0) // implies that detection_assay_it was set
       {
         const OpenSwath::LightCompound pep = transition_exp.getCompounds()[ assay_peptide_map[id] ];
-        const TransitionType* transition = assay_it->second[detection_assay_it];
+        const TransitionType* transition = assay_it.second[detection_assay_it];
         to_tsv_output.push_back(tsv_writer.prepareLine(pep, transition, output, id));
       }
 
@@ -964,7 +931,7 @@ namespace OpenMS
       if (osw_writer.isActive() && output.size() > 0) // implies that detection_assay_it was set
       {
         const OpenSwath::LightCompound pep = transition_exp.getCompounds()[ assay_peptide_map[id] ];
-        const TransitionType* transition = assay_it->second[detection_assay_it];
+        const TransitionType* transition = assay_it.second[detection_assay_it];
         to_osw_output.push_back(osw_writer.prepareLine(pep, transition, output, id));
       }
     }
@@ -1008,20 +975,16 @@ namespace OpenMS
   }
 
   void OpenSwathWorkflow::copyBatchTransitions_(const std::vector<OpenSwath::LightCompound>& used_compounds,
-    const std::vector<OpenSwath::LightTransition>& all_transitions,
-    std::vector<OpenSwath::LightTransition>& output)
+                                                const std::vector<OpenSwath::LightTransition>& all_transitions,
+                                                std::vector<OpenSwath::LightTransition>& output)
   {
     std::set<std::string> selected_compounds;
-    for (Size i = 0; i < used_compounds.size(); i++)
+    for (const auto& c : used_compounds) selected_compounds.insert(c.id);
+    for (const auto& tr : all_transitions)
     {
-      selected_compounds.insert(used_compounds[i].id);
-    }
-
-    for (Size i = 0; i < all_transitions.size(); i++)
-    {
-      if (selected_compounds.find(all_transitions[i].peptide_ref) != selected_compounds.end())
+      if (selected_compounds.find(tr.peptide_ref) != selected_compounds.end())
       {
-        output.push_back(all_transitions[i]);
+        output.push_back(tr);
       }
     }
   }
@@ -1043,10 +1006,10 @@ namespace OpenMS
       // Use an rt extraction window of 0.0 which will just write the retention time in start / end positions
       // Then correct the start/end positions and add the extra_rt_extract parameter
       ChromatogramExtractor::prepare_coordinates(chrom_list, coordinates, transition_exp_used, 0.0, ms1, ms1_isotopes);
-      for (std::vector< ChromatogramExtractor::ExtractionCoordinates >::iterator it = coordinates.begin(); it != coordinates.end(); ++it)
+      for (auto& coord : coordinates)
       {
-        it->rt_start = trafo_inverse.apply(it->rt_start) - (cp.rt_extraction_window + cp.extra_rt_extract)/ 2.0;
-        it->rt_end = trafo_inverse.apply(it->rt_end) + (cp.rt_extraction_window + cp.extra_rt_extract)/ 2.0;
+        coord.rt_start = trafo_inverse.apply(coord.rt_start) - (cp.rt_extraction_window + cp.extra_rt_extract)/ 2.0;
+        coord.rt_end = trafo_inverse.apply(coord.rt_end) + (cp.rt_extraction_window + cp.extra_rt_extract)/ 2.0;
       }
     }
   }
@@ -1124,7 +1087,6 @@ namespace OpenMS
 
         if (transition_exp_used_all.getTransitions().size() > 0) // skip if no transitions found
         {
-
 
           ////////////////////////////////// 
           // Identify which SONAR windows to use for current set of transitions
@@ -1239,27 +1201,16 @@ namespace OpenMS
       sonar_winsize = -1;
       sonar_start = std::numeric_limits<double>::max();
       sonar_end = -1;
-      for (size_t i = 0; i < swath_maps.size(); ++i)
+      for (const auto& swmap : swath_maps)
       {
-        if (swath_maps[i].ms1) {continue;} // skip MS1
+        if (swmap.ms1) {continue;} // skip MS1
 
         // compute sonar window size (estimate)
-        if (swath_maps[i].upper - swath_maps[i].lower > sonar_winsize)
-        {
-          sonar_winsize = swath_maps[i].upper - swath_maps[i].lower;
-        }
-
+        if (swmap.upper - swmap.lower > sonar_winsize) sonar_winsize = swmap.upper - swmap.lower;
         // compute start of SONAR range
-        if (swath_maps[i].lower < sonar_start)
-        {
-          sonar_start = swath_maps[i].lower;
-        }
-
+        if (swmap.lower < sonar_start) sonar_start = swmap.lower;
         // compute end of SONAR range
-        if (swath_maps[i].upper > sonar_end)
-        {
-          sonar_end = swath_maps[i].upper;
-        }
+        if (swmap.upper > sonar_end) sonar_end = swmap.upper;
       }
 
       // compute total number of windows
@@ -1279,26 +1230,26 @@ namespace OpenMS
 
 
     void OpenSwathWorkflowSonar::performSonarExtraction_(const std::vector< OpenSwath::SwathMap > & used_maps,
-                                 const std::vector< ChromatogramExtractor::ExtractionCoordinates > & coordinates,
-                                 std::vector< OpenSwath::ChromatogramPtr > & chrom_list,
-                                 const ChromExtractParams & cp)
+                                                         const std::vector< ChromatogramExtractor::ExtractionCoordinates > & coordinates,
+                                                         std::vector< OpenSwath::ChromatogramPtr > & chrom_list,
+                                                         const ChromExtractParams & cp)
     {
       typedef std::vector< OpenSwath::ChromatogramPtr > chromatogramList;
       typedef std::vector< ChromatogramExtractor::ExtractionCoordinates > coordinatesList;
 
       ChromatogramExtractor extractor;
       // Iterate over all SONAR maps we currently have and extract chromatograms from them
-      for (size_t map_idx = 0; map_idx < used_maps.size(); map_idx++)
+      for (const auto& used_map : used_maps)
       {
         chromatogramList tmp_chromatogram_list;
         coordinatesList coordinates_used;
 
-        for (size_t c_idx = 0; c_idx < coordinates.size(); c_idx++)
+        for (const auto& coord : coordinates)
         {
-          if (coordinates[c_idx].mz_precursor > used_maps[map_idx].lower &&
-              coordinates[c_idx].mz_precursor < used_maps[map_idx].upper)
+          if (coord.mz_precursor > used_map.lower &&
+              coord.mz_precursor < used_map.upper)
           {
-            coordinates_used.push_back( coordinates[c_idx] );
+            coordinates_used.push_back(coord);
             OpenSwath::ChromatogramPtr s(new OpenSwath::Chromatogram);
             tmp_chromatogram_list.push_back(s);
           }
@@ -1306,10 +1257,10 @@ namespace OpenMS
 
 #ifdef OPENSWATH_WORKFLOW_DEBUG
         std::cout << " in used maps, extract " << coordinates_used.size()
-          << " coordinates from " << used_maps[map_idx].lower << "-" << used_maps[map_idx].upper << std::endl;
+          << " coordinates from " << used_map.lower << "-" << used_map.upper << std::endl;
 #endif
 
-        extractor.extractChromatograms(used_maps[map_idx].sptr,
+        extractor.extractChromatograms(used_map.sptr,
             tmp_chromatogram_list, coordinates_used,
             cp.mz_extraction_window, cp.ppm, cp.im_extraction_window, cp.extraction_function);
 
@@ -1319,14 +1270,14 @@ namespace OpenMS
         size_t chrom_idx = 0;
         for (size_t c_idx = 0; c_idx < coordinates.size(); c_idx++)
         {
-          if (coordinates[c_idx].mz_precursor > used_maps[map_idx].lower &&
-              coordinates[c_idx].mz_precursor < used_maps[map_idx].upper)
+          if (coordinates[c_idx].mz_precursor > used_map.lower &&
+              coordinates[c_idx].mz_precursor < used_map.upper)
           {
 
             OpenSwath::ChromatogramPtr s = tmp_chromatogram_list[chrom_idx];
             OpenSwath::ChromatogramPtr base_chrom = chrom_list[c_idx];
 
-            /// add the new chromatogram to the one that we already have (the base chromatogram)
+            // add the new chromatogram to the one that we already have (the base chromatogram)
             chrom_list[c_idx] = addChromatograms(chrom_list[c_idx], tmp_chromatogram_list[chrom_idx]);
 
             chrom_idx++;
@@ -1335,22 +1286,22 @@ namespace OpenMS
       }
 
 #ifdef OPENSWATH_WORKFLOW_DEBUG
-            // debug output ...
-            std::cout << " done with extraction of all coordinates!!!" << std::endl;
-            for (size_t c_idx = 0; c_idx < coordinates.size(); c_idx++)
-            {
-              {
-                OpenSwath::ChromatogramPtr base_chrom = chrom_list[c_idx];
+      // debug output ...
+      std::cout << " done with extraction of all coordinates!!!" << std::endl;
+      for (size_t c_idx = 0; c_idx < coordinates.size(); c_idx++)
+      {
+        {
+          OpenSwath::ChromatogramPtr base_chrom = chrom_list[c_idx];
 
-                std::cout << " coordinate  : " << coordinates[c_idx].id << " (" << coordinates[c_idx].mz << ")"<< std::endl;
-                for (size_t kk = 0; kk < base_chrom->getIntensityArray()->data.size(); kk++)
-                {
-                  std::cout << " base chrom: " <<
-                      base_chrom->getTimeArray()->data[kk] << " / "   <<
-                      base_chrom->getIntensityArray()->data[kk] << std::endl;
-                }
-              }
-            }
+          std::cout << " coordinate  : " << coordinates[c_idx].id << " (" << coordinates[c_idx].mz << ")"<< std::endl;
+          for (size_t kk = 0; kk < base_chrom->getIntensityArray()->data.size(); kk++)
+          {
+            std::cout << " base chrom: " <<
+                base_chrom->getTimeArray()->data[kk] << " / "   <<
+                base_chrom->getIntensityArray()->data[kk] << std::endl;
+          }
+        }
+      }
 #endif
 
 

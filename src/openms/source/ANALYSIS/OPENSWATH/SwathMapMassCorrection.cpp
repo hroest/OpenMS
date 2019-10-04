@@ -147,15 +147,9 @@ namespace OpenMS
     }
 
     std::vector<String> trgr_ids;
-    std::map<std::string, double> pep_im_map;
-    for (const auto& trgroup_it : transition_group_map)
-    {
-      trgr_ids.push_back(trgroup_it.first);
-    }
-    for (const auto& cmp : targeted_exp.getCompounds())
-    {
-      pep_im_map[cmp.id] = cmp.drift_time;
-    }
+    std::map<std::string, double> pep_im_map; // map peptide identifier to ion mobilities
+    for (const auto& trgroup_it : transition_group_map) trgr_ids.push_back(trgroup_it.first);
+    for (const auto& cmp : targeted_exp.getCompounds()) pep_im_map[cmp.id] = cmp.drift_time;
 
     TransformationDescription::DataPoints data_im;
     std::vector<double> exp_im;
@@ -354,11 +348,8 @@ namespace OpenMS
     std::vector<double> theo_mz;
     std::vector<double> delta_ppm;
 
-    std::map<std::string, double> pep_im_map;
-    for (const auto& cmp : targeted_exp.getCompounds())
-    {
-      pep_im_map[cmp.id] = cmp.drift_time;
-    }
+    std::map<std::string, double> pep_im_map; // map peptide identifier to ion mobilities
+    for (const auto& cmp : targeted_exp.getCompounds()) pep_im_map[cmp.id] = cmp.drift_time;
 
     for (auto & trgroup_it : transition_group_map)
     {
@@ -507,15 +498,15 @@ namespace OpenMS
 #ifdef SWATHMAPMASSCORRECTION_DEBUG
     double s_ppm_before = 0;
     double s_ppm_after = 0;
-    for (TransformationDescription::DataPoints::iterator d = data_all.begin(); d != data_all.end(); ++d)
+    for (const auto& d : data_all)
     {
-      double ppm_before = (d->first - d->second) * 1000000 / d->first;
-      double predict = d->first*d->first*regression_params[2] + d->first*regression_params[1]+regression_params[0];
-      double ppm_after = ( predict - d->second) * 1000000 / d->first;
+      double ppm_before = (d.first - d.second) * 1000000 / d.first;
+      double predict = d.first*d.first*regression_params[2] + d.first*regression_params[1]+regression_params[0];
+      double ppm_after = ( predict - d.second) * 1000000 / d.first;
       if (is_ppm)
       {
-        double new_mz = d->first - predict*d->first/1000000;
-        ppm_after = ( new_mz - d->second) * 1000000 / d->first;
+        double new_mz = d.first - predict*d.first/1000000;
+        ppm_after = ( new_mz - d.second) * 1000000 / d.first;
       }
       s_ppm_before += std::fabs(ppm_before);
       s_ppm_after += std::fabs(ppm_after);
@@ -524,10 +515,10 @@ namespace OpenMS
 #endif
 
     // Replace the swath files with a transforming wrapper.
-    for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
+    for (auto& swmap : swath_maps)
     {
-      swath_maps[i].sptr = boost::shared_ptr<OpenSwath::ISpectrumAccess>(
-        new SpectrumAccessQuadMZTransforming(swath_maps[i].sptr,
+      swmap.sptr = boost::shared_ptr<OpenSwath::ISpectrumAccess>(
+        new SpectrumAccessQuadMZTransforming(swmap.sptr,
           regression_params[0], regression_params[1], regression_params[2], is_ppm));
     }
 
