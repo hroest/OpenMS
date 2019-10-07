@@ -33,6 +33,7 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/ANALYSIS/OPENSWATH/MRMDecoy.h>
+
 #include <OpenMS/CHEMISTRY/ModificationsDB.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
 
@@ -141,7 +142,7 @@ namespace OpenMS
       "A", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "M", "F", "S", "T", "W",
       "Y", "V"
     };
-    int aa_size = 17;
+    int aa_size = 17; // no K/R/P
 
     int attempts = 0;
     // loop: copy the original peptide, attempt to shuffle it and check whether difference is large enough
@@ -160,7 +161,7 @@ namespace OpenMS
 
       // we erase the indices where K/P/R are (from the back / in reverse order
       // to not delete indices we access later)
-      for (IndexType::reverse_iterator it = idx.rbegin(); it != idx.rend(); ++it)
+      for (auto it = idx.rbegin(); it != idx.rend(); ++it)
       {
         peptide_index.erase(peptide_index.begin() + *it);
       }
@@ -174,7 +175,7 @@ namespace OpenMS
       // std::random_shuffle in libstdc++
       if (peptide_index.begin() != peptide_index.end())
       {
-        for (std::vector<Size>::iterator pI_it = peptide_index.begin() + 1; pI_it != peptide_index.end(); ++pI_it)
+        for (auto pI_it = peptide_index.begin() + 1; pI_it != peptide_index.end(); ++pI_it)
         {
           // swap current position with random element from vector
           // swapping positions are random in range [0, current_position + 1)
@@ -184,7 +185,7 @@ namespace OpenMS
       }
 
       // re-insert the missing K/P/R at the appropriate places
-      for (IndexType::iterator it = idx.begin(); it != idx.end(); ++it)
+      for (auto it = idx.begin(); it != idx.end(); ++it)
       {
         peptide_index.insert(peptide_index.begin() + *it, *it);
       }
@@ -196,14 +197,14 @@ namespace OpenMS
       {
         shuffled.sequence[i] = peptide.sequence[peptide_index[i]];
       }
-      for (Size j = 0; j < shuffled.mods.size(); j++)
+      for (auto& modification : shuffled.mods)
       {
         for (Size k = 0; k < peptide_index.size(); k++)
         {
           // C and N terminal mods are implicitly not shuffled because they live at positions -1 and sequence.size()
-          if (boost::numeric_cast<int>(peptide_index[k]) == shuffled.mods[j].location)
+          if (int(peptide_index[k]) == modification.location)
           {
-            shuffled.mods[j].location = boost::numeric_cast<int>(k);
+            modification.location = boost::numeric_cast<int>(k);
             break;
           }
         }
@@ -247,7 +248,9 @@ namespace OpenMS
             }
             else
             {
-              shuffled_sequence = shuffled_sequence.getPrefix(pep_pos) + AASequence::fromString(aa[res_pos]) + shuffled_sequence.getSuffix(shuffled_sequence.size() - pep_pos - 1);
+              shuffled_sequence = shuffled_sequence.getPrefix(pep_pos) +
+                                  AASequence::fromString(aa[res_pos]) +
+                                  shuffled_sequence.getSuffix(shuffled_sequence.size() - pep_pos - 1);
             }
           }
           ++pos_trials;
@@ -324,21 +327,44 @@ namespace OpenMS
     return MRMDecoy::reversePeptide(peptide, false, false);
   }
 
-
-  void switchKR(OpenMS::TargetedExperiment::Peptide& peptide)
+  /**
+      Choose a random amino acid that is *not* the current amino acid, is not
+      K/R/P and considers I/L to be equivalent.
+  */
+  char chooseRandomAA(const char current_aa) 
   {
+    static boost::mt19937 generator(42);
+    static boost::uniform_int<> uni_dist;
+    static boost::variate_generator<boost::mt19937&, boost::uniform_int<> > pseudoRNG(generator, uni_dist);
+
     static std::string aa[] =
     {
       "A", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "M", "F", "S", "T", "W",
       "Y", "V"
     };
-    int aa_size = 17;
+    int aa_size = 17; // no K/R/P
+    char result = current_aa;
 
-    static boost::mt19937 generator(42);
-    static boost::uniform_int<> uni_dist;
-    static boost::variate_generator<boost::mt19937&, boost::uniform_int<> > pseudoRNG(generator, uni_dist);
+    while (result == current_aa)
+    {
+      int res_pos = (pseudoRNG() % aa_size);
+      result = (char)aa[res_pos][0];
+      if ( (current_aa == 'I' || current_aa == 'L') && (result == 'I' || result == 'L') ) result = current_aa;
+    }
+    return result;
+  }
 
-    Size lastAA = peptide.sequence.size() -1;
+  /**
+    Switches switches terminal K/R (switches K to R and R to K). If the
+    terminal AA is not a K or R, then it chooses a random amino acid for the
+    terminus.  For a description of the procedure, see (supplemental material):
+
+    Bruderer et al. Mol Cell Proteomics. 2017. 10.1074/mcp.RA117.000314.
+
+  */
+  void switchKR(OpenMS::TargetedExperiment::Peptide& peptide)
+  {
+    Size lastAA = peptide.sequence.size() - 1;
     if (peptide.sequence[lastAA] == 'K')
     {
       peptide.sequence[lastAA] = 'R';
@@ -349,9 +375,8 @@ namespace OpenMS
     }
     else
     {
-      // randomize
-      int res_pos = (pseudoRNG() % aa_size);
-      peptide.sequence[lastAA] = (char)aa[res_pos][0];
+      char result = chooseRandomAA(peptide.sequence[lastAA]);
+      peptide.sequence[lastAA] = result;
     }
   }
 
