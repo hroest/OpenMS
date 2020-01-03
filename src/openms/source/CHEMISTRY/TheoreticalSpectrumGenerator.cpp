@@ -543,8 +543,6 @@ namespace OpenMS
       static double stat_b = Residue::getInternalToBIon().getMonoWeight();
       static double stat_c = Residue::getInternalToCIon().getMonoWeight();
 
-      std::unordered_set<String> losses;
-
       if (!add_isotopes_) // add single peak
       {
         Size i = add_first_prefix_ion_ ? 0 : 1;
@@ -576,8 +574,8 @@ namespace OpenMS
               for (const auto& formula : peptide[i].getLossFormulas()) fx_losses.insert(formula);
             }
             addLosses_faster_(spectrum, mono_weight + ion_offset, fx_losses,
-                peptide.size() - i, ion_names, charges, intensity *
-                rel_loss_intensity_, res_type, add_metainfo_, charge);
+                i + 1, ion_names, charges, intensity * rel_loss_intensity_,
+                res_type, add_metainfo_, charge);
           }
 
           if (add_metainfo_)
@@ -611,7 +609,7 @@ namespace OpenMS
     }
     else // if (res_type == Residue::XIon || res_type == Residue::YIon || res_type == Residue::ZIon)
     {
-      if ((peptide.hasCTerminalModification()))
+      if (peptide.hasCTerminalModification())
       {
         mono_weight += peptide.getCTerminalModification()->getDiffMonoMass();
       }
@@ -619,8 +617,6 @@ namespace OpenMS
       static double stat_x = Residue::getInternalToXIon().getMonoWeight();
       static double stat_y = Residue::getInternalToYIon().getMonoWeight();
       static double stat_z = Residue::getInternalToZIon().getMonoWeight();
-
-      std::unordered_set<String> losses;
 
       if (!add_isotopes_) // add single peak
       {
@@ -652,8 +648,8 @@ namespace OpenMS
               for (const auto& formula : peptide[i].getLossFormulas()) fx_losses.insert(formula);
             }
             addLosses_faster_(spectrum, mono_weight + ion_offset, fx_losses,
-                peptide.size() - i, ion_names, charges, intensity *
-                rel_loss_intensity_, res_type, add_metainfo_, charge);
+                peptide.size() - i, ion_names, charges, intensity * rel_loss_intensity_,
+                res_type, add_metainfo_, charge);
           }
 
           if (add_metainfo_)

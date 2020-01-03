@@ -39,8 +39,6 @@
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/METADATA/DataArrays.h>
 
-#include <unordered_set>
-
 namespace OpenMS
 {
   class AASequence;
