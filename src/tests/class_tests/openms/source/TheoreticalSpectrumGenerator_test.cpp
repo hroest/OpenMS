@@ -550,15 +550,125 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
   double neutron_shift = Constants::C13C12_MASSDIFF_U;
 
   // 4 monoisotopic masses, 4 second peaks with added neutron mass / 2
-  double result[] = {78.54206, 107.05279, 185.10335, 263.15390, 78.54206+(neutron_shift/2), 107.05279+(neutron_shift/2), 185.10335+(neutron_shift/2), 263.15390+(neutron_shift/2)};
-  std::sort(result, result+8);
+  std::vector<double> result = {
+    78.54206,
+    107.05279,
+    185.10335,
+    263.15390,
+    
+    78.54206+(neutron_shift/2),
+    107.05279+(neutron_shift/2),
+    185.10335+(neutron_shift/2),
+    263.15390+(neutron_shift/2)
+  };
+
+  std::sort(result.begin(), result.end());
   for (Size i = 0; i != spec.size(); ++i)
   {
     TEST_REAL_SIMILAR(spec[i].getPosition()[0], result[i])
   }
 
+  spec.clear(true);
+  params.setValue("add_isotopes", "true");
+  params.setValue("isotope_model", "dummy");
+  params.setValue("max_isotope", 2);
+  params.setValue("add_b_ions", "false");
+  t_gen.setParameters(params);
+
+  // isotope cluster for y-ions
+  t_gen.getSpectrum(spec, tmp_aa, 2, 2);
+  // TEST_EQUAL(spec.size(), 18)
+
+  spec.clear(true);
+  params.setValue("add_isotopes", "true");
+  params.setValue("isotope_model", "fine");
+  params.setValue("max_isotope", 2);
+  params.setValue("add_b_ions", "false");
+  t_gen.setParameters(params);
+
+  // isotope cluster for y-ions
+  t_gen.getSpectrum(spec, tmp_aa, 2, 2);
+  TEST_EQUAL(spec.size(), 18)
+
+  result = {
+    78.54206,
+    107.05279,
+    185.10335,
+    263.15390,
+
+    // 405: POS: 78.54256367545 INT: 0.921514272689819
+    79.04108117545,
+    79.04424117545,
+    79.54469067545,
+    // 405: POS: 107.0532957233 INT: 0.89608770608902
+    107.5518132233,
+    107.5549732233,
+    108.0554227233,
+    // 405: POS: 185.1038514147 INT: 0.824628114700317
+    185.6023689147,
+    185.6055289147,
+    186.1059784147,
+    186.1072064147,
+    // 405: POS: 263.1544071061 INT: 0.758867204189301
+    263.6529246061,
+    263.6560846061,
+    264.1565341061,
+    264.1577621061
+  };
+  std::sort(result.begin(), result.end());
+  for (Size i = 0; i != spec.size(); ++i)
+  {
+    TEST_REAL_SIMILAR(spec[i].getPosition()[0], result[i])
+  }
+
+  spec.clear(true);
+  params.setValue("add_isotopes", "true");
+  params.setValue("isotope_model", "fine");
+  params.setValue("max_isotope", 2);
+  params.setValue("max_isotope_probability", 0.20);
+  params.setValue("add_b_ions", "false");
+  t_gen.setParameters(params);
+
+  // isotope cluster for y-ions
+  t_gen.getSpectrum(spec, tmp_aa, 2, 2);
+  TEST_EQUAL(spec.size(), 8)
+
+  result = {
+    78.54206,
+    107.05279,
+    185.10335,
+    263.15390,
+
+    // 405: POS: 78.54256367545 INT: 0.921514272689819
+    // 405: POS: 107.0532957233 INT: 0.89608770608902
+    // 405: POS: 185.1038514147 INT: 0.824628114700317
+    // 405: POS: 263.1544071061 INT: 0.758867204189301
+    263.6529246061,
+    263.6560846061,
+    264.1565341061,
+    264.1577621061
+  };
+  std::sort(result.begin(), result.end());
+  for (Size i = 0; i != spec.size(); ++i)
+  {
+    TEST_REAL_SIMILAR(spec[i].getPosition()[0], result[i])
+  }
+
+  spec.clear(true);
+  params.setValue("add_isotopes", "true");
+  params.setValue("isotope_model", "fine");
+  params.setValue("max_isotope", 2);
+  params.setValue("max_isotope_probability", 0.01);
+  params.setValue("add_b_ions", "false");
+  t_gen.setParameters(params);
+
+  // isotope cluster for y-ions
+  t_gen.getSpectrum(spec, tmp_aa, 2, 2);
+  TEST_EQUAL(spec.size(), 33)
+
   // isotope cluster for losses
   spec.clear(true);
+  params.setValue("isotope_model", "coarse");
   params.setValue("add_losses", "true");
   params.setValue("add_b_ions", "false");
   t_gen.setParameters(params);
