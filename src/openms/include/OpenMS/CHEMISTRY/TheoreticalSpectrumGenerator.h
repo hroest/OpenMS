@@ -152,6 +152,7 @@ namespace OpenMS
 
     Int max_isotope_;
     double rel_loss_intensity_;
+    double max_isotope_probability_;
     double pre_int_;
     double pre_int_H2O_;
     double pre_int_NH3_;
