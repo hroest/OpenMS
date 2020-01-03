@@ -570,17 +570,6 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
 
   spec.clear(true);
   params.setValue("add_isotopes", "true");
-  params.setValue("isotope_model", "dummy");
-  params.setValue("max_isotope", 2);
-  params.setValue("add_b_ions", "false");
-  t_gen.setParameters(params);
-
-  // isotope cluster for y-ions
-  t_gen.getSpectrum(spec, tmp_aa, 2, 2);
-  // TEST_EQUAL(spec.size(), 18)
-
-  spec.clear(true);
-  params.setValue("add_isotopes", "true");
   params.setValue("isotope_model", "fine");
   params.setValue("max_isotope", 2);
   params.setValue("add_b_ions", "false");
@@ -677,7 +666,7 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
 
   double proton_shift = Constants::PROTON_MASS_U;
   // 10 monoisotopic peaks with charge=1, 10 second peaks, 20 with charge=2
-  double result_losses[] = { 156.07675, 213.09821, 325.18569, 327.17753, 352.17278, 369.19932, 481.28680, 483.27864, 508.27389, 525.30044,
+  std::vector<double> result_losses = { 156.07675, 213.09821, 325.18569, 327.17753, 352.17278, 369.19932, 481.28680, 483.27864, 508.27389, 525.30044,
 	   156.07675+neutron_shift, 213.09821+neutron_shift, 325.18569+neutron_shift, 327.17753+neutron_shift, 352.17278+neutron_shift, 369.19932+neutron_shift, 481.28680+neutron_shift, 483.27864+neutron_shift, 508.27389+neutron_shift, 525.30044+neutron_shift,
 	  (156.07675+proton_shift)/2, (213.09821+proton_shift)/2, (325.18569+proton_shift)/2, (327.17753+proton_shift)/2, (352.17278+proton_shift)/2, (369.19932+proton_shift)/2, (481.28680+proton_shift)/2, (483.27864+proton_shift)/2, (508.27389+proton_shift)/2, (525.30044+proton_shift)/2,
 	  (156.07675+proton_shift)/2+(neutron_shift/2), (213.09821+proton_shift)/2+(neutron_shift/2), (325.18569+proton_shift)/2+(neutron_shift/2), (327.17753+proton_shift)/2+(neutron_shift/2), (352.17278+proton_shift)/2+(neutron_shift/2),
@@ -687,16 +676,53 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
     cerr <<  result_losses[i] << endl;
   }
 
-  std::sort(result_losses, result_losses+40);
+  std::sort(result_losses.begin(), result_losses.end());
   for (Size i = 0; i != spec.size(); ++i)
   {
     cerr << spec[i].getPosition()[0] << "\t" <<  result_losses[i] << endl;
     TEST_REAL_SIMILAR(spec[i].getPosition()[0], result_losses[i])
   }
+  result_losses = { 0.927642, 0.0723581}; // check intensity
+  for (Size i = 0; i != 2; ++i)
+  {
+    TEST_REAL_SIMILAR(spec[i].getIntensity(), result_losses[i])
+  }
+
+  // last two entries:
+  TEST_REAL_SIMILAR( spec[ spec.size() -2 ].getMZ(), 525.30044)
+  TEST_REAL_SIMILAR( spec[ spec.size() -1 ].getMZ(), 526.304)
+
+  spec.clear(true);
+  params.setValue("isotope_model", "fine");
+  params.setValue("max_isotope_probability", 0.05);
+  params.setValue("add_losses", "true");
+  params.setValue("add_b_ions", "false");
+  t_gen.setParameters(params);
+  t_gen.getSpectrum(spec, tmp_aa, 1, 2);
+  TEST_EQUAL(spec.size(), 98)
+
+  result_losses = { 78.5426, 79.0411, 79.0442, 79.5447};
+  for (Size i = 0; i != 4; ++i)
+  {
+    TEST_REAL_SIMILAR(spec[i].getMZ(), result_losses[i])
+  }
+  result_losses = { 0.921514, 0.0102111, 0.0598011, 0.00378741}; // check intensity
+  for (Size i = 0; i != 4; ++i)
+  {
+    TEST_REAL_SIMILAR(spec[i].getIntensity(), result_losses[i])
+  }
+
+  // last entries
+  TEST_REAL_SIMILAR( spec[ spec.size() -5 ].getMZ(), 525.301)
+  TEST_REAL_SIMILAR( spec[ spec.size() -4 ].getMZ(), 526.298)
+  TEST_REAL_SIMILAR( spec[ spec.size() -3 ].getMZ(), 526.304)
+  TEST_REAL_SIMILAR( spec[ spec.size() -2 ].getMZ(), 527.305)
+  TEST_REAL_SIMILAR( spec[ spec.size() -1 ].getMZ(), 527.308)
 
   // isotope cluster for precurser peaks with losses
   spec.clear(true);
   params.setValue("add_precursor_peaks", "true");
+  params.setValue("isotope_model", "coarse");
   params.setValue("add_b_ions", "false");
   params.setValue("add_y_ions", "false");
 
