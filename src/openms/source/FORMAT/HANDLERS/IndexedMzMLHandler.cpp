@@ -71,14 +71,16 @@ namespace Internal
 
   IndexedMzMLHandler::IndexedMzMLHandler(const String& filename) :
     parsing_success_(false),
-    skip_xml_checks_(false) 
+    skip_xml_checks_(false),
+    dec_(skip_xml_checks_)
   {
     openFile(filename);
   }
 
   IndexedMzMLHandler::IndexedMzMLHandler() :
     parsing_success_(false),
-    skip_xml_checks_(false) 
+    skip_xml_checks_(false),
+    dec_(skip_xml_checks_)
   {}
 
   IndexedMzMLHandler::IndexedMzMLHandler(const IndexedMzMLHandler& source) :
@@ -91,7 +93,8 @@ namespace Internal
     // this is critical for parallel access to the same file!
     filestream_(source.filename_.c_str()),
     parsing_success_(source.parsing_success_),
-    skip_xml_checks_(source.skip_xml_checks_)
+    skip_xml_checks_(source.skip_xml_checks_),
+    dec_(source.dec_)
   {
   }
 
@@ -249,7 +252,7 @@ namespace Internal
   {
     OpenMS::Interfaces::SpectrumPtr sptr(new OpenMS::Interfaces::Spectrum);
     std::string text = IndexedMzMLHandler::getSpectrumById_helper_(id);
-    MzMLSpectrumDecoder(skip_xml_checks_).domParseSpectrum(text, sptr);
+    // dec_.domParseSpectrum(text, sptr);
     return sptr;
   }
 
@@ -263,14 +266,14 @@ namespace Internal
   void IndexedMzMLHandler::getMSSpectrumById(int id, MSSpectrum& s)
   {
     std::string text = IndexedMzMLHandler::getSpectrumById_helper_(id);
-    MzMLSpectrumDecoder(skip_xml_checks_).domParseSpectrum(text, s);
+    // dec_.domParseSpectrum(text, s);
   }
 
   OpenMS::Interfaces::ChromatogramPtr IndexedMzMLHandler::getChromatogramById(int id)
   {
     OpenMS::Interfaces::ChromatogramPtr cptr(new OpenMS::Interfaces::Chromatogram);
     std::string text = IndexedMzMLHandler::getChromatogramById_helper_(id);
-    MzMLSpectrumDecoder(skip_xml_checks_).domParseChromatogram(text, cptr);
+    // dec_.domParseChromatogram(text, cptr);
     return cptr;
   }
 
@@ -284,8 +287,9 @@ namespace Internal
   void IndexedMzMLHandler::getMSChromatogramById(int id, MSChromatogram& c)
   {
     std::string text = IndexedMzMLHandler::getChromatogramById_helper_(id);
-    MzMLSpectrumDecoder(skip_xml_checks_).domParseChromatogram(text, c);
+    // dec_.domParseChromatogram(text, c);
   }
 
 }
 }
+

@@ -42,6 +42,8 @@
 #include <OpenMS/KERNEL/MSSpectrum.h>
 #include <OpenMS/KERNEL/MSChromatogram.h>
 
+#include <OpenMS/FORMAT/HANDLERS/MzMLSpectrumDecoder.h>
+
 #include <string>
 #include <fstream>
 
@@ -93,6 +95,8 @@ namespace Internal
       bool parsing_success_;
       /// Whether to skip XML checks
       bool skip_xml_checks_;
+
+      MzMLSpectrumDecoder dec_;
 
     /**
       @brief Try to parse the footer of the indexedmzML
