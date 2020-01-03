@@ -657,7 +657,7 @@ namespace OpenMS
           p.setIntensity(intensity);
           spectrum.push_back(p);
 
-          if (add_losses_ && !add_metainfo_ && !add_isotopes_)
+          if (add_losses_ && !add_isotopes_)
           {
             if (peptide[i].hasNeutralLoss())
             {
@@ -688,8 +688,7 @@ namespace OpenMS
         }
       }
 
-      if (add_losses_ &&
-          (add_metainfo_ || add_isotopes_) ) // otherwise already added, see above
+      if (add_losses_ && add_isotopes_) // otherwise losses are already added, see above
       {
         // add loss peaks (slow)
         Size i = add_first_prefix_ion_ ? 1 : 2;
@@ -832,8 +831,7 @@ namespace OpenMS
         }
       }
 
-      if (add_losses_ &&
-          (/* add_metainfo_ ||  */add_isotopes_) ) // otherwise already added, see above
+      if (add_losses_ && add_isotopes_) // otherwise losses are already added, see above
       {
         // add loss peaks (slow)
         for (Size i = 1; i < peptide.size(); ++i)
