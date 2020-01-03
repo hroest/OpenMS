@@ -457,12 +457,13 @@ namespace OpenMS
       double loss_pos = loss_ion.getMonoWeight();
       const String& loss_name = it;
 
-      // manually compute correct sum formula (instead of using built-in assumption of hydrogen adduct)
-      loss_ion += EmpiricalFormula("H") * charge;
-      loss_ion.setCharge(0);
-
       if (add_isotopes_)
       {
+
+        // manually compute correct sum formula (instead of using built-in assumption of hydrogen adduct)
+        loss_ion += EmpiricalFormula("H") * charge;
+        loss_ion.setCharge(0);
+
         IsotopeDistribution dist;
         if (isotope_model_ == 1)
         {
