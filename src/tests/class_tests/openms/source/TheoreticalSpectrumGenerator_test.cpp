@@ -462,7 +462,6 @@ START_SECTION(([EXTRA] bugfix test where losses lead to formulae with negative e
   TheoreticalSpectrumGenerator t_gen;
   Param params;
 
-  params.setValue("add_isotopes", "true");
   params.setValue("isotope_model", "coarse");
   params.setValue("add_losses", "true");
   params.setValue("add_first_prefix_ion", "true");
@@ -474,7 +473,6 @@ START_SECTION(([EXTRA] bugfix test where losses lead to formulae with negative e
 
   tmp_aa = AASequence::fromString("RDK");
   tmp.clear(true);
-  params.setValue("add_isotopes", "false");
   params.setValue("isotope_model", "none");
   params.setValue("add_losses", "true");
   params.setValue("add_first_prefix_ion", "true");
@@ -489,7 +487,6 @@ START_SECTION(([EXTRA] bugfix test where losses lead to formulae with negative e
   TEST_EQUAL(tmp.size(), 8 + 1) // this method makes an error and adds one loss too many
 
   tmp.clear(true);
-  params.setValue("add_isotopes", "false");
   params.setValue("add_losses", "true");
   params.setValue("add_first_prefix_ion", "true");
   params.setValue("add_a_ions", "true");
@@ -536,7 +533,6 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
   PeakSpectrum spec;
   TheoreticalSpectrumGenerator t_gen;
   Param params;
-  params.setValue("add_isotopes", "true");
   params.setValue("isotope_model", "coarse");
   params.setValue("max_isotope", 2);
   params.setValue("add_b_ions", "false");
@@ -569,7 +565,6 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
   }
 
   spec.clear(true);
-  params.setValue("add_isotopes", "true");
   params.setValue("isotope_model", "fine");
   params.setValue("max_isotope", 2);
   params.setValue("add_b_ions", "false");
@@ -611,7 +606,6 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
   }
 
   spec.clear(true);
-  params.setValue("add_isotopes", "true");
   params.setValue("isotope_model", "fine");
   params.setValue("max_isotope", 2);
   params.setValue("max_isotope_probability", 0.20);
@@ -644,7 +638,6 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
   }
 
   spec.clear(true);
-  params.setValue("add_isotopes", "true");
   params.setValue("isotope_model", "fine");
   params.setValue("max_isotope", 2);
   params.setValue("max_isotope_probability", 0.01);
@@ -719,7 +712,7 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
   TEST_REAL_SIMILAR( spec[ spec.size() -2 ].getMZ(), 527.305)
   TEST_REAL_SIMILAR( spec[ spec.size() -1 ].getMZ(), 527.308)
 
-  // isotope cluster for precurser peaks with losses
+  // isotope cluster for precursor peaks with losses
   spec.clear(true);
   params.setValue("add_precursor_peaks", "true");
   params.setValue("isotope_model", "coarse");
@@ -730,14 +723,35 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
   t_gen.getSpectrum(spec, tmp_aa, 2, 2);
   TEST_EQUAL(spec.size(), 6)
 
-  // 3 monoisitopic peaks, 3 second peaks
-  double result_precursors[] = {(578.32698+proton_shift)/2, (579.31100+proton_shift)/2, (596.33755+proton_shift)/2,
-                                                  (578.32698+proton_shift)/2+(neutron_shift/2), (579.31100+proton_shift)/2+(neutron_shift/2), (596.33755+proton_shift)/2+(neutron_shift/2)};
+  // 3 monoisotopic peaks, 3 second peaks
+  double result_precursors[] = {
+    (578.32698+proton_shift)/2, 
+      (579.31100+proton_shift)/2, 
+        (596.33755+proton_shift)/2,
+
+    (578.32698+proton_shift)/2+(neutron_shift/2), 
+      (579.31100+proton_shift)/2+(neutron_shift/2), 
+        (596.33755+proton_shift)/2+(neutron_shift/2)};
+
   std::sort(result_precursors, result_precursors+6);
   for (Size i = 0; i != spec.size(); ++i)
   {
     TEST_REAL_SIMILAR(spec[i].getPosition()[0], result_precursors[i])
   }
+
+  spec.clear(true);
+  params.setValue("add_precursor_peaks", "true");
+  params.setValue("isotope_model", "fine");
+  params.setValue("add_b_ions", "false");
+  params.setValue("add_y_ions", "false");
+
+  t_gen.setParameters(params);
+  t_gen.getSpectrum(spec, tmp_aa, 2, 2);
+  TEST_EQUAL(spec.size(), 16)
+
+  TEST_REAL_SIMILAR(spec[0].getMZ(), (578.32698+proton_shift)/2 )
+  TEST_REAL_SIMILAR(spec[1].getMZ(), (579.31100+proton_shift)/2 )
+  TEST_REAL_SIMILAR(spec[11].getMZ(), (596.33755+proton_shift)/2 )
 }
 END_SECTION
 
