@@ -90,7 +90,40 @@ START_SECTION(void getSpectrum(PeakSpectrum& spec, const AASequence& peptide, In
 
   TOLERANCE_ABSOLUTE(0.001)
 
+  /**  From http://db.systemsbiology.net:8080/proteomicsToolkit/FragIonServlet.html
+     Fragment Ion Table, monoisotopic masses
+
+     Seq    #       A            B            C            X            Y            Z         # (+1) 
+
+     I     1     86.09647    114.09139    131.11793       -         778.44581    761.42036    7 
+     F     2    233.16488    261.15980    278.18635    691.34101    665.36174    648.33629    6 
+     S     3    320.19691    348.19183    365.21838    544.27260    518.29333    501.26788    5 
+     Q     4    448.25549    476.25040    493.27695    457.24057    431.26130    414.23585    4 
+     V     5    547.32390    575.31882    592.34537    329.18199    303.20273    286.17727    3 
+     G     6    604.34537    632.34028    649.36683    230.11358    204.13431    187.10886    2 
+     K     7    732.44033    760.43524       -         173.09211    147.11285    130.08740    1 
+
+  **/
   double result[] = {/*114.091,*/ 147.113, 204.135, 261.16, 303.203, 348.192, 431.262, 476.251, 518.294, 575.319, 632.341, 665.362};
+  std::vector<double> result_x = { 691.34101, 544.27260, 457.24057, 329.18199, 230.11358, 173.09211 };
+  std::vector<double> result_x_losses = {
+      691.34101 - 17.026549095700005, 
+      691.34101 - 18.01056506379996,
+      691.34101, 
+      544.27260 - 17.026549095700005,
+      544.27260 - 18.01056506379996,
+      544.27260,
+      457.24057 - 17.026549095700005,
+      457.24057,
+      329.18199 - 17.026549095700005,
+      329.18199,
+      230.11358 - 17.026549095700005,
+      230.11358,
+      173.09211 - 17.026549095700005,
+      173.09211 };
+  std::sort(result_x.begin(), result_x.end());
+  std::sort(result_x_losses.begin(), result_x_losses.end());
+
   for (Size i = 0; i != spec.size(); ++i)
   {
     TEST_REAL_SIMILAR(spec[i].getPosition()[0], result[i])
@@ -138,6 +171,12 @@ START_SECTION(void getSpectrum(PeakSpectrum& spec, const AASequence& peptide, In
   std::sort(result_all,result_all+52-1);
   spec.clear(true);
 
+  std::vector<double> result_bx = {
+   116.03481,  263.10323,  360.15599,  473.24005,  544.27717,  658.32009,  715.34156,  844.38415, 1000.48526,
+   929.44815, 782.37973, 685.32697, 572.24291, 501.20579, 387.16287, 330.14140, 201.09881,
+  };
+  std::sort(result_bx.begin(),result_bx.end());
+
   param.setValue("add_first_prefix_ion", "true");
   param.setValue("add_a_ions", "true");
   param.setValue("add_b_ions", "true");
@@ -161,6 +200,63 @@ START_SECTION(void getSpectrum(PeakSpectrum& spec, const AASequence& peptide, In
   {
     TEST_REAL_SIMILAR(generated[i], result_all[i])
   }
+
+  // test loss creation and annotation
+  spec.clear(true);
+  param = ptr->getParameters();
+  param.setValue("add_first_prefix_ion", "true");
+  param.setValue("add_a_ions", "false");
+  param.setValue("add_b_ions", "false");
+  param.setValue("add_c_ions", "false");
+  param.setValue("add_x_ions", "true");
+  param.setValue("add_y_ions", "false");
+  param.setValue("add_z_ions", "false");
+  param.setValue("add_precursor_peaks", "false");
+  param.setValue("add_metainfo", "false");
+  param.setValue("add_losses", "true");
+  ptr->setParameters(param);
+  ptr->getSpectrum(spec, peptide, 1, 1);
+  TEST_EQUAL(spec.size(), 14)
+
+  generated.clear();
+  for (Size i = 0; i != spec.size(); ++i)
+  {
+    generated.push_back(spec[i].getPosition()[0]);
+  }
+  for (Size i = 0; i != generated.size(); ++i)
+  {
+    TEST_REAL_SIMILAR(generated[i], result_x_losses[i])
+  }
+
+  // test loss creation and annotation
+  spec.clear(true);
+  param = ptr->getParameters();
+  param.setValue("add_first_prefix_ion", "true");
+  param.setValue("add_a_ions", "false");
+  param.setValue("add_b_ions", "false");
+  param.setValue("add_c_ions", "false");
+  param.setValue("add_x_ions", "true");
+  param.setValue("add_y_ions", "false");
+  param.setValue("add_z_ions", "false");
+  param.setValue("add_precursor_peaks", "false");
+  param.setValue("add_metainfo", "true");
+  param.setValue("add_losses", "true");
+  ptr->setParameters(param);
+  ptr->getSpectrum(spec, peptide, 1, 1);
+  TEST_EQUAL(spec.size(), 14)
+
+  generated.clear();
+  for (Size i = 0; i != spec.size(); ++i)
+  {
+    generated.push_back(spec[i].getPosition()[0]);
+  }
+  for (Size i = 0; i != generated.size(); ++i)
+  {
+    TEST_REAL_SIMILAR(generated[i], result_x_losses[i])
+  }
+
+  std::sort(generated.begin(),generated.end());
+  // std::vector<double> result_loss(result_all, 
 
   // test loss creation and annotation
   spec.clear(true);
@@ -359,12 +455,15 @@ END_SECTION
 
 START_SECTION(([EXTRA] bugfix test where losses lead to formulae with negative element frequencies))
 {
+  // this tests for the loss of CONH2 on Arginine, however it is not clear how
+  // this loss would occur in the first place.
   AASequence tmp_aa = AASequence::fromString("RDAGGPALKK");
   PeakSpectrum tmp;
   TheoreticalSpectrumGenerator t_gen;
   Param params;
 
   params.setValue("add_isotopes", "true");
+  params.setValue("isotope_model", "coarse");
   params.setValue("add_losses", "true");
   params.setValue("add_first_prefix_ion", "true");
   params.setValue("add_a_ions", "true");
@@ -372,6 +471,35 @@ START_SECTION(([EXTRA] bugfix test where losses lead to formulae with negative e
 
   t_gen.getSpectrum(tmp, tmp_aa, 1, 1);
   TEST_EQUAL(tmp.size(), 212)
+
+  tmp_aa = AASequence::fromString("RDK");
+  tmp.clear(true);
+  params.setValue("add_isotopes", "false");
+  params.setValue("isotope_model", "none");
+  params.setValue("add_losses", "true");
+  params.setValue("add_first_prefix_ion", "true");
+  params.setValue("add_a_ions", "true");
+  params.setValue("add_b_ions", "false");
+  params.setValue("add_y_ions", "false");
+  params.setValue("add_metainfo", "true");
+  t_gen.setParameters(params);
+
+  TEST_EQUAL(tmp.size(), 0)
+  t_gen.getSpectrum(tmp, tmp_aa, 1, 1);
+  TEST_EQUAL(tmp.size(), 8 + 1) // this method makes an error and adds one loss too many
+
+  tmp.clear(true);
+  params.setValue("add_isotopes", "false");
+  params.setValue("add_losses", "true");
+  params.setValue("add_first_prefix_ion", "true");
+  params.setValue("add_a_ions", "true");
+  params.setValue("add_b_ions", "false");
+  params.setValue("add_y_ions", "false");
+  params.setValue("add_metainfo", "false");
+  t_gen.setParameters(params);
+
+  t_gen.getSpectrum(tmp, tmp_aa, 1, 1);
+  TEST_EQUAL(tmp.size(), 8 + 1) // this method makes an error and adds one loss too many
 }
 END_SECTION
 
@@ -409,6 +537,7 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
   TheoreticalSpectrumGenerator t_gen;
   Param params;
   params.setValue("add_isotopes", "true");
+  params.setValue("isotope_model", "coarse");
   params.setValue("max_isotope", 2);
   params.setValue("add_b_ions", "false");
   t_gen.setParameters(params);
@@ -475,7 +604,6 @@ START_SECTION(([EXTRA] test isotope clusters for all peak types))
   }
 }
 END_SECTION
-
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
