@@ -684,8 +684,14 @@ namespace OpenMS
     if (!s.getFloatDataArrays().empty() &&
         (s.getFloatDataArrays()[0].getName() == "Ion Mobility" ||
          s.getFloatDataArrays()[0].getName().find("Ion Mobility") == 0 ||
-         s.getFloatDataArrays()[0].getName() == "ion mobility array" ||
-         s.getFloatDataArrays()[0].getName() == "mean inverse reduced ion mobility array" ||
+         s.getFloatDataArrays()[0].getName().find("ion mobility") == 0 ||
+         s.getFloatDataArrays()[0].getName().find("drift time") == 0 ||
+         s.getFloatDataArrays()[0].getName() == "ion mobility array" || // old
+         s.getFloatDataArrays()[0].getName() == "mean drift time array" || // id: MS:1002477
+         s.getFloatDataArrays()[0].getName() == "mean ion mobility array" || // id: MS:1002816
+         s.getFloatDataArrays()[0].getName() == "mean inverse reduced ion mobility array" || // id: MS:1003006
+         s.getFloatDataArrays()[0].getName() == "raw ion mobility array" || // id: MS:1003007
+         s.getFloatDataArrays()[0].getName() == "raw inverse reduced ion mobility array" || // id: MS:1003008
          s.getFloatDataArrays()[0].getName() == "ion mobility drift time")
 
         )
