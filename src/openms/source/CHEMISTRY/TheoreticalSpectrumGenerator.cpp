@@ -52,7 +52,7 @@ namespace OpenMS
   TheoreticalSpectrumGenerator::TheoreticalSpectrumGenerator() :
     DefaultParamHandler("TheoreticalSpectrumGenerator")
   {
-    defaults_.setValue("isotope_model", "none", "If set to 'true' isotope peaks of the product ion peaks are added");
+    defaults_.setValue("isotope_model", "none", "Model to use for isotopic peaks ('none' means no isotopic peaks are added, 'coarse' adds isotopic peaks in unit mass distance, 'fine' uses the hyperfine isotopic generator to add accurate isotopic peaks. Note that adding isotopic peaks is very slow.");
     defaults_.setValidStrings("isotope_model", ListUtils::create<String>("none,coarse,fine"));
 
     defaults_.setValue("max_isotope", 2, "Defines the maximal isotopic peak which is added if 'isotope_model' is 'coarse'");
