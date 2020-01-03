@@ -174,7 +174,7 @@ namespace OpenMS
     // return; // real    0m0.170s
     for (Int z = min_charge; z <= max_charge; ++z)
     {
-      if (add_x_ions_) std::cout << " add x ions for chr " << z << " for pep " << peptide<< std::endl;
+      // if (add_x_ions_) std::cout << " add x ions for chr " << z << " for pep " << peptide<< std::endl;
 
       if (add_b_ions_) addPeaks_(spectrum, peptide, ion_names, charges, Residue::BIon, z);
       if (add_y_ions_) addPeaks_(spectrum, peptide, ion_names, charges, Residue::YIon, z);
@@ -463,7 +463,7 @@ namespace OpenMS
         spectrum.push_back(p);
 
         const String& loss_name = it;
-        if (add_metainfo && false)
+        if (add_metainfo)
         {
           // note: important to construct a string from char. If omitted it will perform pointer arithmetics on the "-" string literal
           String ion_name = String(Residue::residueTypeToIonLetter(res_type)) + String(ion_ordinal) + "-" + loss_name + String((Size)abs(charge), '+');
