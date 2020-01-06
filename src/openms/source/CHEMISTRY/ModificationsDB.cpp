@@ -157,7 +157,6 @@ namespace OpenMS
     return mods_[index];
   }
 
-
   void ModificationsDB::searchModifications(set<const ResidueModification*>& mods,
                                             const String& mod_name_,
                                             const String& residue,
@@ -166,6 +165,9 @@ namespace OpenMS
     mods.clear();
 
     String mod_name = mod_name_;
+
+    char res = '?'; // empty
+    if (!residue.empty()) res = residue[0];
 
     #pragma omp critical(OpenMS_ModificationsDB)
     {
@@ -191,7 +193,7 @@ namespace OpenMS
       {
         for (const auto& it : modifications->second)
         {
-          if (residuesMatch_(residue, it) &&
+          if ( residuesMatch_fast_(res, it) &&
                (term_spec == ResidueModification::NUMBER_OF_TERM_SPECIFICITY ||
                (term_spec == it->getTermSpecificity())))
           {
@@ -204,7 +206,7 @@ namespace OpenMS
 
   const ResidueModification* ModificationsDB::getModification(const String& mod_name, const String& residue, ResidueModification::TermSpecificity term_spec) const
   {
-    set<const ResidueModification*> mods;
+    set<const ResidueModification*> mods; // set is faster than unordered_set (for few values)
     // if residue is specified, try residue-specific search first to avoid
     // ambiguities (e.g. "Carbamidomethyl (N-term)"/"Carbamidomethyl (C)"):
     if (!residue.empty() &&
