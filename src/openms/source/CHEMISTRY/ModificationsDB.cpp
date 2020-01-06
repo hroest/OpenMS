@@ -68,7 +68,7 @@ namespace OpenMS
       // PEPN[400] and PEPX[400] since these have very different masses.
       bool non_matching_user_defined =  (
            curr_mod->isUserDefined() &&
-           !residue == '?' &&
+           !(residue == '?') &&
            origin != residue );
 
       return !non_matching_user_defined;
