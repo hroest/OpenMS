@@ -54,6 +54,8 @@
 #include <numeric>      // std::iota
 #include <algorithm>    // std::sort
 
+#define OLD_BEHAVIOR
+
 // basic file operations
 
 namespace OpenMS
@@ -307,11 +309,17 @@ namespace OpenMS
 
       if (compound.isPeptide())
       {
+#ifdef OLD_BEHAVIOR
+        diascoring.dia_ms1_isotope_scores(precursor_mz, ms1_spectrum,
+                                          precursor_charge, scores.ms1_isotope_correlation,
+                                          scores.ms1_isotope_overlap);
+#else
         OpenMS::AASequence aas;
         OpenSwathDataAccessHelper::convertPeptideToAASequence(compound, aas);
         diascoring.dia_ms1_isotope_scores(precursor_mz, ms1_spectrum,
                                           precursor_charge, scores.ms1_isotope_correlation,
                                           scores.ms1_isotope_overlap, aas.getFormula().toString());
+#endif
       }
       else
       {
