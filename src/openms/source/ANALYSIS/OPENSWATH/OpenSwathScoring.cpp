@@ -54,7 +54,7 @@
 #include <numeric>      // std::iota
 #include <algorithm>    // std::sort
 
-#define OLD_BEHAVIOR
+// #define OLD_BEHAVIOR
 
 // basic file operations
 

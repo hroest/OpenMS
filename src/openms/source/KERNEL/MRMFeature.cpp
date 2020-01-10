@@ -146,6 +146,7 @@ namespace OpenMS
 
   void MRMFeature::scoresAsMetaValue(bool ms1only, const OpenSwath_Scores_Usage& su_)
   {
+    bool usetop3score = true;
     if (ms1only)
     {
       if (su_.use_sn_score_)
@@ -174,13 +175,13 @@ namespace OpenMS
       if (su_.use_coelution_score_)
       {
         this->setMetaValue("var_xcorr_coelution", scores_.xcorr_coelution_score);
-        this->setMetaValue("var_xcorr_coelution_top3", scores_.xcorr_coelution_score_top3);
+        if (usetop3score) this->setMetaValue("var_xcorr_coelution_top3", scores_.xcorr_coelution_score_top3);
         this->setMetaValue("var_xcorr_coelution_weighted", scores_.weighted_coelution_score);
       }
       if (su_.use_shape_score_)
       {
         this->setMetaValue("var_xcorr_shape", scores_.xcorr_shape_score);
-        this->setMetaValue("var_xcorr_shape_top3", scores_.xcorr_shape_score_top3);
+        if (usetop3score) this->setMetaValue("var_xcorr_shape_top3", scores_.xcorr_shape_score_top3);
         this->setMetaValue("var_xcorr_shape_weighted", scores_.weighted_xcorr_shape);
       }
       if (su_.use_library_score_)

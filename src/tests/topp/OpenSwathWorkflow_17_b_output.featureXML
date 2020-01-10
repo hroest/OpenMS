@@ -133,7 +133,6 @@
 			<UserParam type="float" name="var_im_ms1_contrast_shape" value="0.356423670043074"/>
 			<UserParam type="float" name="var_im_ms1_sum_contrast_coelution" value="2.0"/>
 			<UserParam type="float" name="var_im_ms1_sum_contrast_shape" value="0.278622507393285"/>
-			<UserParam type="int" name="missedCleavages" value="0"/>
 			<UserParam type="float" name="PrecursorMZ" value="412.5"/>
 			<UserParam type="float" name="ms1_area_intensity" value="60090.0"/>
 			<UserParam type="float" name="ms1_apex_intensity" value="2480.0"/>
@@ -265,7 +264,6 @@
 			<UserParam type="float" name="var_im_ms1_contrast_shape" value="0.256486234177301"/>
 			<UserParam type="float" name="var_im_ms1_sum_contrast_coelution" value="8.0"/>
 			<UserParam type="float" name="var_im_ms1_sum_contrast_shape" value="0.235745229686019"/>
-			<UserParam type="int" name="missedCleavages" value="0"/>
 			<UserParam type="float" name="PrecursorMZ" value="417.5"/>
 			<UserParam type="float" name="ms1_area_intensity" value="1.8027e05"/>
 			<UserParam type="float" name="ms1_apex_intensity" value="7440.0"/>

@@ -526,13 +526,13 @@ namespace OpenMS
       isotope_dist = solver.estimateFromPeptideWeight(std::fabs(product_mz * putative_fragment_charge));
     }
 
-#ifdef OLD_BEHAVIOR
-    std::vector<double> isotopes_int = isotopes_int_tmp;
-    for (IsotopeDistribution::Iterator it = isotope_dist.begin(); it != isotope_dist.end(); ++it)
-    {
-      isotopes.intensity.push_back(it->getIntensity());
-    }
-#else
+// #ifdef OLD_BEHAVIOR
+//     std::vector<double> isotopes_int = isotopes_int_tmp;
+//     for (IsotopeDistribution::Iterator it = isotope_dist.begin(); it != isotope_dist.end(); ++it)
+//     {
+//       isotopes.intensity.push_back(it->getIntensity());
+//     }
+// #else
     double sum = 0; for (const auto& it : isotope_dist) sum += it.getIntensity();
     std::vector<double> isotopes_int;
     for (Size k = 0; k < isotope_dist.size(); k++)
@@ -544,7 +544,7 @@ namespace OpenMS
         isotopes_int.push_back(isotopes_int_tmp[k]);
       }
     }
-#endif
+// #endif
     isotopes.optional_begin = 0;
     isotopes.optional_end = dia_nr_isotopes_;
 
