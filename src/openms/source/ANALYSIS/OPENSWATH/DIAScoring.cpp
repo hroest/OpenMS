@@ -527,6 +527,7 @@ namespace OpenMS
     }
 
 #ifdef OLD_BEHAVIOR
+    std::vector<double> isotopes_int = isotopes_int_tmp;
     for (IsotopeDistribution::Iterator it = isotope_dist.begin(); it != isotope_dist.end(); ++it)
     {
       isotopes.intensity.push_back(it->getIntensity());
