@@ -430,19 +430,21 @@ namespace OpenMS
       // weights += normalized_library_intensity[k];
     }
     // std::cout << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
-    scores.im_delta_score = delta_drift / tr_used;
 
     if (tr_used != 0)
     {
+      delta_drift /= tr_used;
       computed_im /= tr_used;
       computed_im_weighted /= sum_intensity;
     }
     else
     {
+      delta_drift = -1;
       computed_im = -1;
       computed_im_weighted = -1;
     }
 
+    scores.im_delta_score = delta_drift;
     scores.im_drift = computed_im;
     scores.im_drift_weighted = computed_im_weighted;
 
