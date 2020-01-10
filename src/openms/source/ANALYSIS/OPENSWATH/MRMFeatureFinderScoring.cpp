@@ -876,7 +876,7 @@ namespace OpenMS
 
       mrmfeature->setMetaValue("PrecursorMZ", precursor_mz);
       prepareFeatureOutput_(*mrmfeature, ms1only, pep->getChargeState());
-      mrmfeature->setMetaValue("xx_swath_prelim_score", 0.0);
+      // mrmfeature->setMetaValue("xx_swath_prelim_score", 0.0);
       feature_list.push_back((*mrmfeature));
 
       feature_idx++;
@@ -933,7 +933,7 @@ namespace OpenMS
     mrmfeature.setMetaValue("peak_apices_sum", total_peak_apices);
     mrmfeature.setMetaValue("ms1_area_intensity", ms1_total_intensity);
     mrmfeature.setMetaValue("ms1_apex_intensity", ms1_total_peak_apices);
-    // mrmfeature->setCharge(charge);
+    mrmfeature.setCharge(charge);
   }
 
   void MRMFeatureFinderScoring::updateMembers_()
