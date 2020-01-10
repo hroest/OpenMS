@@ -126,7 +126,9 @@ namespace OpenMS
         "PRECURSOR_ID INT NOT NULL," \
         "EXP_RT REAL NOT NULL," \
         "EXP_IM REAL, " \
+        "EXP_IM_MS1 REAL, " \
         "NORM_RT REAL NOT NULL," \
+        "NORM_IM REAL NOT NULL," \
         "DELTA_RT REAL NOT NULL," \
         "LEFT_WIDTH REAL NOT NULL," \
         "RIGHT_WIDTH REAL NOT NULL); " \
@@ -363,13 +365,15 @@ namespace OpenMS
           }
         }
 
-        sql_feature << "INSERT INTO FEATURE (ID, RUN_ID, PRECURSOR_ID, EXP_RT, EXP_IM, NORM_RT, DELTA_RT, LEFT_WIDTH, RIGHT_WIDTH) VALUES (" 
+        sql_feature << "INSERT INTO FEATURE (ID, RUN_ID, PRECURSOR_ID, EXP_RT, EXP_IM, EXP_IM_MS1, NORM_RT, NORM_IM, DELTA_RT, LEFT_WIDTH, RIGHT_WIDTH) VALUES (" 
                     << feature_id << ", '" 
                     << *(int64_t*)&run_id_ << "', " 
                     << id << ", " 
                     << feature_it->getRT() << ", " 
                     << getScore(*feature_it, "im_drift") << ", "  // TODO: can be nan!
+                    << getScore(*feature_it, "im_drift_ms1") << ", "
                     << feature_it->getMetaValue("norm_RT") << ", " 
+                    << feature_it->getMetaValue("norm_IM") << ", " 
                     << feature_it->getMetaValue("delta_rt") << ", " 
                     << feature_it->getMetaValue("leftWidth") << ", " 
                     << feature_it->getMetaValue("rightWidth") << "); ";

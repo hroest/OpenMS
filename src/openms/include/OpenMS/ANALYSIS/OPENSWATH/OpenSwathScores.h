@@ -125,7 +125,9 @@ namespace OpenMS
     double im_delta_score = 0;
     double im_ms1_delta_score = 0;
     double im_drift = 0;
+    double im_drift_ms1 = 0;
     double im_drift_weighted = 0;
+    double im_calibrated_drift = 0;
 
     double library_manhattan = 0;
     double library_dotprod = 0;

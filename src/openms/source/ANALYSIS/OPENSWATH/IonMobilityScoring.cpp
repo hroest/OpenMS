@@ -346,7 +346,7 @@ namespace OpenMS
     // IMProfile: a data structure that holds points <im_value, intensity>
     typedef std::vector< std::pair<double, double> > IMProfile;
     double delta_drift = 0;
-    // double computed_im = 0;
+    double computed_im = 0;
     // double computed_im_weighted = 0;
     // double sum_intensity = 0;
     // int tr_used = 0;
@@ -362,7 +362,7 @@ namespace OpenMS
 
       delta_drift += fabs(drift_target - im);
       // std::cout << "  -- have delta drift time " << fabs(drift_target -im ) << " with im " << im << std::endl;
-      // computed_im += im;
+      computed_im += im;
       // computed_im_weighted += im * intensity;
       // sum_intensity += intensity;
       // delta_drift_weighted += delta_drift * normalized_library_intensity[k];
@@ -371,6 +371,7 @@ namespace OpenMS
     }
     // std::cout << " Scoring delta drift time " << delta_drift / tr_used << std::endl;
     scores.im_ms1_delta_score = delta_drift;
+    scores.im_drift_ms1 = computed_im;
   }
 
   void IonMobilityScoring::driftScoring(OpenSwath::SpectrumPtr spectrum, 
@@ -446,6 +447,7 @@ namespace OpenMS
 
     scores.im_delta_score = delta_drift;
     scores.im_drift = computed_im;
+    scores.im_calibrated_drift = drift_target;
     scores.im_drift_weighted = computed_im_weighted;
 
     // Extract all ion mobility values across all transitions and produce a
