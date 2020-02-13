@@ -14,11 +14,11 @@
       pass
 
 
-    def getRibonucleotideAlternatives(self, bytes code ):
+    def getRibonucleotideAlternatives(self, in_0):
         """Cython signature: libcpp_pair[const Ribonucleotide *,const Ribonucleotide *] getRibonucleotideAlternatives(const libcpp_string & code)"""
-        assert isinstance(code, bytes), 'arg code wrong type'
-    
-        _r = self.inst.get().getRibonucleotideAlternatives((<libcpp_string>code))
+        assert (isinstance(in_0, str) or isinstance(in_0, unicode) or isinstance(in_0, bytes) or isinstance(in_0, String)), 'arg in_0       wrong type'
+
+        _r = self.inst.get().getRibonucleotideAlternatives( deref((convString(in_0)).get()) )
         cdef const _Ribonucleotide * out_ptr1 = _r.first
         cdef const _Ribonucleotide * out_ptr2 = _r.second
 
