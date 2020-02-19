@@ -215,6 +215,21 @@ public:
     */
     UInt getMSLevel() const;
 
+    bool containsIMData() const;
+    {
+      if (!getFloatDataArrays().empty() &&
+          (getFloatDataArrays()[0].getName() == "Ion Mobility" ||
+           getFloatDataArrays()[0].getName().find("Ion Mobility") == 0 ||
+           getFloatDataArrays()[0].getName() == "ion mobility array" ||
+           getFloatDataArrays()[0].getName() == "mean inverse reduced ion mobility array" ||
+           getFloatDataArrays()[0].getName() == "ion mobility drift time")
+          )
+      {
+        return true;
+      }
+      return false;
+    }
+
     /// Sets the MS level.
     void setMSLevel(UInt ms_level);
 
@@ -549,3 +564,4 @@ protected:
   }
 
 } // namespace OpenMS
+
