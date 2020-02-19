@@ -231,6 +231,52 @@ protected:
    *   - Extract chromatograms across the whole RT range using simpleExtractChromatograms_()
    *   - Compute calibration functions for RT and m/z using doDataNormalization_()
    *
+   * Usage of this class is as follows:
+   *
+   * 
+   * @code
+   *
+   *  OpenSwathCalibrationWorkflow wf;
+   *  TransformationDescription im_trafo; // ion mobility transformation (from experimental to theoretical)
+   *  TransformationDescription trafo_rtnorm; // retention time transformation
+   *
+   *  trafo_rtnorm = wf.performRTNormalization(irt_transitions,
+   *                                           swath_maps,
+   *                                           im_trafo,
+   *                                           min_rsq,
+   *                                           min_coverage,
+   *                                           feature_finder_param,
+   *                                           cp_irt,
+   *                                           irt_detection_param,
+   *                                           calibration_param,
+   *                                           irt_mzml_out,
+   *                                           debug_level,
+   *                                           sonar,
+   *                                           load_into_memory);
+   * @endcode
+   *
+   * Alternatively, the individual functions for chromatogram extraction and
+   * data normalization / calibration can be called separately:
+   *
+   * @code
+   *
+   *
+   *  OpenSwathCalibrationWorkflow wf;
+   *  TransformationDescription trafo_rtnorm; // retention time transformation
+   *  TransformationDescription im_trafo; // exp -> theoretical
+   *  Param nonlinear_irt_param; // Parameters for calibration
+   *  std::vector< OpenMS::MSChromatogram > chromatograms; // empty vector to be filled with iRT chromatograms
+   *
+   *  wf.simpleExtractChromatograms_(swath_maps, irt_transitions, chromatograms,
+   *                                trafo_rtnorm, cp_irt, sonar, load_into_memory);
+   *  trafo_rtnorm = wf.doDataNormalization_(irt_transitions, chromatograms, im_trafo, swath_maps,
+   *                                         min_rsq,
+   *                                         min_coverage,
+   *                                         feature_finder_param,
+   *                                         nonlinear_irt_param,
+   *                                         calibration_param);
+   * @endcode
+   *
   */
   class OPENMS_DLLAPI OpenSwathCalibrationWorkflow :
     public OpenSwathWorkflowBase
@@ -361,7 +407,52 @@ protected:
    * The workflow will perform a complete OpenSWATH analysis. Optionally, 
    * a calibration of m/z and retention time (mapping peptides to normalized 
    * space and correcting m/z error) can be performed beforehand using the 
-   * OpenSwathCalibrationWorkflow class.
+   * OpenSwathCalibrationWorkflow class. This would be implemented as follows:
+   *
+   * @code
+   *
+   *
+   *  OpenSwathCalibrationWorkflow wf;
+   *  TransformationDescription im_trafo; // ion mobility transformation (from experimental to theoretical)
+   *  TransformationDescription trafo_rtnorm; // retention time transformation
+   *
+   *  trafo_rtnorm = wf.performRTNormalization(irt_transitions,
+   *                                           swath_maps,
+   *                                           im_trafo,
+   *                                           min_rsq,
+   *                                           min_coverage,
+   *                                           feature_finder_param,
+   *                                           cp_irt,
+   *                                           irt_detection_param,
+   *                                           calibration_param,
+   *                                           irt_mzml_out,
+   *                                           debug_level,
+   *                                           sonar,
+   *                                           load_into_memory);
+   *
+   *  OpenSwathWorkflow wf(use_ms1_traces, use_ms1_im, prm, outer_loop_threads);
+   *  wf.performExtraction(swath_maps,
+   *                       trafo_rtnorm,
+   *                       cp,
+   *                       cp_ms1,
+   *                       feature_finder_param,
+   *                       transition_exp, 
+   *                       out_featureFile,
+   *                       !out.empty(),
+   *                       tsvwriter,
+   *                       oswwriter,
+   *                       chromatogramConsumer,
+   *                       batchSize,
+   *                       ms1_isotopes,
+   *                       load_into_memory);
+   *
+   * @endcode
+   *
+   * @note Make sure before calling performExtraction() that alignment has been
+   * perfomed in OpenSwathCalibrationWorkflow.performRTNormalization() and raw
+   * m/z values in swath_maps are calibrated, retention time calibration is
+   * stored in a TransformationDescription object and ion mobility calibration
+   * is stored in a TransformationDescription.
    *
    * The overall execution flow in this class is as follows (see performExtraction() function)
    *
@@ -375,8 +466,12 @@ protected:
    *          - Prepare transition extraction (see prepareExtractionCoordinates_())
    *          - Extract transitions using ChromatogramExtractor::extractChromatograms()
    *          - Convert data to OpenMS format using ChromatogramExtractor::return_chromatogram()
-   *        - Score extracted transitions (see scoreAllChromatograms_())
+   *        - Score extracted transitions, this is where most of the work happens -- see scoreAllChromatograms_()
    *        - Write scored chromatograms and peak groups to disk (see writeOutFeaturesAndChroms_())
+   *
+   * For a more in-depth description of the algorithmic steps, see scoreAllChromatograms_() which performs the two main steps on chromatogram level:
+   *  - Find peakgroups in a chromatogram (see MRMTransitionGroupPicker::pickTransitionGroup)
+   *  - Score peakgroups in a chromatogram (see MRMFeatureFinderScoring::scorePeakgroups)
    *
    */
   class OPENMS_DLLAPI OpenSwathWorkflow :
@@ -491,6 +586,11 @@ protected:
      *    - Find peakgroups in the chromatogram set (see MRMTransitionGroupPicker::pickTransitionGroup)
      *    - Score peakgroups in the chromatogram set (see MRMFeatureFinderScoring::scorePeakgroups)
      *    - Add the identified peak groups to the TSV writer (tsv_writer) and the SQL-based output format (osw_writer)
+     *
+     * The main work is done in the two steps where peakgroups are identified
+     * in a chromatogram (see MRMTransitionGroupPicker::pickTransitionGroup)
+     * and then scored according to chromatographic, library and full-scan
+     * features (see MRMFeatureFinderScoring::scorePeakgroups).
      *
      * @param ms2_chromatograms Input chromatograms (MS2 level)
      * @param ms1_chromatograms Input chromatograms (MS1-level)
