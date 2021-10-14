@@ -31,8 +31,15 @@ import os.path
 import os
 import shutil
 
+def namespace_handler(ns):
+    namespaces = ns.split("::")
+    doxy_string = "_1_1".join(namespaces)
+    return doxy_string
+
+# TODO: change for release (point to correct release)!
 classdocu_base = "http://www.openms.de/current_doxygen/html/"
-autowrap.CodeGenerator.special_class_doc = "\n    Documentation is available at " + classdocu_base + "class%(namespace)s_1_1%(cpp_name)s.html\n"
+autowrap.CodeGenerator.special_class_doc = "\n    Documentation is available at " + classdocu_base + "class%(namespace)s_1_1%(cpp_name)s.html\n\n"
+autowrap.CodeGenerator.namespace_handler = namespace_handler
 autowrap.DeclResolver.default_namespace = "OpenMS"
 
 def chunkIt(seq, num):
@@ -158,6 +165,7 @@ def doCythonCodeGeneration(modname, allDecl_mapping, instance_map, converters):
     m_filename = "pyopenms/%s.pyx" % modname
     cimports, manual_code = autowrap.Main.collect_manual_code(allDecl_mapping[modname]["addons"])
     autowrap.Main.register_converters(converters)
+
     autowrap_include_dirs = autowrap.generate_code(allDecl_mapping[modname]["decls"], instance_map,
                                                         target=m_filename, debug=False, manual_code=manual_code,
                                                         extra_cimports=cimports,

@@ -842,7 +842,7 @@ protected:
         {
           if (i == k) {continue;}
           OpenSwath::Scoring::XCorrArrayType res = OpenSwath::Scoring::normalizedCrossCorrelation(
-              all_ints[k], all_ints[i], boost::numeric_cast<int>(all_ints[i].size()), 1);
+              all_ints[k], all_ints[i], (int)(all_ints[i].size()), 1);
 
           // the first value is the x-axis (retention time) and should be an int -> it show the lag between the two
           double res_coelution = std::abs(OpenSwath::Scoring::xcorrArrayGetMaxPeak(res)->first);

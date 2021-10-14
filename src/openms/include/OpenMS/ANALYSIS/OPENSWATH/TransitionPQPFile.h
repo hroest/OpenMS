@@ -36,8 +36,7 @@
 
 #include <OpenMS/ANALYSIS/OPENSWATH/TransitionTSVFile.h>
 
-#include <boost/range/algorithm.hpp>
-#include <boost/range/algorithm_ext/erase.hpp>
+// 50k LOC
 #include <iostream>
 
 namespace OpenMS

@@ -37,6 +37,8 @@
 #include <cmath> // for "exp"
 #include <ctime> // for "time" (random number seed)
 #include <limits> // for "infinity"
+
+// adds 6k LOC
 #include <boost/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -193,14 +195,14 @@ namespace OpenMS
         if (n_assays - 1 <= n_decoys_) n_decoys_ = 0; // use all available assays
 
         decoy_index_.resize(n_assays);
-        for (Size i = 0; i < n_assays; ++i) decoy_index_[i] = boost::numeric_cast<Int>(i);
+        for (Size i = 0; i < n_assays; ++i) decoy_index_[i] = (Int)(i);
 
         // build mapping between assays and transitions:
         OPENMS_LOG_DEBUG << "Building transition map..." << std::endl;
         for (Size i = 0; i < library_.getTransitions().size(); ++i)
         {
           const String& ref = library_.getTransitions()[i].getPeptideRef();
-          transition_map_[ref].push_back(boost::numeric_cast<Int>(i));
+          transition_map_[ref].push_back((Int)(i));
         }
         // find min./max. RT in the library:
         OPENMS_LOG_DEBUG << "Determining retention time range..." << std::endl;

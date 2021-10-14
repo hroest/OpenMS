@@ -47,7 +47,7 @@
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
+#include <boost/make_shared.hpp> // TODO: move out of header
 
 namespace OpenMS
 {

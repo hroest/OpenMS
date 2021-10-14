@@ -33,3 +33,16 @@
         cdef MSSpectrum py_result = MSSpectrum.__new__(MSSpectrum)
         py_result.inst = shared_ptr[_MSSpectrum](_r)
         return py_result
+
+    ## # temporary ...
+    ## def __setitem__(self, key, MSSpectrum value):
+    ##     assert isinstance(key, (int, long)), 'arg key wrong type'
+
+    ##     cdef long _idx = (<int>key)
+    ##     if _idx >= self.inst.get().size():
+    ##         raise IndexError("invalid index %d" % _idx)
+
+    ##     cdef shared_ptr[_MSSpectrum] _val = value.inst
+    ##     cdef _MSExperiment * tmp = self.inst.get()
+    ##     deref(self.inst.get())[(<int>key)] = deref(_val.get()) 
+

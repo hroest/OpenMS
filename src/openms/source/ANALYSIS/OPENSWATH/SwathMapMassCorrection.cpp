@@ -44,6 +44,8 @@
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/SpectrumHelpers.h> // integrateWindow
 #include <OpenMS/ANALYSIS/OPENSWATH/DIAHelper.h>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 #define SWATHMAPMASSCORRECTION_DEBUG
 
 namespace OpenMS

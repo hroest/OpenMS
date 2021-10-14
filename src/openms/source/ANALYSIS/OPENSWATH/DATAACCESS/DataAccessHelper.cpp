@@ -36,6 +36,8 @@
 
 #include <OpenMS/CHEMISTRY/ModificationsDB.h>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 namespace OpenMS
 {
 

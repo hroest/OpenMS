@@ -4,6 +4,7 @@ from DefaultParamHandler cimport *
 from ProgressLogger cimport *
 from FASTAFile cimport *
 
+# TODO: this pulls in all of Seqan!!
 cdef extern from "<OpenMS/ANALYSIS/ID/PeptideIndexing.h>" namespace "OpenMS":
     
     cdef cppclass PeptideIndexing(DefaultParamHandler) :

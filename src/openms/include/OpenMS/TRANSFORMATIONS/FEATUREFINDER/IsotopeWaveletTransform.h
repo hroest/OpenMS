@@ -43,9 +43,9 @@
 #include <OpenMS/CONCEPT/Exception.h>
 #include <OpenMS/MATH/STATISTICS/LinearRegression.h>
 #include <OpenMS/DATASTRUCTURES/ConstRefVector.h>
+#include <boost/math/special_functions/bessel.hpp> // TODO: move ?
 #include <cmath>
 #include <cmath>
-#include <boost/math/special_functions/bessel.hpp>
 #include <vector>
 #include <map>
 #include <sstream>
@@ -490,6 +490,9 @@ protected:
     double min_spacing_, max_mz_cutoff_;
     std::vector<float> scores_, zeros_;
   };
+
+  // non-templated implementation of the bessel fxn
+  double boost_cyl_bessel_impl(int, double);
 
   template <typename PeakType>
   bool intensityComparator(const PeakType& a, const PeakType& b)
@@ -1878,7 +1881,7 @@ protected:
       if (intenstype_ == "corrected")
       {
         double lambda = IsotopeWavelet::getLambdaL(av_mz * c_charge);
-        av_intens /= exp(-2 * lambda) * boost::math::cyl_bessel_i(0, 2 * lambda);
+        av_intens /= exp(-2 * lambda) * boost_cyl_bessel_impl(0, 2 * lambda);
       }
       if (intenstype_ == "ref")
       {

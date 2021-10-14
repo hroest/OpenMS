@@ -40,7 +40,7 @@
 #include <OpenMS/DATASTRUCTURES/DataValue.h>
 #include <OpenMS/CONCEPT/PrecisionWrapper.h>
 
-#include <QtCore/QString>
+#include <QtCore/QString> // TODO: needs to be here? 150k LOC
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/karma.hpp>
 

@@ -1,7 +1,12 @@
+## DELETE ?? 
 from Types cimport *
 from libcpp cimport bool
 # from SeqanIncludeWrapper cimport *
 from String cimport *
+
+## TODO: do we need this here???
+## kill it all!
+## TODO: pulls in all of Seqan!
 
 cdef extern from "<OpenMS/ANALYSIS/ID/AhoCorasickAmbiguous.h>" namespace "OpenMS":
     

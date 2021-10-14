@@ -39,13 +39,14 @@
 #include <OpenMS/CONCEPT/ProgressLogger.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/assign.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/unordered_map.hpp>
+// adds 80k LOC
+// #include <boost/algorithm/string.hpp>
+// #include <boost/lexical_cast.hpp>
+// #include <boost/assign.hpp>
+// #include <boost/random/mersenne_twister.hpp>
+// #include <boost/random/uniform_int.hpp>
+// #include <boost/random/variate_generator.hpp>
+// #include <boost/unordered_map.hpp>
 
 #include <string>
 #include <vector>

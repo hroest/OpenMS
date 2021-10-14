@@ -34,6 +34,7 @@
 
 #include <OpenMS/ANALYSIS/TARGETED/TargetedExperimentHelper.h>
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <OpenMS/ANALYSIS/TARGETED/TargetedExperiment.h>
 #include <OpenMS/CHEMISTRY/ModificationsDB.h>
 #include <OpenMS/CONCEPT/LogStream.h>

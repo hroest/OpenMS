@@ -34,6 +34,8 @@
 
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathWorkflow.h>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 // OpenSwathCalibrationWorkflow
 namespace OpenMS
 {

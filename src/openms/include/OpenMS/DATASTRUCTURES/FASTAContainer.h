@@ -38,7 +38,8 @@
 #include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <OpenMS/DATASTRUCTURES/ListUtils.h>
-#include <OpenMS/DATASTRUCTURES/StringUtils.h>
+// Remove QString from this ?!!!
+#include <OpenMS/DATASTRUCTURES/StringUtils.h> // tODO remove
 #include <OpenMS/FORMAT/FASTAFile.h>
 
 #include <functional>

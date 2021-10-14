@@ -34,9 +34,10 @@
 
 #include <OpenMS/ANALYSIS/ID/PeptideIndexing.h>
 
-
-using namespace OpenMS;
 using namespace std;
+
+namespace OpenMS
+{
 
 
   PeptideIndexing::PeptideIndexing()
@@ -94,10 +95,9 @@ using namespace std;
     defaultsToParam_();
   }
 
-    PeptideIndexing::~PeptideIndexing()
-  {
-  }
-
+  PeptideIndexing::~PeptideIndexing()
+{
+}
 
   void PeptideIndexing::updateMembers_()
   {
@@ -116,16 +116,15 @@ using namespace std;
     mm_max_ = static_cast<Int>(param_.getValue("mismatches_max"));
   }
 
-const String &PeptideIndexing::getDecoyString() const
-{
-  return decoy_string_;
+  const String &PeptideIndexing::getDecoyString() const
+  {
+    return decoy_string_;
+  }
+
+  bool PeptideIndexing::isPrefix() const
+  {
+    return prefix_;
+  }
+
 }
-
-bool PeptideIndexing::isPrefix() const
-{
-  return prefix_;
-}
-
-
-/// @endcond
 

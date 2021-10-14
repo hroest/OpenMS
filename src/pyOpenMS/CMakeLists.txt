@@ -356,6 +356,7 @@ endif()
 
 #-----------------------------------------------------------------------------
 # since boost 1.69 there seem to be symbols visible/imported after linking it
+
 # statically into OpenMS. Therefore we need to link to it for pyOpenMS as well.
 # Just using the OpenMS dependencies is hard since the CMake variables are
 # a) mangled together with generator expressions (debug and release)

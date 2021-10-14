@@ -4,12 +4,17 @@ from libcpp.string cimport string as libcpp_string
 from StringList cimport *
 from MSSpectrum cimport *
 
-
 cdef extern from "<OpenMS/CHEMISTRY/Tagger.h>" namespace "OpenMS":
 
     cdef cppclass Tagger:
 
         Tagger(Tagger) nogil except +
+
+        Tagger(size_t min_tag_length,
+               double ppm,
+               size_t max_tag_length,
+               size_t min_charge,
+               size_t max_charge) nogil except +
 
         Tagger(size_t min_tag_length,
                double ppm,
@@ -26,3 +31,4 @@ cdef extern from "<OpenMS/CHEMISTRY/Tagger.h>" namespace "OpenMS":
                     libcpp_vector[ libcpp_string ]& tags) nogil except +
 
         void setMaxCharge(size_t max_charge) nogil except +
+

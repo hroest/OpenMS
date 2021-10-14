@@ -34,7 +34,7 @@
 
 #pragma once
 
-#include <boost/math/special_functions/fpclassify.hpp> // for isnan
+#include <boost/math/special_functions/fpclassify.hpp> // for isnan TODO: move away from header
 #include <OpenMS/CHEMISTRY/AASequence.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 

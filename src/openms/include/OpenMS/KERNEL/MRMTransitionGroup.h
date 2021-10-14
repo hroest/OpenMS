@@ -36,7 +36,7 @@
 
 #include <OpenMS/CONCEPT/Macros.h>
 #include <OpenMS/KERNEL/MRMFeature.h>
-#include <boost/numeric/conversion/cast.hpp>
+// #include <boost/numeric/conversion/cast.hpp>
 
 namespace OpenMS
 {
@@ -152,7 +152,7 @@ public:
     inline void addTransition(const TransitionType & transition, String key)
     {
       transitions_.push_back(transition);
-      transition_map_[key] = boost::numeric_cast<int>(transitions_.size()) - 1;
+      transition_map_[key] = (int)(transitions_.size()) - 1;
     }
 
     inline bool hasTransition(String key) const
@@ -184,7 +184,7 @@ public:
     inline void addChromatogram(const ChromatogramType & chromatogram, const String& key)
     {
       chromatograms_.push_back(chromatogram);
-      chromatogram_map_[key] = boost::numeric_cast<int>(chromatograms_.size()) - 1;
+      chromatogram_map_[key] = (int)(chromatograms_.size()) - 1;
 
       // OPENMS_POSTCONDITION(chromatogramIdsMatch(), "Chromatogram ids do not match")
     }
@@ -235,7 +235,7 @@ public:
     inline void addPrecursorChromatogram(const ChromatogramType & chromatogram, const String& key)
     {
       precursor_chromatograms_.push_back(chromatogram);
-      precursor_chromatogram_map_[key] = boost::numeric_cast<int>(precursor_chromatograms_.size()) - 1;
+      precursor_chromatogram_map_[key] = (int)(precursor_chromatograms_.size()) - 1;
 
       // OPENMS_POSTCONDITION(chromatogramIdsMatch(), "Chromatogram ids do not match")
     }

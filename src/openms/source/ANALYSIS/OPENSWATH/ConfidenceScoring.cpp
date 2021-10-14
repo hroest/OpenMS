@@ -32,9 +32,10 @@
 // $Authors: Hannes Roest, Hendrik Weisser $
 // --------------------------------------------------------------------------
 
-#include <numeric> // for "accumulate"
-
 #include <OpenMS/ANALYSIS/OPENSWATH/ConfidenceScoring.h> 
+
+#include <numeric> // for "accumulate"
+#include <boost/numeric/conversion/cast.hpp>
 
 using namespace std;
 

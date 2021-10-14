@@ -66,14 +66,21 @@ namespace OpenMS
             @param fixed_mods a list of modification names. The modified residues replace the unmodified versions.
             @param var_mods a list of modification names. The modified residues are added as additional entries to the list of residues.
           */
-      Tagger(size_t min_tag_length, double ppm, size_t max_tag_length = 65535, size_t min_charge = 1, size_t max_charge = 1, const StringList& fixed_mods = StringList(), const StringList& var_mods = StringList());
+      Tagger(size_t min_tag_length,
+             double ppm,
+             size_t max_tag_length = 65535,
+             size_t min_charge = 1,
+             size_t max_charge = 1,
+             const StringList& fixed_mods = StringList(),
+             const StringList& var_mods = StringList()
+            );
 
       /**
             @brief Generate tags from mass vector @p mzs
 
             The parameter @p tags is filled with one string per sequence tag.
             It uses the standard residues from ResidueDB including
-            the fixed and variable modificatins given to the constructor.
+            the fixed and variable modifications given to the constructor.
 
             @param mzs a vector of mz values, containing the mz values from a centroided fragment spectrum.
             @param tags the vector of tags, that is filled with this function.
@@ -85,7 +92,7 @@ namespace OpenMS
 
             The parameter @p tags is filled with one string per sequence tag.
             It uses the standard residues from ResidueDB including
-            the fixed and variable modificatins given to the constructor.
+            the fixed and variable modifications given to the constructor.
 
             @param spec a centroided fragment spectrum.
             @param tags the vector of tags, that is filled with this function.
@@ -95,7 +102,7 @@ namespace OpenMS
       /**
             @brief Change the maximal charge considered by the tagger
 
-            Allows to change the maximal considered charge e.g. based on a spectrums
+            Allows to change the maximal considered charge e.g. based on a spectrum's
             precursor charge without calling the constructor multiple times.
 
             @param max_charge the new maximal charge.

@@ -34,6 +34,7 @@ import numpy as np
 
         return mzs, intensities
 
+
     def set_peaks(self, peaks):
         """Cython signature: set_peaks((numpy_vector, numpy_vector))
         
@@ -150,3 +151,14 @@ import numpy as np
 
         return I
 
+    # temporary ...
+    def __setitem__(self, key, Peak1D value):
+        assert isinstance(key, (int, long)), 'arg key wrong type'
+
+        cdef long _idx = (<int>key)
+        if _idx >= self.inst.get().size():
+            raise IndexError("invalid index %d" % _idx)
+
+        cdef shared_ptr[_Peak1D] _val = value.inst
+        cdef _MSSpectrum * tmp = self.inst.get()
+        deref(self.inst.get())[(<int>key)] = deref(_val.get()) 

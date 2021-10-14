@@ -35,7 +35,7 @@
 #pragma once
 
 
-#include <OpenMS/ANALYSIS/ID/AhoCorasickAmbiguous.h>
+#include <OpenMS/ANALYSIS/ID/AhoCorasickAmbiguous.h> // TODO: move to cpp
 #include <OpenMS/CHEMISTRY/ProteaseDigestion.h>
 #include <OpenMS/CHEMISTRY/ProteaseDB.h>
 #include <OpenMS/CONCEPT/LogStream.h>
@@ -43,8 +43,8 @@
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/DATASTRUCTURES/FASTAContainer.h>
 #include <OpenMS/DATASTRUCTURES/ListUtils.h>
-#include <OpenMS/DATASTRUCTURES/StringUtils.h>
-#include <OpenMS/DATASTRUCTURES/SeqanIncludeWrapper.h>
+// #include <OpenMS/DATASTRUCTURES/StringUtils.h> // TODO: move away
+#include <OpenMS/DATASTRUCTURES/SeqanIncludeWrapper.h> // TODO: remove
 #include <OpenMS/FORMAT/FASTAFile.h>
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/METADATA/PeptideEvidence.h>
@@ -149,6 +149,9 @@ public:
       FASTAContainer<TFI_Vector> protein_container(proteins);
       return run<TFI_Vector>(protein_container, prot_ids, pep_ids);
     }
+
+    // ExitCodes run(FASTAContainer<TFI_Vector>& proteins, std::vector<ProteinIdentification>& prot_ids, std::vector<PeptideIdentification>& pep_ids);
+    // ExitCodes run(FASTAContainer<TFI_File>& proteins, std::vector<ProteinIdentification>& prot_ids, std::vector<PeptideIdentification>& pep_ids);
 
     /**
     @brief Re-index peptide identifications honoring enzyme cutting rules, ambiguous amino acids and target/decoy hits.

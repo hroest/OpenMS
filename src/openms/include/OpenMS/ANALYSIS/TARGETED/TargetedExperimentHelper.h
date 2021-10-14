@@ -47,7 +47,7 @@
 #include <OpenMS/METADATA/CVTermListInterface.h>
 #include <OpenMS/CHEMISTRY/Residue.h>
 
-#include <boost/numeric/conversion/cast.hpp>
+// #include <boost/numeric/conversion/cast.hpp> // TODO: move out of header?
 
 namespace OpenMS
 {

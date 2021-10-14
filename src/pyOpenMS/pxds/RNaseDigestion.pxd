@@ -55,3 +55,4 @@ cdef extern from "<OpenMS/CHEMISTRY/RNaseDigestion.h>" namespace "OpenMS::RNaseD
         SPEC_SEMI,    # semi specific, i.e., one of the two cleavage sites must fulfill requirements
         SPEC_NONE,    # no requirements on start / end
         SIZE_OF_SPECIFICITY
+

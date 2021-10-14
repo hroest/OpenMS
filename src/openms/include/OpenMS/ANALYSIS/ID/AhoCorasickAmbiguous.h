@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include <OpenMS/DATASTRUCTURES/SeqanIncludeWrapper.h>
+#include <OpenMS/DATASTRUCTURES/SeqanIncludeWrapper.h> // TODO: do we need this in the header ? really?
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <OpenMS/CONCEPT/Exception.h>
 #include <OpenMS/CONCEPT/Macros.h>

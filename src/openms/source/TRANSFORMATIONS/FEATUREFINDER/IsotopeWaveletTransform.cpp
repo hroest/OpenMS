@@ -32,7 +32,14 @@
 // $Authors: Rene Hussong $
 // --------------------------------------------------------------------------
 
+#include <boost/math/special_functions/bessel.hpp> // adds 20k LOC
+
 namespace OpenMS
 {
+
+  double boost_cyl_bessel_impl(int a, double b)
+  {
+    return boost::math::cyl_bessel_i(a, b);
+  }
 }
 
