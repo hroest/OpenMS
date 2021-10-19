@@ -35,9 +35,7 @@
 #pragma once
 
 #include <cmath> // for "exp"
-#include <ctime> // for "time" (random number seed)
 #include <limits> // for "infinity"
-#include <random>
 
 #include <OpenMS/CONCEPT/ProgressLogger.h>
 #include <OpenMS/KERNEL/FeatureMap.h>
@@ -55,11 +53,7 @@ namespace OpenMS
   public:
 
       /// Constructor
-      explicit ConfidenceScoring(bool test_mode_ = false)
-      {
-        if (!test_mode_) shuffler_ = Math::RandomShuffler(0);
-        else shuffler_ = Math::RandomShuffler(time(nullptr));// seed with current time
-      }
+      explicit ConfidenceScoring(bool test_mode_ = false);
 
       virtual ~ConfidenceScoring() {}
 

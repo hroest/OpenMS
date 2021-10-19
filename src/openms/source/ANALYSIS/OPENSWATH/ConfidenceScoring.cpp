@@ -35,7 +35,6 @@
 #include <OpenMS/ANALYSIS/OPENSWATH/ConfidenceScoring.h> 
 
 #include <OpenMS/FORMAT/TransformationXMLFile.h>
-#include <OpenMS/MATH/MISC/MathFunctions.h>
 #include <OpenMS/OPENSWATHALGO/ALGO/Scoring.h>
 #include <OpenMS/FORMAT/FeatureXMLFile.h>
 #include <OpenMS/FORMAT/TraMLFile.h>
@@ -43,6 +42,8 @@
 #include <boost/bimap.hpp>
 #include <boost/bimap/multiset_of.hpp>
 #include <numeric> // for "accumulate"
+#include <ctime> // for "time" (random number seed)
+#include <random>
 
 using namespace std;
 
@@ -51,6 +52,12 @@ namespace OpenMS
     /// Mapping: Q3 m/z <-> transition intensity (maybe not unique!)
     typedef boost::bimap<double, boost::bimaps::multiset_of<double> > 
     BimapType;
+
+    ConfidenceScoring::ConfidenceScoring(bool test_mode_)
+    {
+      if (!test_mode_) shuffler_ = Math::RandomShuffler(0);
+      else shuffler_ = Math::RandomShuffler(time(nullptr));// seed with current time
+    }
 
     /// Randomize the list of decoy indexes
     void ConfidenceScoring::chooseDecoys_()
