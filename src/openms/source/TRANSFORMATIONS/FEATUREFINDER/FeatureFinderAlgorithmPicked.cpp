@@ -50,6 +50,7 @@
 #include <QtCore/QDir>
 
 #ifdef _OPENMP
+#include <omp.h>
 #endif
 
 namespace OpenMS
