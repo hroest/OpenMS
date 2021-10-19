@@ -1876,6 +1876,7 @@ protected:
       {
         double lambda = IsotopeWavelet::getLambdaL(av_mz * c_charge);
         av_intens /= exp(-2 * lambda) * boost::math::cyl_bessel_i(0, 2 * lambda);
+        // TODO: replace with cyl_bessel_i from cmath
       }
       if (intenstype_ == "ref")
       {
