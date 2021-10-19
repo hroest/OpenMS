@@ -193,33 +193,33 @@ public:
   namespace StringUtils 
   {
 
-    String number(double d, UInt n)
+    static String number(double d, UInt n)
     {
       return QString::number(d, 'f', n);
     }
 
-    QString toQString(const String & this_s) 
+    static QString toQString(const String & this_s) 
     {
       return QString(this_s.c_str());
     }
 
-    Int toInt(const String & this_s)
+    static Int toInt(const String & this_s)
     {
       return StringUtilsHelper::toInt(this_s);
     }
 
-    float toFloat(const String & this_s)
+    static float toFloat(const String & this_s)
     {
       return StringUtilsHelper::toFloat(this_s);
     }
 
-    double toDouble(const String & this_s)
+    static double toDouble(const String & this_s)
     {
       return StringUtilsHelper::toDouble(this_s);
     }
 
     template <typename IteratorT>
-    bool extractDouble(IteratorT& begin, const IteratorT& end, double& target)
+    static bool extractDouble(IteratorT& begin, const IteratorT& end, double& target)
     {
       return StringUtilsHelper::extractDouble(begin, end, target);
     }
