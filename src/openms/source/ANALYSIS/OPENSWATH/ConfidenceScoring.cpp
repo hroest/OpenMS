@@ -32,14 +32,25 @@
 // $Authors: Hannes Roest, Hendrik Weisser $
 // --------------------------------------------------------------------------
 
-#include <numeric> // for "accumulate"
-
 #include <OpenMS/ANALYSIS/OPENSWATH/ConfidenceScoring.h> 
+
+#include <OpenMS/FORMAT/TransformationXMLFile.h>
+#include <OpenMS/MATH/MISC/MathFunctions.h>
+#include <OpenMS/OPENSWATHALGO/ALGO/Scoring.h>
+#include <OpenMS/FORMAT/FeatureXMLFile.h>
+#include <OpenMS/FORMAT/TraMLFile.h>
+
+#include <boost/bimap.hpp>
+#include <boost/bimap/multiset_of.hpp>
+#include <numeric> // for "accumulate"
 
 using namespace std;
 
 namespace OpenMS
 {
+    /// Mapping: Q3 m/z <-> transition intensity (maybe not unique!)
+    typedef boost::bimap<double, boost::bimaps::multiset_of<double> > 
+    BimapType;
 
     /// Randomize the list of decoy indexes
     void ConfidenceScoring::chooseDecoys_()
@@ -79,9 +90,10 @@ namespace OpenMS
       return assay.getRetentionTime();
     }
 
+
     /// Extract the @p n_transitions highest intensities from @p intensity_map,
     /// store them in @p intensities
-    void ConfidenceScoring::extractIntensities_(BimapType& intensity_map, Size n_transitions,
+    void extractIntensities_(BimapType& intensity_map, Size n_transitions,
                              DoubleList& intensities)
     {
       // keep only as many transitions as needed, remove those with lowest

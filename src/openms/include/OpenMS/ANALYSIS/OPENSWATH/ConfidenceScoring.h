@@ -38,18 +38,13 @@
 #include <ctime> // for "time" (random number seed)
 #include <limits> // for "infinity"
 #include <random>
-#include <boost/bimap.hpp>
-#include <boost/bimap/multiset_of.hpp>
 
-#include <OpenMS/FORMAT/FeatureXMLFile.h>
-#include <OpenMS/FORMAT/TraMLFile.h>
-#include <OpenMS/FORMAT/TransformationXMLFile.h>
+#include <OpenMS/CONCEPT/ProgressLogger.h>
 #include <OpenMS/KERNEL/FeatureMap.h>
-#include <OpenMS/MATH/MISC/MathFunctions.h>
-
-#include "OpenMS/OPENSWATHALGO/ALGO/Scoring.h"
 #include <OpenMS/ANALYSIS/MAPMATCHING/TransformationDescription.h>
 #include <OpenMS/ANALYSIS/TARGETED/TargetedExperiment.h>
+
+#include <OpenMS/MATH/MISC/MathFunctions.h>
 
 namespace OpenMS
 {
@@ -69,10 +64,6 @@ namespace OpenMS
       virtual ~ConfidenceScoring() {}
 
   protected:
-
-      /// Mapping: Q3 m/z <-> transition intensity (maybe not unique!)
-      typedef boost::bimap<double, boost::bimaps::multiset_of<double> > 
-      BimapType;
 
       /// Binomial GLM
       struct GLM_
@@ -124,11 +115,6 @@ namespace OpenMS
 
       /// Get the retention time of an assay
       double getAssayRT_(const TargetedExperiment::Peptide& assay);
-
-      /// Extract the @p n_transitions highest intensities from @p intensity_map,
-      /// store them in @p intensities
-      void extractIntensities_(BimapType& intensity_map, Size n_transitions,
-                               DoubleList& intensities);
 
       /// Score the assay @p assay against feature data (@p feature_rt,
       /// @p feature_intensities), optionally using only the specified transitions
