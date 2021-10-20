@@ -614,7 +614,7 @@ namespace OpenMS
       return retval;
     }
 
-    inline int OPENMS_DLLAPI lowess(const std::vector<double>& x, const std::vector<double>& y,
+    int lowess(const std::vector<double>& x, const std::vector<double>& y,
                std::vector<double>& result)
     {
       OPENMS_PRECONDITION(x.size() == y.size(), "Vectors x and y must have the same length")

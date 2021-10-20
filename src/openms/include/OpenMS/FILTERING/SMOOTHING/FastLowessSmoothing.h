@@ -111,7 +111,7 @@ namespace OpenMS
       \pre The vector x needs to be sorted
       
     */
-    inline int OPENMS_DLLAPI lowess(const std::vector<double>& x, const std::vector<double>& y,
+    int OPENMS_DLLAPI lowess(const std::vector<double>& x, const std::vector<double>& y,
                std::vector<double>& result);
   }
 
