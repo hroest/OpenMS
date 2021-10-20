@@ -7,12 +7,16 @@
 #   sudo docker run --net=host -v `pwd`:/data hroest/manylinux2014_qt59_contrib:v1.1 /bin/bash /data/create-manylinux.sh
 #
 
-set -e
+# set -e
 
 # Note that we cannot use git any more as it refuses to communicate with
 # github, but we have a patched version of wget with a newer OpenSSL version
 # capable of downloading the release tar file.
-wget https://github.com/OpenMS/OpenMS/releases/download/Release2.4.0/OpenMS-2.4.0-src.tar.gz -O OpenMS-2.4.0-src.tar.gz
+### wget https://github.com/OpenMS/OpenMS/releases/download/Release2.4.0/OpenMS-2.4.0-src.tar.gz -O OpenMS-2.4.0-src.tar.gz
+### TODO: change back!
+# cp /data/oms/develop.zip .
+# unzip develop.zip
+cp /data/oms/OpenMS-2.4.0-src.tar.gz . 
 tar xzvf OpenMS-2.4.0-src.tar.gz
 mv OpenMS-2.4.0/ OpenMS
 
@@ -30,9 +34,9 @@ cd /
 # fixes some issues with empty pxd files
 rm -rf /OpenMS/src/pyOpenMS/pxds/SwathMapMassCorrection.pxd
 
-
 # install Python deps
-for PYBIN in /opt/python/cp27* /opt/python/cp3[4-9]*; do
+# for PYBIN in /opt/python/cp27* /opt/python/cp3[4-9]*; do
+for PYBIN in /opt/python/cp38* ; do
   "$PYBIN/bin/pip" install -U Cython
   "$PYBIN/bin/pip" install -U setuptools
   "$PYBIN/bin/pip" install -U wheel
@@ -47,7 +51,8 @@ mkdir -p /data/wheelhouse/before_fix/
 LD_OLD_LIBRARY_PATH=$LD_LIBRARY_PATH
 
 # compile and configure OpenMS
-for PYBIN in /opt/python/cp27* /opt/python/cp3[4-9]*; do
+# for PYBIN in /opt/python/cp27* /opt/python/cp3[4-9]*; do
+for PYBIN in /opt/python/cp38* ; do
 
   PYVER=`basename $PYBIN`
   mkdir /openms-build-$PYVER
@@ -68,6 +73,12 @@ for PYBIN in /opt/python/cp27* /opt/python/cp3[4-9]*; do
   rm -rf build/lib*/pyopenms/lib*
 
   "$PYBIN/bin/pip" wheel . -w wheelhouse_tmp
+
+  ### see patch2 above
+  ### ## TODO: had to re-compile pyopenms_8
+  ### ## TODO: had to add -lboost_regex-mt-x64
+  ### /opt/rh/devtoolset-8/root/usr/bin/c++ -pthread -shared build/temp.linux-x86_64-3.8/pyopenms/pyopenms_8.o -L/openms-build-cp38-cp38 -L/openms-build-cp38-cp38/lib -L/openms-build-cp38-cp38/lib/Release -L/openms-build-cp38-cp38/bin -L/openms-build-cp38-cp38/bin/Release -L/openms-build-cp38-cp38/Release -L/usr/lib64/qt5/bin -L/usr/lib64 -L/contrib-build/lib -lOpenMS -lOpenSwathAlgo -lSuperHirn -lQt5Core -lQt5Network -lboost_regex-mt-x64 -o build/lib.linux-x86_64-3.8/pyopenms/pyopenms_8.cpython-38-x86_64-linux-gnu.so -Wl,-s -std=c++11
+  ### cp build/lib.linux-x86_64-3.8/pyopenms/pyopenms_8.cpython-38-x86_64-linux-gnu.so pyopenms
 
   # Bundle external shared libraries into the wheels
   for whl in wheelhouse_tmp/pyopenms*.whl; do
