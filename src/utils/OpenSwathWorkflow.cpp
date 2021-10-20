@@ -499,8 +499,10 @@ protected:
     registerStringOption_("use_ms1_ion_mobility", "<name>", "true", "Also perform precursor extraction using the same ion mobility window as for fragment ion extraction", false, true);
     setValidStrings_("use_ms1_ion_mobility", ListUtils::create<String>("true,false"));
 
-    registerStringOption_("matching_window_only", "<name>", "false", "Assume the input data is targeted / PRM-like data with potentially overlapping DIA windows. Will only attempt to extract each assay from the *best* matching DIA window (instead of all matching windows).", false, true);
-    setValidStrings_("matching_window_only", ListUtils::create<String>("true,false"));
+    registerStringOption_("select_best_overlapping_mz", "<name>", "false", "Assume the input data contains potentially overlapping DIA windows in m/z. Will only attempt to extract each assay from the *best* matching DIA window (instead of all matching windows).", false, true);
+    setValidStrings_("select_best_overlapping_mz", ListUtils::create<String>("true,false"));
+    registerStringOption_("select_best_overlapping_im", "<name>", "false", "Assume the input data contains potentially overlapping DIA windows in ion mobility. Will only attempt to extract each assay from the *best* matching DIA window (instead of all matching windows).", false, true);
+    setValidStrings_("select_best_overlapping_im", ListUtils::create<String>("true,false"));
 
     // iRT mz and IM windows
     registerDoubleOption_("irt_mz_extraction_window", "<double>", 0.05, "Extraction window used for iRT and m/z correction in Thomson or ppm (see irt_mz_extraction_window_unit)", false, true);
@@ -758,7 +760,8 @@ protected:
 
     double min_upper_edge_dist = getDoubleOption_("min_upper_edge_dist");
     bool use_ms1_im = getStringOption_("use_ms1_ion_mobility") == "true";
-    bool prm = getStringOption_("matching_window_only") == "true";
+    bool prm = getStringOption_("select_best_overlapping_mz") == "true";
+    prm = prm || (getStringOption_("select_best_overlapping_im") == "true");
 
     ChromExtractParams cp;
     cp.min_upper_edge_dist   = min_upper_edge_dist;
