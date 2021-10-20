@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -33,6 +33,7 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/config.h>
+#include <OpenMS/CONCEPT/Constants.h>
 #include <OpenMS/ANALYSIS/ID/PercolatorFeatureSetHelper.h>
 
 using namespace std;
@@ -46,7 +47,7 @@ namespace OpenMS
       feature_set.push_back("MSGF:ScoreRatio");
       feature_set.push_back("MSGF:Energy");
       feature_set.push_back("MSGF:lnEValue");
-      feature_set.push_back("IsotopeError"); // unchanged IsotopeError
+      feature_set.push_back(Constants::UserParam::ISOTOPE_ERROR);
       feature_set.push_back("MSGF:lnExplainedIonCurrentRatio");
       feature_set.push_back("MSGF:lnNTermIonCurrentRatio");
       feature_set.push_back("MSGF:lnCTermIonCurrentRatio");
@@ -80,9 +81,9 @@ namespace OpenMS
               double ln_eval = -log(hit->getMetaValue("MS:1002053").toString().toDouble());
               hit->setMetaValue("MSGF:lnEValue", ln_eval);
               
-              double ln_explained_ion_current_ratio = log(hit->getMetaValue("ExplainedIonCurrentRatio").toString().toDouble() + 0.0001);           // @andsi: wtf?!
-              double ln_NTerm_ion_current_ratio = log(hit->getMetaValue("NTermIonCurrentRatio").toString().toDouble() + 0.0001);           // @andsi: wtf?!
-              double ln_CTerm_ion_current_ratio = log(hit->getMetaValue("CTermIonCurrentRatio").toString().toDouble() + 0.0001);           // @andsi: wtf?!
+              double ln_explained_ion_current_ratio = log(hit->getMetaValue("ExplainedIonCurrentRatio").toString().toDouble() + 0.0001);
+              double ln_NTerm_ion_current_ratio = log(hit->getMetaValue("NTermIonCurrentRatio").toString().toDouble() + 0.0001);
+              double ln_CTerm_ion_current_ratio = log(hit->getMetaValue("CTermIonCurrentRatio").toString().toDouble() + 0.0001);
               hit->setMetaValue("MSGF:lnExplainedIonCurrentRatio", ln_explained_ion_current_ratio);
               hit->setMetaValue("MSGF:lnNTermIonCurrentRatio", ln_NTerm_ion_current_ratio);
               hit->setMetaValue("MSGF:lnCTermIonCurrentRatio", ln_CTerm_ion_current_ratio);
@@ -123,6 +124,7 @@ namespace OpenMS
     
     void PercolatorFeatureSetHelper::addXTANDEMFeatures(vector<PeptideIdentification>& peptide_ids, StringList& feature_set)
     {
+      //TODO annotate isotope error in Adapter and add here as well.
       // Find out which ions are in XTandem-File and take only these as features
       StringList ion_types = ListUtils::create<String>("a,b,c,x,y,z");
       StringList ion_types_found;
@@ -162,8 +164,18 @@ namespace OpenMS
       }
     }
 
+    void PercolatorFeatureSetHelper::addMSFRAGGERFeatures(StringList& feature_set)
+    {
+      feature_set.push_back("MS:1001330"); // expect_score
+      feature_set.push_back("hyperscore");
+      feature_set.push_back("nextscore");
+      feature_set.push_back(Constants::UserParam::ISOTOPE_ERROR);
+    }
+
     void PercolatorFeatureSetHelper::addCOMETFeatures(vector<PeptideIdentification>& peptide_ids, StringList& feature_set)
     {
+
+      feature_set.push_back(Constants::UserParam::ISOTOPE_ERROR);
       feature_set.push_back("COMET:deltCn"); // recalculated deltCn = (current_XCorr - 2nd_best_XCorr) / max(current_XCorr, 1)
       feature_set.push_back("COMET:deltLCn"); // deltLCn = (current_XCorr - worst_XCorr) / max(current_XCorr, 1)
       feature_set.push_back("COMET:lnExpect"); // log(E-value)
@@ -225,7 +237,7 @@ namespace OpenMS
     1. mass        Calculated monoisotopic mass of the identified peptide. Present as generic feature.
     2. charge      Precursor ion charge. Present as generic feature.
     3. mScore      Mascot score. Added in this function.
-    4. dScore      Mascot score minus Mascot score of next best nonisobaric peptide hit. Added in this function.
+    4. dScore      Mascot score minus Mascot score of next best non isobaric peptide hit. Added in this function.
     5. deltaM      Calculated minus observed peptide mass (in Dalton and ppm). Present as generic feature.
     6. absDeltaM   Absolute value of calculated minus observed peptide mass (in Dalton and ppm). Present as generic feature.
     7. isoDeltaM   Calculated minus observed peptide mass, isotope error corrected (in Dalton and ppm)
@@ -355,7 +367,6 @@ namespace OpenMS
           {
             hit->setMetaValue("MS:1001330", hit->getMetaValue("E-Value"));
           }
-
         }
         ins.setScoreType("multiple");
         ins.setIdentifier("TopPerc_multiple_SE_input");
@@ -487,10 +498,11 @@ namespace OpenMS
         all_sp.setMetaValue(SE+":variable_modifications",ListUtils::concatenate(sp.variable_modifications, ","));
         all_sp.setMetaValue(SE+":missed_cleavages",sp.missed_cleavages);
         all_sp.setMetaValue(SE+":fragment_mass_tolerance",sp.fragment_mass_tolerance);
-        all_sp.setMetaValue(SE+":fragment_mass_tolerance_ppm",sp.fragment_mass_tolerance_ppm);
+        all_sp.setMetaValue(SE+":fragment_mass_tolerance_unit", sp.fragment_mass_tolerance_ppm ? "ppm" : "Da");
         all_sp.setMetaValue(SE+":precursor_mass_tolerance",sp.precursor_mass_tolerance);
-        all_sp.setMetaValue(SE+":precursor_mass_tolerance_ppm",sp.precursor_mass_tolerance_ppm);
+        all_sp.setMetaValue(SE+":precursor_mass_tolerance_unit", sp.precursor_mass_tolerance_ppm ? "ppm" : "Da");
         all_sp.setMetaValue(SE+":digestion_enzyme",sp.digestion_enzyme.getName());
+        all_sp.setMetaValue(SE+":enzyme_term_specificity",sp.enzyme_term_specificity);
         //TODO maybe add all the files in file origin that were searched with this SE. then we can do a lookup later
         // for every PepID based on its file_origin, with which SEs and settings it was identified.
         
@@ -740,7 +752,7 @@ namespace OpenMS
     }
 
     
-    // Function adapted from MsgfplusReader in Percolator converter
+    // Function adapted from MSGFPlusReader in Percolator converter
     double PercolatorFeatureSetHelper::rescaleFragmentFeature_(double featureValue, int NumMatchedMainIons)
     {
       // Rescale the fragment features to penalize features calculated by few ions

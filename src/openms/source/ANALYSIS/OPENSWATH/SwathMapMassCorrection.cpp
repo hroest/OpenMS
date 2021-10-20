@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -85,15 +85,15 @@ namespace OpenMS
     DefaultParamHandler("SwathMapMassCorrection")
   {
     defaults_.setValue("mz_extraction_window", -1.0, "M/z extraction window width");
-    defaults_.setValue("mz_extraction_window_ppm", "false", "Whether m/z extraction is in ppm", ListUtils::create<String>("advanced"));
-    defaults_.setValidStrings("mz_extraction_window_ppm", ListUtils::create<String>("true,false"));
-    defaults_.setValue("ms1_im_calibration", "false", "Whether to use MS1 precursor data for the ion mobility calibration (default = false, uses MS2 / fragment ions for calibration)", ListUtils::create<String>("advanced"));
-    defaults_.setValidStrings("ms1_im_calibration", ListUtils::create<String>("true,false"));
+    defaults_.setValue("mz_extraction_window_ppm", "false", "Whether m/z extraction is in ppm", {"advanced"});
+    defaults_.setValidStrings("mz_extraction_window_ppm", {"true","false"});
+    defaults_.setValue("ms1_im_calibration", "false", "Whether to use MS1 precursor data for the ion mobility calibration (default = false, uses MS2 / fragment ions for calibration)", {"advanced"});
+    defaults_.setValidStrings("ms1_im_calibration", {"true","false"});
     defaults_.setValue("im_extraction_window", -1.0, "Ion mobility extraction window width");
     defaults_.setValue("mz_correction_function", "none", "Type of normalization function for m/z calibration.");
-    defaults_.setValidStrings("mz_correction_function", ListUtils::create<String>("none,regression_delta_ppm,unweighted_regression,weighted_regression,quadratic_regression,weighted_quadratic_regression,weighted_quadratic_regression_delta_ppm,quadratic_regression_delta_ppm"));
+    defaults_.setValidStrings("mz_correction_function", {"none","regression_delta_ppm","unweighted_regression","weighted_regression","quadratic_regression","weighted_quadratic_regression","weighted_quadratic_regression_delta_ppm","quadratic_regression_delta_ppm"});
     defaults_.setValue("im_correction_function", "linear", "Type of normalization function for IM calibration.");
-    defaults_.setValidStrings("im_correction_function", ListUtils::create<String>("none,linear"));
+    defaults_.setValidStrings("im_correction_function", {"none","linear"});
 
     defaults_.setValue("debug_im_file", "", "Debug file for Ion Mobility calibration.");
     defaults_.setValue("debug_mz_file", "", "Debug file for m/z calibration.");
@@ -108,17 +108,17 @@ namespace OpenMS
     mz_extraction_window_ppm_ = param_.getValue("mz_extraction_window_ppm") == "true";
     ms1_im_ = param_.getValue("ms1_im_calibration") == "true";
     im_extraction_window_ = (double)param_.getValue("im_extraction_window");
-    mz_correction_function_ = param_.getValue("mz_correction_function");
-    im_correction_function_ = param_.getValue("im_correction_function");
-    debug_mz_file_ = param_.getValue("debug_mz_file");
-    debug_im_file_ = param_.getValue("debug_im_file");
+    mz_correction_function_ = param_.getValue("mz_correction_function").toString();
+    im_correction_function_ = param_.getValue("im_correction_function").toString();
+    debug_mz_file_ = param_.getValue("debug_mz_file").toString();
+    debug_im_file_ = param_.getValue("debug_im_file").toString();
   }
 
   void SwathMapMassCorrection::correctIM(
     const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
+    const OpenSwath::LightTargetedExperiment& targeted_exp,
     const std::vector< OpenSwath::SwathMap > & swath_maps,
-    TransformationDescription& im_trafo,
-    const OpenSwath::LightTargetedExperiment& targeted_exp)
+    TransformationDescription& im_trafo)
   {
     bool ppm = mz_extraction_window_ppm_;
     double mz_extr_window = mz_extraction_window_;
@@ -168,7 +168,7 @@ namespace OpenMS
     std::vector<double> exp_im;
     std::vector<double> theo_im;
 #ifdef _OPENMP
-#pragma omp parallel for 
+#pragma omp parallel for
 #endif
     for (SignedSize k = 0; k < (SignedSize)trgr_ids.size(); k++)
     {
@@ -194,13 +194,25 @@ namespace OpenMS
       // calibrating transitions (fragment m/z values) from the spectrum
       // Note that we are not using light clones of the underlying data here,
       // so access to the data needs to be in a critical section.
-      OpenSwath::SpectrumPtr sp;
+      // OpenSwath::SpectrumPtr sp;
+      OpenSwath::SpectrumPtr sp_ms1;
+      OpenSwath::SpectrumPtr sp_ms2;
 #ifdef _OPENMP
 #pragma omp critical
 #endif
       {
-        if (ms1_im_) sp = OpenSwathScoring().fetchSpectrumSwath(ms1_maps, bestRT, 1, 0, 0);
-        else sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
+
+        // if (ms1_im_) sp = OpenSwathScoring().fetchSpectrumSwath(ms1_maps, bestRT, 1, 0, 0);
+        // else sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
+
+        if (ms1_im_)
+        {
+          sp_ms1 = OpenSwathScoring().fetchSpectrumSwath(ms1_maps, bestRT, 1, 0, 0);
+        }
+        else
+        {
+          sp_ms2 = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
+        }
       }
 
       for (const auto& tr : transition_group->getTransitions())
@@ -221,15 +233,20 @@ namespace OpenMS
         DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
 
         // Check that the spectrum really has a drift time array
-        if (sp->getDriftTimeArray() == nullptr)
+        if (sp_ms2->getDriftTimeArray() == nullptr)
         {
           OPENMS_LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
-          for (const auto& m : used_maps) OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
+          for (const auto& m : used_maps)
+          {
+            OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
+          }
           continue;
         }
 
         // Note: negative im_extraction windows are handled by extracting the full width
-        DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, drift_left, drift_right);
+        // DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, drift_left, drift_right);
+        DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
+        DIAHelpers::integrateDriftSpectrum(sp_ms2, left, right, im, intensity, drift_left, drift_right);
 
         // skip empty windows
         if (im <= 0)
@@ -251,9 +268,58 @@ namespace OpenMS
           }
         }
         OPENMS_LOG_DEBUG << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+        // TODO
         if (ms1_im_) {break;}
       }
 
+      // Do MS1 extraction
+      if (!transition_group->getTransitions().empty() && ms1_im_)
+      {
+        const auto& tr = transition_group->getTransitions()[0];
+        double intensity(0), im(0), left(tr.precursor_mz), right(tr.precursor_mz);
+
+        // get drift time upper/lower offset (this assumes that all chromatograms
+        // are derived from the same precursor with the same drift time)
+        auto pepref = tr.getPeptideRef();
+        double drift_target = pep_im_map[pepref];
+        double drift_left(drift_target), drift_right(drift_target);
+        DIAHelpers::adjustExtractionWindow(drift_right, drift_left, im_extraction_win, false);
+
+        // Check that the spectrum really has a drift time array
+        if (sp_ms1->getDriftTimeArray() == nullptr)
+        {
+          OPENMS_LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
+          for (const auto& m : used_maps)
+          {
+            OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
+          }
+          continue;
+        }
+
+        DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
+        DIAHelpers::integrateDriftSpectrum(sp_ms1, left, right, im, intensity, drift_left, drift_right);
+
+        // skip empty windows
+        if (im <= 0)
+        {
+          continue;
+        }
+
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+        {
+          // store result drift time
+          data_im.push_back(std::make_pair(im, drift_target));
+          exp_im.push_back(im);
+          theo_im.push_back(drift_target);
+          if (!debug_im_file_.empty())
+          {
+            os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+          }
+        }
+        OPENMS_LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+      }
     }
 
     if (!debug_im_file_.empty()) {os_im.close();}
@@ -282,8 +348,8 @@ namespace OpenMS
 
   void SwathMapMassCorrection::correctMZ(
     const std::map<String, OpenMS::MRMFeatureFinderScoring::MRMTransitionGroupType *> & transition_group_map,
-    std::vector< OpenSwath::SwathMap > & swath_maps,
-    const OpenSwath::LightTargetedExperiment& targeted_exp)
+    const OpenSwath::LightTargetedExperiment& targeted_exp,
+    std::vector< OpenSwath::SwathMap > & swath_maps)
   {
     bool ppm = mz_extraction_window_ppm_;
     double mz_extr_window = mz_extraction_window_;

@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -35,6 +35,7 @@
 #include <OpenMS/OPENSWATHALGO/ALGO/Scoring.h>
 #include <OpenMS/OPENSWATHALGO/Macros.h>
 #include <cmath>
+#include <algorithm>
 
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -44,11 +45,8 @@
 #include <Entropy.c>
 #include <MutualInformation.c>
 
-namespace OpenSwath
+namespace OpenSwath::Scoring
 {
-  namespace Scoring
-  {
-
     void normalize_sum(double x[], unsigned int n)
     {
       double sumx = std::accumulate(&x[0], &x[0] + n, 0.0);
@@ -105,7 +103,15 @@ namespace OpenSwath
       x_len = std::sqrt(x_len);
       y_len = std::sqrt(y_len);
 
-      return std::acos(dotprod / (x_len * y_len));
+      // normalise, avoiding a divide by zero. See unit tests for what happens
+      // when one of the vectors has a length of zero.
+      double denominator = x_len * y_len;
+      double theta = (denominator == 0) ? 0.0 : dotprod / denominator;
+
+      // clip to range [-1, 1] to save acos blowing up
+      theta = std::max(-1.0, std::min(1.0, theta));
+
+      return std::acos(theta);
     }
 
     XCorrArrayType::const_iterator xcorrArrayGetMaxPeak(const XCorrArrayType& array)
@@ -138,9 +144,14 @@ namespace OpenSwath
       }
       double stdev = sqrt(sqsum / data.size()); // standard deviation
 
-      if (mean == 0 && stdev == 0) return; // all data is zero
-      if (stdev == 0) stdev = 1; // all data is equal
-
+      if (mean == 0 && stdev == 0)
+      {
+        return; // all data is zero
+      }
+      if (stdev == 0)
+      {
+        stdev = 1; // all data is equal
+      }
       for (std::size_t i = 0; i < data.size(); i++)
       {
         data[i] = (data[i] - mean) / stdev;
@@ -270,8 +281,10 @@ namespace OpenSwath
       std::pair<double, unsigned int> rank;
       std::vector<unsigned int> result(v_temp.size());
 
-      for (unsigned int i = 0; i < v_sort.size(); ++i) {
-        if (v_sort[i].first != rank.first) {
+      for (unsigned int i = 0; i < v_sort.size(); ++i)
+      {
+        if (v_sort[i].first != rank.first)
+        {
           rank = std::make_pair(v_sort[i].first, i);
         }
         result[v_sort[i].second] = rank.second;
@@ -294,6 +307,4 @@ namespace OpenSwath
 
       return result;
     }
-
-  } //end namespace Scoring
-}
+}      //namespace OpenMS  // namespace Scoring

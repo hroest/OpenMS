@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -52,8 +52,8 @@ namespace OpenMS
                                                     "If the left width gets too broad or negative during the fitting it can be penalized.");
     defaults_.setValue("penalties:right_width", 0.0, "penalty term for the fitting of the right width:" \
                                                      "If the right width gets too broad or negative during the fitting it can be penalized.");
-    defaults_.setValue("2d:tolerance_mz", 2.2, "mz tolerance for cluster construction", ListUtils::create<String>("advanced"));
-    defaults_.setValue("2d:max_peak_distance", 1.2, "maximal peak distance in mz in a cluster", ListUtils::create<String>("advanced"));
+    defaults_.setValue("2d:tolerance_mz", 2.2, "mz tolerance for cluster construction", {"advanced"});
+    defaults_.setValue("2d:max_peak_distance", 1.2, "maximal peak distance in mz in a cluster", {"advanced"});
     defaults_.setValue("iterations", 10, "maximal number of iterations for the fitting step");
 
 
@@ -70,8 +70,9 @@ namespace OpenMS
   TwoDOptimization & TwoDOptimization::operator=(const TwoDOptimization & opt)
   {
     if (&opt == this)
+    {
       return *this;
-
+    }
     DefaultParamHandler::operator=(opt);
     updateMembers_();
 
@@ -96,7 +97,9 @@ namespace OpenMS
     {
       std::cout << it2->first << " has " << it2->second.size() << " elements:" << std::endl;
       for (Size i = 0; i < it2->second.size(); ++i)
+      {
         std::cout << it2->second[i]->getPeak(ms_exp).getMZ() << "\t";
+      }
       std::cout << std::endl;
     }
 #endif
@@ -220,7 +223,9 @@ namespace OpenMS
         // size_t current_peak = 0;
         peak_iter = iso_map_iter->second.peaks.begin();
         while (peak_iter != iso_map_iter->second.peaks.end() && peak_iter->first != curr_scan_idx)
+        {
           ++peak_iter;
+        }
         //iterate over all peaks of the current scan
         while (peak_iter != iso_map_iter->second.peaks.end() && peak_iter->first == curr_scan_idx)
         {
@@ -318,13 +323,17 @@ namespace OpenMS
         penalty += 1e7 * penalties.lWidth * pow(fabs(p_width_l - old_width_l), 2);
       }
       else if (p_width_l < 1)
+      {
         penalty += 1000 * penalties.lWidth * pow(fabs(p_width_l - old_width_l), 2);
+      }
       if (p_width_r < 0)
       {
         penalty += 1e7 * penalties.rWidth * pow(fabs(p_width_r - old_width_r), 2);
       }
       else if (p_width_r < 1)
+      {
         penalty += 1000 * penalties.rWidth * pow(fabs(p_width_r - old_width_r), 2);
+      }
       if (p_position < 0)
       {
         penalty += 100 * penalties.pos * pow(p_position - old_position, 2);
@@ -414,7 +423,9 @@ namespace OpenMS
         // size_t current_peak = 0;
         peak_iter = iso_map_iter->second.peaks.begin();
         while (peak_iter != iso_map_iter->second.peaks.end() && peak_iter->first != curr_scan_idx)
+        {
           ++peak_iter;
+        }
         //iterate over all peaks of the current scan
         while (peak_iter != iso_map_iter->second.peaks.end() && peak_iter->first == curr_scan_idx)
         {
@@ -568,13 +579,17 @@ namespace OpenMS
         penalty_l += 1e7 * penalty_lwidth;
       }
       else if (p_width_l < 1)
+      {
         penalty_l += 2000 * penalties.lWidth * (fabs(p_width_l - old_width_l));
+      }
       if (p_width_r < 0)
       {
         penalty_r += 1e7 * penalty_rwidth;
       }
       else if (p_width_r < 1)
+      {
         penalty_r += 2000 * penalties.rWidth * (fabs(p_width_r - old_width_r));
+      }
       if (p_position < 0)
       {
         penalty_p += 200 * penalty_pos;
@@ -582,9 +597,7 @@ namespace OpenMS
 
       if (fabs(old_position - p_position) > 0.2)
       {
-
         penalty_p += 2000 * penalties.pos * fabs(p_position - old_position);
-
       }
       if (fabs(old_width_r - p_width_r) > 1)
       {

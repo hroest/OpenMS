@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -38,10 +38,11 @@
 #include <OpenMS/SYSTEM/File.h>
 #include <OpenMS/CONCEPT/PrecisionWrapper.h>
 
-namespace OpenMS
+#include <ostream>
+
+namespace OpenMS::Internal
 {
-  namespace Internal
-  {
+
 
     TraMLHandler::TraMLHandler(const TargetedExperiment& exp, const String& filename, const String& version, const ProgressLogger& logger) :
       XMLHandler(filename, version),
@@ -300,8 +301,7 @@ namespace OpenMS
     {
       if (open_tags_.back() == "Sequence")
       {
-        String protein_sequence = sm_.convert(chars);
-        actual_protein_.sequence = protein_sequence;
+        actual_protein_.sequence = sm_.convert(chars);
         return;
       }
       return;
@@ -681,7 +681,7 @@ namespace OpenMS
                   residue = it->sequence[mit->location];
                 }
                 const ResidueModification* rmod = mod_db->getModification("UniMod:" + String(mit->unimod_id), residue, term_spec);
-                String modname = rmod->getId();
+                const String& modname = rmod->getId();
                 os << "        <cvParam cvRef=\"UNIMOD\" accession=\"UNIMOD:" << mit->unimod_id
                   << "\" name=\"" << modname << "\"/>\n";
               }
@@ -724,17 +724,17 @@ namespace OpenMS
           if (it->theoretical_mass > 0.0)
           {
             os << "      <cvParam cvRef=\"MS\" accession=\"MS:1001117\" name=\"theoretical mass\" value=\"" << 
-              it->theoretical_mass << "\" unitCvRef=\"UO\" unitAccession=\"UO:0000221\" unitName=\"dalton\"/>\n";
+            it->theoretical_mass << "\" unitCvRef=\"UO\" unitAccession=\"UO:0000221\" unitName=\"dalton\"/>\n";
           }
           if (!it->molecular_formula.empty())
           {
             os << "      <cvParam cvRef=\"MS\" accession=\"MS:1000866\" name=\"molecular formula\" value=\"" << 
-              it->molecular_formula << "\"/>\n";
+            it->molecular_formula << "\"/>\n";
           }
           if (!it->smiles_string.empty())
           {
             os << "      <cvParam cvRef=\"MS\" accession=\"MS:1000868\" name=\"SMILES string\" value=\"" << 
-              it->smiles_string << "\"/>\n";
+            it->smiles_string << "\"/>\n";
           }
 
           writeCVParams_(os, *it, 3);
@@ -849,15 +849,15 @@ namespace OpenMS
           // NOTE: do not change that, the same default is implicitly assumed in ReactionMonitoringTransition
           if (!it->isDetectingTransition())
           {
-              os << "      <userParam name=\"detecting_transition\" type=\"xsd:boolean\" value=\"false\"/>\n";
+            os << "      <userParam name=\"detecting_transition\" type=\"xsd:boolean\" value=\"false\"/>\n";
           }
           if (it->isIdentifyingTransition())
           {
-              os << "      <userParam name=\"identifying_transition\" type=\"xsd:boolean\" value=\"true\"/>\n";
+            os << "      <userParam name=\"identifying_transition\" type=\"xsd:boolean\" value=\"true\"/>\n";
           }
           if (!it->isQuantifyingTransition())
           {
-              os << "      <userParam name=\"quantifying_transition\" type=\"xsd:boolean\" value=\"false\"/>\n";
+            os << "      <userParam name=\"quantifying_transition\" type=\"xsd:boolean\" value=\"false\"/>\n";
           }
 
           writeUserParam_(os, (MetaInfoInterface) * it, 3);
@@ -1730,7 +1730,7 @@ namespace OpenMS
       {
         os << String(2 * indent, ' ') << "<userParam name=\"" << writeXMLEscape(keys[i]) << "\" type=\"";
 
-        DataValue d = meta.getMetaValue(keys[i]);
+        const DataValue& d = meta.getMetaValue(keys[i]);
         //determine type
         if (d.valueType() == DataValue::INT_VALUE)
         {
@@ -1748,6 +1748,36 @@ namespace OpenMS
       }
     }
 
-  } //namespace Internal
-} // namespace OpenMS
+    void TraMLHandler::writeCVParams_(std::ostream & os, const CVTermList & cv_terms, UInt indent) const
+    {
+      writeCVList_(os, cv_terms.getCVTerms(), indent);
+    }
+
+    void TraMLHandler::writeCVParams_(std::ostream & os, const CVTermListInterface & cv_terms, UInt indent) const
+    {
+      writeCVList_(os, cv_terms.getCVTerms(), indent);
+    }
+
+    void TraMLHandler::writeCVList_(std::ostream & os, const Map<String, std::vector<CVTerm>> & cv_terms, UInt indent) const
+    {
+      for (Map<String, std::vector<CVTerm> >::const_iterator it = cv_terms.begin();
+           it != cv_terms.end(); ++it)
+      {
+        for (const CVTerm& cit : it->second)
+        {
+          os << String(2 * indent, ' ') << "<cvParam cvRef=\"" << cit.getCVIdentifierRef() << "\" accession=\"" << cit.getAccession() << "\" name=\"" << cit.getName() << "\"";
+          if (cit.hasValue() && !cit.getValue().isEmpty() && !cit.getValue().toString().empty())
+          {
+            os << " value=\"" << cit.getValue().toString() << "\"";
+          }
+
+          if (cit.hasUnit())
+          {
+            os << " unitCvRef=\"" << cit.getUnit().cv_ref << "\" unitAccession=\"" << cit.getUnit().accession << "\" unitName=\"" << cit.getUnit().name << "\"";
+          }
+          os << "/>" << "\n";
+        }
+      }
+    }
+} // namespace OpenMS //namespace Internal
 

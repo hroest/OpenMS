@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -109,11 +109,13 @@ namespace OpenMS
       String time = attributeAsString_(attributes, "time");
       String version = attributeAsString_(attributes, "version");
 
-      QDateTime date = QDateTime::fromString(time.toQString());
+      DateTime date;
+      date.set(time);
+
       if (!date.isValid())
-        date = QDateTime::fromString(time.toQString(), Qt::ISODate);
-      if (!date.isValid())
+      {
         OPENMS_LOG_WARN << "Warning: Cannot parse 'time'='" << time << "'.\n";
+      }
       prot_id_->setDateTime(date);
       prot_id_->setSearchEngine(analysis);
       prot_id_->setSearchEngineVersion(version);

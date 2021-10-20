@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -740,27 +740,25 @@ protected:
     d.picked_peaks = ms_exp;
     d.raw_data_first =  first;
 
-    //std::cout << "richtig hier" << std::endl;
     struct OpenMS::OptimizationFunctions::PenaltyFactors penalties;
 
-
-    DataValue dv = param_.getValue("penalties:position");
-    if (dv.isEmpty() || dv.toString() == "")
+    ParamValue pv = param_.getValue("penalties:position");
+    if (pv.isEmpty() || pv.toString() == "")
       penalties.pos = 0.;
     else
-      penalties.pos = (float)dv;
+      penalties.pos = (float)pv;
 
-    dv = param_.getValue("penalties:left_width");
-    if (dv.isEmpty() || dv.toString() == "")
+    pv = param_.getValue("penalties:left_width");
+    if (pv.isEmpty() || pv.toString() == "")
       penalties.lWidth = 1.;
     else
-      penalties.lWidth = (float)dv;
+      penalties.lWidth = (float)pv;
 
-    dv = param_.getValue("penalties:right_width");
-    if (dv.isEmpty() || dv.toString() == "")
+    pv = param_.getValue("penalties:right_width");
+    if (pv.isEmpty() || pv.toString() == "")
       penalties.rWidth = 1.;
     else
-      penalties.rWidth = (float)dv;
+      penalties.rWidth = (float)pv;
 #ifdef DEBUG_2D
     std::cout << penalties.pos << " "
               << penalties.rWidth << " "
@@ -776,11 +774,11 @@ protected:
     // std::cout << "---------------------------------------------------------------\n\n\n\n";
 
     UInt max_iteration;
-    dv = param_.getValue("iterations");
-    if (dv.isEmpty() || dv.toString() == "")
+    pv = param_.getValue("iterations");
+    if (pv.isEmpty() || pv.toString() == "")
       max_iteration = 15;
     else
-      max_iteration = (UInt)dv;
+      max_iteration = (UInt)pv;
 
     std::vector<PeakShape> peak_shapes;
 
@@ -837,14 +835,14 @@ protected:
 
         IsotopeCluster::IndexSet::const_iterator set_iter = lower_bound(d.iso_map_iter->second.peaks.begin(),
                                                                         d.iso_map_iter->second.peaks.end(),
-                                                                        pair, PairComparatorFirstElement<IsotopeCluster::IndexPair>());
+                                                                        pair, [](auto& left, auto& right){return left.first < right.first;});   
 
 
         // find the last entry with this rt-value
         ++pair.first;
         IsotopeCluster::IndexSet::const_iterator set_iter2 = lower_bound(d.iso_map_iter->second.peaks.begin(),
                                                                          d.iso_map_iter->second.peaks.end(),
-                                                                         pair, PairComparatorFirstElement<IsotopeCluster::IndexPair>());
+                                                                         pair, [](auto& left, auto& right){return left.first < right.first;});   
 
         while (set_iter != set_iter2)
         {
@@ -888,7 +886,7 @@ protected:
 
         set_iter = lower_bound(d.iso_map_iter->second.peaks.begin(),
                                d.iso_map_iter->second.peaks.end(),
-                               pair, PairComparatorFirstElement<IsotopeCluster::IndexPair>());
+                               pair, [](auto& left, auto& right){return left.first < right.first;});   
         Size p = 0;
         while (p < peak_shapes.size())
         {
@@ -976,7 +974,7 @@ protected:
       // get iterator in peaks-set that points to the first peak in the current scan
       IsotopeCluster::IndexSet::const_iterator set_iter = lower_bound(iso_map_iter->second.peaks.begin(),
                                                                       iso_map_iter->second.peaks.end(),
-                                                                      pair, PairComparatorFirstElement<IsotopeCluster::IndexPair>());
+                                                                      pair, [](auto& left, auto& right){return left.first < right.first;});   
 
       // consider a bit more of the signal to the left
       first_peak_mz = (exp_it->begin() + set_iter->second)->getMZ() - 1;
@@ -985,7 +983,7 @@ protected:
       ++pair.first;
       IsotopeCluster::IndexSet::const_iterator set_iter2 = lower_bound(iso_map_iter->second.peaks.begin(),
                                                                        iso_map_iter->second.peaks.end(),
-                                                                       pair, PairComparatorFirstElement<IsotopeCluster::IndexPair>());
+                                                                       pair, [](auto& left, auto& right){return left.first < right.first;});   
 
       if (i == iso_map_iter->second.scans.size() - 1)
       {
@@ -1045,7 +1043,6 @@ protected:
       d.signal2D.push_back(right);
     }
 #ifdef DEBUG2D
-    //std::cout << "fertig"<< std::endl;
     std::cout << first_peak_mz << "\t" << last_peak_mz << std::endl;
 #endif
   }
