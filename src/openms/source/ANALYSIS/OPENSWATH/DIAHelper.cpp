@@ -50,19 +50,18 @@ namespace OpenMS
   namespace DIAHelpers
   {
 
-    void adjustExtractionWindow(double& right, double& left, const double& mz_extract_window, const bool& mz_extraction_ppm)
+    void adjustExtractionWindow(double& right, double& left, const double& extraction_window_size, const bool& extraction_window_ppm)
     {
-      OPENMS_PRECONDITION(mz_extract_window > 0, "MZ extraction window needst to be larger than zero.");
-
-      if (mz_extraction_ppm)
+      // OPENMS_PRECONDITION(extraction_window_size > 0, "MZ extraction window needst to be larger than zero.");
+      if (extraction_window_ppm)
       {
-        left -= left * mz_extract_window / 2e6;
-        right += right * mz_extract_window / 2e6;
+        left -= left * extraction_window_size / 2e6;
+        right += right * extraction_window_size / 2e6;
       }
       else
       {
-        left -= mz_extract_window / 2.0;
-        right += mz_extract_window / 2.0;
+        left -= extraction_window_size / 2.0;
+        right += extraction_window_size / 2.0;
       }
     }
 
@@ -94,20 +93,27 @@ namespace OpenMS
     }
 
     void integrateDriftSpectrum(OpenSwath::SpectrumPtr spectrum, 
-                                              double mz_start,
-                                              double mz_end,
-                                              double & im,
-                                              double & intensity,
-                                              double drift_start,
-                                              double drift_end)
+                                double mz_start,
+                                double mz_end,
+                                double & im,
+                                double & intensity,
+                                double drift_start,
+                                double drift_end)
     {
       OPENMS_PRECONDITION(spectrum->getDriftTimeArray() != nullptr, "Cannot filter by drift time if no drift time is available.");
+      OPENMS_PRECONDITION(mz_start <= mz_end, "The m/z integration start boundary needs to be equal or less than the m/z integration end boundary");
       OPENMS_PRECONDITION(spectrum->getMZArray()->data.size() == spectrum->getIntensityArray()->data.size(), "MZ and Intensity array need to have the same length.");
       OPENMS_PRECONDITION(spectrum->getMZArray()->data.size() == spectrum->getDriftTimeArray()->data.size(), "MZ and Drift Time array need to have the same length.");
       OPENMS_PRECONDITION(std::adjacent_find(spectrum->getMZArray()->data.begin(),
               spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
               "Precondition violated: m/z vector needs to be sorted!" )
 
+      bool limit_drift_time = true;
+      if (drift_start > drift_end)
+      {
+        OPENMS_LOG_DEBUG << "Drift time window smaller than zero, use all of the spectrum" << std::endl;
+        limit_drift_time = false;
+      }
       im = 0;
       intensity = 0;
 
@@ -126,9 +132,21 @@ namespace OpenMS
       std::advance(im_it, iterator_pos);
 
       // Iterate from mz start to end, only storing ion mobility values that are in the range
-      for (; mz_it != mz_it_end; ++mz_it, ++int_it, ++im_it)
+      if (limit_drift_time)
       {
-        if ( *im_it >= drift_start && *im_it <= drift_end)
+        for (; mz_it != mz_it_end; ++mz_it, ++int_it, ++im_it)
+        {
+          if (*im_it >= drift_start && *im_it <= drift_end)
+          {
+            intensity += (*int_it);
+            im += (*int_it) * (*im_it);
+          }
+        }
+      }
+      else
+      {
+        // extract all values
+        for (; mz_it != mz_it_end; ++mz_it, ++int_it, ++im_it)
         {
           intensity += (*int_it);
           im += (*int_it) * (*im_it);
@@ -154,6 +172,7 @@ namespace OpenMS
                          double & intensity,
                          bool centroided)
     {
+      OPENMS_PRECONDITION(mz_start <= mz_end, "The m/z integration start boundary needs to be equal or less than the m/z integration end boundary");
       OPENMS_PRECONDITION(spectrum->getMZArray()->data.size() == spectrum->getIntensityArray()->data.size(), "MZ and Intensity array need to have the same length.");
       OPENMS_PRECONDITION(std::adjacent_find(spectrum->getMZArray()->data.begin(),
               spectrum->getMZArray()->data.end(), std::greater<double>()) == spectrum->getMZArray()->data.end(),
