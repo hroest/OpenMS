@@ -37,8 +37,10 @@
 namespace OpenMS
 {
   void OpenSwathHelper::selectSwathTransitions(const OpenMS::TargetedExperiment& targeted_exp,
-                                               OpenMS::TargetedExperiment& transition_exp_used, double min_upper_edge_dist,
-                                               double lower, double upper)
+                                               OpenMS::TargetedExperiment& transition_exp_used,
+                                               double min_upper_edge_dist,
+                                               double lower,
+                                               double upper)
   {
     transition_exp_used.setPeptides(targeted_exp.getPeptides());
     transition_exp_used.setProteins(targeted_exp.getProteins());
@@ -89,21 +91,12 @@ namespace OpenMS
     }
   }
 
-  void OpenSwathHelper::selectSwathTransitions(const OpenSwath::LightTargetedExperiment& targeted_exp,
-                                               OpenSwath::LightTargetedExperiment& transition_exp_used, double min_upper_edge_dist,
-                                               double lower, double upper)
+
+  /// Populate the targeted experiment with matching compounds and proteins
+  void helper_x(const OpenSwath::LightTargetedExperiment& targeted_exp,
+                OpenSwath::LightTargetedExperiment& transition_exp_used,
+                std::set<std::string>& matching_compounds)
   {
-    std::set<std::string> matching_compounds;
-    for (Size i = 0; i < targeted_exp.transitions.size(); i++)
-    {
-      const OpenSwath::LightTransition& tr = targeted_exp.transitions[i];
-      if (lower < tr.getPrecursorMZ() && tr.getPrecursorMZ() < upper &&
-          std::fabs(upper - tr.getPrecursorMZ()) >= min_upper_edge_dist)
-      {
-        transition_exp_used.transitions.push_back(tr);
-        matching_compounds.insert(tr.getPeptideRef());
-      }
-    }
     std::set<std::string> matching_proteins;
     for (Size i = 0; i < targeted_exp.compounds.size(); i++)
     {
@@ -123,6 +116,43 @@ namespace OpenMS
         transition_exp_used.proteins.push_back( targeted_exp.proteins[i] );
       }
     }
+  }
+
+  void OpenSwathHelper::selectSwathTransitions(const OpenSwath::LightTargetedExperiment& targeted_exp,
+                                               OpenSwath::LightTargetedExperiment& transition_exp_used,
+                                               double min_upper_edge_dist,
+                                               double lower,
+                                               double upper)
+  {
+    std::set<std::string> matching_compounds;
+    for (Size i = 0; i < targeted_exp.transitions.size(); i++)
+    {
+      const OpenSwath::LightTransition& tr = targeted_exp.transitions[i];
+      if (lower < tr.getPrecursorMZ() && tr.getPrecursorMZ() < upper &&
+          std::fabs(upper - tr.getPrecursorMZ()) >= min_upper_edge_dist)
+      {
+        transition_exp_used.transitions.push_back(tr);
+        matching_compounds.insert(tr.getPeptideRef());
+      }
+    }
+    helper_x(targeted_exp, transition_exp_used, matching_proteins);
+  }
+
+  void x()
+  {
+    // Step 1.2: select transitions based on matching PRM window (best window)
+    std::set<std::string> matching_compounds;
+    for (Size k = 0; k < prm_map.size(); k++)
+    {
+      if (prm_map[k] == i)
+      {
+         const OpenSwath::LightTransition& tr = transition_exp.transitions[k];
+         transition_exp_used_all.transitions.push_back(tr);
+         matching_compounds.insert(tr.getPeptideRef());
+      }
+    }
+
+    helper_x(targeted_exp, transition_exp_used, matching_proteins);
   }
 
   std::pair<double,double> OpenSwathHelper::estimateRTRange(const OpenSwath::LightTargetedExperiment & exp)
