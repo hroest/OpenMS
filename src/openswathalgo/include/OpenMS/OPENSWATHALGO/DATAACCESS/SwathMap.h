@@ -48,12 +48,18 @@ namespace OpenSwath
     double lower;
     double upper;
     double center;
+    double im_lower;
+    double im_upper;
+    double im_center;
     bool ms1;
 
     SwathMap() :
       lower(0.0),
       upper(0.0),
       center(0.0),
+      im_lower(0.0),
+      im_upper(0.0),
+      im_center(0.0),
       ms1(false)
     {}
 
@@ -61,10 +67,13 @@ namespace OpenSwath
       : lower(mz_start),
         upper(mz_end),
         center(mz_center),
+        im_lower(0.0),
+        im_upper(0.0),
+        im_center(0.0),
         ms1(is_ms1)
     {}
 
   };
 
-} //end Namespace OpenSwath
+} //end namespace OpenSwath
 
