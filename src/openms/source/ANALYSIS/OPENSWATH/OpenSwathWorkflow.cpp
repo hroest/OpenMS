@@ -457,6 +457,12 @@ namespace OpenMS
     tsv_writer.writeHeader();
     osw_writer.writeHeader();
 
+    bool swath_has_ion_mobility = false;
+    for (const auto& map : swath_maps)
+    {
+      if (map.sptr->getDriftTimeArray() != nullptr) swath_has_ion_mobility = true;
+    }
+
     bool ms1_only = (swath_maps.size() == 1 && swath_maps[0].ms1);
 
     // Compute inversion of the transformation
@@ -502,7 +508,7 @@ namespace OpenMS
       writeOutFeaturesAndChroms_(chromatograms, featureFile, out_featureFile, store_features, chromConsumer);
     }
 
-    std::vector<int> prm_map;
+    std::vector<int> prm_map; // Mapping for each transition which is the preferred SWATH window to extract from
     if (prm_)
     {
       // Here we deal with overlapping PRM / DIA windows: we only want to extract
@@ -510,8 +516,9 @@ namespace OpenMS
       // centered around the target peptide. We therefore select for each peptide
       // the best-matching PRM / DIA window:
       prm_map.resize(transition_exp.transitions.size(), -1);
-      for (SignedSize i = 0; i < boost::numeric_cast<SignedSize>(swath_maps.size()); ++i)
+      for (Size map_nr = 0; map_nr < swath_maps.size(); ++map_nr)
       {
+        const auto& curr_map = swath_maps[map_nr];
         for (Size k = 0; k < transition_exp.transitions.size(); k++)
         {
           const OpenSwath::LightTransition& tr = transition_exp.transitions[k];
@@ -519,17 +526,29 @@ namespace OpenMS
           // If the transition falls inside the current PRM / DIA window, check
           // if the window is potentially a better match for extraction than
           // the one previously stored in the map:
-          if (swath_maps[i].lower < tr.getPrecursorMZ() && tr.getPrecursorMZ() < swath_maps[i].upper &&
-              std::fabs(swath_maps[i].upper - tr.getPrecursorMZ()) >= cp.min_upper_edge_dist)
+          if (curr_map.lower < tr.getPrecursorMZ() && tr.getPrecursorMZ() < curr_map.upper &&
+              std::fabs(curr_map.upper - tr.getPrecursorMZ()) >= cp.min_upper_edge_dist)
           {
+            if (prm_map[k] == -1) prm_map[k] = map_nr;
 
-            if (prm_map[k] == -1) prm_map[k] = i;
-            if (
-                std::fabs(swath_maps[ prm_map[k] ].center - tr.getPrecursorMZ() ) > 
-                std::fabs(swath_maps[ i ].center - tr.getPrecursorMZ() ) )
+            auto best_map = swath_maps[ prm_map[k] ];
+            double best_distance = std::fabs(best_map.center - tr.getPrecursorMZ() );
+            double current_distance = std::fabs(curr_map.center - tr.getPrecursorMZ() );
+            double eps = 1e-5;
+            // If current PRM / DIA window is a better match (due to being
+            // closer to the center), we will record the current window number
+            // for this transition
+            if (current_distance < best_distance) prm_map[k] = map_nr;
+            else if (swath_has_ion_mobility && std::fabs(current_distance - best_distance) < eps )
             {
-              // current PRM / DIA window "i" is a better match
-              prm_map[k] = i;
+              // In m/z we are looking at the best match, now check ion mobility
+              const auto& compound = transition_exp.getCompoundByRef(tr.getCompoundRef());
+              if (compound.getDriftTime() <= 0) prm_map[k] = map_nr; // if library does not contain drift times, ignore drift time match
+
+              double best_distance = std::fabs(best_map.im_center - compound.getDriftTime() );
+              double current_distance = std::fabs(curr_map.im_center - compound.getDriftTime() );
+
+              if (current_distance < best_distance) prm_map[k] = map_nr;
             }
 
           }
