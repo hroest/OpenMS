@@ -122,17 +122,24 @@ namespace OpenMS
   {
     bool ppm = mz_extraction_window_ppm_;
     double mz_extr_window = mz_extraction_window_;
-    double im_extraction_win = im_extraction_window_;
 
-    OPENMS_LOG_DEBUG << "SwathMapMassCorrection::correctIM " << " window " << im_extraction_win << " mz window " << mz_extr_window << " in ppm " << ppm << std::endl;
-
-    if (im_extraction_win < 0)
+    bool swath_has_ion_mobility = false;
+    for (const auto& map : swath_maps)
     {
+      if (map.sptr->getDriftTimeArray() != nullptr) swath_has_ion_mobility = true;
+    }
+
+    OPENMS_LOG_DEBUG << "SwathMapMassCorrection::correctIM " << " window " << im_extraction_win_ << " mz window " << mz_extr_window << " in ppm " << ppm << std::endl;
+
+    if (!swath_has_ion_mobility)
+    {
+      OPENMS_LOG_DEBUG << "Will not correct ion mobility (no ion mobility data present)" << std::endl;
       return;
     }
 
     if (im_correction_function_ == "none")
     {
+      OPENMS_LOG_DEBUG << "Will not correct ion mobility (requested correction function is 'none')" << std::endl;
       return;
     }
     // if it is not none, then it must be linear
@@ -188,24 +195,21 @@ namespace OpenMS
       // Note that we are not using light clones of the underlying data here,
       // so access to the data needs to be in a critical section.
       OpenSwath::SpectrumPtr sp;
-      OpenSwath::SpectrumPtr sp_ms1;
 #ifdef _OPENMP
 #pragma omp critical
 #endif
       {
-        if (ms1_im_)
-        {
-          sp_ms1 = OpenSwathScoring().fetchSpectrumSwath(ms1_maps, bestRT, 1, 0, 0);
-        }
-        else
-        {
-          sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
-        }
+        if (ms1_im_) sp = OpenSwathScoring().fetchSpectrumSwath(ms1_maps, bestRT, 1, 0, 0);
+        else sp = OpenSwathScoring().fetchSpectrumSwath(used_maps, bestRT, 1, 0, 0);
       }
 
       for (const auto& tr : transition_group->getTransitions())
       {
-        if (ms1_im_) {continue;}
+        // Do either MS1 or MS2 extraction (use different spectrum for extraction and different position in mz)
+        double mz;
+        if (ms1_im_) mz = tr.precursor_mz;
+        else mz = tr.product_mz;
+
         double intensity(0), im(0), left(tr.product_mz), right(tr.product_mz);
 
         // get drift time upper/lower offset (this assumes that all chromatograms
@@ -213,7 +217,8 @@ namespace OpenMS
         auto pepref = tr.getPeptideRef();
         double drift_target = pep_im_map[pepref];
         double drift_left(drift_target), drift_right(drift_target);
-        DIAHelpers::adjustExtractionWindow(drift_right, drift_left, im_extraction_win, false);
+        DIAHelpers::adjustExtractionWindow(drift_right, drift_left, im_extraction_win_, false);
+        DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
 
         // Check that the spectrum really has a drift time array
         if (sp->getDriftTimeArray() == nullptr)
@@ -223,7 +228,7 @@ namespace OpenMS
           continue;
         }
 
-        DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
+        // Note: negative im_extraction windows are handled by extracting the full width
         DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, drift_left, drift_right);
 
         // skip empty windows
@@ -242,57 +247,13 @@ namespace OpenMS
           theo_im.push_back(drift_target);
           if (!debug_im_file_.empty())
           {
-            os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+            os_im << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
           }
         }
-        OPENMS_LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+        OPENMS_LOG_DEBUG << mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
+        if (ms1_im_) {break;}
       }
 
-      // Do MS1 extraction
-      if (!transition_group->getTransitions().empty() && ms1_im_)
-      {
-        const auto& tr = transition_group->getTransitions()[0];
-        double intensity(0), im(0), left(tr.precursor_mz), right(tr.precursor_mz);
-
-        // get drift time upper/lower offset (this assumes that all chromatograms
-        // are derived from the same precursor with the same drift time)
-        auto pepref = tr.getPeptideRef();
-        double drift_target = pep_im_map[pepref];
-        double drift_left(drift_target), drift_right(drift_target);
-        DIAHelpers::adjustExtractionWindow(drift_right, drift_left, im_extraction_win, false);
-
-        // Check that the spectrum really has a drift time array
-        if (sp_ms1->getDriftTimeArray() == nullptr)
-        {
-          OPENMS_LOG_DEBUG << "Did not find a drift time array for peptide " << pepref << " at RT " << bestRT  << std::endl;
-          for (const auto& m : used_maps) OPENMS_LOG_DEBUG << " -- Used maps " << m.lower << " to " << m.upper << " MS1 : " << m.ms1 << true << std::endl;
-          continue;
-        }
-
-        DIAHelpers::adjustExtractionWindow(right, left, mz_extr_window, ppm);
-        DIAHelpers::integrateDriftSpectrum(sp, left, right, im, intensity, drift_left, drift_right);
-
-        // skip empty windows
-        if (im <= 0)
-        {
-          continue;
-        }
-
-#ifdef _OPENMP
-#pragma omp critical
-#endif
-        {
-          // store result drift time
-          data_im.push_back(std::make_pair(im, drift_target));
-          exp_im.push_back(im);
-          theo_im.push_back(drift_target);
-          if (!debug_im_file_.empty())
-          {
-            os_im << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
-          }
-        }
-        OPENMS_LOG_DEBUG << tr.precursor_mz << "\t" << im << "\t" << drift_target << "\t" << bestRT << "\t" << intensity << std::endl;
-      }
     }
 
     if (!debug_im_file_.empty()) {os_im.close();}
