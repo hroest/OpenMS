@@ -350,15 +350,27 @@ namespace OpenMS
           }
           const std::vector<Precursor> prec = s.getPrecursors();
           double center = prec[0].getMZ();
+          double im_center = prec[0].getDriftTime();
           bool found = false;
           for (Size j = 0; j < known_window_boundaries.size(); j++)
           {
             // We group by the precursor mz (center of the window) since this
             // should be present
+            // If we have no ion mobility data then checking mz is enough,
+            // otherwise we also need to check that the im center of the window
+            // is correct.
             if (std::fabs(center - known_window_boundaries[j].center) < 1e-6)
             {
-              found = true;
-              swath_counter[j]++;
+              if (im_center <= 0)
+              {
+                found = true;
+                swath_counter[j]++;
+              }
+              else if (std::fabs(im_center - known_window_boundaries[j].im_center) < 1e-6)
+              {
+                found = true;
+                swath_counter[j]++;
+              }
             }
           }
           if (!found)
@@ -373,9 +385,16 @@ namespace OpenMS
             boundary.center = center;
             known_window_boundaries.push_back(boundary);
 
+            double im_lower = prec[0].getDriftTime() - prec[0].getDriftTimeWindowLowerOffset();
+            double im_upper = prec[0].getDriftTime() + prec[0].getDriftTimeWindowUpperOffset();
+            boundary.im_lower = im_lower;
+            boundary.im_upper = im_upper;
+            boundary.center = im_center;
+
             OPENMS_LOG_DEBUG << "Adding Swath centered at " << center
               << " m/z with an isolation window of " << lower << " to " << upper
-              << " m/z." << std::endl;
+              << " m/z and ion mobility window centered at " << im_center 
+              << " and isolating between " << im_lower << " to " << im_upper << " units." << std::endl;
           }
         }
       }
