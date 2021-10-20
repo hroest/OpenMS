@@ -103,7 +103,9 @@ using namespace OpenMS;
   analysis tool without the need to run multiple tools consecutively. See also
   http://openswath.org/ for additional documentation.
 
-  It executes the following steps in order, which is implemented in @ref OpenMS::OpenSwathWorkflow "OpenSwathWorkflow":
+  It executes the following steps in order, which are implemented in @ref
+  OpenMS::OpenSwathWorkflow "OpenSwathWorkflow" (see there for code and
+  algorithmic documentation):
 
   <ul>
     <li>Reading of input files, which can be provided as one single mzML or multiple "split" mzMLs (one per SWATH)</li>
@@ -848,6 +850,28 @@ protected:
       }
     }
 
+    // Check for ion mobility
+    bool swath_has_ion_mobility = false;
+    for (const auto& map : swath_maps)
+    {
+      if (map.sptr->getDriftTimeArray() != nullptr) swath_has_ion_mobility = true;
+    }
+    if (swath_has_ion_mobility) 
+    {
+      OPENMS_LOG_INFO << "Detected ion mobility data in at least one SWATH map";
+      if (cp.im_extraction_window < 0)
+      {
+        OPENMS_LOG_WARN << "Detected ion mobility data, will extract full ion mobility for targeted extraction" << std::endl;
+      }
+      if (cp_irt.im_extraction_window < 0)
+      {
+        OPENMS_LOG_WARN << "Detected ion mobility data, will extract full ion mobility for iRT calibration" << std::endl;
+      }
+      if (cp_ms1.im_extraction_window < 0)
+      {
+        OPENMS_LOG_WARN << "Detected ion mobility data, will extract full ion mobility for MS1 spectra" << std::endl;
+      }
+    }
 
     ///////////////////////////////////
     // Get the transformation information (using iRT peptides)
