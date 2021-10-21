@@ -61,9 +61,9 @@ namespace OpenMS
   void LogWindow::contextMenuEvent(QContextMenuEvent* event)
   {
     QMenu context_menu;
-    context_menu.addAction("Clear", [&]() {
-      this->clear();
-    });
+    // context_menu.addAction("Clear", [&]() {
+    //   this->clear();
+    // });
     context_menu.exec(this->mapToGlobal(event->pos()));
   }
 

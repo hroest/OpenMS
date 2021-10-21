@@ -1450,6 +1450,7 @@ namespace OpenMS
 
   void Plot1DCanvas::contextMenuEvent(QContextMenuEvent* e)
   {
+#if 0
     if (layers_.empty()) { return; }
 
     QMenu* context_menu = new QMenu(this);
@@ -1613,6 +1614,7 @@ namespace OpenMS
     context_menu->exec(mapToGlobal(e->pos()));
 
     e->accept();
+#endif
   }
 
   void Plot1DCanvas::setTextBox(const QString& html)

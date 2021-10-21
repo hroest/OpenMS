@@ -63,7 +63,7 @@ namespace OpenMS
     recent_actions_.resize(max_entries_);
     for (int i = 0; i < max_entries_; ++i)
     {
-      recent_actions_[i] = recent_menu_.addAction("", this, &RecentFilesMenu::itemClicked_);
+      // recent_actions_[i] = recent_menu_.addAction("", this, &RecentFilesMenu::itemClicked_);
       recent_actions_[i]->setVisible(false);
     }
   }
