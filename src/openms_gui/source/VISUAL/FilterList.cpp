@@ -99,26 +99,26 @@ namespace OpenMS::Internal
       QListWidgetItem* item = ui_->filter->itemAt(pos);
       if (item)
       {
-        context_menu.addAction("Edit", [&]() 
-        {
-          filterEdit_(item);
-        });
-        context_menu.addAction("Delete", [&]() 
-        {
-          filters_.remove(ui_->filter->row(item));
-          set(filters_);
-        });
+        // context_menu.addAction("Edit", [&]() 
+        // {
+        //   filterEdit_(item);
+        // });
+        // context_menu.addAction("Delete", [&]() 
+        // {
+        //   filters_.remove(ui_->filter->row(item));
+        //   set(filters_);
+        // });
       }
-      context_menu.addAction("Add filter", [&]()
-      {
-        DataFilters::DataFilter filter;
-        DataFilterDialog dlg(filter, this);
-        if (dlg.exec())
-        {
-          filters_.add(filter);
-          set(filters_);
-        }
-      });
+      // context_menu.addAction("Add filter", [&]()
+      // {
+      //   DataFilters::DataFilter filter;
+      //   DataFilterDialog dlg(filter, this);
+      //   if (dlg.exec())
+      //   {
+      //     filters_.add(filter);
+      //     set(filters_);
+      //   }
+      // });
 
       context_menu.exec(ui_->filter->mapToGlobal(pos));
     }

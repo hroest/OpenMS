@@ -90,12 +90,14 @@ namespace OpenMS
       {
         continue;
       }
+#if 0
       QAction* action = context_menu.addAction(ti->text(), [=]() {
         // invert visibility upon clicking the item
         setColumnHidden(i, !isColumnHidden(i));
         });
       action->setCheckable(true);
       action->setChecked(!isColumnHidden(i));
+#endif
     }
     context_menu.exec(mapToGlobal(pos));
   }
