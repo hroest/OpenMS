@@ -169,6 +169,7 @@ namespace OpenMS
     int layer_idx = this->row(item);
     QMenu* context_menu = new QMenu(this);
     
+#if 0
     context_menu->addAction("Rename", [&]() {
       QString name = QInputDialog::getText(this, "Rename layer", "Name:", QLineEdit::Normal, spectrum_widget_->canvas()->getLayerName(layer_idx).toQString());
       if (name != "")
@@ -185,29 +186,30 @@ namespace OpenMS
     auto widget1D = qobject_cast<Plot1DWidget*>(spectrum_widget_);
     if (widget1D != nullptr)
     {
-      if (widget1D->canvas()->getLayer(layer_idx).flipped)
-      {
-        context_menu->addAction("Flip upwards (1D)", [&]() {
-          widget1D->canvas()->flipLayer(layer_idx);
-          widget1D->canvas()->setMirrorModeActive(widget1D->canvas()->flippedLayersExist());
-        });
-        emit layerDataChanged();
-      }
-      else
-      {
-        context_menu->addAction("Flip downwards (1D)", [&]() {
-          widget1D->canvas()->flipLayer(layer_idx);
-          widget1D->canvas()->setMirrorModeActive(true);
-        });
-        emit layerDataChanged();
-      }
+      // if (widget1D->canvas()->getLayer(layer_idx).flipped)
+      // {
+      //   context_menu->addAction("Flip upwards (1D)", [&]() {
+      //     widget1D->canvas()->flipLayer(layer_idx);
+      //     widget1D->canvas()->setMirrorModeActive(widget1D->canvas()->flippedLayersExist());
+      //   });
+      //   emit layerDataChanged();
+      // }
+      // else
+      // {
+      //   context_menu->addAction("Flip downwards (1D)", [&]() {
+      //     widget1D->canvas()->flipLayer(layer_idx);
+      //     widget1D->canvas()->setMirrorModeActive(true);
+      //   });
+      //   emit layerDataChanged();
+      // }
     }
 
     context_menu->addSeparator();
-    context_menu->addAction("Preferences", [&]() {
-      spectrum_widget_->canvas()->showCurrentLayerPreferences();
-    });
+    // context_menu->addAction("Preferences", [&]() {
+    //   spectrum_widget_->canvas()->showCurrentLayerPreferences();
+    // });
 
+#endif
     context_menu->exec(this->mapToGlobal(event->pos()));
   }
 

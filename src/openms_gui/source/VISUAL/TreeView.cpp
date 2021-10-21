@@ -65,11 +65,11 @@ namespace OpenMS
 
     for (int i = 0; i < header->columnCount(); ++i)
     {
-      auto action = context_menu.addAction(header->text(i), [i, this]() {
-        this->setColumnHidden(i, !this->isColumnHidden(i));
-        });
-      action->setCheckable(true);
-      action->setChecked(!this->isColumnHidden(i));
+      // auto action = context_menu.addAction(header->text(i), [i, this]() {
+      //   this->setColumnHidden(i, !this->isColumnHidden(i));
+      //   });
+      // action->setCheckable(true);
+      // action->setChecked(!this->isColumnHidden(i));
     }
 
     // show and execute menu

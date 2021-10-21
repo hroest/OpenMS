@@ -236,6 +236,7 @@ namespace OpenMS
     QTreeWidgetItem* item = spectra_treewidget_->itemAt(pos);
     if (item)
     {
+#if 0
       // create menu
       IndexExtrator ie(item);
       QMenu context_menu(spectra_treewidget_);
@@ -256,6 +257,7 @@ namespace OpenMS
       });
 
       context_menu.exec(spectra_treewidget_->viewport()->mapToGlobal(pos));
+#endif
     }
   }
 

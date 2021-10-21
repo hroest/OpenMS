@@ -74,6 +74,7 @@ namespace OpenMS
     m_file->setToolTipsVisible(true);
     parent->menuBar()->addMenu(m_file);
 
+#if 0
     m_file->addAction("&Open file", parent, &TOPPViewBase::openFilesByDialog, Qt::CTRL + Qt::Key_O);
     m_file->addAction("Open &example file", parent, [parent]() { parent->openFilesByDialog(File::getOpenMSDataPath() + "/examples/"); }, Qt::CTRL + Qt::Key_E);
     addAction_(m_file->addAction("&Close tab", parent, &TOPPViewBase::closeTab, Qt::CTRL + Qt::Key_W),
@@ -187,6 +188,7 @@ namespace OpenMS
 
     m_help->addSeparator();
     m_help->addAction("&About", [parent]() {QApplicationTOPP::showAboutDialog(parent, "TOPPView"); });
+#endif
   }
 
   void TOPPViewMenu::update(const FS_TV status, const LayerData::DataType layer_type)
