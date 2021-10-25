@@ -123,8 +123,7 @@ set(OPENMS_AUX_DEP_LIBRARIES  ${COIN_LIBRARIES}
                           # ${HDF5_CXX_LIBRARIES}
                           # ${GLPK_LIBRARIES}
                           ${CMAKE_DL_LIBS}
-                          ${Qt5Core_LIBRARIES}
-                          ${Qt5Network_LIBRARIES})
+                          ${Qt5Core_LIBRARIES})
 
 set(OPENMS_ANALYSIS_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           ${LIBSVM_LIBRARIES}
@@ -137,8 +136,7 @@ set(OPENMS_ANALYSIS_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           # ${HDF5_CXX_LIBRARIES}
                           ${GLPK_LIBRARIES}
                           ${CMAKE_DL_LIBS}
-                          ${Qt5Core_LIBRARIES}
-                          ${Qt5Network_LIBRARIES})
+                          ${Qt5Core_LIBRARIES})
 
 # xerces is unique to FORMAT
 set(OPENMS_FORMAT_DEP_LIBRARIES  
