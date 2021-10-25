@@ -85,7 +85,7 @@ include (${PROJECT_SOURCE_DIR}/includes.cmake)
 
 #------------------------------------------------------------------------------
 # all the dependency libraries are linked into libOpenMS.so
-set(OPENMS_DEP_LIBRARIES  ${COIN_LIBRARIES}
+set(OPENMS_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           # ${LIBSVM_LIBRARIES}
                           # ${XercesC_LIBRARY}
                           ${Boost_LIBRARIES}
@@ -127,7 +127,7 @@ set(OPENMS_AUXX_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           # ${CMAKE_DL_LIBS}
                           ${Qt5Core_LIBRARIES})
 
-set(OPENMS_AUX_DEP_LIBRARIES  # ${COIN_LIBRARIES}
+set(OPENMS_AUX_DEP_LIBRARIES  ${COIN_LIBRARIES}
                           # ${LIBSVM_LIBRARIES}
                           # ${XercesC_LIBRARY}
                           ${Boost_LIBRARIES}
