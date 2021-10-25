@@ -252,7 +252,7 @@ openms_add_library(TARGET_NAME  OpenMS_AUX
                                      ${INCLUDES_FROM_SYSTEM}
                                      ${Qt5Core_INCLUDE_DIRS}
                                      ${Qt5Network_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${OPENMS_AUX_DEP_LIBRARIES} OpenMS_FORMAT
+                   LINK_LIBRARIES ${OPENMS_AUX_DEP_LIBRARIES} 
                    DLL_EXPORT_PATH "OpenMS/")
 
 openms_add_library(TARGET_NAME  OpenMS_FORMAT
