@@ -85,7 +85,7 @@ include (${PROJECT_SOURCE_DIR}/includes.cmake)
 
 #------------------------------------------------------------------------------
 # all the dependency libraries are linked into libOpenMS.so
-set(OPENMS_DEP_LIBRARIES  ${COIN_LIBRARIES}
+set(OPENMS_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           # ${LIBSVM_LIBRARIES}
                           # ${XercesC_LIBRARY}
                           ${Boost_LIBRARIES}
@@ -103,7 +103,7 @@ set(OPENMS_AUX_DEP_LIBRARIES  ${COIN_LIBRARIES}
                           # ${LIBSVM_LIBRARIES}
                           # ${XercesC_LIBRARY}
                           ${Boost_LIBRARIES}
-                          ${WM5_LIBRARIES}
+                          # ${WM5_LIBRARIES}
                           # ${BZIP2_LIBRARIES}
                           # ${ZLIB_LIBRARIES}
                           # ${SQLite_LIBRARY}
