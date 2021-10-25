@@ -25,7 +25,7 @@ foreach(i ${sources_list})
 endforeach(i)
 
 ### pass source file list to the upper instance
-set(OpenMS_sources ${OpenMS_sources} ${sources})
+set(OpenMS_MATH_sources ${OpenMS_MATH_sources} ${sources})
 
 ### MSNumpress is special, needs to go into the format library
 set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${directory}/MSNumpress.cpp)
