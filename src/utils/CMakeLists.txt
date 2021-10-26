@@ -53,7 +53,7 @@ foreach(i ${UTILS_executables})
   add_executable(${i} ${i}.cpp)
   # we also want to install each util
   install_tool(${i})
-  target_link_libraries(${i} ${OpenMS_LIBRARIES} "/home/hr/openmsall/builds/contrib_new_gcc9/lib/libxerces-c-3.2.a" )
+  target_link_libraries(${i} ${OpenMS_LIBRARIES} )
 endforeach(i)
 
 # some regular UTILS tools need the GUI lib, only build them when WITH_GUI is enabled
