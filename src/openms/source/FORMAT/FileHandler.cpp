@@ -48,6 +48,7 @@
 #include <OpenMS/FORMAT/SqMassFile.h>
 #include <OpenMS/FORMAT/XMassFile.h>
 #include <OpenMS/FORMAT/TraMLFile.h>
+#include <OpenMS/FORMAT/IdXMLFile.h>
 
 #include <OpenMS/FORMAT/MsInspectFile.h>
 #include <OpenMS/FORMAT/SpecArrayFile.h>
