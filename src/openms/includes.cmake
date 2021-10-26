@@ -1,6 +1,6 @@
 set(OpenMS_FORMAT_sources  CACHE INTERNAL "This variable should hold all OpenMS sources at the end of the config step" )
 set(OpenMS_ANALYSIS_sources  CACHE INTERNAL "This variable should hold all OpenMS sources at the end of the config step" )
-set(OpenMS_AUX_sources  CACHE INTERNAL "This variable should hold all OpenMS sources at the end of the config step" )
+set(OpenMS_CORE_sources  CACHE INTERNAL "This variable should hold all OpenMS sources at the end of the config step" )
 
 set(OpenMS_sources  CACHE INTERNAL "This variable should hold all OpenMS sources at the end of the config step" )
 
@@ -127,3 +127,4 @@ list(REMOVE_DUPLICATES OpenMS_sources)
 list(REMOVE_DUPLICATES OpenMS_FORMAT_sources)
 list(REMOVE_DUPLICATES OpenMS_ANALYSIS_sources)
 list(REMOVE_DUPLICATES OpenMS_AUX_sources)
+list(REMOVE_DUPLICATES OpenMS_CORE_sources)

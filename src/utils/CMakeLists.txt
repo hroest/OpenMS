@@ -47,7 +47,7 @@ find_package(Qt5 COMPONENTS Core Network REQUIRED)
 # add all the tools
 set(UTILS_executables)
 include(executables.cmake)
-set(OpenMS_LIBRARIES "${OpenMS_LIBRARIES};OpenMS;OpenMS_AUX;OpenMS_FORMAT;OpenMS_ANALYSIS;OpenMS_AUXX;OpenMS_MATH" )
+set(OpenMS_LIBRARIES "${OpenMS_LIBRARIES};OpenMS;OpenMS_FORMAT;OpenMS_ANALYSIS;OpenMS_AUXX;OpenMS_MATH" )
 message(STATUS "All link libraries: ${OpenMS_LIBRARIES} ")
 foreach(i ${UTILS_executables})
   add_executable(${i} ${i}.cpp)
