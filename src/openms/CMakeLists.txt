@@ -280,7 +280,7 @@ openms_add_library(TARGET_NAME  OpenMS_ANALYSIS
                                      ${INCLUDES_FROM_CONTRIB}
                                      ${INCLUDES_FROM_SYSTEM}
                                      ${Qt5Core_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${OPENMS_ANALYSIS_DEP_LIBRARIES} OpenMS_FORMAT OpenSwathAlgo  OpenMS_CORE
+                   LINK_LIBRARIES ${OPENMS_ANALYSIS_DEP_LIBRARIES} OpenSwathAlgo  OpenMS_CORE
                    DLL_EXPORT_PATH "OpenMS/")
 
 openms_add_library(TARGET_NAME  OpenMS
