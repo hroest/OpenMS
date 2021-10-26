@@ -149,6 +149,7 @@ set(OPENMS_ANALYSIS_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           # ${ZLIB_LIBRARIES}
                           # ${SQLite_LIBRARY}
                           # ${HDF5_CXX_LIBRARIES}
+                          "pthread"
                           ${GLPK_LIBRARIES}
                           ${CMAKE_DL_LIBS}
                           ${Qt5Core_LIBRARIES})
