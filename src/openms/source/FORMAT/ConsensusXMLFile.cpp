@@ -102,6 +102,7 @@ namespace OpenMS
 
     Internal::ConsensusXMLHandler handler(consensus_map, filename);
     handler.setOptions(options_);
+    handler.setLogType(getLogType());
     save_(filename, &handler);
   }
 
@@ -115,6 +116,7 @@ namespace OpenMS
 
     Internal::ConsensusXMLHandler handler(consensus_map, filename);
     handler.setOptions(options_);
+    handler.setLogType(getLogType());
     parse_(filename, &handler);
 
 #if 0
