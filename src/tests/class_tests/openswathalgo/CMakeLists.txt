@@ -61,6 +61,6 @@ endif()
 # add targets for the executables
 foreach(i ${openswath_algo_tests})
   add_executable(${i} ${i}.cpp)
-  target_link_libraries(${i} OpenSwathAlgo OpenMS)
+  target_link_libraries(${i} OpenMS OpenMS_FORMAT OpenMS_ANALYSIS OpenMS_AUXX OpenMS_MATH OpenSwathAlgo OpenMS) # works
   add_test(${i} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${i})
 endforeach(i)
