@@ -34,7 +34,9 @@
 
 #include <iostream> // for "cout"
 #include <OpenMS/APPLICATIONS/TOPPBase.h>
-
+#include <OpenMS/FORMAT/FeatureXMLFile.h>
+#include <OpenMS/FORMAT/TraMLFile.h>
+#include <OpenMS/FORMAT/TransformationXMLFile.h>
 
 #include <OpenMS/ANALYSIS/OPENSWATH/ConfidenceScoring.h> 
 
