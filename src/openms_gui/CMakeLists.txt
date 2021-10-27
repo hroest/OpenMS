@@ -113,7 +113,7 @@ openms_add_library(TARGET_NAME OpenMS_GUI
                                      ${Qt5Widgets_INCLUDE_DIRS}
 				                     ${Qt5Svg_INCLUDE_DIRS}
 				                     ${Qt5Network_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${OpenMS_GUI_DEP_LIBRARIES}
+                   LINK_LIBRARIES ${OpenMS_GUI_DEP_LIBRARIES} OpenMS OpenMS_FORMAT OpenMS_ANALYSIS OpenMS_AUXX OpenMS_MATH
                    PRIVATE_LINK_LIBRARIES ${OpenMS_GUI_PRIVATE_DEP_LIBRARIES}
                    DLL_EXPORT_PATH "OpenMS/VISUAL/")
 
