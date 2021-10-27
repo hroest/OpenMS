@@ -3,11 +3,11 @@ set(directory source/CONCEPT)
 
 ### list all filenames of the directory here
 set(sources_list
-ClassTest.cpp
+# ClassTest.cpp # FORMAT
 Exception.cpp
 FuzzyStringComparator.cpp
 GlobalExceptionHandler.cpp
-Init.cpp
+# Init.cpp # FORMAT
 LogConfigHandler.cpp
 LogStream.cpp
 PrecisionWrapper.cpp
@@ -34,6 +34,7 @@ set(OpenMS_sources ${OpenMS_sources} ${sources})
 
 ### special case: initialize parser (otherwise we run into a segfault)
 set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${directory}/Init.cpp)
+set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${directory}/ClassTest.cpp)
 
 ### source group definition
 source_group("Source Files\\CONCEPT" FILES ${sources})
