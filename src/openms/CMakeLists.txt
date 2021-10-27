@@ -300,7 +300,7 @@ openms_add_library(TARGET_NAME  OpenMS
                                      ${OpenSwathAlgo_INCLUDE_DIRECTORIES} #Includes boost which could be non-contrib
                                      ${Qt5Core_INCLUDE_DIRS}
                                      ${Qt5Network_INCLUDE_DIRS}
-                   LINK_LIBRARIES OpenMS_FORMAT OpenMS_CORE
+                   LINK_LIBRARIES OpenMS_CORE
                                   ${OPENMS_DEP_LIBRARIES}
                    DLL_EXPORT_PATH "OpenMS/")
                    
