@@ -131,7 +131,7 @@ protected:
 
   Param getSubsectionDefaults_(const String& /* section */) const override
   {
-    return TOPPMapAlignerBase::getModelDefaults("none");
+    return MapAlignerBase::getModelDefaults("none");
   }
 
   template <class TFile, class TMap>

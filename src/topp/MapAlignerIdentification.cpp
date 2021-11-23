@@ -282,7 +282,7 @@ private:
     }
     if (section == "model")
     {
-      return TOPPMapAlignerBase::getModelDefaults("b_spline");
+      return MapAlignerBase::getModelDefaults("b_spline");
     }
 
     return Param(); // this shouldn't happen

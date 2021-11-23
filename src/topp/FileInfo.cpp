@@ -66,6 +66,7 @@
 #include <QtCore/QString>
 
 #include <unordered_map>
+#include <iomanip>
 
 using namespace OpenMS;
 using namespace std;
