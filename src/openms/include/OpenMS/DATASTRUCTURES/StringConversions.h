@@ -36,22 +36,16 @@
 
 #include <OpenMS/CONCEPT/Types.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
-#include <OpenMS/CONCEPT/Exception.h>
+// #include <OpenMS/CONCEPT/Exception.h>
 #include <OpenMS/DATASTRUCTURES/DataValue.h>
-#include <OpenMS/CONCEPT/PrecisionWrapper.h>
+// #include <OpenMS/CONCEPT/PrecisionWrapper.h>
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/karma.hpp>
 #include <boost/type_traits.hpp>
 
-#include <string>
-#include <vector>
-
-
 namespace OpenMS
 {
-  class String;
-
   namespace StringConversions
   {
 
