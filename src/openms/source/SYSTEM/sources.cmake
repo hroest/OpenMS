@@ -4,15 +4,15 @@ set(directory source/SYSTEM)
 ### list all filenames of the directory here
 set(sources_list
 ExternalProcess.cpp
-File.cpp
 FileWatcher.cpp
-JavaInfo.cpp
+UpdateCheck.cpp
 NetworkGetRequest.cpp
 PythonInfo.cpp
-RWrapper.cpp
+JavaInfo.cpp
 StopWatch.cpp
 SysInfo.cpp
-UpdateCheck.cpp
+RWrapper.cpp
+File.cpp
 )
 
 ### add path to the filenames
@@ -22,7 +22,7 @@ foreach(i ${sources_list})
 endforeach(i)
 
 ### pass source file list to the upper instance
-set(OpenMS_sources ${OpenMS_sources} ${sources})
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${sources})
 
 ### source group definition
 source_group("Source Files\\SYSTEM" FILES ${sources})

@@ -15,7 +15,7 @@ foreach(i ${sources_list})
 endforeach(i)
 
 ### treat as source files, for autoMOC'ing instead of manually calling QT5_WRAP_CPP()
-set(OpenMS_sources ${OpenMS_sources} ${sources})
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${sources})
 source_group("Source Files\\OpenMS\\SYSTEM" FILES ${sources})
 
 ### list all header files of the directory here
