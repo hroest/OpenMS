@@ -22,7 +22,7 @@ ExperimentalDesignFile.cpp
 FASTAFile.cpp
 FeatureXMLFile.cpp
 FileHandler.cpp
-FileTypes.cpp
+# FileTypes.cpp
 GzipIfstream.cpp
 GzipInputStream.cpp
 HDF5Connector.cpp
@@ -99,6 +99,7 @@ endforeach(i)
 set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${sources})
 
 set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/TextFile.cpp)
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/FileTypes.cpp)
 
 ### source group definition
 source_group("Source Files\\FORMAT" FILES ${sources})
