@@ -32,11 +32,14 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/SYSTEM/File.h>
 #include <OpenMS/FORMAT/MzDataFile.h>
+
+#include <OpenMS/SYSTEM/File.h>
+#include <OpenMS/FORMAT/HANDLERS/MzDataHandler.h>
 #include <OpenMS/FORMAT/VALIDATORS/MzDataValidator.h>
 #include <OpenMS/FORMAT/CVMappingFile.h>
 #include <OpenMS/FORMAT/ControlledVocabulary.h>
+#include <OpenMS/KERNEL/MSExperiment.h>
 
 namespace OpenMS
 {
