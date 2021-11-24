@@ -75,7 +75,7 @@ SqliteConnector.cpp
 SqMassFile.cpp
 SwathFile.cpp
 SVOutStream.cpp
-TextFile.cpp
+# TextFile.cpp
 ToolDescriptionFile.cpp
 TraMLFile.cpp
 TransformationXMLFile.cpp
@@ -97,6 +97,8 @@ endforeach(i)
 
 ### pass source file list to the upper instance
 set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${sources})
+
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/TextFile.cpp)
 
 ### source group definition
 source_group("Source Files\\FORMAT" FILES ${sources})
