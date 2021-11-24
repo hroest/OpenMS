@@ -33,8 +33,8 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/METADATA/PeptideIdentification.h>
-#include <OpenMS/KERNEL/ConsensusMap.h>
 
+#include <OpenMS/KERNEL/ConsensusMap.h>
 
 using namespace std;
 
