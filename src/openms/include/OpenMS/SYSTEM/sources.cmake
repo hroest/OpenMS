@@ -5,6 +5,7 @@ set(directory include/OpenMS/SYSTEM)
 set(sources_list
 FileWatcher.h
 NetworkGetRequest.h
+ExternalProcess.h
 )
 
 ### add path to the filenames
@@ -20,7 +21,6 @@ source_group("Source Files\\OpenMS\\SYSTEM" FILES ${sources})
 ### list all header files of the directory here
 set(sources_list_h
 BuildInfo.h
-ExternalProcess.h
 File.h
 FileWatcher.h
 JavaInfo.h
