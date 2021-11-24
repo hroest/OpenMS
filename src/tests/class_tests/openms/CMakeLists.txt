@@ -78,7 +78,8 @@ endif()
 
 #------------------------------------------------------------------------------
 # Add the actual tests
-set(OpenMS_LIBRARIES ${OpenMS_LIBRARIES} OpenMS OpenMS_FORMAT OpenMS_ANALYSIS OpenMS_AUXX OpenMS_MATH)
+set(OpenMS_LIBRARIES ${OpenMS_LIBRARIES} OpenMS OpenMS_BASE OpenMS_FORMAT OpenMS_ANALYSIS OpenMS_AUXX OpenMS_MATH OpenMS)
+# set(OpenMS_LIBRARIES  OpenMS_BASE )
 foreach(_class_test ${TEST_executables})
   add_executable(${_class_test} source/${_class_test}.cpp)
   target_link_libraries(${_class_test} ${OpenMS_LIBRARIES})

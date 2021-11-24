@@ -4,9 +4,9 @@ set(directory source/CONCEPT)
 ### list all filenames of the directory here
 set(sources_list
 # ClassTest.cpp # FORMAT
-Exception.cpp
+# Exception.cpp
 FuzzyStringComparator.cpp
-GlobalExceptionHandler.cpp
+# GlobalExceptionHandler.cpp
 # Init.cpp # FORMAT
 LogConfigHandler.cpp
 LogStream.cpp
@@ -16,7 +16,7 @@ RAIICleanup.cpp
 SingletonRegistry.cpp
 StreamHandler.cpp
 TypeAsString.cpp
-Types.cpp
+# Types.cpp
 UniqueIdGenerator.cpp
 UniqueIdIndexer.cpp
 UniqueIdInterface.cpp
@@ -35,6 +35,10 @@ set(OpenMS_sources ${OpenMS_sources} ${sources})
 ### special case: initialize parser (otherwise we run into a segfault)
 set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${directory}/Init.cpp)
 set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${directory}/ClassTest.cpp)
+
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/Exception.cpp)
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/Types.cpp)
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/GlobalExceptionHandler.cpp)
 
 ### source group definition
 source_group("Source Files\\CONCEPT" FILES ${sources})

@@ -18,7 +18,7 @@ DBoundingBox.cpp
 DIntervalBase.cpp
 DPosition.cpp
 DRange.cpp
-DataValue.cpp
+# DataValue.cpp
 Date.cpp
 DateTime.cpp
 DefaultParamHandler.cpp
@@ -37,9 +37,9 @@ MatchedIterator.cpp
 Matrix.cpp
 OSWData.cpp
 Param.cpp
-ParamValue.cpp
+# ParamValue.cpp
 QTCluster.cpp
-String.cpp
+# String.cpp
 StringView.cpp
 StringListUtils.cpp
 StringUtils.cpp
@@ -58,6 +58,10 @@ endforeach(i)
 set(OpenMS_CORE_sources ${OpenMS_CORE_sources} ${sources})
 
 set(OpenMS_MATH_sources ${OpenMS_MATH_sources} ${directory}/LPWrapper.cpp)
+
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/String.cpp)
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/DataValue.cpp)
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/ParamValue.cpp)
 
 ### source group definition
 source_group("Source Files\\DATASTRUCTURES" FILES ${sources})

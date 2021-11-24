@@ -127,6 +127,19 @@ set(OPENMS_AUXX_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           ${Qt5Core_LIBRARIES}
                           ${Qt5Network_LIBRARIES})
 
+set(OPENMS_BASE_DEP_LIBRARIES # ${COIN_LIBRARIES}
+                          # ${LIBSVM_LIBRARIES}
+                          # ${XercesC_LIBRARY}
+                          ${Boost_LIBRARIES}
+                          # ${WM5_LIBRARIES}
+                          # ${BZIP2_LIBRARIES}
+                          # ${ZLIB_LIBRARIES}
+                          # ${SQLite_LIBRARY}
+                          # ${HDF5_CXX_LIBRARIES}
+                          # ${GLPK_LIBRARIES}
+                          ${CMAKE_DL_LIBS}
+                          ${Qt5Core_LIBRARIES})
+
 set(OPENMS_CORE_DEP_LIBRARIES # ${COIN_LIBRARIES}
                           # ${LIBSVM_LIBRARIES}
                           # ${XercesC_LIBRARY}
@@ -242,6 +255,20 @@ openms_add_library(TARGET_NAME  OpenMS_AUXX
                    DLL_EXPORT_PATH "OpenMS/")
 
 
+openms_add_library(TARGET_NAME  OpenMS_BASE
+                   SOURCE_FILES  ${OpenMS_BASE_sources}
+                   HEADER_FILES  ${OpenMS_sources_h}
+                                 ${OpenMS_configured_headers}
+                   INTERNAL_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
+                                     ${CMAKE_CURRENT_BINARY_DIR}/include
+                   EXTERNAL_INCLUDES ${OPENMS_CONTRIB_INCLUDE_DIRS} #root folder
+                                     ${INCLUDES_FROM_CONTRIB}
+                                     ${INCLUDES_FROM_SYSTEM}
+                                     ${Qt5Core_INCLUDE_DIRS}
+                                     ${Qt5Network_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${OPENMS_BASE_DEP_LIBRARIES} 
+                   DLL_EXPORT_PATH "OpenMS/")
+
 openms_add_library(TARGET_NAME  OpenMS_CORE
                    SOURCE_FILES  ${OpenMS_CORE_sources}
                    HEADER_FILES  ${OpenMS_sources_h}
@@ -253,7 +280,7 @@ openms_add_library(TARGET_NAME  OpenMS_CORE
                                      ${INCLUDES_FROM_SYSTEM}
                                      ${Qt5Core_INCLUDE_DIRS}
                                      ${Qt5Network_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${OPENMS_CORE_DEP_LIBRARIES} 
+                   LINK_LIBRARIES ${OPENMS_CORE_DEP_LIBRARIES}  OpenMS_BASE
                    DLL_EXPORT_PATH "OpenMS/")
 
 openms_add_library(TARGET_NAME  OpenMS_FORMAT
@@ -300,7 +327,7 @@ openms_add_library(TARGET_NAME  OpenMS
                                      ${OpenSwathAlgo_INCLUDE_DIRECTORIES} #Includes boost which could be non-contrib
                                      ${Qt5Core_INCLUDE_DIRS}
                                      ${Qt5Network_INCLUDE_DIRS}
-                   LINK_LIBRARIES OpenMS_CORE
+                   LINK_LIBRARIES OpenMS_CORE OpenMS_BASE
                                   ${OPENMS_DEP_LIBRARIES}
                    DLL_EXPORT_PATH "OpenMS/")
                    
