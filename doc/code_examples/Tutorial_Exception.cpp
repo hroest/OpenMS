@@ -30,6 +30,7 @@
 
 #include <OpenMS/CONCEPT/Exception.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
+#include <OpenMS/DATASTRUCTURES/Param.h>
 #include <iostream>
 
 using namespace OpenMS;
@@ -39,6 +40,9 @@ Int main()
 {
 
   cout << String("Tutorial is working") << endl;
+
+  auto p = Param();
+  cout << p << endl;
 
   throw Exception::NotImplemented(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
 
