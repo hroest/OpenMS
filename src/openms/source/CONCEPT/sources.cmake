@@ -6,11 +6,8 @@ set(sources_list
 # ClassTest.cpp # FORMAT
 FuzzyStringComparator.cpp
 # Init.cpp # FORMAT
-PrecisionWrapper.cpp
 ProgressLogger.cpp
-RAIICleanup.cpp
 SingletonRegistry.cpp
-TypeAsString.cpp
 UniqueIdGenerator.cpp
 UniqueIdIndexer.cpp
 UniqueIdInterface.cpp
@@ -36,12 +33,12 @@ Exception.cpp
 GlobalExceptionHandler.cpp
 LogConfigHandler.cpp
 LogStream.cpp
-# PrecisionWrapper.cpp
+PrecisionWrapper.cpp
 # ProgressLogger.cpp
-# RAIICleanup.cpp
+RAIICleanup.cpp
 # SingletonRegistry.cpp
 StreamHandler.cpp
-# TypeAsString.cpp
+TypeAsString.cpp
 Types.cpp
 # UniqueIdGenerator.cpp
 # UniqueIdIndexer.cpp

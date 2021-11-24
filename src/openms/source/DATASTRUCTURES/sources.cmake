@@ -4,7 +4,6 @@ set(directory source/DATASTRUCTURES)
 ### list all filenames of the directory here
 set(sources_list
 Adduct.cpp
-BinaryTreeNode.cpp
 CalibrationData.cpp
 ChargePair.cpp
 Compomer.cpp
@@ -18,8 +17,6 @@ DBoundingBox.cpp
 DIntervalBase.cpp
 DPosition.cpp
 DRange.cpp
-Date.cpp
-DateTime.cpp
 DefaultParamHandler.cpp
 DistanceMatrix.cpp
 FASTAContainer.cpp
@@ -30,17 +27,10 @@ GridFeature.cpp
 ListUtils.cpp
 ListUtilsIO.cpp
 # LPWrapper.cpp
-Map.cpp
 MassExplainer.cpp
 MatchedIterator.cpp
-Matrix.cpp
 OSWData.cpp
 QTCluster.cpp
-StringView.cpp
-StringListUtils.cpp
-StringUtils.cpp
-StringUtilsSimple.cpp
-StringConversions.cpp
 ToolDescription.cpp
 )
 
@@ -57,10 +47,20 @@ set(OpenMS_MATH_sources ${OpenMS_MATH_sources} ${directory}/LPWrapper.cpp)
 
 ### list all filenames of the directory here
 set(sources_list
+BinaryTreeNode.cpp
+DataValue.cpp
+Date.cpp
+DateTime.cpp
 Param.cpp
 ParamValue.cpp
+Map.cpp
+Matrix.cpp
 String.cpp
-DataValue.cpp
+StringView.cpp
+StringListUtils.cpp
+StringUtils.cpp
+StringUtilsSimple.cpp
+StringConversions.cpp
 )
 
 ### add path to the filenames
