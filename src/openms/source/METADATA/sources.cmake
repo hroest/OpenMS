@@ -6,13 +6,9 @@ set(sources_list
 AbsoluteQuantitationStandards.cpp
 Acquisition.cpp
 AcquisitionInfo.cpp
-CVTerm.cpp
-CVTermList.cpp
-CVTermListInterface.cpp
 ChromatogramSettings.cpp
 ContactPerson.cpp
 DataArrays.cpp
-DataProcessing.cpp
 Digestion.cpp
 DocumentIDTagger.cpp
 DocumentIdentifier.cpp
@@ -28,10 +24,6 @@ IonDetector.cpp
 IonSource.cpp
 MSQuantifications.cpp
 MassAnalyzer.cpp
-MetaInfo.cpp
-MetaInfoDescription.cpp
-MetaInfoInterface.cpp
-MetaInfoRegistry.cpp
 Modification.cpp
 PeptideEvidence.cpp
 PeptideHit.cpp
@@ -43,7 +35,6 @@ ProteinIdentification.cpp
 Sample.cpp
 SampleTreatment.cpp
 ScanWindow.cpp
-Software.cpp
 SourceFile.cpp
 SpectrumIdentification.cpp
 SpectrumLookup.cpp
@@ -60,6 +51,28 @@ endforeach(i)
 
 ### pass source file list to the upper instance
 set(OpenMS_CORE_sources ${OpenMS_CORE_sources} ${sources})
+
+### list all filenames of the directory here
+set(sources_list
+CVTerm.cpp
+CVTermList.cpp
+CVTermListInterface.cpp
+MetaInfo.cpp
+MetaInfoDescription.cpp
+MetaInfoInterface.cpp
+MetaInfoRegistry.cpp
+Software.cpp
+DataProcessing.cpp
+)
+
+### add path to the filenames
+set(sources)
+foreach(i ${sources_list})
+	list(APPEND sources ${directory}/${i})
+endforeach(i)
+
+### pass source file list to the upper instance
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${sources})
 
 ### source group definition
 source_group("Source Files\\METADATA" FILES ${sources})
