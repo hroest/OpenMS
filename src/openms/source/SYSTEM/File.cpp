@@ -41,8 +41,8 @@
 #include <OpenMS/DATASTRUCTURES/DateTime.h>
 #include <OpenMS/DATASTRUCTURES/Param.h>
 
-#include <OpenMS/FORMAT/FileHandler.h>
-#include <OpenMS/FORMAT/ParamXMLFile.h>
+// #include <OpenMS/FORMAT/FileHandler.h>
+// #include <OpenMS/FORMAT/ParamXMLFile.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
@@ -468,6 +468,7 @@ namespace OpenMS
     pid = (String)getpid();
 #endif
     static std::atomic_int number = 0;
+    // TODO pull in all of Qt Network for this?
     return now.getDate().remove('-') + "_" + now.getTime().remove(':') + "_" + (include_hostname ? String(QHostInfo::localHostName()) + "_" : "")  + pid + "_" + (++number);
   }
 
@@ -667,8 +668,10 @@ namespace OpenMS
     }
     else
     {
-      ParamXMLFile paramFile;
-      paramFile.load(filename, p);
+      // Has to go somewhere else?
+      //
+      // ParamXMLFile paramFile;
+      // paramFile.load(filename, p);
 
       // check version
       if (!p.exists("version") || (p.getValue("version") != VersionInfo::getVersion()))
@@ -857,8 +860,8 @@ namespace OpenMS
 
       if (ignore_extension)
       {
-        sl1_name = FileHandler::stripExtension(sl1_name);
-        sl2_name = FileHandler::stripExtension(sl2_name);
+        // sl1_name = stripExtension(sl1_name);
+        // sl2_name = stripExtension(sl2_name);
       }
 
       sl1_set.insert(sl1_name);
