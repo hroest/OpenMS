@@ -3,35 +3,21 @@ set(directory source/DATASTRUCTURES)
 
 ### list all filenames of the directory here
 set(sources_list
-Adduct.cpp
-CalibrationData.cpp
-ChargePair.cpp
-Compomer.cpp
+Adduct.cpp # EmpiricalFormula
+CalibrationData.cpp # Math
+ChargePair.cpp # Adduct
+Compomer.cpp # Adduct
 ConstRefVector.cpp
-ConvexHull2D.cpp
-CVMappingTerm.cpp
-CVMappingRule.cpp
-CVReference.cpp
-CVMappings.cpp
-DBoundingBox.cpp
-DIntervalBase.cpp
-DPosition.cpp
-DRange.cpp
 DefaultParamHandler.cpp
-DistanceMatrix.cpp
 FASTAContainer.cpp
-FlagSet.cpp
-GridFeature.cpp
-#IsotopeCluster.h
+GridFeature.cpp # BaseFeature/Peptide
+# IsotopeCluster.h
 #KDTree.h
-ListUtils.cpp
-ListUtilsIO.cpp
 # LPWrapper.cpp
-MassExplainer.cpp
-MatchedIterator.cpp
-OSWData.cpp
-QTCluster.cpp
-ToolDescription.cpp
+MassExplainer.cpp # EmpiricalFormula
+MatchedIterator.cpp # Math
+OSWData.cpp # MSExperiment
+QTCluster.cpp # AAsequence
 )
 
 ### add path to the filenames
@@ -47,6 +33,7 @@ set(OpenMS_MATH_sources ${OpenMS_MATH_sources} ${directory}/LPWrapper.cpp)
 
 ### list all filenames of the directory here
 set(sources_list
+FlagSet.cpp
 BinaryTreeNode.cpp
 DataValue.cpp
 Date.cpp
@@ -61,6 +48,19 @@ StringListUtils.cpp
 StringUtils.cpp
 StringUtilsSimple.cpp
 StringConversions.cpp
+ListUtils.cpp
+ListUtilsIO.cpp
+DIntervalBase.cpp
+DPosition.cpp
+DRange.cpp
+DBoundingBox.cpp
+ConvexHull2D.cpp
+DistanceMatrix.cpp
+CVMappingTerm.cpp
+CVMappingRule.cpp
+CVReference.cpp
+CVMappings.cpp
+ToolDescription.cpp
 )
 
 ### add path to the filenames
