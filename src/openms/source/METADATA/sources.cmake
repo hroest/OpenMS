@@ -3,17 +3,17 @@ set(directory source/METADATA)
 
 ### list all filenames of the directory here
 set(sources_list
-AbsoluteQuantitationStandards.cpp
-ExperimentalDesign.cpp
-ExperimentalSettings.cpp
-MSQuantifications.cpp
-PeptideHit.cpp
-PeptideIdentification.cpp
-ProteinHit.cpp
-ProteinIdentification.cpp
-SpectrumLookup.cpp
+AbsoluteQuantitationStandards.cpp # FeatureMap
+ExperimentalDesign.cpp # FeatureMap
+ExperimentalSettings.cpp # ProteinIdentification
+MSQuantifications.cpp # FeatureMap
+PeptideHit.cpp # AASequence
+PeptideIdentification.cpp # ConsensusMap
+ProteinHit.cpp # ResidueModification
+ProteinIdentification.cpp # Digestion
+SpectrumLookup.cpp # MSSpectrum
 SpectrumMetaDataLookup.cpp
-SpectrumSettings.cpp
+SpectrumSettings.cpp # PeptideIdentification
 )
 
 ### add path to the filenames
