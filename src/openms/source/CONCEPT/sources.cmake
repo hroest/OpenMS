@@ -4,13 +4,7 @@ set(directory source/CONCEPT)
 ### list all filenames of the directory here
 set(sources_list
 # ClassTest.cpp # FORMAT
-FuzzyStringComparator.cpp
 # Init.cpp # FORMAT
-ProgressLogger.cpp
-SingletonRegistry.cpp
-UniqueIdGenerator.cpp
-UniqueIdIndexer.cpp
-UniqueIdInterface.cpp
 )
 
 ### add path to the filenames
@@ -29,20 +23,20 @@ set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${directory}/ClassTest.cpp)
 ### list all filenames of the directory here
 set(sources_list
 Exception.cpp
-# FuzzyStringComparator.cpp
+FuzzyStringComparator.cpp
 GlobalExceptionHandler.cpp
 LogConfigHandler.cpp
 LogStream.cpp
 PrecisionWrapper.cpp
-# ProgressLogger.cpp
+ProgressLogger.cpp
 RAIICleanup.cpp
-# SingletonRegistry.cpp
+SingletonRegistry.cpp
 StreamHandler.cpp
 TypeAsString.cpp
 Types.cpp
-# UniqueIdGenerator.cpp
-# UniqueIdIndexer.cpp
-# UniqueIdInterface.cpp
+UniqueIdGenerator.cpp
+UniqueIdIndexer.cpp
+UniqueIdInterface.cpp
 VersionInfo.cpp
 )
 
