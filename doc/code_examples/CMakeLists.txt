@@ -53,7 +53,7 @@ include_directories(SYSTEM ${OpenMS_INCLUDE_DIRECTORIES})
 find_package(Qt5 COMPONENTS Core Network REQUIRED)
 
 # add the targets
-set(OpenMS_LIBRARIES ${OpenMS_LIBRARIES} OpenMS OpenMS_FORMAT OpenMS_ANALYSIS OpenMS_AUXX OpenMS_MATH OpenMS)
+set(OpenMS_LIBRARIES ${OpenMS_LIBRARIES} OpenMS OpenMS_BASE OpenMS_FORMAT OpenMS_ANALYSIS OpenMS_AUXX OpenMS_MATH OpenMS)
 foreach(i ${EXAMPLES_executables})
   add_executable(${i} ${CMAKE_CURRENT_LIST_DIR}/${i}.cpp)
   target_link_libraries(${i} ${OpenMS_LIBRARIES})
