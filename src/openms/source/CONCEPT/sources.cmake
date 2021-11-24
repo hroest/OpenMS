@@ -4,23 +4,16 @@ set(directory source/CONCEPT)
 ### list all filenames of the directory here
 set(sources_list
 # ClassTest.cpp # FORMAT
-# Exception.cpp
 FuzzyStringComparator.cpp
-# GlobalExceptionHandler.cpp
 # Init.cpp # FORMAT
-LogConfigHandler.cpp
-LogStream.cpp
 PrecisionWrapper.cpp
 ProgressLogger.cpp
 RAIICleanup.cpp
 SingletonRegistry.cpp
-StreamHandler.cpp
 TypeAsString.cpp
-# Types.cpp
 UniqueIdGenerator.cpp
 UniqueIdIndexer.cpp
 UniqueIdInterface.cpp
-VersionInfo.cpp
 )
 
 ### add path to the filenames
@@ -36,9 +29,34 @@ set(OpenMS_sources ${OpenMS_sources} ${sources})
 set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${directory}/Init.cpp)
 set(OpenMS_FORMAT_sources ${OpenMS_FORMAT_sources} ${directory}/ClassTest.cpp)
 
-set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/Exception.cpp)
-set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/Types.cpp)
-set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/GlobalExceptionHandler.cpp)
+### list all filenames of the directory here
+set(sources_list
+Exception.cpp
+# FuzzyStringComparator.cpp
+GlobalExceptionHandler.cpp
+LogConfigHandler.cpp
+LogStream.cpp
+# PrecisionWrapper.cpp
+# ProgressLogger.cpp
+# RAIICleanup.cpp
+# SingletonRegistry.cpp
+StreamHandler.cpp
+# TypeAsString.cpp
+Types.cpp
+# UniqueIdGenerator.cpp
+# UniqueIdIndexer.cpp
+# UniqueIdInterface.cpp
+VersionInfo.cpp
+)
+
+### add path to the filenames
+set(sources)
+foreach(i ${sources_list})
+	list(APPEND sources ${directory}/${i})
+endforeach(i)
+
+### pass source file list to the upper instance
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${sources})
 
 ### source group definition
 source_group("Source Files\\CONCEPT" FILES ${sources})

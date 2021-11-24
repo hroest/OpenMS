@@ -18,7 +18,6 @@ DBoundingBox.cpp
 DIntervalBase.cpp
 DPosition.cpp
 DRange.cpp
-# DataValue.cpp
 Date.cpp
 DateTime.cpp
 DefaultParamHandler.cpp
@@ -36,10 +35,7 @@ MassExplainer.cpp
 MatchedIterator.cpp
 Matrix.cpp
 OSWData.cpp
-Param.cpp
-# ParamValue.cpp
 QTCluster.cpp
-# String.cpp
 StringView.cpp
 StringListUtils.cpp
 StringUtils.cpp
@@ -59,9 +55,22 @@ set(OpenMS_CORE_sources ${OpenMS_CORE_sources} ${sources})
 
 set(OpenMS_MATH_sources ${OpenMS_MATH_sources} ${directory}/LPWrapper.cpp)
 
-set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/String.cpp)
-set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/DataValue.cpp)
-set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${directory}/ParamValue.cpp)
+### list all filenames of the directory here
+set(sources_list
+Param.cpp
+ParamValue.cpp
+String.cpp
+DataValue.cpp
+)
+
+### add path to the filenames
+set(sources)
+foreach(i ${sources_list})
+	list(APPEND sources ${directory}/${i})
+endforeach(i)
+
+### pass source file list to the upper instance
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${sources})
 
 ### source group definition
 source_group("Source Files\\DATASTRUCTURES" FILES ${sources})
