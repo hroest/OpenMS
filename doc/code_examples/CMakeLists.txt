@@ -66,7 +66,8 @@ foreach(i ${EXAMPLES_executables})
 endforeach(i)
 
 add_executable(Tutorial_Exception ${CMAKE_CURRENT_LIST_DIR}/Tutorial_Exception.cpp)
-target_link_libraries(Tutorial_Exception OpenMS_BASE)
+# target_link_libraries(Tutorial_Exception OpenMS_BASE /usr/lib/x86_64-linux-gnu/libQt5Network.so.5)
+target_link_libraries(Tutorial_Exception OpenMS_BASE ${Qt5Core_LIBRARIES} ${Qt5Network_LIBRARIES})
 
 # add collection target
 add_custom_target(Tutorials_build)

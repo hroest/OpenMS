@@ -151,7 +151,8 @@ set(OPENMS_CORE_DEP_LIBRARIES # ${COIN_LIBRARIES}
                           # ${HDF5_CXX_LIBRARIES}
                           # ${GLPK_LIBRARIES}
                           ${CMAKE_DL_LIBS}
-                          ${Qt5Core_LIBRARIES})
+                          ${Qt5Core_LIBRARIES}
+                          ${Qt5Network_LIBRARIES})
 
 set(OPENMS_ANALYSIS_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           ${LIBSVM_LIBRARIES}
