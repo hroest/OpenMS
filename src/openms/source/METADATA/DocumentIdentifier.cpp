@@ -86,7 +86,8 @@ namespace OpenMS
 
   void DocumentIdentifier::setLoadedFileType(const String & file_name)
   {
-    file_type_ = FileHandler::getTypeByContent(file_name);
+    // TODO
+    // file_type_ = FileHandler::getTypeByContent(file_name);
   }
 
   const FileTypes::Type & DocumentIdentifier::getLoadedFileType() const
