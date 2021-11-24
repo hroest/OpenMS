@@ -4,39 +4,16 @@ set(directory source/METADATA)
 ### list all filenames of the directory here
 set(sources_list
 AbsoluteQuantitationStandards.cpp
-Acquisition.cpp
-AcquisitionInfo.cpp
-ChromatogramSettings.cpp
-ContactPerson.cpp
-DataArrays.cpp
-Digestion.cpp
 DocumentIDTagger.cpp
 DocumentIdentifier.cpp
 ExperimentalDesign.cpp
 ExperimentalSettings.cpp
-Gradient.cpp
-HPLC.cpp
-Identification.cpp
-IdentificationHit.cpp
-Instrument.cpp
-InstrumentSettings.cpp
-IonDetector.cpp
-IonSource.cpp
 MSQuantifications.cpp
-MassAnalyzer.cpp
-Modification.cpp
 PeptideEvidence.cpp
 PeptideHit.cpp
 PeptideIdentification.cpp
-Precursor.cpp
-Product.cpp
 ProteinHit.cpp
 ProteinIdentification.cpp
-Sample.cpp
-SampleTreatment.cpp
-ScanWindow.cpp
-SourceFile.cpp
-SpectrumIdentification.cpp
 SpectrumLookup.cpp
 SpectrumMetaDataLookup.cpp
 SpectrumSettings.cpp
@@ -54,6 +31,22 @@ set(OpenMS_CORE_sources ${OpenMS_CORE_sources} ${sources})
 
 ### list all filenames of the directory here
 set(sources_list
+Acquisition.cpp
+AcquisitionInfo.cpp
+ContactPerson.cpp
+DataArrays.cpp
+Digestion.cpp
+
+ChromatogramSettings.cpp
+Precursor.cpp
+
+Identification.cpp
+IdentificationHit.cpp
+Instrument.cpp
+InstrumentSettings.cpp
+
+Modification.cpp
+
 CVTerm.cpp
 CVTermList.cpp
 CVTermListInterface.cpp
@@ -63,6 +56,18 @@ MetaInfoInterface.cpp
 MetaInfoRegistry.cpp
 Software.cpp
 DataProcessing.cpp
+Sample.cpp
+SampleTreatment.cpp
+ScanWindow.cpp
+SourceFile.cpp
+IonDetector.cpp
+IonSource.cpp
+MassAnalyzer.cpp
+Gradient.cpp
+HPLC.cpp
+Product.cpp
+
+SpectrumIdentification.cpp
 )
 
 ### add path to the filenames
