@@ -30,7 +30,7 @@ GridFeature.cpp
 #KDTree.h
 ListUtils.cpp
 ListUtilsIO.cpp
-LPWrapper.cpp
+# LPWrapper.cpp
 Map.cpp
 MassExplainer.cpp
 MatchedIterator.cpp
@@ -56,6 +56,8 @@ endforeach(i)
 
 ### pass source file list to the upper instance
 set(OpenMS_CORE_sources ${OpenMS_CORE_sources} ${sources})
+
+set(OpenMS_MATH_sources ${OpenMS_MATH_sources} ${directory}/LPWrapper.cpp)
 
 ### source group definition
 source_group("Source Files\\DATASTRUCTURES" FILES ${sources})

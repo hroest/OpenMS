@@ -100,7 +100,7 @@ set(OPENMS_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           ${Qt5Network_LIBRARIES})
 
 
-set(OPENMS_MATH_DEP_LIBRARIES  # ${COIN_LIBRARIES}
+set(OPENMS_MATH_DEP_LIBRARIES  ${COIN_LIBRARIES}
                           # ${LIBSVM_LIBRARIES}
                           # ${XercesC_LIBRARY}
                           ${Boost_LIBRARIES}
@@ -127,7 +127,7 @@ set(OPENMS_AUXX_DEP_LIBRARIES  # ${COIN_LIBRARIES}
                           ${Qt5Core_LIBRARIES}
                           ${Qt5Network_LIBRARIES})
 
-set(OPENMS_CORE_DEP_LIBRARIES  ${COIN_LIBRARIES}
+set(OPENMS_CORE_DEP_LIBRARIES # ${COIN_LIBRARIES}
                           # ${LIBSVM_LIBRARIES}
                           # ${XercesC_LIBRARY}
                           ${Boost_LIBRARIES}
