@@ -4,12 +4,9 @@ set(directory source/METADATA)
 ### list all filenames of the directory here
 set(sources_list
 AbsoluteQuantitationStandards.cpp
-DocumentIDTagger.cpp
-DocumentIdentifier.cpp
 ExperimentalDesign.cpp
 ExperimentalSettings.cpp
 MSQuantifications.cpp
-PeptideEvidence.cpp
 PeptideHit.cpp
 PeptideIdentification.cpp
 ProteinHit.cpp
@@ -17,7 +14,6 @@ ProteinIdentification.cpp
 SpectrumLookup.cpp
 SpectrumMetaDataLookup.cpp
 SpectrumSettings.cpp
-Tagging.cpp
 )
 
 ### add path to the filenames
@@ -36,9 +32,12 @@ AcquisitionInfo.cpp
 ContactPerson.cpp
 DataArrays.cpp
 Digestion.cpp
+DocumentIDTagger.cpp
+DocumentIdentifier.cpp
 
 ChromatogramSettings.cpp
 Precursor.cpp
+PeptideEvidence.cpp
 
 Identification.cpp
 IdentificationHit.cpp
@@ -46,6 +45,7 @@ Instrument.cpp
 InstrumentSettings.cpp
 
 Modification.cpp
+Tagging.cpp
 
 CVTerm.cpp
 CVTermList.cpp
