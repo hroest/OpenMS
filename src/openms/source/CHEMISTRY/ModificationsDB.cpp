@@ -36,7 +36,7 @@
 #include "OpenMS/CHEMISTRY/ResidueModification.h"
 #include <OpenMS/CHEMISTRY/ModificationsDB.h>
 
-#include <OpenMS/FORMAT/UnimodXMLFile.h>
+// #include <OpenMS/FORMAT/UnimodXMLFile.h>
 #include <OpenMS/SYSTEM/File.h>
 #include <OpenMS/CHEMISTRY/Residue.h>
 #include <OpenMS/CONCEPT/LogStream.h>
@@ -490,7 +490,8 @@ namespace OpenMS
   void ModificationsDB::readFromUnimodXMLFile(const String& filename)
   {
     vector<ResidueModification*> new_mods;
-    UnimodXMLFile().load(filename, new_mods);
+    // TODO
+    // UnimodXMLFile().load(filename, new_mods);
 
     for (auto & m : new_mods)
     {
