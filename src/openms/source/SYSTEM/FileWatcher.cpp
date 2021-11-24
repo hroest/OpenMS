@@ -33,6 +33,7 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/SYSTEM/FileWatcher.h>
+
 #include <QtCore/QTimer>
 
 using namespace std;
