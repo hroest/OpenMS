@@ -34,8 +34,6 @@
 
 #include <OpenMS/METADATA/PeptideEvidence.h>
 
-#include <OpenMS/CHEMISTRY/AASequence.h>
-
 namespace OpenMS
 {
 
