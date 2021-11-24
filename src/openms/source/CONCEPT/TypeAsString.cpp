@@ -32,6 +32,8 @@
 // $Authors: Marc Sturm, Clemens Groepl $
 // --------------------------------------------------------------------------
 
+#include <OpenMS/CONCEPT/TypeAsString.h>
+
 namespace OpenMS
 {
 }

@@ -32,6 +32,8 @@
 // $Authors: Chris Bielow $
 // --------------------------------------------------------------------------
 
+#include <OpenMS/CONCEPT/RAIICleanup.h>
+
 namespace OpenMS
 {
 
