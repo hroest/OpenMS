@@ -36,8 +36,9 @@
 #include <fstream>
 #include <sstream>
 
+#include <QtCore/QFileInfo>
+
 #include <OpenMS/CONCEPT/StreamHandler.h>
-#include <OpenMS/SYSTEM/File.h>
 #include <OpenMS/CONCEPT/LogStream.h>
 
 using std::ostream;
@@ -96,6 +97,13 @@ namespace OpenMS
     }
   }
 
+  // File::absolutePath
+  String absolutePath(const String& file)
+  {
+    QFileInfo fi(file.toQString());
+    return fi.absoluteFilePath();
+  }
+
   ostream * StreamHandler::createStream_(const StreamType type, const String & stream_name)
   {
     ostream * stream_pointer;
@@ -107,7 +115,7 @@ namespace OpenMS
 
     case FILE:
     default:
-      stream_pointer = new ofstream(File::absolutePath(stream_name).c_str(), ios_base::app);
+      stream_pointer = new ofstream(absolutePath(stream_name).c_str(), ios_base::app);
       break;
     }
 
