@@ -34,7 +34,5 @@
 
 
 // class template  .. nothing to see or include here...
-#if 0
 #include <OpenMS/DATASTRUCTURES/FlagSet.h>
-#endif
 

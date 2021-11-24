@@ -32,8 +32,9 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
+
+#include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/METADATA/MetaInfoInterface.h>
 
 using namespace std;
