@@ -65,6 +65,9 @@ foreach(i ${EXAMPLES_executables})
   endif()
 endforeach(i)
 
+add_executable(Tutorial_Exception ${CMAKE_CURRENT_LIST_DIR}/Tutorial_Exception.cpp)
+target_link_libraries(Tutorial_Exception OpenMS_BASE)
+
 # add collection target
 add_custom_target(Tutorials_build)
 add_dependencies(Tutorials_build ${EXAMPLES_executables})
