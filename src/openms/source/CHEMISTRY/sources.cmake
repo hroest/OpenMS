@@ -3,15 +3,10 @@ set(directory source/CHEMISTRY)
 
 ### list all filenames of the directory here
 set(sources_list
-AASequence.cpp
 CrossLinksDB.cpp
 DecoyGenerator.cpp
 EnzymaticDigestionLogModel.cpp
 EnzymaticDigestion.cpp
-DigestionEnzyme.cpp
-DigestionEnzymeProtein.cpp
-DigestionEnzymeRNA.cpp
-DigestionEnzymeDB.cpp
 ModificationDefinition.cpp
 ModificationDefinitionsSet.cpp
 ModifiedNASequenceGenerator.cpp
@@ -33,6 +28,9 @@ Tagger.cpp
 TheoreticalSpectrumGenerator.cpp
 TheoreticalSpectrumGeneratorXLMS.cpp
 WeightWrapper.cpp
+
+
+
 )
 
 ### add path to the filenames
@@ -46,14 +44,21 @@ set(OpenMS_sources ${OpenMS_sources} ${sources})
 
 ### list all filenames of the directory here
 set(sources_list
+AASequence.cpp
+DigestionEnzyme.cpp
+DigestionEnzymeProtein.cpp
+DigestionEnzymeRNA.cpp
+DigestionEnzymeDB.cpp
+
+Element.cpp
+ElementDB.cpp
+EmpiricalFormula.cpp
+
 Residue.cpp
 ResidueDB.cpp
 ResidueModification.cpp
 ModificationsDB.cpp
 
-Element.cpp
-ElementDB.cpp
-EmpiricalFormula.cpp
 )
 
 ### add path to the filenames
