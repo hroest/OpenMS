@@ -137,9 +137,6 @@ set(OPENMS_BASE_DEP_LIBRARIES # ${COIN_LIBRARIES}
                           # ${SQLite_LIBRARY}
                           # ${HDF5_CXX_LIBRARIES}
                           # ${GLPK_LIBRARIES}
-                          /usr/lib/gcc/x86_64-linux-gnu/9/libgomp.so
-                          pthread
-                          /usr/lib/x86_64-linux-gnu/libpthread.so
                           ${CMAKE_DL_LIBS}
                           ${Qt5Core_LIBRARIES})
 
