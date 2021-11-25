@@ -3,34 +3,15 @@ set(directory source/CHEMISTRY)
 
 ### list all filenames of the directory here
 set(sources_list
-CrossLinksDB.cpp
-DecoyGenerator.cpp
-EnzymaticDigestionLogModel.cpp
-EnzymaticDigestion.cpp
-ModificationDefinition.cpp
-ModificationDefinitionsSet.cpp
-ModifiedNASequenceGenerator.cpp
-ModifiedPeptideGenerator.cpp
-NASequence.cpp
-NucleicAcidSpectrumGenerator.cpp
-ProteaseDB.cpp
-ProteaseDigestion.cpp
-RNaseDB.cpp
-RNaseDigestion.cpp
-Ribonucleotide.cpp
-RibonucleotideDB.cpp
-SpectrumAnnotator.cpp
-SimpleTSGXLMS.cpp
+ModificationDefinitionsSet.cpp # PeptideIdentification
+NucleicAcidSpectrumGenerator.cpp # MSSpectrum
+SpectrumAnnotator.cpp # MSSpectrum
+SimpleTSGXLMS.cpp # OPXL
 SvmTheoreticalSpectrumGenerator.cpp
 SvmTheoreticalSpectrumGeneratorTrainer.cpp
 SvmTheoreticalSpectrumGeneratorSet.cpp
-Tagger.cpp
-TheoreticalSpectrumGenerator.cpp
-TheoreticalSpectrumGeneratorXLMS.cpp
-WeightWrapper.cpp
-
-
-
+TheoreticalSpectrumGenerator.cpp # MSSpectrum
+TheoreticalSpectrumGeneratorXLMS.cpp # MSSpectrum
 )
 
 ### add path to the filenames
@@ -45,20 +26,38 @@ set(OpenMS_sources ${OpenMS_sources} ${sources})
 ### list all filenames of the directory here
 set(sources_list
 AASequence.cpp
+CrossLinksDB.cpp
+DecoyGenerator.cpp
 DigestionEnzyme.cpp
 DigestionEnzymeProtein.cpp
 DigestionEnzymeRNA.cpp
 DigestionEnzymeDB.cpp
+EnzymaticDigestionLogModel.cpp
+EnzymaticDigestion.cpp
+ModificationDefinition.cpp
+ModifiedNASequenceGenerator.cpp
+ModifiedPeptideGenerator.cpp
+Tagger.cpp
+
 
 Element.cpp
 ElementDB.cpp
 EmpiricalFormula.cpp
 
+ProteaseDB.cpp
+ProteaseDigestion.cpp
+
+NASequence.cpp
+RNaseDB.cpp
+RNaseDigestion.cpp
+Ribonucleotide.cpp
+RibonucleotideDB.cpp
+
 Residue.cpp
 ResidueDB.cpp
 ResidueModification.cpp
 ModificationsDB.cpp
-
+WeightWrapper.cpp
 )
 
 ### add path to the filenames
