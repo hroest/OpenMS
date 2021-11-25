@@ -310,7 +310,7 @@ namespace OpenMS
         @return one of SqlState::SQL_ROW or SqlState::SQL_DONE
         @throws Exception::SqlOperationFailed if state would be SqlState::ERROR
       */
-      SqlState nextRow(sqlite3_stmt* stmt, SqlState current = SqlState::SQL_ROW);
+      inline SqlState nextRow(sqlite3_stmt* stmt, SqlState current = SqlState::SQL_ROW);
 
 
       /**
@@ -336,39 +336,40 @@ namespace OpenMS
           sqlite3_finalize(stmt);
       */
       template <typename ValueType>
-      bool extractValue(ValueType* /* dst */, sqlite3_stmt* /* stmt */, int /* pos */)
+      inline bool extractValue(ValueType* /* dst */, sqlite3_stmt* /* stmt */, int /* pos */)
       {
         throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
           "Not implemented");
       }
 
-      template <> bool extractValue<double>(double* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
+      template <> inline bool extractValue<double>(double* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
 
-      template <> bool extractValue<int>(int* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
-      template <> bool extractValue<Int64>(Int64* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
+      template <> inline bool extractValue<int>(int* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
+      template <> inline bool extractValue<Int64>(Int64* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
 
-      template <> bool extractValue<String>(String* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
+      template <> inline bool extractValue<String>(String* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
 
-      template <> bool extractValue<std::string>(std::string* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
+      template <> inline bool extractValue<std::string>(std::string* dst, sqlite3_stmt* stmt, int pos); //explicit specialization
 
       /// Special case where an integer should be stored in a String field
-      bool extractValueIntStr(String* dst, sqlite3_stmt* stmt, int pos);
+      inline bool extractValueIntStr(String* dst, sqlite3_stmt* stmt, int pos);
 
       /** @defgroup sqlThrowingGetters Functions for getting values from sql-select statements
 
           All these function throw Exception::SqlOperationFailed if the given position is of the wrong type.
        @{
        */
-      double extractDouble(sqlite3_stmt* stmt, int pos);
-      float extractFloat(sqlite3_stmt* stmt, int pos); ///< convenience function; note: in SQL there is no float, just double. So this might be narrowing.
-      int extractInt(sqlite3_stmt* stmt, int pos);
-      Int64 extractInt64(sqlite3_stmt* stmt, int pos);
-      String extractString(sqlite3_stmt* stmt, int pos);
-      char extractChar(sqlite3_stmt* stmt, int pos);
-      bool extractBool(sqlite3_stmt* stmt, int pos);
+      inline double extractDouble(sqlite3_stmt* stmt, int pos);
+      inline float extractFloat(sqlite3_stmt* stmt, int pos); ///< convenience function; note: in SQL there is no float, just double. So this might be narrowing.
+      inline int extractInt(sqlite3_stmt* stmt, int pos);
+      inline Int64 extractInt64(sqlite3_stmt* stmt, int pos);
+      inline String extractString(sqlite3_stmt* stmt, int pos);
+      inline char extractChar(sqlite3_stmt* stmt, int pos);
+      inline bool extractBool(sqlite3_stmt* stmt, int pos);
       /** @} */ // end of sqlThrowingGetters
     }
   }
 
-
 } // namespace OpenMS
+
+#include <OpenMS/FORMAT/SqliteHelper.h>

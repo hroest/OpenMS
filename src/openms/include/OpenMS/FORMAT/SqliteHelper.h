@@ -44,7 +44,7 @@ namespace OpenMS
     namespace SqliteHelper
     {
 
-      template <> bool extractValue<double>(double* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
+      template <> inline bool extractValue<double>(double* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
       {
         if (sqlite3_column_type(stmt, pos) != SQLITE_NULL)
         {
@@ -54,7 +54,7 @@ namespace OpenMS
         return false;
       }
 
-      template <> bool extractValue<int>(int* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
+      template <> inline bool extractValue<int>(int* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
       {
         if (sqlite3_column_type(stmt, pos) != SQLITE_NULL)
         {
@@ -63,7 +63,8 @@ namespace OpenMS
         }
         return false;
       }
-      template <> bool extractValue<Int64>(Int64* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
+
+      template <> inline bool extractValue<Int64>(Int64* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
       {
         if (sqlite3_column_type(stmt, pos) != SQLITE_NULL)
         {
@@ -73,7 +74,7 @@ namespace OpenMS
         return false;
       }
 
-      template <> bool extractValue<String>(String* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
+      template <> inline bool extractValue<String>(String* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
       {
         if (sqlite3_column_type(stmt, pos) != SQLITE_NULL)
         {
@@ -83,7 +84,7 @@ namespace OpenMS
         return false;
       }
 
-      template <> bool extractValue<std::string>(std::string* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
+      template <> inline bool extractValue<std::string>(std::string* dst, sqlite3_stmt* stmt, int pos) //explicit specialization
       {
         if (sqlite3_column_type(stmt, pos) != SQLITE_NULL)
         {
@@ -94,7 +95,7 @@ namespace OpenMS
         return false;
       }
 
-      SqlState nextRow(sqlite3_stmt* stmt, SqlState current)
+      inline SqlState nextRow(sqlite3_stmt* stmt, SqlState current)
       {
         if (current != SqlState::SQL_ROW)
         { // querying a new row after the last invocation gave 'SQL_DONE' might loop around
@@ -126,7 +127,7 @@ namespace OpenMS
       }
 
       /// Special case: store integer in a string data value
-      bool extractValueIntStr(String* dst, sqlite3_stmt* stmt, int pos)
+      inline bool extractValueIntStr(String* dst, sqlite3_stmt* stmt, int pos)
       {
         if (sqlite3_column_type(stmt, pos) == SQLITE_INTEGER)
         {
@@ -136,7 +137,7 @@ namespace OpenMS
         return false;
       }
 
-      double extractDouble(sqlite3_stmt* stmt, int pos)
+      inline double extractDouble(sqlite3_stmt* stmt, int pos)
       {
         double res;
         if (!extractValue<double>(&res, stmt, pos)) 
@@ -146,7 +147,7 @@ namespace OpenMS
         return res;
       }
 
-      float extractFloat(sqlite3_stmt* stmt, int pos)
+      inline float extractFloat(sqlite3_stmt* stmt, int pos)
       {
         double res; // there is no sqlite3_column_float.. so we extract double and convert
         if (!extractValue<double>(&res, stmt, pos))
@@ -156,7 +157,7 @@ namespace OpenMS
         return (float)res;
       }
 
-      int extractInt(sqlite3_stmt* stmt, int pos)
+      inline int extractInt(sqlite3_stmt* stmt, int pos)
       {
         int res;
         if (!extractValue<int>(&res, stmt, pos))
@@ -166,7 +167,7 @@ namespace OpenMS
         return res;
       }
 
-      Int64 extractInt64(sqlite3_stmt* stmt, int pos)
+      inline Int64 extractInt64(sqlite3_stmt* stmt, int pos)
       {
         Int64 res;
         if (!extractValue<Int64>(&res, stmt, pos))
@@ -176,7 +177,7 @@ namespace OpenMS
         return res;
       }
 
-      String extractString(sqlite3_stmt* stmt, int pos)
+      inline String extractString(sqlite3_stmt* stmt, int pos)
       {
         String res;
         if (!extractValue<String>(&res, stmt, pos))
@@ -186,12 +187,12 @@ namespace OpenMS
         return res;
       }
 
-      char extractChar(sqlite3_stmt* stmt, int pos)
+      inline char extractChar(sqlite3_stmt* stmt, int pos)
       {
         return extractString(stmt, pos)[0];
       }
 
-      bool extractBool(sqlite3_stmt* stmt, int pos)
+      inline bool extractBool(sqlite3_stmt* stmt, int pos)
       {
         return extractInt(stmt, pos) != 0;
       }
