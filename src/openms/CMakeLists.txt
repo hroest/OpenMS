@@ -254,40 +254,40 @@ foreach (includedir
 endforeach()
 
 set(OpenMS_sources ${OpenMS_sources} 
-  ${OpenMS_MATH_sources}
-  ${OpenMS_CORE_sources}
-  ${OpenMS_AUXX_sources}
+  # ${OpenMS_MATH_sources}
+  # ${OpenMS_CORE_sources}
+  # ${OpenMS_AUXX_sources}
   # ${OpenMS_FORMAT_sources}
   # ${OpenMS_ANALYSIS_sources}
   )
 
-# openms_add_library(TARGET_NAME  OpenMS_MATH
-#                    SOURCE_FILES  ${OpenMS_MATH_sources}
-#                    HEADER_FILES  ${OpenMS_sources_h}
-#                                  ${OpenMS_configured_headers}
-#                    INTERNAL_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
-#                                      ${CMAKE_CURRENT_BINARY_DIR}/include
-#                    EXTERNAL_INCLUDES ${OPENMS_CONTRIB_INCLUDE_DIRS} #root folder
-#                                      ${INCLUDES_FROM_CONTRIB}
-#                                      ${INCLUDES_FROM_SYSTEM}
-#                                      ${Qt5Core_INCLUDE_DIRS}
-#                    LINK_LIBRARIES ${OPENMS_MATH_DEP_LIBRARIES} OpenMS_CORE
-#                    DLL_EXPORT_PATH "OpenMS/")
-# 
-# openms_add_library(TARGET_NAME  OpenMS_AUXX
-#                    SOURCE_FILES  ${OpenMS_AUXX_sources}
-#                    HEADER_FILES  ${OpenMS_sources_h}
-#                                  ${OpenMS_configured_headers}
-#                    INTERNAL_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
-#                                      ${CMAKE_CURRENT_BINARY_DIR}/include
-#                    EXTERNAL_INCLUDES ${OPENMS_CONTRIB_INCLUDE_DIRS} #root folder
-#                                      ${INCLUDES_FROM_CONTRIB}
-#                                      ${INCLUDES_FROM_SYSTEM}
-#                                      ${Qt5Core_INCLUDE_DIRS}
-#                    LINK_LIBRARIES ${OPENMS_AUXX_DEP_LIBRARIES} OpenMS_CORE
-#                    DLL_EXPORT_PATH "OpenMS/")
-# 
-# 
+openms_add_library(TARGET_NAME  OpenMS_MATH
+                   SOURCE_FILES  ${OpenMS_MATH_sources}
+                   HEADER_FILES  ${OpenMS_sources_h}
+                                 ${OpenMS_configured_headers}
+                   INTERNAL_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
+                                     ${CMAKE_CURRENT_BINARY_DIR}/include
+                   EXTERNAL_INCLUDES ${OPENMS_CONTRIB_INCLUDE_DIRS} #root folder
+                                     ${INCLUDES_FROM_CONTRIB}
+                                     ${INCLUDES_FROM_SYSTEM}
+                                     ${Qt5Core_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${OPENMS_MATH_DEP_LIBRARIES}
+                   DLL_EXPORT_PATH "OpenMS/")
+
+openms_add_library(TARGET_NAME  OpenMS_AUXX
+                   SOURCE_FILES  ${OpenMS_AUXX_sources}
+                   HEADER_FILES  ${OpenMS_sources_h}
+                                 ${OpenMS_configured_headers}
+                   INTERNAL_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
+                                     ${CMAKE_CURRENT_BINARY_DIR}/include
+                   EXTERNAL_INCLUDES ${OPENMS_CONTRIB_INCLUDE_DIRS} #root folder
+                                     ${INCLUDES_FROM_CONTRIB}
+                                     ${INCLUDES_FROM_SYSTEM}
+                                     ${Qt5Core_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${OPENMS_AUXX_DEP_LIBRARIES}
+                   DLL_EXPORT_PATH "OpenMS/")
+
+
 openms_add_library(TARGET_NAME  OpenMS_BASE
                    SOURCE_FILES  ${OpenMS_BASE_sources}
                    HEADER_FILES  ${OpenMS_sources_h}
@@ -302,20 +302,20 @@ openms_add_library(TARGET_NAME  OpenMS_BASE
                    LINK_LIBRARIES ${OPENMS_BASE_DEP_LIBRARIES} 
                    DLL_EXPORT_PATH "OpenMS/")
 
-                 # openms_add_library(TARGET_NAME  OpenMS_CORE
-                 #                    SOURCE_FILES  ${OpenMS_CORE_sources}
-                 #                    HEADER_FILES  ${OpenMS_sources_h}
-                 #                                  ${OpenMS_configured_headers}
-                 #                    INTERNAL_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
-                 #                                      ${CMAKE_CURRENT_BINARY_DIR}/include
-                 #                    EXTERNAL_INCLUDES ${OPENMS_CONTRIB_INCLUDE_DIRS} #root folder
-                 #                                      ${INCLUDES_FROM_CONTRIB}
-                 #                                      ${INCLUDES_FROM_SYSTEM}
-                 #                                      ${Qt5Core_INCLUDE_DIRS}
-                 #                                      ${Qt5Network_INCLUDE_DIRS}
-                 #                    LINK_LIBRARIES ${OPENMS_CORE_DEP_LIBRARIES}  
-                 #                    DLL_EXPORT_PATH "OpenMS/")
-                 # 
+openms_add_library(TARGET_NAME  OpenMS_CORE
+                   SOURCE_FILES  ${OpenMS_CORE_sources}
+                   HEADER_FILES  ${OpenMS_sources_h}
+                                 ${OpenMS_configured_headers}
+                   INTERNAL_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/include
+                                     ${CMAKE_CURRENT_BINARY_DIR}/include
+                   EXTERNAL_INCLUDES ${OPENMS_CONTRIB_INCLUDE_DIRS} #root folder
+                                     ${INCLUDES_FROM_CONTRIB}
+                                     ${INCLUDES_FROM_SYSTEM}
+                                     ${Qt5Core_INCLUDE_DIRS}
+                                     ${Qt5Network_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${OPENMS_CORE_DEP_LIBRARIES}  
+                   DLL_EXPORT_PATH "OpenMS/")
+
 openms_add_library(TARGET_NAME  OpenMS_FORMAT
                    SOURCE_FILES  ${OpenMS_FORMAT_sources}
                    HEADER_FILES  ${OpenMS_sources_h}
