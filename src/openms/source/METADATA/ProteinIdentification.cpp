@@ -33,7 +33,7 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/CONCEPT/LogStream.h>
-#include <OpenMS/FORMAT/FileHandler.h>
+// #include <OpenMS/FORMAT/FileHandler.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
 #include <OpenMS/METADATA/ProteinIdentification.h>
 
@@ -439,16 +439,16 @@ namespace OpenMS
     e.getPrimaryMSRunPath(ms_path);
     if (ms_path.size() == 1)
     {
-      FileTypes::Type filetype = FileHandler::getTypeByFileName(ms_path[0]);
-      if ((filetype == FileTypes::MZML) && File::exists(ms_path[0]))
-      {
-        setMetaValue("spectra_data", DataValue(StringList({ms_path[0]})));
-        return; // don't do anything else in this case
-      }
-      if (filetype == FileTypes::RAW)
-      {
-        setMetaValue("spectra_data_raw", DataValue(StringList({ms_path[0]})));
-      }
+      // FileTypes::Type filetype = FileHandler::getTypeByFileName(ms_path[0]);
+      // if ((filetype == FileTypes::MZML) && File::exists(ms_path[0]))
+      // {
+      //   setMetaValue("spectra_data", DataValue(StringList({ms_path[0]})));
+      //   return; // don't do anything else in this case
+      // }
+      // if (filetype == FileTypes::RAW)
+      // {
+      //   setMetaValue("spectra_data_raw", DataValue(StringList({ms_path[0]})));
+      // }
     }
     setPrimaryMSRunPath(s);
   }
@@ -470,12 +470,12 @@ namespace OpenMS
     {
       for (const String &filename : s)
       {
-        FileTypes::Type filetype = FileHandler::getTypeByFileName(filename);
-        if (filetype != FileTypes::MZML)
-        {
-          OPENMS_LOG_WARN << "To ensure tracability of results please prefer mzML files as primary MS runs.\n"
-                          << "Filename: '" << filename << "'" << std::endl;
-        }
+        // FileTypes::Type filetype = FileHandler::getTypeByFileName(filename);
+        // if (filetype != FileTypes::MZML)
+        // {
+        //   OPENMS_LOG_WARN << "To ensure tracability of results please prefer mzML files as primary MS runs.\n"
+        //                   << "Filename: '" << filename << "'" << std::endl;
+        // }
       }
     }
     StringList spectra_data = getMetaValue(meta_name, DataValue(StringList()));
