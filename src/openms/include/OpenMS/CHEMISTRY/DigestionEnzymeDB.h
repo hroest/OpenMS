@@ -38,7 +38,7 @@
 #include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/DATASTRUCTURES/Map.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
-#include <OpenMS/FORMAT/ParamXMLFile.h>
+// #include <OpenMS/FORMAT/ParamXMLFile.h>
 #include <OpenMS/SYSTEM/File.h>
 
 #include <set>
@@ -183,6 +183,7 @@ namespace OpenMS
     {
       String file = File::find(filename);
 
+#if 0
       Param param;
       ParamXMLFile().load(file, param);
       if (param.empty()) return;
@@ -219,6 +220,7 @@ namespace OpenMS
       {
         throw Exception::ParseError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, e.what(), "");
       }
+#endif
     }
 
     /// parses an enzyme, given the key/value pairs from an XML file
