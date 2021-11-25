@@ -557,7 +557,7 @@ namespace OpenMS
   void ConsensusMap::setPrimaryMSRunPath(const StringList& s, MSExperiment & e)
   {
     StringList ms_path;
-    e.getPrimaryMSRunPath(ms_path);
+    // e.getPrimaryMSRunPath(ms_path); // TODO
     if (ms_path.size() == 1 && ms_path[0].hasSuffix("mzML") && File::exists(ms_path[0]))
     {
       setPrimaryMSRunPath(ms_path);
@@ -724,7 +724,7 @@ OPENMS_THREAD_CRITICAL(oms_log)
     std::vector<FeatureMap>fmaps(numbr_exps);
 
     // Check for Isobaric Analyzer
-    bool iso_analyze = QCBase::isLabeledExperiment(*this);
+    bool iso_analyze = false; // TODO QCBase::isLabeledExperiment(*this);
 
     for (const auto& cf : *this)
     {

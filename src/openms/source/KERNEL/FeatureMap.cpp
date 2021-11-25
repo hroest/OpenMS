@@ -388,7 +388,7 @@ namespace OpenMS
   void FeatureMap::setPrimaryMSRunPath(const StringList& s, MSExperiment & e)
   {
     StringList ms_path;
-    e.getPrimaryMSRunPath(ms_path);
+    // e.getPrimaryMSRunPath(ms_path); // TODO
     if (ms_path.size() == 1 && ms_path[0].hasSuffix("mzML") && File::exists(ms_path[0]))
     {
       setPrimaryMSRunPath(ms_path);
