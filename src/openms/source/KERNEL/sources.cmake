@@ -5,19 +5,12 @@ set(directory source/KERNEL)
 set(sources_list
 AreaIterator.cpp
 ConversionHelper.cpp
-DPeak.cpp
-MassTrace.cpp
 MRMFeature.cpp
 MRMTransitionGroup.cpp
-MSExperiment.cpp
-MSSpectrum.cpp
 OnDiscMSExperiment.cpp
 PeakIndex.cpp
 RangeManager.cpp
-RichPeak2D.cpp
 StandardTypes.cpp
-ChromatogramPeak.cpp
-MSChromatogram.cpp
 ChromatogramTools.cpp
 SpectrumHelper.cpp
 )
@@ -33,6 +26,13 @@ set(OpenMS_CORE_sources ${OpenMS_CORE_sources} ${sources})
 
 ### list all filenames of the directory here
 set(sources_list
+MSExperiment.cpp
+MSChromatogram.cpp
+MSSpectrum.cpp
+MassTrace.cpp
+RichPeak2D.cpp
+ChromatogramPeak.cpp
+DPeak.cpp
 Peak1D.cpp
 Peak2D.cpp
 BaseFeature.cpp # PeptideIdentification

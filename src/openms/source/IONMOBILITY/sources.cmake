@@ -15,7 +15,7 @@ foreach(i ${sources_list})
 endforeach(i)
 
 ### pass source file list to the upper instance
-set(OpenMS_sources ${OpenMS_sources} ${sources})
+set(OpenMS_BASE_sources ${OpenMS_BASE_sources} ${sources})
 
 ### source group definition
 source_group("Source Files\\IONMOBILITY" FILES ${sources})
