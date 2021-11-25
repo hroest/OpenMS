@@ -47,12 +47,12 @@ find_package(Qt5 COMPONENTS Core Network REQUIRED)
 # add all the tools
 set(UTILS_executables)
 include(executables.cmake)
-set(OpenMS_LIBRARIES ${OpenMS_LIBRARIES} OpenMS OpenMS_FORMAT OpenMS_ANALYSIS OpenMS_AUXX OpenMS_MATH)
+set(OpenMS_LIBRARIES ${OpenMS_LIBRARIES} OpenMS OpenMS_BASE OpenMS_FORMAT OpenMS_ANALYSIS OpenMS_AUXX OpenMS_CORE OpenMS_MATH OpenMS)
 foreach(i ${UTILS_executables})
   add_executable(${i} ${i}.cpp)
   # we also want to install each util
   install_tool(${i})
-  target_link_libraries(${i} ${OpenMS_LIBRARIES} )
+  target_link_libraries(${i} ${OpenMS_LIBRARIES})
 endforeach(i)
 
 # some regular UTILS tools need the GUI lib, only build them when WITH_GUI is enabled
