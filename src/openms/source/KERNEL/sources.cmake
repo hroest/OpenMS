@@ -3,16 +3,9 @@ set(directory source/KERNEL)
 
 ### list all filenames of the directory here
 set(sources_list
-AreaIterator.cpp
-ConversionHelper.cpp
-MRMFeature.cpp
+MRMFeature.cpp # OpenSwathScores
 MRMTransitionGroup.cpp
-OnDiscMSExperiment.cpp
-PeakIndex.cpp
-RangeManager.cpp
-StandardTypes.cpp
-ChromatogramTools.cpp
-SpectrumHelper.cpp
+OnDiscMSExperiment.cpp # MzMLFile
 )
 
 ### add path to the filenames
@@ -26,6 +19,13 @@ set(OpenMS_CORE_sources ${OpenMS_CORE_sources} ${sources})
 
 ### list all filenames of the directory here
 set(sources_list
+PeakIndex.cpp
+RangeManager.cpp
+StandardTypes.cpp
+ChromatogramTools.cpp
+SpectrumHelper.cpp
+AreaIterator.cpp
+ConversionHelper.cpp
 MSExperiment.cpp
 MSChromatogram.cpp
 MSSpectrum.cpp
