@@ -436,7 +436,7 @@ namespace OpenMS
   void ProteinIdentification::setPrimaryMSRunPath(const StringList& s, MSExperiment& e)
   {
     StringList ms_path;
-    e.getPrimaryMSRunPath(ms_path);
+    // e.getPrimaryMSRunPath(ms_path);
     if (ms_path.size() == 1)
     {
       // FileTypes::Type filetype = FileHandler::getTypeByFileName(ms_path[0]);
