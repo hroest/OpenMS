@@ -188,14 +188,14 @@ namespace OpenMS
       {
         if (lookup.empty())
         {
-          FileHandler fh;
-          auto opts = fh.getOptions();
-          // speed up reading. We do not need the actual peaks in the spectra
-          opts.setFillData(false);
-          opts.setSkipXMLChecks(true);
-          fh.setOptions(opts);
-          fh.loadExperiment(filename, exp);
-          lookup.readSpectra(exp.getSpectra());
+          /// FileHandler fh;
+          /// auto opts = fh.getOptions();
+          /// // speed up reading. We do not need the actual peaks in the spectra
+          /// opts.setFillData(false);
+          /// opts.setSkipXMLChecks(true);
+          /// fh.setOptions(opts);
+          /// fh.loadExperiment(filename, exp);
+          /// lookup.readSpectra(exp.getSpectra());
         }
         String spectrum_id = pep.getMetaValue("spectrum_reference");
         try
@@ -225,14 +225,14 @@ namespace OpenMS
     SpectrumMetaDataLookup lookup;
     if (lookup.empty())
     {
-      FileHandler fh;
-      auto opts = fh.getOptions();
-      opts.setFillData(false);
-      opts.setSkipXMLChecks(true);
-      fh.setOptions(opts);
-      fh.loadExperiment(filename, exp);
-      lookup.readSpectra(exp.getSpectra());
-      lookup.setSpectraDataRef(filename);
+      /// FileHandler fh;
+      /// auto opts = fh.getOptions();
+      /// opts.setFillData(false);
+      /// opts.setSkipXMLChecks(true);
+      /// fh.setOptions(opts);
+      /// fh.loadExperiment(filename, exp);
+      /// lookup.readSpectra(exp.getSpectra());
+      /// lookup.setSpectraDataRef(filename);
     }
     if (override_spectra_data)
     {
