@@ -33,7 +33,7 @@
 // --------------------------------------------------------------------------
 //
 
-#include "OpenMS/CHEMISTRY/ResidueModification.h"
+#include <OpenMS/CHEMISTRY/ResidueModification.h>
 #include <OpenMS/CHEMISTRY/ModificationsDB.h>
 
 // #include <OpenMS/FORMAT/UnimodXMLFile.h>
