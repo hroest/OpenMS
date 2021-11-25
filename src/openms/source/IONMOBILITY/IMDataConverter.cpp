@@ -202,20 +202,6 @@ namespace OpenMS
 
   void annotateAsIM(OpenMS::DataArrays::FloatDataArray& fda, const DriftTimeUnit unit)
   {
-    const auto& cv = ControlledVocabulary::getPSIMSCV();
-    const ControlledVocabulary::CVTerm* term;
-    switch (unit)
-    {
-      case DriftTimeUnit::MILLISECOND:
-        term = &cv.getTerm("MS:1002816");
-        break;
-      case DriftTimeUnit::VSSC:
-        term = &cv.getTerm("MS:1003008");
-        break;
-      default:
-        throw Exception::InvalidValue(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Unit cannot be converted into CV term.", toString(unit));
-    }
-    fda.setName(term->name);
   }
 
   
@@ -286,63 +272,10 @@ namespace OpenMS
 
   void IMDataConverter::setIMUnit(DataArrays::FloatDataArray& fda, const DriftTimeUnit unit)
   {
-    const auto& cv = ControlledVocabulary::getPSIMSCV();
-    switch (unit)
-    {
-      case DriftTimeUnit::MILLISECOND: 
-        fda.setName(cv.getTerm("MS:1002816").name); // MS:1002816 ! mean ion mobility array
-        return;
-      case DriftTimeUnit::VSSC:
-        fda.setName(cv.getTerm("MS:1003008").name); // MS:1003008 ! raw inverse reduced ion mobility array
-        return;
-      default:
-        // invalid enum ...
-        // There is no CV term which can be used to describe the FDA
-        throw Exception::InvalidValue(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "Unit is not a valid IM unit for float data arrays", toString(unit));
-    }
   }
 
   bool IMDataConverter::getIMUnit(const DataArrays::FloatDataArray& fda, DriftTimeUnit& unit)
   {
-    const auto& cv = ControlledVocabulary::getPSIMSCV();
-    if (fda.getName().hasPrefix("Ion Mobility"))
-    { // fallback for non-standard IM arrays (as created by Mobi-DIK)
-      if (fda.getName().hasSubstring("MS:1002815"))
-      {
-        unit = DriftTimeUnit::VSSC;
-      }
-      else
-      {
-        unit = DriftTimeUnit::MILLISECOND;
-      }
-      return true;
-    }
-    try
-    {
-      const auto& cv_term = cv.getTermByName(fda.getName()); // may throw if term is unknown
-
-      if (cv.isChildOf(cv_term.id, "MS:1002893")) // is child of generic 'ion mobility array'?
-      {
-        if (cv_term.units.find("MS:1002814") != cv_term.units.end())
-        { // MS:1002814 ! volt-second per square centimeter
-          unit = DriftTimeUnit::VSSC;
-        }
-        else if (cv_term.units.find("UO:0000028") != cv_term.units.end())
-        { // UO:0000028 ! millisecond
-          unit = DriftTimeUnit::MILLISECOND;
-        }
-        else
-        { // fallback
-          OPENMS_LOG_WARN << "Warning: FloatDataArray for IonMobility data '" << cv_term.id << " " << cv_term.name << "' does not contain proper units!" << std::endl;
-          unit = DriftTimeUnit::NONE;
-        }
-        return true;
-      }
-    }
-    catch (...)
-    {
-    }
-    return false;
   }
 
 }  //end namespace OpenMS
