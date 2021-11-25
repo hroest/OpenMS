@@ -7,20 +7,8 @@ AbsoluteQuantitationStandards.cpp # FeatureMap
 ExperimentalDesign.cpp # FeatureMap
 MSQuantifications.cpp # FeatureMap
 SpectrumLookup.cpp # MSSpectrum
-SpectrumMetaDataLookup.cpp
-)
+SpectrumMetaDataLookup.cpp # FileHandler
 
-### add path to the filenames
-set(sources)
-foreach(i ${sources_list})
-	list(APPEND sources ${directory}/${i})
-endforeach(i)
-
-### pass source file list to the upper instance
-set(OpenMS_CORE_sources ${OpenMS_CORE_sources} ${sources})
-
-### list all filenames of the directory here
-set(sources_list
 ProteinHit.cpp # ResidueModification
 PeptideHit.cpp # AASequence
 
