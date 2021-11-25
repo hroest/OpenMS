@@ -46,7 +46,6 @@
 #include <OpenMS/METADATA/ID/ParentMoleculeGroup.h>
 #include <OpenMS/METADATA/ID/QueryMatchGroup.h>
 #include <OpenMS/METADATA/ID/ScoreType.h>
-#include <OpenMS/FORMAT/MzTab.h>
 
 #include <unordered_set>
 
