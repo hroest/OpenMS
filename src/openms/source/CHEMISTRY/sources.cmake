@@ -3,15 +3,10 @@ set(directory source/CHEMISTRY)
 
 ### list all filenames of the directory here
 set(sources_list
-ModificationDefinitionsSet.cpp # PeptideIdentification
-NucleicAcidSpectrumGenerator.cpp # MSSpectrum
-SpectrumAnnotator.cpp # MSSpectrum
 SimpleTSGXLMS.cpp # OPXL
 SvmTheoreticalSpectrumGenerator.cpp
 SvmTheoreticalSpectrumGeneratorTrainer.cpp
 SvmTheoreticalSpectrumGeneratorSet.cpp
-TheoreticalSpectrumGenerator.cpp # MSSpectrum
-TheoreticalSpectrumGeneratorXLMS.cpp # MSSpectrum
 )
 
 ### add path to the filenames
@@ -25,6 +20,12 @@ set(OpenMS_sources ${OpenMS_sources} ${sources})
 
 ### list all filenames of the directory here
 set(sources_list
+TheoreticalSpectrumGenerator.cpp # MSSpectrum
+TheoreticalSpectrumGeneratorXLMS.cpp # MSSpectrum
+ModificationDefinitionsSet.cpp # PeptideIdentification
+NucleicAcidSpectrumGenerator.cpp # MSSpectrum
+SpectrumAnnotator.cpp # MSSpectrum
+
 AASequence.cpp
 CrossLinksDB.cpp
 DecoyGenerator.cpp
