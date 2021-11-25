@@ -242,7 +242,7 @@ namespace OpenMS
                                    rna[end_pos]->getCode() :
                                    IdentificationData::MoleculeParentMatch::RIGHT_TERMINUS;
         oligo.parent_matches[parent_ref].insert(match);
-        id_data.registerIdentifiedOligo(oligo);
+        // id_data.registerIdentifiedOligo(oligo); // TODO
       }
     }
   }
