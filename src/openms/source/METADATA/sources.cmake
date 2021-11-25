@@ -5,15 +5,9 @@ set(directory source/METADATA)
 set(sources_list
 AbsoluteQuantitationStandards.cpp # FeatureMap
 ExperimentalDesign.cpp # FeatureMap
-ExperimentalSettings.cpp # ProteinIdentification
 MSQuantifications.cpp # FeatureMap
-PeptideHit.cpp # AASequence
-PeptideIdentification.cpp # ConsensusMap
-ProteinHit.cpp # ResidueModification
-ProteinIdentification.cpp # Digestion
 SpectrumLookup.cpp # MSSpectrum
 SpectrumMetaDataLookup.cpp
-SpectrumSettings.cpp # PeptideIdentification
 )
 
 ### add path to the filenames
@@ -27,6 +21,14 @@ set(OpenMS_CORE_sources ${OpenMS_CORE_sources} ${sources})
 
 ### list all filenames of the directory here
 set(sources_list
+ProteinHit.cpp # ResidueModification
+PeptideHit.cpp # AASequence
+
+ExperimentalSettings.cpp # ProteinIdentification
+SpectrumSettings.cpp # PeptideIdentification
+PeptideIdentification.cpp # ConsensusMap
+ProteinIdentification.cpp # MSExperiment / FileHandler
+
 Acquisition.cpp
 AcquisitionInfo.cpp
 ContactPerson.cpp
