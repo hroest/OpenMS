@@ -3,15 +3,10 @@ set(directory source/DATASTRUCTURES)
 
 ### list all filenames of the directory here
 set(sources_list
-ConstRefVector.cpp # FeatureMap
-FASTAContainer.cpp
-QTCluster.cpp # AAsequence
-GridFeature.cpp # BaseFeature/Peptide
+FASTAContainer.cpp # FASTAFile
 # IsotopeCluster.h
 #KDTree.h
 # LPWrapper.cpp
-MatchedIterator.cpp # Math
-OSWData.cpp # MSExperiment
 )
 
 ### add path to the filenames
@@ -28,6 +23,11 @@ set(OpenMS_MATH_sources ${OpenMS_MATH_sources} ${directory}/LPWrapper.cpp)
 ### list all filenames of the directory here
 set(sources_list
 DefaultParamHandler.cpp
+QTCluster.cpp # AAsequence
+GridFeature.cpp # BaseFeature/Peptide
+ConstRefVector.cpp # FeatureMap
+MatchedIterator.cpp # Math
+OSWData.cpp # MSExperiment
 
 Adduct.cpp # EmpiricalFormula
 CalibrationData.cpp # Math
