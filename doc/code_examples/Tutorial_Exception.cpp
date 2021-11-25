@@ -31,7 +31,11 @@
 #include <OpenMS/CONCEPT/Exception.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <OpenMS/DATASTRUCTURES/Param.h>
+#include <OpenMS/CHEMISTRY/ModificationsDB.h>
+#include <OpenMS/CHEMISTRY/ResidueModification.h>
+#include <OpenMS/CHEMISTRY/AASequence.h>
 #include <iostream>
+#include <omp.h>
 
 using namespace OpenMS;
 using namespace std;
@@ -44,7 +48,32 @@ Int main()
   auto p = Param();
   cout << p << endl;
 
-  throw Exception::NotImplemented(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
+   static ModificationsDB* mdb = ModificationsDB::getInstance();
+
+   int nr_iterations (1e4), test (0);
+	 omp_set_num_threads(8);
+   // std::cout << "Setting up nested loop with " << omp_get_max_threads() << " threads " << std::endl;
+#pragma omp parallel for reduction (+: test)
+  for (int k = 1; k < nr_iterations + 1; k++)
+  {
+    int mod_id = k;
+    String modname = "mod" + String(mod_id);
+    std::unique_ptr<ResidueModification> new_mod(new ResidueModification());
+    new_mod->setFullId(modname);
+    new_mod->setMonoMass( 0.11 * mod_id);
+    new_mod->setAverageMass(1.0);
+    new_mod->setDiffMonoMass( 0.05 * mod_id);
+      mdb->addModification(std::move(new_mod));
+			int tmp = (int)mdb->getModification(modname)->getAverageMass();
+    	test += tmp;
+		  // std::cout << "tmp " << tmp << " with thread " << omp_get_thread_num() << " it " << k<< std::endl;
+  }
+
+  std::cout << "got a total of " << test << std::endl;
+
+  AASequence seq = AASequence::fromString("PEPTIDE");
+
+  // throw Exception::NotImplemented(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
 
   return 0;
 } //end of main
