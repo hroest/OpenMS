@@ -231,7 +231,7 @@ public:
              const std::vector<std::vector<double> >& isotopeProbabilities,
              double p);
 
-    // delete copy constructor
+    /// delete copy constructor
     IsoSpecTotalProbGeneratorWrapper(const IsoSpecTotalProbGeneratorWrapper&) = delete;
     /**
       * @brief Setup the algorithm to run on an EmpiricalFormula
