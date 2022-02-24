@@ -48,7 +48,7 @@ namespace OpenMS
 
   /** @ingroup Chemistry
 
-          @brief Singleton that stores elements.
+      @brief Singleton that stores elements.
 
       The elements weights (in the default file) are taken from
       "Isotopic Compositions of the Elements 1997", Pure Appl. Chem., 70(1), 217-235, 1998.
@@ -59,13 +59,12 @@ namespace OpenMS
           Pure Appl. Chem., 2003, Vol. 75, No. 6, pp. 683-799
           doi:10.1351/pac200375060683
 
-          Specific isotopes of elements can be accessed by writing the atomic number of the isotope
-          in brackets followed by the element name, e.g. "(2)H" for deuterium.
+      Specific isotopes of elements can be accessed by writing the atomic number of the isotope
+      in brackets followed by the element name, e.g. "(2)H" for deuterium.
 
-    @improvement include exact mass values for the isotopes (done) and update IsotopeDistribution (Andreas)
-          @improvement add exact isotope distribution based on exact isotope values (Andreas)
-*/
-
+      @improvement include exact mass values for the isotopes (done) and update IsotopeDistribution (Andreas)
+      @improvement add exact isotope distribution based on exact isotope values (Andreas)
+  */
   class OPENMS_DLLAPI ElementDB
   {
 public:
@@ -75,7 +74,7 @@ public:
     //@{
     /// returns a pointer to the singleton instance of the element db
     /// This is thread safe upon first and subsequent calls.
-    static const ElementDB* getInstance();
+    static ElementDB* getInstance();
 
     /// returns a hashmap that contains names mapped to pointers to the elements
     const std::map<std::string, const Element*>& getNames() const;
@@ -88,12 +87,46 @@ public:
 
     /** returns a pointer to the element with name or symbol given in parameter name;
         *	if no element exists with that name or symbol 0 is returned
-        *	@param name: name or symbol of the element
+        *  @param name: name or symbol of the element
     */
     const Element* getElement(const std::string& name) const;
 
     /// returns a pointer to the element of atomic number; if no element is found 0 is returned
     const Element* getElement(unsigned int atomic_number) const;
+
+    /** @brief Adds a new element (or replaces an existing element)
+     *
+     * Allows a user to add a new element or replace an existing element with
+     * user-defined isotopic abundances and masses.
+     **/
+    void addElement(const std::string& name,
+                    const std::string& symbol,
+                    const unsigned int an,
+                    const std::map<unsigned int, double>& abundance,
+                    const std::map<unsigned int, double>& mass,
+                    bool replace_existing)
+    {
+      if (!replace_existing)
+      {
+        if (names_.find(name) != names_.end())
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
+                                           String("Element with name " + String(name) + " already exists, cannot be added!").c_str());
+        }
+        if (symbols_.find(symbol) != symbols_.end())
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
+                                           String("Element with symbol " + String(symbol) + " already exists, cannot be added!").c_str());
+        }
+        if (atomic_numbers_.find(an) != atomic_numbers_.end())
+        {
+          throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
+                                           String("Element with atomic number " + String(an) + " already exists, cannot be added!").c_str());
+        }
+      }
+
+      buildElement_(name, symbol, an, abundance, mass);
+    }
 
     //@}
 
@@ -123,10 +156,10 @@ protected:
      */
     double calculateMonoWeight_(const std::map<unsigned int, double>& Z_to_mass);
 
-	// constructs element objects
+    // constructs element objects
     void storeElements_();
 
-  // build element objects from given abundances, masses, name, symbol, and atomic number
+    // build element objects from given abundances, masses, name, symbol, and atomic number
     void buildElement_(const std::string& name, const std::string& symbol, const unsigned int an, const std::map<unsigned int, double>& abundance, const std::map<unsigned int, double>& mass);
 
   // add element objects to documentation maps

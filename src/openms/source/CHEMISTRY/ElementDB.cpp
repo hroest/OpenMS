@@ -57,7 +57,7 @@ namespace OpenMS
     clear_();
   }
 
-  const ElementDB* ElementDB::getInstance()
+  ElementDB* ElementDB::getInstance()
   {
     static ElementDB* db_ = new ElementDB;
     return db_;
@@ -590,12 +590,12 @@ namespace OpenMS
       IsotopeDistribution iso_isotopes;
       IsotopeDistribution::ContainerType iso_container;
       iso_container.push_back(Peak1D(atomic_mass, 1.0));
-      iso_isotopes.set(iso_container);  
+      iso_isotopes.set(iso_container);
 
       Element* iso_e = new Element(iso_name, iso_symbol, an, iso_avg_weight, iso_mono_weight, iso_isotopes);
       names_[iso_name] = iso_e;
       symbols_[iso_symbol] = iso_e;
-    } 
+    }
   }
 
   IsotopeDistribution ElementDB::parseIsotopeDistribution_(const map<unsigned int, double>& abundance, const map<unsigned int, double>& mass)

@@ -71,54 +71,79 @@ START_SECTION([EXTRA] multithreaded example)
 END_SECTION
 
 START_SECTION(static const ElementDB* getInstance())
-	e_ptr = ElementDB::getInstance();
-	TEST_NOT_EQUAL(e_ptr, e_nullPointer)
+{
+  e_ptr = ElementDB::getInstance();
+  TEST_NOT_EQUAL(e_ptr, e_nullPointer)
+}
 END_SECTION
 
 START_SECTION((const map<string, const Element*>& getNames() const))
-	map<string, const Element*> names = e_ptr->getNames();
-	const Element * e = e_ptr->getElement("Carbon");
-	TEST_EQUAL(e, names["Carbon"])
+{
+  map<string, const Element*> names = e_ptr->getNames();
+  const Element * e = e_ptr->getElement("Carbon");
+  TEST_EQUAL(e, names["Carbon"])
   TEST_NOT_EQUAL(e, elem_nullPointer)
+}
 END_SECTION
 
-
 START_SECTION((const map<string, const Element*>& getSymbols() const))
-	map<string, const Element*> symbols = e_ptr->getSymbols();
-	const Element * e = e_ptr->getElement("Carbon");
-	TEST_EQUAL(e, symbols["C"])
+{
+  map<string, const Element*> symbols = e_ptr->getSymbols();
+  const Element * e = e_ptr->getElement("Carbon");
+  TEST_EQUAL(e, symbols["C"])
   TEST_NOT_EQUAL(e, elem_nullPointer)
+}
 END_SECTION
 
 START_SECTION((const map<unsigned int, const Element*>& getAtomicNumbers() const))
-	map<unsigned int, const Element*> atomic_numbers = e_ptr->getAtomicNumbers();
-	const Element * e = e_ptr->getElement("Carbon");
-	TEST_EQUAL(e, atomic_numbers[6])
+{
+  map<unsigned int, const Element*> atomic_numbers = e_ptr->getAtomicNumbers();
+  const Element * e = e_ptr->getElement("Carbon");
+  TEST_EQUAL(e, atomic_numbers[6])
   TEST_NOT_EQUAL(e, elem_nullPointer)
+}
 END_SECTION
 
 START_SECTION(const Element* getElement(const string& name) const)
-	const Element * e1 = e_ptr->getElement("Hydrogen");
-	const Element * e2 = e_ptr->getElement("H");
-	TEST_EQUAL(e1, e2);
+{
+  const Element * e1 = e_ptr->getElement("Hydrogen");
+  const Element * e2 = e_ptr->getElement("H");
+  TEST_EQUAL(e1, e2);
   TEST_NOT_EQUAL(e1, elem_nullPointer);
+}
 END_SECTION
 
 START_SECTION(const Element* getElement(unsigned int atomic_number) const)
-	const Element * e1 = e_ptr->getElement("Carbon");
-	const Element * e2 = e_ptr->getElement(6);
-	TEST_EQUAL(e1, e2)
+{
+  const Element * e1 = e_ptr->getElement("Carbon");
+  const Element * e2 = e_ptr->getElement(6);
+  TEST_EQUAL(e1, e2)
   TEST_NOT_EQUAL(e1, elem_nullPointer)
+}
 END_SECTION
 
 START_SECTION(bool hasElement(const string& name) const)
-	TEST_EQUAL(e_ptr->hasElement("Carbon"), true)
+{
+  TEST_EQUAL(e_ptr->hasElement("Carbon"), true)
+}
 END_SECTION
 
 START_SECTION(bool hasElement(unsigned int atomic_number) const)
-	TEST_EQUAL(e_ptr->hasElement(6), true)
+{
+  TEST_EQUAL(e_ptr->hasElement(6), true)
+}
 END_SECTION
 
+START_SECTION(void addElement(const std::string& name, const std::string& symbol, const unsigned int an, const std::map<unsigned int, double>& abundance, const std::map<unsigned int, double>& mass, bool replace_existing))
+{
+  map<unsigned int, double> carbon_abundance = {{12u, 0.97}, {13u, 0.02}, {14u, 0.01}};
+  map<unsigned int, double> carbon_mass = {{12u, 12.0}, {13u, 13.003355000000001}, {14u, 14.003241989 } };
+
+  TEST_EXCEPTION(Exception::InvalidParameter, e_ptr->addElement("Carbon", "C", 6u, carbon_abundance, carbon_mass, false));
+  // addElement("Carbon", "C", 6u, carbon_abundance, carbon_mass, false);
+
+}
+END_SECTION
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 END_TEST
