@@ -104,12 +104,12 @@ namespace OpenMS
      * The scores are returned in the OpenSwath_Scores object. Only those
      * scores specified in the OpenSwath_Scores_Usage object are computed.
      *
-     * @param imrmfeature The feature to be scored
-     * @param native_ids The list of native ids (giving a canonical ordering of the transitions)
-     * @param precursor_ids The list of precursor ids
-     * @param normalized_library_intensity The weights to be used for each transition (e.g. normalized library intensities)
-     * @param signal_noise_estimators The signal-to-noise estimators for each transition
-     * @param scores The object to store the result
+     * @param[in] imrmfeature The feature to be scored
+     * @param[in] native_ids The list of native ids (giving a canonical ordering of the transitions)
+     * @param[in] precursor_ids The list of precursor ids
+     * @param[in] normalized_library_intensity The weights to be used for each transition (e.g. normalized library intensities)
+     * @param[in] signal_noise_estimators The signal-to-noise estimators for each transition
+     * @param[in,out] scores The object to store the result
      *
     */
     void calculateChromatographicScores(OpenSwath::IMRMFeature* imrmfeature,
@@ -130,11 +130,11 @@ namespace OpenMS
      * The scores are returned in the OpenSwath_Scores object. Only those
      * scores specified in the OpenSwath_Scores_Usage object are computed.
      *
-     * @param imrmfeature The feature to be scored
-     * @param native_ids_identification The list of identification native ids (giving a canonical ordering of the transitions)
-     * @param native_ids_detection The list of detection native ids (giving a canonical ordering of the transitions)
-     * @param signal_noise_estimators The signal-to-noise estimators for each transition
-     * @param scores The object to store the result
+     * @param[in] imrmfeature The feature to be scored
+     * @param[in] native_ids_identification The list of identification native ids (giving a canonical ordering of the transitions)
+     * @param[in] native_ids_detection The list of detection native ids (giving a canonical ordering of the transitions)
+     * @param[in] signal_noise_estimators The signal-to-noise estimators for each transition
+     * @param[in,out] scores The object to store the result
      *
     */
     void calculateChromatographicIdScores(OpenSwath::IMRMFeature* imrmfeature,
@@ -151,11 +151,11 @@ namespace OpenMS
      *
      * The scores are returned in the OpenSwath_Scores object. 
      *
-     * @param imrmfeature The feature to be scored
-     * @param transitions The library transition to score the feature against
-     * @param pep The peptide corresponding to the library transitions
-     * @param normalized_feature_rt The retention time of the feature in normalized space
-     * @param scores The object to store the result
+     * @param[in] imrmfeature The feature to be scored
+     * @param[in] transitions The library transition to score the feature against
+     * @param[in] pep The peptide corresponding to the library transitions
+     * @param[in] normalized_feature_rt The retention time of the feature in normalized space
+     * @param[in,out] scores The object to store the result
      *
     */
     void calculateLibraryScores(OpenSwath::IMRMFeature* imrmfeature,
@@ -168,16 +168,17 @@ namespace OpenMS
      *
      * The scores are returned in the OpenSwath_Scores object. 
      *
-     * @param imrmfeature The feature to be scored
-     * @param transitions The library transition to score the feature against
-     * @param swath_maps The SWATH-MS (DIA) maps from which to retrieve full MS/MS spectra at the chromatographic peak apices
-     * @param ms1_map The corresponding MS1 (precursor ion map) from which the precursor spectra can be retrieved (optional, may be NULL)
-     * @param diascoring DIA Scoring object to use for scoring
-     * @param pep The peptide corresponding to the library transitions
-     * @param scores The object to store the result
-     * @param mzerror_ppm m/z and mass error (in ppm) for all transitions
-     * @param drift_lower Drift time lower extraction boundary
-     * @param drift_upper Drift time upper extraction boundary
+     * @param[in] imrmfeature The feature to be scored
+     * @param[in] transitions The library transition to score the feature against
+     * @param[in] swath_maps The SWATH-MS (DIA) maps from which to retrieve full MS/MS spectra at the chromatographic peak apices
+     * @param[in] ms1_map The corresponding MS1 (precursor ion map) from which the precursor spectra can be retrieved (optional, may be NULL)
+     * @param[in] diascoring DIA Scoring object to use for scoring
+     * @param[in] pep The peptide corresponding to the library transitions
+     * @param[in,out] scores The object to store the result
+     * @param[in,out] mzerror_ppm Will contain m/z and mass error (in ppm) for all transitions
+     * @param[in] drift_lower Drift time lower extraction boundary
+     * @param[in] drift_upper Drift time upper extraction boundary
+     * @param[in] drift_target Drift time of the precursor (center)
      *
     */
     void calculateDIAScores(OpenSwath::IMRMFeature* imrmfeature,
@@ -196,13 +197,13 @@ namespace OpenMS
      *
      * The scores are returned in the OpenSwath_Scores object. 
      *
-     * @param ms1_map The MS1 (precursor ion map) from which the precursor spectra can be retrieved
-     * @param diascoring DIA Scoring object to use for scoring
-     * @param precursor_mz The m/z ratio of the precursor
-     * @param rt The compound retention time
-     * @param scores The object to store the result
-     * @param drift_lower Drift time lower extraction boundary
-     * @param drift_upper Drift time upper extraction boundary
+     * @param[in] ms1_map The MS1 (precursor ion map) from which the precursor spectra can be retrieved
+     * @param[in] diascoring DIA Scoring object to use for scoring
+     * @param[in] precursor_mz The m/z ratio of the precursor
+     * @param[in] rt The compound retention time
+     * @param[in,out] scores The object to store the result
+     * @param[in] drift_lower Drift time lower extraction boundary
+     * @param[in] drift_upper Drift time upper extraction boundary
      *
     */
     void calculatePrecursorDIAScores(OpenSwath::SpectrumAccessPtr ms1_map, 
@@ -218,13 +219,13 @@ namespace OpenMS
      *
      * The scores are returned in the OpenSwath_Scores object. 
      *
-     * @param imrmfeature The feature to be scored
-     * @param transitions The library transition to score the feature against
-     * @param swath_maps The SWATH-MS (DIA) maps from which to retrieve full MS/MS spectra at the chromatographic peak apices
-     * @param diascoring DIA Scoring object to use for scoring
-     * @param scores The object to store the result
-     * @param drift_lower Drift time lower extraction boundary
-     * @param drift_upper Drift time upper extraction boundary
+     * @param[in] imrmfeature The feature to be scored
+     * @param[in] transitions The library transition to score the feature against
+     * @param[in] swath_maps The SWATH-MS (DIA) maps from which to retrieve full MS/MS spectra at the chromatographic peak apices
+     * @param[in] diascoring DIA Scoring object to use for scoring
+     * @param[in,out] scores The object to store the result
+     * @param[in] drift_lower Drift time lower extraction boundary
+     * @param[in] drift_upper Drift time upper extraction boundary
      *
     */
     void calculateDIAIdScores(OpenSwath::IMRMFeature* imrmfeature,
@@ -256,10 +257,10 @@ namespace OpenMS
      * @param[in] swath_maps The map(s) containing the spectra
      * @param[in] RT The target retention time
      * @param[in] nr_spectra_to_add How many spectra to add up
-     * @param drift_lower Drift time lower extraction boundary
-     * @param drift_upper Drift time upper extraction boundary
+     * @param[in] drift_lower Drift time lower extraction boundary
+     * @param[in] drift_upper Drift time upper extraction boundary
      *
-     * @return Added up spectrum
+     * @return Spectrum which has been selected and summed up
      *
     */
     OpenSwath::SpectrumPtr fetchSpectrumSwath(std::vector<OpenSwath::SwathMap> swath_maps,
@@ -277,10 +278,10 @@ namespace OpenMS
      * @param[in] swath_map The map containing the spectra
      * @param[in] RT The target retention time
      * @param[in] nr_spectra_to_add How many spectra to add up
-     * @param drift_lower Drift time lower extraction boundary
-     * @param drift_upper Drift time upper extraction boundary
+     * @param[in] drift_lower Drift time lower extraction boundary
+     * @param[in] drift_upper Drift time upper extraction boundary
      *
-     * @return Added up spectrum
+     * @return Spectrum which has been selected and summed up
      *
     */
     OpenSwath::SpectrumPtr fetchSpectrumSwath(OpenSwath::SpectrumAccessPtr swath_map,
@@ -300,10 +301,10 @@ namespace OpenMS
      * @param[in] swath_map The map containing the spectra
      * @param[in] RT The target retention time
      * @param[in] nr_spectra_to_add How many spectra to add up
-     * @param drift_lower Drift time lower extraction boundary
-     * @param drift_upper Drift time upper extraction boundary
+     * @param[in] drift_lower Drift time lower extraction boundary
+     * @param[in] drift_upper Drift time upper extraction boundary
      *
-     * @return Added up spectrum
+     * @return Spectrum which has been selected and summed up
     */
     OpenSwath::SpectrumPtr getAddedSpectra_(OpenSwath::SpectrumAccessPtr swath_map,
                                             double RT,
