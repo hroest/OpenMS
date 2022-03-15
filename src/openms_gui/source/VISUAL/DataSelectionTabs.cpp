@@ -112,6 +112,17 @@ namespace OpenMS
     connect(this, &QTabWidget::tabBarDoubleClicked, this, &DataSelectionTabs::tabBarDoubleClicked);
   }
 
+  DataSelectionTabs::~DataSelectionTabs()
+  {
+    // delete spectra_view_widget_;
+    // delete id_view_widget_;
+    // delete dia_widget_;
+
+    delete spectraview_controller_;
+    delete idview_controller_;
+    delete diatab_controller_;
+  }
+
   LayerDataBase* getCurrentLayerData(TOPPViewBase* tv)
   {
     PlotCanvas* cc = tv->getActiveCanvas();
