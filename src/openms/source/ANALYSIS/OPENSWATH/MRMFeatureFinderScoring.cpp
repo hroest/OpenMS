@@ -315,6 +315,9 @@ namespace OpenMS
       }
     }
 
+    // early break 
+    if (identifying_transitions.empty() && identifying_transitions_decoy.empty()) return;
+
     transition_group_identification = transition_group.subsetDependent(identifying_transitions);
     transition_group_identification_decoy = transition_group.subsetDependent(identifying_transitions_decoy);
   }
