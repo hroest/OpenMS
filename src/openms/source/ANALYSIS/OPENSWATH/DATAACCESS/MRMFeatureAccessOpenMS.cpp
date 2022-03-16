@@ -83,6 +83,7 @@ namespace OpenMS
   {
     OPENMS_PRECONDITION(feature_->getConvexHulls().size() == 1, "There needs to exactly one convex hull per feature.");
     ConvexHull2D::PointArrayType data_points = feature_->getConvexHulls()[0].getHullPoints();
+    // intens.reserve(data_points.size());
     for (ConvexHull2D::PointArrayType::iterator it = data_points.begin(); it != data_points.end(); ++it)
     {
       intens.push_back(it->getY());

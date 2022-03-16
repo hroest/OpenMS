@@ -40,6 +40,7 @@
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/ITransition.h>
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
 #include <OpenMS/OPENSWATHALGO/DATAACCESS/SwathMap.h>
+#include <OpenMS/KERNEL/MRMFeature.h>
 
 // scoring
 #include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathScores.h>
@@ -113,6 +114,7 @@ namespace OpenMS
      *
     */
     void calculateChromatographicScores(OpenSwath::IMRMFeature* imrmfeature,
+        const MRMFeature& mrmfeature,
                                         const std::vector<std::string>& native_ids,
                                         const std::vector<std::string>& precursor_ids,
                                         const std::vector<double>& normalized_library_intensity,

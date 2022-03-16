@@ -41,6 +41,7 @@
 #include <OpenMS/ANALYSIS/OPENSWATH/MRMScoring.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/SONARScoring.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/IonMobilityScoring.h>
+#include <OpenMS/KERNEL/MRMFeature.h>
 
 // auxiliary
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/DataAccessHelper.h>
@@ -138,6 +139,7 @@ namespace OpenMS
     OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
     OPENMS_PRECONDITION(transitions.size() > 0, "There needs to be at least one transition.");
     OPENMS_PRECONDITION(swath_maps.size() > 0, "There needs to be at least one swath map.");
+    // return;
 
     // Identify corresponding SONAR maps (if more than one map is used)
     std::vector<OpenSwath::SwathMap> used_swath_maps;
@@ -349,6 +351,7 @@ namespace OpenMS
 
   void OpenSwathScoring::calculateChromatographicScores(
         OpenSwath::IMRMFeature* imrmfeature,
+        const MRMFeature& mrmfeature,
         const std::vector<std::string>& native_ids,
         const std::vector<std::string>& precursor_ids,
         const std::vector<double>& normalized_library_intensity,
@@ -356,16 +359,23 @@ namespace OpenMS
         OpenSwath_Scores & scores) const
   {
     OPENMS_PRECONDITION(imrmfeature != nullptr, "Feature to be scored cannot be null");
+    // static OpenSwath::MRMScoring mrmscore_; // leads to abort / error ???
     OpenSwath::MRMScoring mrmscore_;
+    // return; //     -- done [took 57.63 s (CPU), 15.86 s (Wall)] -- 
     if (su_.use_coelution_score_ || su_.use_shape_score_ || (!imrmfeature->getPrecursorIDs().empty() && su_.use_ms1_correlation))
+    {
       mrmscore_.initializeXCorrMatrix(imrmfeature, native_ids);
+    }
+    //    -- done [took 01:00 m (CPU), 17.30 s (Wall)] --  
 
+    // return;
     // XCorr score (coelution)
     if (su_.use_coelution_score_)
     {
       scores.xcorr_coelution_score = mrmscore_.calcXcorrCoelutionScore();
       scores.weighted_coelution_score = mrmscore_.calcXcorrCoelutionWeightedScore(normalized_library_intensity);
     }
+    // return; // -- done [took 01:06 m (CPU), 20.12 s (Wall)] --
 
     // XCorr score (shape)
     // mean over the intensities at the max of the crosscorrelation
@@ -376,6 +386,9 @@ namespace OpenMS
       scores.xcorr_shape_score = mrmscore_.calcXcorrShapeScore();
       scores.weighted_xcorr_shape = mrmscore_.calcXcorrShapeWeightedScore(normalized_library_intensity);
     }
+    // -- done [took 01:04 m (CPU), 19.56 s (Wall)] --
+    // return; //  -- done [took 01:10 m (CPU), 21.77 s (Wall)] --
+    // -- done [took 01:04 m (CPU), 20.53 s (Wall)] --
 
     // check that the MS1 feature is present and that the MS1 correlation should be calculated
     if (!imrmfeature->getPrecursorIDs().empty() && su_.use_ms1_correlation)
@@ -395,6 +408,8 @@ namespace OpenMS
       scores.ms1_xcorr_coelution_combined_score = mrmscore_.calcXcorrPrecursorCombinedCoelutionScore();
       scores.ms1_xcorr_shape_combined_score = mrmscore_.calcXcorrPrecursorCombinedShapeScore();
     }
+    //  -- done [took 01:14 m (CPU), 22.19 s (Wall)] --
+    // return; //  
 
     if (su_.use_nr_peaks_score_)
     {
@@ -415,6 +430,7 @@ namespace OpenMS
         scores.log_sn_score = std::log(scores.sn_ratio);
       }
     }
+    // return; //   - done [took 01:16 m (CPU), 22.97 s (Wall)] -- 
 
     // Mutual information scoring
     if (su_.use_mi_score_)
@@ -424,7 +440,9 @@ namespace OpenMS
       scores.weighted_mi_score = mrmscore_.calcMIWeightedScore(normalized_library_intensity);
     }
 
+    // return; // -- done [took 01:23 m (CPU), 24.87 s (Wall)] -- 
     // check that the MS1 feature is present and that the MS1 MI should be calculated
+    // this takes 50% of the the total time!
     if (!imrmfeature->getPrecursorIDs().empty() && su_.use_ms1_mi)
     {
       // we need at least two precursor isotopes
@@ -436,9 +454,11 @@ namespace OpenMS
       mrmscore_.initializeMIPrecursorContrastMatrix(imrmfeature, precursor_ids, native_ids);
       scores.ms1_mi_contrast_score = mrmscore_.calcMIPrecursorContrastScore();
 
+      return;
       mrmscore_.initializeMIPrecursorCombinedMatrix(imrmfeature, precursor_ids, native_ids);
       scores.ms1_mi_combined_score = mrmscore_.calcMIPrecursorCombinedScore();
     }
+    return; // -- done [took 01:41 m (CPU), 29.38 s (Wall)] --
   }
 
   void OpenSwathScoring::calculateChromatographicIdScores(

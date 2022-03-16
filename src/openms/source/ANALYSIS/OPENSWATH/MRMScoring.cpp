@@ -94,6 +94,7 @@ namespace OpenSwath
       xcorr_matrix_.resize(native_ids.size(), native_ids.size());
       xcorr_matrix_max_peak_.resize(native_ids.size(), native_ids.size());
       xcorr_matrix_max_peak_sec_.resize(native_ids.size(), native_ids.size());
+      // return;
       for (std::size_t i = 0; i < native_ids.size(); i++)
       {
         FeatureType fi = mrmfeature->getFeature(native_ids[i]);

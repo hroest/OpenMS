@@ -491,15 +491,21 @@ namespace OpenMS
                                        "Error: Transition group id is empty, please set it.");
     }
 
+    // -- done [took 52.43 s (CPU), 17.00 s (Wall)] -- 
+    // return;
     MRMTransitionGroupType transition_group_detection, transition_group_identification, transition_group_identification_decoy;
     splitTransitionGroupsDetection_(transition_group, transition_group_detection);
+    // -- done [took 52.98 s (CPU), 17.33 s (Wall)] --  
+    // return;
     if (su_.use_uis_scores)
     {
       splitTransitionGroupsIdentification_(transition_group, transition_group_identification, transition_group_identification_decoy);
     }
 
+    // - done [took 57.67 s (CPU), 18.31 s (Wall)] --
+    // === -- done [took 52.48 s (CPU), 17.64 s (Wall)] -- 
+
     std::vector<OpenSwath::ISignalToNoisePtr> signal_noise_estimators;
-    std::vector<MRMFeature> feature_list;
 
     // get drift time upper/lower offset (this assumes that all chromatograms
     // are derived from the same precursor with the same drift time)
@@ -518,6 +524,10 @@ namespace OpenMS
       drift_upper = prec.getDriftTime() + prec.getDriftTimeWindowUpperOffset();
       drift_target = prec.getDriftTime();
     }
+
+
+    // -- done [took 58.46 s (CPU), 18.10 s (Wall)] -- 
+    // return;
 
     // currently we cannot do much about the log messages and they mostly occur in decoy transition signals
     for (Size k = 0; k < transition_group_detection.getChromatograms().size(); k++)
@@ -539,6 +549,10 @@ namespace OpenMS
       }
     }
 
+    // S/N  takes 2.5 seconds = 1.7%
+    // ===  -- done [took 55.00 s (CPU), 17.66 s (Wall)] -- 
+    // return;
+
     // get the expected rt value for this compound
     const PeptideType* pep = PeptideRefMap_.at(transition_group_detection.getTransitionGroupID());
     double expected_rt = pep->rt;
@@ -558,6 +572,9 @@ namespace OpenMS
 
     auto& mrmfeatures = transition_group_detection.getFeaturesMuteable();
 
+    std::vector<MRMFeature> feature_list;
+    feature_list.reserve(mrmfeatures.size());
+
     // Go through all peak groups (found MRM features) and score them
     #ifdef _OPENMP
     int in_parallel = omp_in_parallel();
@@ -567,7 +584,11 @@ namespace OpenMS
     {
       auto& mrmfeature = mrmfeatures[feature_idx];
       OpenSwath::IMRMFeature* imrmfeature;
+      // == -- done [took 56.28 s (CPU), 18.28 s (Wall)] --
       imrmfeature = new MRMFeatureOpenMS(mrmfeature);
+      //  -- done [took 59.06 s (CPU), 19.27 s (Wall)] -- 
+      // TODO get rid of iMRMFeature!
+      // continue;
 
       OPENMS_LOG_DEBUG << "Scoring feature " << (mrmfeature) << " == " << mrmfeature.getMetaValue("PeptideRef") <<
         " [ expected RT " << PeptideRefMap_.at(mrmfeature.getMetaValue("PeptideRef"))->rt << " / " << expected_rt << " ]" <<
@@ -663,6 +684,9 @@ namespace OpenMS
       }
       else //!ms1only
       {
+        // -- done [took 01:07 m (CPU), 20.73 s (Wall)] --   
+        // === -- done [took 01:00 m (CPU), 19.17 s (Wall)] --  
+        // continue;
 
         ///////////////////////////////////
         // Call the scoring for fragment ions
@@ -671,6 +695,8 @@ namespace OpenMS
         std::vector<double> normalized_library_intensity;
         transition_group_detection.getLibraryIntensity(normalized_library_intensity);
         OpenSwath::Scoring::normalize_sum(&normalized_library_intensity[0], boost::numeric_cast<int>(normalized_library_intensity.size()));
+        // continue;
+        // == -- done [took 01:09 m (CPU), 22.56 s (Wall)] --  
 
         std::vector<std::string> native_ids_detection;
         for (Size i = 0; i < transition_group_detection.size(); i++)
@@ -685,15 +711,23 @@ namespace OpenMS
           std::string precursor_id = transition_group_detection.getPrecursorChromatograms()[i].getNativeID();
           precursor_ids.push_back(precursor_id);
         }
+        // continue;
+        //  -- done [took 59.36 s (CPU), 18.54 s (Wall)] --      
 
         ///////////////////////////////////
         // Library and chromatographic scores
         OpenSwath_Scores& scores = mrmfeature.getScores();
-        scorer.calculateChromatographicScores(imrmfeature, native_ids_detection, precursor_ids, normalized_library_intensity,
+        scorer.calculateChromatographicScores(imrmfeature, mrmfeature, native_ids_detection, precursor_ids, normalized_library_intensity,
                                               signal_noise_estimators, scores);
 
+        continue;
+        // - done [took 01:41 m (CPU), 29.95 s (Wall)] --
         double normalized_experimental_rt = trafo.apply(imrmfeature->getRT());
         scorer.calculateLibraryScores(imrmfeature, transition_group_detection.getTransitions(), *pep, normalized_experimental_rt, scores);
+        // chrom scoring takes 42 seconds = 30% of total OSW time
+        //
+        // -- done [took 01:48 m (CPU), 31.27 s (Wall)] --  
+        // == -- done [took 01:40 m (CPU), 29.74 s (Wall)] -- 
 
         ///////////////////////////////////
         // DIA and SONAR scores
@@ -706,6 +740,9 @@ namespace OpenMS
                                     drift_lower, drift_upper, drift_target);
           mrmfeature.setMetaValue("masserror_ppm", masserror_ppm);
         }
+        // == -- done [took 02:05 m (CPU), 36.68 s (Wall)] --
+        // DIA Scoring takes 25 seconds = 17% of total time
+        // continue;
         if (sonar_present && su_.use_sonar_scores)
         {
           sonarscoring_.computeSonarScores(imrmfeature, transition_group_detection.getTransitions(), swath_maps, scores);
@@ -728,6 +765,7 @@ namespace OpenMS
           }
         }
 
+        // == -- done [took 02:05 m (CPU), 36.14 s (Wall)] --
         ///////////////////////////////////
         // Unique Ion Signature (UIS) scores
         if (su_.use_uis_scores && !transition_group_identification.getTransitions().empty())
@@ -744,6 +782,8 @@ namespace OpenMS
                                                                det_mi_ratio_score, swath_maps);
           mrmfeature.IDScoresAsMetaValue(true, idscores);
         }
+        // continue;
+        // - done [took 02:04 m (CPU), 36.81 s (Wall)] -- 
 
         if (su_.use_coelution_score_)
         {
@@ -930,7 +970,11 @@ namespace OpenMS
           mrmfeature.addScore("var_sonar_log_trend", log_trend);
           mrmfeature.addScore("var_sonar_rsq", scores.sonar_rsq);
         }
+
       }
+
+      // -- done [took 02:07 m (CPU), 35.81 s (Wall)] -- 
+      // continue;
 
       ///////////////////////////////////////////////////////////////////////////
       // add the peptide hit information to the feature
@@ -975,18 +1019,28 @@ namespace OpenMS
 
       delete imrmfeature;
     }
+    // - done [took 02:11 m (CPU), 38.16 s (Wall)] --  
+    // return;
 
     // Order by quality (high to low, via reverse iterator)
     std::sort(feature_list.rbegin(), feature_list.rend(), OpenMS::Feature::OverallQualityLess());
 
+    output.reserve(output.size() + std::min(feature_list.size(), (Size)stop_report_after_feature_));
     for (Size i = 0; i < feature_list.size(); i++)
     {
       if (stop_report_after_feature_ >= 0 && i >= (Size)stop_report_after_feature_) {break;}
       output.push_back(feature_list[i]);
     }
+    // -- done [took 02:14 m (CPU), 38.53 s (Wall)] -- 
+    // return;
 
     // store all data manipulation performed on the features of the transition group
-    transition_group = transition_group_detection;
+    // NOTE: this looses all manipulation done to features other than the detection group!!
+    transition_group = std::move(transition_group_detection);
+    // -- done [took 02:17 m (CPU), 39.34 s (Wall)] --    
+    // -- done [took 02:21 m (CPU), 40.06 s (Wall)] -- 
+    // -- done [took 02:15 m (CPU), 38.13 s (Wall)] -- [opt]
+    // -- done [took 02:16 m (CPU), 39.29 s (Wall)] -- 
   }
 
   void MRMFeatureFinderScoring::prepareFeatureOutput_(OpenMS::MRMFeature& mrmfeature, bool ms1only, int charge) const

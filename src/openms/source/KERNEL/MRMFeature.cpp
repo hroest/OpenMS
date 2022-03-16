@@ -57,6 +57,7 @@ namespace OpenMS
   /// Assignment operator
   MRMFeature & MRMFeature::operator = (const MRMFeature &rhs)
   {
+    // TODO: = default
     if (&rhs == this)
     {
       return *this;

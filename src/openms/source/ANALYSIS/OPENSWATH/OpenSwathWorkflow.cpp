@@ -720,39 +720,51 @@ namespace OpenMS
             // Create the new, batch-size transition experiment
             OpenSwath::LightTargetedExperiment transition_exp_used;
             selectCompoundsForBatch_(transition_exp_used_all, transition_exp_used, batch_size, pep_idx);
+            
+            // -- done [took 4.92 s (CPU), 4.81 s (Wall)] --
+            // less than 4% of the time
 
             // Extract MS1 chromatograms for this batch
             std::vector< MSChromatogram > ms1_chromatograms;
             if (ms1_map_ != nullptr)
             {
+              // takes about 4% of the time
               OpenSwath::SpectrumAccessPtr threadsafe_ms1 = ms1_map_->lightClone();
               MS1Extraction_(threadsafe_ms1, swath_maps, ms1_chromatograms, chromConsumer, ms1_cp,
                   transition_exp_used, trafo_inverse, ms1_only, ms1_isotopes);
             }
 
+            // -- done [took 11.32 s (CPU), 6.19 s (Wall)] -- 
             // Step 2.1: extract these transitions
             ChromatogramExtractor extractor;
             std::vector< OpenSwath::ChromatogramPtr > chrom_list;
             std::vector< ChromatogramExtractor::ExtractionCoordinates > coordinates;
+            // -- done [took 10.96 s (CPU), 6.24 s (Wall)] -- 
 
             // Step 2.2: prepare the extraction coordinates and extract chromatograms
             // chrom_list contains one entry for each fragment ion (transition) in transition_exp_used
             prepareExtractionCoordinates_(chrom_list, coordinates, transition_exp_used, trafo_inverse, cp);
             extractor.extractChromatograms(current_swath_map_inner, chrom_list, coordinates, cp.mz_extraction_window,
                 cp.ppm, cp.im_extraction_window, cp.extraction_function);
+            // chromatogram MS2 extraction takes 2% of the time
+            // -- done [took 13.77 s (CPU), 6.53 s (Wall)] -- 
 
             // Step 2.3: convert chromatograms back to OpenMS::MSChromatogram and write to output
             PeakMap chrom_exp;
             extractor.return_chromatogram(chrom_list, coordinates, transition_exp_used,  SpectrumSettings(),
                                           chrom_exp.getChromatograms(), false, cp.im_extraction_window);
+            // -- done [took 15.48 s (CPU), 7.05 s (Wall)] --
+            // all of MS2 extraction takes 4.1 seconds, 2.8 % of time. Up to here we have used ca 10% of the time
 
 
             // Step 3: score these extracted transitions
+            // this step takes 86% of the time
             FeatureMap featureFile;
             std::vector< OpenSwath::SwathMap > tmp = {swath_maps[i]};
             tmp.back().sptr = current_swath_map_inner;
             scoreAllChromatograms_(chrom_exp.getChromatograms(), ms1_chromatograms, tmp, transition_exp_used,
                 feature_finder_param, trafo, cp.rt_extraction_window, featureFile, tsv_writer, osw_writer, ms1_isotopes);
+            //         -- done [took 02:19 m (CPU), 39.47 s (Wall)] --
 
             // Step 4: write all chromatograms and features out into an output object / file
             // (this needs to be done in a critical section since we only have one
@@ -760,6 +772,11 @@ namespace OpenMS
             #pragma omp critical (osw_write_out)
             {
               writeOutFeaturesAndChroms_(chrom_exp.getChromatograms(), featureFile, out_featureFile, store_features, chromConsumer);
+            }
+            // -- done [took 02:24 m (CPU), 40.76 s (Wall)] --  
+            // writing output takes less than 3% of the time
+            if (false)
+            {
             }
           }
 
@@ -867,6 +884,7 @@ namespace OpenMS
     int nr_ms1_isotopes,
     bool ms1only) const
   {
+    // -- done [took 15.48 s (CPU), 7.05 s (Wall)] --
     TransformationDescription trafo_inv = trafo;
     trafo_inv.invert();
 
@@ -943,6 +961,8 @@ namespace OpenMS
       MRMTransitionGroupType transition_group;
       transition_group.setTransitionGroupID(id);
       double expected_rt = transition_exp.getCompounds()[ assay_peptide_map[id] ].rt;
+      // -- done [took 19.69 s (CPU), 9.98 s (Wall)] -- 
+      // continue; 
 
       // 1. Go through all transitions, for each transition get
       // the chromatogram and the assay to the MRMTransitionGroup
@@ -979,6 +999,7 @@ namespace OpenMS
         }
 
         // Add the transition and the chromatogram to the MRMTransitionGroup
+        // std::cout << " add transition  " << transition->getNativeID() << std::endl;
         transition_group.addTransition(*transition, transition->getNativeID());
         transition_group.addChromatogram(chromatogram, chromatogram.getNativeID());
       }
@@ -999,9 +1020,13 @@ namespace OpenMS
         }
       }
 
+      // -- done [took 17.87 s (CPU), 8.69 s (Wall)] --
+      // continue;
       // 3. / 4. Process the MRMTransitionGroup: find peakgroups and score them
-      trgroup_picker.pickTransitionGroup(transition_group);
+      trgroup_picker.pickTransitionGroup(transition_group); // 24% of the time
+      // continue; // -- done [took 53.42 s (CPU), 16.57 s (Wall)] -- 
       featureFinder.scorePeakgroups(transition_group, trafo, swath_maps, output, ms1only);
+      // continue; // -- done [took 02:20 m (CPU), 39.10 s (Wall)] --
 
       // Ensure that a detection transition is used to derive features for output
       if (detection_assay_it == nullptr && !output.empty())

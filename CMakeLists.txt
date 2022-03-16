@@ -234,6 +234,15 @@ if(ADDRESS_SANITIZER)
   include(cmake/AddressSanitizer.cmake)
 endif()
 
+option(LIBC "[Clang/GCC only] Enable libc linking." OFF)
+if(LIBC)
+  message(STATUS "Using LIBC++.")
+  # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
+endif()
+
+
+
 #------------------------------------------------------------------------------
 # Add options for link time optimizations (LTO) aka interprocedural optimization
 #------------------------------------------------------------------------------

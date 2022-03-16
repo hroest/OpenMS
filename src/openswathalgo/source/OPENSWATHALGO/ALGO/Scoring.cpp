@@ -163,16 +163,22 @@ namespace OpenSwath::Scoring
                                               std::vector<double>& data2, int maxdelay, int lag = 1)
     {
       OPENSWATH_PRECONDITION(data1.size() != 0 && data1.size() == data2.size(), "Both data vectors need to have the same length");
+      // XCorrArrayType result2;
+      // result2.data.resize( (size_t)std::ceil((2*maxdelay + 1) / lag));
+      // return result2; // -- done [took 03:09 m (CPU), 51.28 s (Wall)] -- 
+      // /// return result2; // -- done [took 03:09 m (CPU), 51.28 s (Wall)] -- 
 
-      // normalize the data
+      // normalize the data // takes 4 seconds
       standardize_data(data1);
       standardize_data(data2);
+      // return result2; // -- done [took 03:08 m (CPU), 51.69 s (Wall)] --       
       XCorrArrayType result = calculateCrossCorrelation(data1, data2, maxdelay, lag);
       for (XCorrArrayType::iterator it = result.begin(); it != result.end(); ++it)
       {
         it->second = it->second / data1.size();
       }
       return result;
+      // -- done [took 03:24 m (CPU), 58.15 s (Wall)] -- 
     }
 
     XCorrArrayType calculateCrossCorrelation(const std::vector<double>& data1,
