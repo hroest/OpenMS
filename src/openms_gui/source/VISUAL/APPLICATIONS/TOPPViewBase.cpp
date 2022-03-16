@@ -2299,8 +2299,6 @@ namespace OpenMS
       //finish log with new line
       log_->addNewline();
 
-      delete selection_view_;
-
       updateMenu();
     }
   }

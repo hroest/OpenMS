@@ -114,10 +114,6 @@ namespace OpenMS
 
   DataSelectionTabs::~DataSelectionTabs()
   {
-    // delete spectra_view_widget_;
-    // delete id_view_widget_;
-    // delete dia_widget_;
-
     delete spectraview_controller_;
     delete idview_controller_;
     delete diatab_controller_;
