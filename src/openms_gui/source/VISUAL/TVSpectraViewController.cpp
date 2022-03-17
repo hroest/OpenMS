@@ -181,12 +181,27 @@ namespace OpenMS
     if (widget_1d == nullptr) return;
     if (widget_1d->canvas()->getLayerCount() == 0) return;
 
-    LayerDataBase& layer = widget_1d->canvas()->getCurrentLayer();
+    ExperimentSharedPtrType exp_sptr;
+    boost::shared_ptr<OpenMS::OnDiscMSExperiment> ondisc_sptr;
+    boost::shared_ptr<OpenMS::OSWData> annotation;
+    String fname;
+    bool is_chromatogram;
+
+    // local scope for layer since we delete it later with removeLayers() and
+    // dont want to accidentially use it
+    {
+      LayerDataBase& layer = widget_1d->canvas()->getCurrentLayer();
+      exp_sptr = layer.getChromatogramData();
+      ondisc_sptr = layer.getOnDiscPeakData();
+      annotation = layer.getChromatogramAnnotation();
+      fname = layer.filename;
+      is_chromatogram = layer.chromatogram_flag_set();
+    }
 
     // If we have a chromatogram, we cannot just simply activate this spectrum.
     // we have to do much more work, e.g. creating a new experiment with the
     // new spectrum.
-    if (!layer.chromatogram_flag_set())
+    if (!is_chromatogram)
     {
       widget_1d->canvas()->activateSpectrum(index);
     }
@@ -197,10 +212,6 @@ namespace OpenMS
 
       // first get raw data (the full experiment with all chromatograms), we
       // only need to grab the one with the desired index
-      ExperimentSharedPtrType exp_sptr = layer.getChromatogramData();
-      auto ondisc_sptr = layer.getOnDiscPeakData();
-      auto annotation = layer.getChromatogramAnnotation();
-      String fname = layer.filename;
 
       widget_1d->canvas()->removeLayers();
 
