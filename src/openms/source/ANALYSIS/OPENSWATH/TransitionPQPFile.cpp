@@ -121,6 +121,7 @@ namespace OpenMS
     String select_adducts = "'' AS Adducts, ";
     bool adducts_exists = SqliteConnector::columnExists(db, "COMPOUND", "ADDUCTS");
     if (adducts_exists) select_adducts = "COMPOUND.ADDUCTS AS Adducts, ";
+    // 0 seconds
 
     // Get peptides
     select_sql = "SELECT " \
@@ -214,10 +215,13 @@ namespace OpenMS
                   "INNER JOIN COMPOUND ON PRECURSOR_COMPOUND_MAPPING.COMPOUND_ID = COMPOUND.ID; ";
 
 
+    // 0 seconds here
     // Execute SQL select statement
     SqliteConnector::prepareStatement(db, &stmt, select_sql);
+    // 0.01 seconds here
     sqlite3_step(stmt);
     endProgress();
+    // 9 seconds here!
 
     Size progress = 0;
     startProgress(0, num_transitions, "reading PQP file");

@@ -217,6 +217,7 @@ namespace OpenMS
 
   void TransitionTSVFile::readUnstructuredTSVInput_(const char* filename, FileTypes::Type filetype, std::vector<TSVTransition>& transition_list)
   {
+    startProgress(0, 1, "Reading TSV file");
     std::ifstream data(filename);
     std::string   line;
     std::string   tmp;
@@ -489,6 +490,7 @@ namespace OpenMS
       std::cout << "Warning: SpectraST was not run in RT normalization mode but the converted list was interpreted to have iRT units. Check whether you need to adapt the parameter -algorithm:retentionTimeInterpretation. You can ignore this warning if you used a legacy SpectraST 4.0 file." << std::endl;
 
     }
+    endProgress();
   }
 
   void TransitionTSVFile::spectrastRTExtract(const String str_inp, double & value, bool & spectrast_legacy)
@@ -1234,8 +1236,10 @@ namespace OpenMS
 
       mytransition.PeptideSequence = pep.sequence;
       mytransition.GeneName = "NA";
+      // return mytransition; // 1.2 seconds
       if (!pep.protein_refs.empty())
       {
+        mytransition.uniprot_id.reserve(pep.protein_refs.size());
         for (auto & prot_ref : pep.protein_refs)
         {
           const OpenMS::TargetedExperiment::Protein& prot = targeted_exp.getProteinByRef(prot_ref);
@@ -1247,8 +1251,10 @@ namespace OpenMS
         }
       }
 
+      // return mytransition; //  2.03 seconds
       mytransition.FullPeptideName = TargetedExperimentHelper::getAASequence(pep).toUniModString();
 
+      // return mytransition; // 2.89  seconds
       mytransition.drift_time = -1;
       if (pep.getDriftTime() >= 0.0)
       {
@@ -1316,6 +1322,7 @@ namespace OpenMS
       mytransition.fragment_charge = String(it->getProductChargeState());
     }
 
+    // return mytransition; //  3.7 seconds
     const auto & product = it->getProduct();
     for (const auto& int_it : product.getInterpretationList())
     {
@@ -1377,11 +1384,13 @@ namespace OpenMS
       }
     }
 
+    // return mytransition; // 3.66 seconds
     mytransition.transition_name = it->getNativeID();
     mytransition.CE = -1;
     if (it->hasCVTerm("MS:1000045"))
     {
-      mytransition.CE = it->getCVTerms()["MS:1000045"][0].getValue().toString().toDouble();
+      // mytransition.CE = it->getCVTerms()["MS:1000045"][0].getValue().toString().toDouble();
+      mytransition.CE = (double)it->getCVTerms()["MS:1000045"][0].getValue();
     }
     mytransition.library_intensity = -1;
     if (it->getLibraryIntensity() > -100)
@@ -1410,7 +1419,7 @@ namespace OpenMS
     mytransition.identifying_transition = it->isIdentifyingTransition();
     mytransition.quantifying_transition = it->isQuantifyingTransition();
 
-    return mytransition;
+    return mytransition; // 4.25 seconds
   }
 
   void TransitionTSVFile::writeTSVOutput_(const char* filename, OpenMS::TargetedExperiment& targeted_exp)
@@ -1418,7 +1427,8 @@ namespace OpenMS
     std::vector<TSVTransition> mytransitions;
 
     Size progress = 0;
-    startProgress(0, targeted_exp.getTransitions().size(), "writing OpenSWATH Transition List TSV file");
+    startProgress(0, targeted_exp.getTransitions().size(), "converting OpenSWATH Transition List to TSV file");
+    mytransitions.reserve(targeted_exp.getTransitions().size());
     for (const auto& tr : targeted_exp.getTransitions())
     {
       mytransitions.push_back(convertTransition_(&tr, targeted_exp));
@@ -1426,6 +1436,8 @@ namespace OpenMS
     }
     endProgress();
 
+    progress = 0;
+    startProgress(0, targeted_exp.getTransitions().size(), "writing OpenSWATH Transition List TSV file");
     // start writing
     std::ofstream os(filename);
     os.precision(writtenDigits(double()));
@@ -1439,9 +1451,10 @@ namespace OpenMS
     }
     os << std::endl;
 
+    String line;
     for (const auto& it : mytransitions)
     {
-      String line;
+      line.clear();
       line +=
         (String)it.precursor                + "\t"
         + (String)it.product                  + "\t"
@@ -1457,8 +1470,8 @@ namespace OpenMS
         + (String)it.SumFormula               + "\t"
         + (String)it.SMILES                   + "\t"
         + (String)it.Adducts                  + "\t"
-        + ListUtils::concatenate(it.ProteinName, ";")              + "\t"
-        + ListUtils::concatenate(it.uniprot_id, ";")               + "\t"
+        // + ListUtils::concatenate(it.ProteinName, ";")              + "\t"
+        // + ListUtils::concatenate(it.uniprot_id, ";")               + "\t"
         + (String)it.GeneName                 + "\t"
         + (String)it.fragment_type            + "\t"
         + (String)it.fragment_nr              + "\t"
@@ -1470,12 +1483,15 @@ namespace OpenMS
         + (String)it.decoy                    + "\t"
         + (String)it.detecting_transition     + "\t"
         + (String)it.identifying_transition   + "\t"
-        + (String)it.quantifying_transition   + "\t"
-        + ListUtils::concatenate(it.peptidoforms, "|");
+        + (String)it.quantifying_transition   + "\t";
+        // + ListUtils::concatenate(it.peptidoforms, "|");
 
-      os << line << std::endl;
+      // os << line << std::endl;
+      os << line << "\n";
+      setProgress(progress++);
     }
     os.close();
+    endProgress();
   }
 
   // public methods

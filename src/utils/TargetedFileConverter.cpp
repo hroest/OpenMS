@@ -85,6 +85,18 @@ public:
 
 protected:
 
+  /*
+   *
+   * Read speed:
+   *   TSV: 9.4 seconds [6.7 + 2.7 seconds]
+   *   TraML: 40 seconds 
+   *   PQP: 17 seconds 
+   * Write speed:
+   *   PQP: 25 seconds
+   *   TraML: 7 seconds
+   *   TSV: 14 seconds [5.2 seconds + 9.91 ] -> 6.21 s for \n instead of endl
+
+*/
   void registerOptionsAndFlags_() override
   {
     registerInputFile_("in", "<file>", "", "Input file to convert.\n "
@@ -158,7 +170,7 @@ protected:
       tsv_reader.setLogType(log_type_);
       tsv_reader.setParameters(reader_parameters);
       tsv_reader.convertTSVToTargetedExperiment(in.c_str(), in_type, targeted_exp);
-      tsv_reader.validateTargetedExperiment(targeted_exp);
+      // tsv_reader.validateTargetedExperiment(targeted_exp);
     }
     else if (in_type == FileTypes::PQP)
     {
@@ -167,7 +179,7 @@ protected:
       pqp_reader.setLogType(log_type_);
       pqp_reader.setParameters(reader_parameters);
       pqp_reader.convertPQPToTargetedExperiment(in.c_str(), targeted_exp, legacy_traml_id);
-      pqp_reader.validateTargetedExperiment(targeted_exp);
+      // pqp_reader.validateTargetedExperiment(targeted_exp);
     }
     else if (in_type == FileTypes::TRAML)
     {
@@ -175,6 +187,7 @@ protected:
       traml.load(in, targeted_exp);
     }
 
+    std::cout << " got data " << std::endl;
     if (out_type == FileTypes::TSV)
     {
       TransitionTSVFile tsv_reader;
