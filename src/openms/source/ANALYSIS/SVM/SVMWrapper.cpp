@@ -413,7 +413,8 @@ namespace OpenMS
       {
         SVMWrapper::calculateGaussTable(border_length_, sigma_, gauss_table_);
       }
-      training_problem_ = computeKernelMatrix(problem, problem);
+      LibSVMEncoder::destroyProblem(training_problem_); // prevent memory leak
+      training_problem_ = computeKernelMatrix(problem, problem); // this needs to be deleted again in the destructor
 
       if (svm_check_parameter(training_problem_, param_) == nullptr)
       {
