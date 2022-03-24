@@ -72,7 +72,9 @@ public:
               'allowed_characters' that has a non zero frequency in 'sequence' and its corresponding
               relative frequency...
           */
-    void encodeCompositionVector(const String & sequence, std::vector<std::pair<Int, double> > & encoded_vector, const String & allowed_characters = "ACDEFGHIKLMNPQRSTVWY");
+    void encodeCompositionVector(const String & sequence,
+                                 std::vector<std::pair<Int, double> > & encoded_vector,
+                                 const String & allowed_characters = "ACDEFGHIKLMNPQRSTVWY");
 
     /**
       @brief stores composition vectors of the sequences given by 'sequence' in 'composition_vectors'
@@ -83,36 +85,49 @@ public:
       'allowed_characters' that has a non zero frequency in the first 'sequence' and its corresponding
       relative frequency...
     */
-    void encodeCompositionVectors(const std::vector<String> & sequences, const String & allowed_characters, std::vector<std::vector<std::pair<Int, double> > > & composition_vectors);
-    /// encodes the feature vector in LibSVM compliant format
+    void encodeCompositionVectors(const std::vector<String> & sequences,
+                                  const String & allowed_characters,
+                                  std::vector<std::vector<std::pair<Int, double> > > & composition_vectors);
+
+    /** @brief encodes the feature vector in LibSVM compliant format
+     *
+        @note The resulting array needs to be destroyed using delete[]
+    */
     svm_node * encodeLibSVMVector(const std::vector<std::pair<Int, double> > & feature_vector);
 
-    /// encodes the feature vectors in LibSVM compliant format
+    /** @brief encodes the feature vectors in LibSVM compliant format
+     *
+        @note The resulting vectors each need to be destroyed using delete[]
+    */
     void encodeLibSVMVectors(const std::vector<std::vector<std::pair<Int, double> > > & feature_vectors, std::vector<svm_node *> & libsvm_vectors);
 
-    /// encodes the LibSVM compliant vectors into a LibSVM compliant structure
+    /** @brief encodes the LibSVM compliant vectors into a LibSVM compliant structure
+
+        @note The resulting svm_problem needs to be destroyed by calling LibSVMEncoder::destroyProblem()
+    */
     svm_problem * encodeLibSVMProblem(const std::vector<svm_node *> & vectors,
                                       std::vector<double> & labels);
 
-    /// creates composition vectors for 'sequences' and stores them in LibSVM compliant format
+    /** @brief creates composition vectors for 'sequences' and stores them in LibSVM compliant format
+     *
+     *  @note The resulting svm_problem needs to be destroyed by calling LibSVMEncoder::destroyProblem()
+    */
     svm_problem * encodeLibSVMProblemWithCompositionVectors(const std::vector<String> & sequences,
                                                             std::vector<double> & labels,
                                                             const String & allowed_characters);
 
-    /**
-      @brief creates composition vectors with additional length information for 'sequences' and stores them in LibSVM compliant format
+    /** @brief creates composition vectors with additional length information for 'sequences' and stores them in LibSVM compliant format
 
-      @note The resulting svm_problem needs to be destroyed by calling LibSVMEncoder::destroyProblem
+        @note The resulting svm_problem needs to be destroyed by calling LibSVMEncoder::destroyProblem()
     */
     svm_problem * encodeLibSVMProblemWithCompositionAndLengthVectors(const std::vector<String> & sequences,
                                                                      std::vector<double> & labels,
                                                                      const String & allowed_characters,
                                                                      UInt maximum_sequence_length);
 
-    /**
-      @brief creates composition vectors with additional length and average weight information for 'sequences' and stores them in LibSVM compliant format
+    /** @brief creates composition vectors with additional length and average weight information for 'sequences' and stores them in LibSVM compliant format
 
-      @note The resulting svm_problem needs to be destroyed by calling LibSVMEncoder::destroyProblem
+        @note The resulting svm_problem needs to be destroyed by calling LibSVMEncoder::destroyProblem()
     */
     svm_problem * encodeLibSVMProblemWithCompositionLengthAndWeightVectors(const std::vector<String> & sequences,
                                                                            std::vector<double> & labels,
@@ -121,42 +136,48 @@ public:
     /// stores the LibSVM-encoded data in a text file that can be used by the LibSVM applications (svm-scale, svm-train,...)
     bool storeLibSVMProblem(const String & filename, const svm_problem * problem) const;
 
-    /// loads the LibSVM-encoded data stored in 'filename'
+    /** @brief loads the LibSVM-encoded data stored in 'filename'
+     
+        @note The resulting svm_problem needs to be destroyed by calling LibSVMEncoder::destroyProblem()
+    */
     svm_problem * loadLibSVMProblem(const String & filename);
 
     /// encodes the borders of the sequence as k_mer oligos and stores them in 'libsvm_vector'
-    void encodeOligoBorders(String                                                                                       sequence,
-                            UInt                                                                             k_mer_length,
+    void encodeOligoBorders(String sequence,
+                            UInt k_mer_length,
                             const String & allowed_characters,
-                            UInt                                        border_length,
+                            UInt border_length,
                             std::vector<std::pair<Int, double> > & libsvm_vector,
-                            bool                                                                                             strict = false,
-                            bool                                                                                             unpaired = false,
-                            bool                                                                                             length_encoding = false);
+                            bool strict = false,
+                            bool unpaired = false,
+                            bool length_encoding = false);
 
-    /// creates oligo border vectors vectors for 'sequences' and stores them in LibSVM compliant format
+    /** @brief creates oligo border vectors vectors for 'sequences' and stores them in LibSVM compliant format
+
+        @note The resulting svm_problem needs to be destroyed by calling LibSVMEncoder::destroyProblem()
+    */
     svm_problem * encodeLibSVMProblemWithOligoBorderVectors(const std::vector<String> & sequences,
                                                             std::vector<double> & labels,
-                                                            UInt                           k_mer_length,
+                                                            UInt k_mer_length,
                                                             const String & allowed_characters,
-                                                            UInt                           border_length,
-                                                            bool                                                   strict = false,
-                                                            bool                                                   unpaired = false,
-                                                            bool                                                   length_encoding = false);
+                                                            UInt border_length,
+                                                            bool strict = false,
+                                                            bool unpaired = false,
+                                                            bool length_encoding = false);
 
     /// creates oligo border vectors vectors for 'sequences' and stores them in 'vectors'
     void encodeProblemWithOligoBorderVectors(const std::vector<AASequence> & sequences,
-                                             UInt                                                       k_mer_length,
+                                             UInt k_mer_length,
                                              const String & allowed_characters,
-                                             UInt                                                       border_length,
+                                             UInt border_length,
                                              std::vector<std::vector<std::pair<Int, double> > > & vectors);
 
     /**
-              @brief stores a string representation of the encoded sequence 'vector' in 'output'
+      @brief stores a string representation of the encoded sequence 'vector' in 'output'
 
-              This function can be used if one wants to print one feature vector that is used in
-              the libsvm.
-          */
+      This function can be used if one wants to print one feature vector that is used in
+      the libsvm.
+    */
     void libSVMVectorToString(svm_node * vector, String & output);
 
     /**
@@ -180,10 +201,13 @@ public:
                      bool is_right_border = false);
 
     /**
-              @brief frees all the memory of the svm_problem instance
+        @brief frees all the memory of the svm_problem instance
 
-              This function is used to free all the memory used by 'problem'
-          */
+        @param problem The problem to be destroyed (will be null after)
+        @param free_nodes Whether to also free the svm_nodes contained in the problem
+
+        This function is used to free all the memory used by 'problem'
+    */
     static void destroyProblem(svm_problem* &problem, bool free_nodes = true);
 
     static std::vector<double> predictPeptideRT(const std::vector<String> & sequences,

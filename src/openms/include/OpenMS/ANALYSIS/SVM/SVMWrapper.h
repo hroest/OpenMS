@@ -304,8 +304,11 @@ public:
     void createRandomPartitions(const SVMData& problem,
                                        Size number,
                                        std::vector<SVMData>& problems);
+
     /**
       @brief You can merge partitions excluding the partition with index 'except'
+
+      @note The resulting svm_problem needs to be destroyed using LibSVMEncoder::destroyProblem() with @em free_nodes set to false (this is important)
     */
     static svm_problem* mergePartitions(const std::vector<svm_problem*>& problems, Size except);
 
@@ -313,7 +316,7 @@ public:
       @brief You can merge partitions excluding the partition with index 'except'
     */
     static void mergePartitions(const std::vector<SVMData>& problems,
-                                Size                                            except,
+                                Size except,
                                 SVMData& merged_problem);
 
     /**
@@ -335,18 +338,18 @@ public:
 
     */
     double performCrossValidation(svm_problem* problem_ul,
-                                      const SVMData& problem_l,
-                                      const bool                                        is_labeled,
-                                      const   std::map<SVM_parameter_type, double>& start_values_map,
-                                      const   std::map<SVM_parameter_type, double>& step_sizes_map,
-                                      const   std::map<SVM_parameter_type, double>& end_values_map,
-                                      Size                                                                                number_of_partitions,
-                                      Size                                                                                  number_of_runs,
-                                      std::map<SVM_parameter_type, double>& best_parameters,
-                                      bool                                                                                            additive_step_sizes = true,
-                                      bool                                                                                        output = false,
-                                      String                                                                                      performances_file_name = "performances.txt",
-                                      bool                                                                                            mcc_as_performance_measure = false);
+                                  const SVMData& problem_l,
+                                  const bool is_labeled,
+                                  const   std::map<SVM_parameter_type, double>& start_values_map,
+                                  const   std::map<SVM_parameter_type, double>& step_sizes_map,
+                                  const   std::map<SVM_parameter_type, double>& end_values_map,
+                                  Size number_of_partitions,
+                                  Size number_of_runs,
+                                  std::map<SVM_parameter_type, double>& best_parameters,
+                                  bool additive_step_sizes = true,
+                                  bool output = false,
+                                  String performances_file_name = "performances.txt",
+                                  bool mcc_as_performance_measure = false);
 
 
     /**
@@ -376,9 +379,9 @@ public:
       off by default (max_distance < 0).
     */
     static double kernelOligo(const std::vector<std::pair<int, double> >& x,
-                                  const std::vector<std::pair<int, double> >& y,
-                                  const std::vector<double>& gauss_table,
-                                  int                                                                     max_distance = -1);
+                              const std::vector<std::pair<int, double> >& y,
+                              const std::vector<double>& gauss_table,
+                              int max_distance = -1);
 
     /**
       @brief calculates the oligo kernel value for the encoded sequences 'x' and 'y'
@@ -387,12 +390,22 @@ public:
       the sequences 'x' and 'y' that had been encoded by the encodeOligoBorder... function
       of the LibSVMEncoder class.
     */
-    static double kernelOligo(const svm_node* x, const svm_node* y, const std::vector<double>& gauss_table, double sigma_square = 0, Size    max_distance = 50);
+    static double kernelOligo(const svm_node* x,
+                              const svm_node* y,
+                              const std::vector<double>& gauss_table,
+                              double sigma_square = 0,
+                              Size max_distance = 50);
 
     /**
       @brief calculates the significance borders of the error model and stores them in 'sigmas'
     */
-    void getSignificanceBorders(svm_problem* data, std::pair<double, double>& borders, double confidence = 0.95, Size number_of_runs = 5, Size number_of_partitions = 5, double step_size = 0.01, Size max_iterations = 1000000);
+    void getSignificanceBorders(svm_problem* data,
+                                std::pair<double, double>& borders,
+                                double confidence = 0.95,
+                                Size number_of_runs = 5,
+                                Size number_of_partitions = 5,
+                                double step_size = 0.01,
+                                Size max_iterations = 1000000);
 
     /**
       @brief calculates the significance borders of the error model and stores them in 'sigmas'
@@ -440,6 +453,8 @@ public:
       This function can be used to compute a kernel matrix. 'problem1' and 'problem2'
       are used together wit the oligo kernel function (could be extended if you
       want to use your own kernel functions).
+
+      @note The resulting svm_problem needs to be destroyed using LibSVMEncoder::destroyProblem()
     */
     svm_problem* computeKernelMatrix(svm_problem* problem1, svm_problem* problem2);
 
@@ -449,6 +464,8 @@ public:
       This function can be used to compute a kernel matrix. 'problem1' and 'problem2'
       are used together wit the oligo kernel function (could be extended if you
       want to use your own kernel functions).
+
+      @note The resulting svm_problem needs to be destroyed using LibSVMEncoder::destroyProblem()
     */
     svm_problem* computeKernelMatrix(const SVMData& problem1, const SVMData& problem2);
 
