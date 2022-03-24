@@ -311,9 +311,8 @@ START_SECTION((static svm_problem* mergePartitions(const std::vector< svm_proble
   }
 
   // cleanup code only
-  SVMWrapper().createRandomPartitions(problem, 1, partitions); // use "special" cleanup function
-  partitions.clear(); partitions.push_back(problem2);
-  SVMWrapper().createRandomPartitions(problem, 1, partitions); // use "special" cleanup function
+  SVMWrapper().createRandomPartitions(problem, 1, partitions); // use "special" cleanup function to delete everything in "partitions"
+  LibSVMEncoder::destroyProblem(problem2, false); // cleanup of newly generated problem but not the nodes
   LibSVMEncoder::destroyProblem(problem); // cleanup of problem itself
 END_SECTION
 
