@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2022.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -32,9 +32,13 @@
 // $Authors: Mathias Walzer, Matthew The $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/config.h>
-#include <OpenMS/CONCEPT/Constants.h>
 #include <OpenMS/ANALYSIS/ID/PercolatorFeatureSetHelper.h>
+
+#include <OpenMS/config.h>
+#include <OpenMS/CONCEPT/LogStream.h>
+#include <OpenMS/CONCEPT/Constants.h>
+
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
@@ -130,8 +134,8 @@ namespace OpenMS
       StringList ion_types_found;
       for (StringList::const_iterator ion = ion_types.begin(); ion != ion_types.end(); ++ion)
       {
-        if (peptide_ids.front().getHits().front().getMetaValue(*ion + "_score").toString() != "" &&
-            peptide_ids.front().getHits().front().getMetaValue(*ion + "_ions").toString() != "")
+        if (!peptide_ids.front().getHits().front().getMetaValue(*ion + "_score").toString().empty() &&
+            !peptide_ids.front().getHits().front().getMetaValue(*ion + "_ions").toString().empty())
         {
           feature_set.push_back("XTANDEM:frac_ion_" + *ion);
           ion_types_found.push_back(*ion);
@@ -153,8 +157,8 @@ namespace OpenMS
         // Find out correct ion types and get its Values
         for (StringList::const_iterator ion = ion_types_found.begin(); ion != ion_types_found.end(); ++ion)
         {
-          if (peptide_ids.front().getHits().front().getMetaValue(*ion + "_score").toString() != "" &&
-              peptide_ids.front().getHits().front().getMetaValue(*ion + "_ions").toString() != "")
+          if (!peptide_ids.front().getHits().front().getMetaValue(*ion + "_score").toString().empty() &&
+              !peptide_ids.front().getHits().front().getMetaValue(*ion + "_ions").toString().empty())
           {
             // recalculate ion score
             double ion_score = it->getHits().front().getMetaValue(*ion + "_ions").toString().toDouble() / length;
@@ -709,7 +713,7 @@ namespace OpenMS
           }
           sum_removed += incompletes.size();
         }
-        if (incompletes.size() > 0 || imputed_back < imputed_values)
+        if (!incompletes.empty() || imputed_back < imputed_values)
           ++incomplete_spectra;
         else
           ++complete_spectra;

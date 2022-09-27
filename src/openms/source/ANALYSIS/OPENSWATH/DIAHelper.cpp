@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2022.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -37,17 +37,12 @@
 #include <OpenMS/CHEMISTRY/TheoreticalSpectrumGenerator.h>
 #include <OpenMS/CHEMISTRY/ISOTOPEDISTRIBUTION/CoarseIsotopePatternGenerator.h>
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmPickedHelperStructs.h>
-#include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithm.h>
 
 #include <OpenMS/KERNEL/MSSpectrum.h>
-#include <OpenMS/KERNEL/MSExperiment.h>
 
 #include <utility>
-#include <boost/bind.hpp>
 
-namespace OpenMS
-{
-  namespace DIAHelpers
+namespace OpenMS::DIAHelpers
   {
 
     void adjustExtractionWindow(double& right, double& left, const double& extraction_window_size, const bool& extraction_window_ppm)
@@ -219,7 +214,7 @@ namespace OpenMS
       else
       {
         // not implemented
-        throw "Not implemented";
+        throw Exception::NotImplemented(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION);
       }
     }
 
@@ -346,7 +341,7 @@ namespace OpenMS
                               UInt nr_peaks, double pre_isotope_peaks_weight, // weight of pre isotope peaks
                               double mannmass, int charge)
     {
-      charge = std::fabs(charge);
+      charge = std::abs(charge);
       for (std::size_t i = 0; i < first_isotope_masses.size(); ++i)
       {
         Size mul = 1.;
@@ -365,7 +360,7 @@ namespace OpenMS
                               UInt nr_peaks, double pre_isotope_peaks_weight, // weight of pre isotope peaks
                               double mannmass, int charge)
     {
-      charge = std::fabs(charge);
+      charge = std::abs(charge);
       Size mul = 1.;
       for (UInt j = 0; j < nr_peaks; ++j, ++mul)
       {
@@ -428,4 +423,3 @@ namespace OpenMS
 //std::vector<std::pair<double, double> > & isotopeMasses, uint32_t charge)
 
   }
-}

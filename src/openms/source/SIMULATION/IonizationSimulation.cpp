@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2022.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -34,9 +34,9 @@
 
 #include <OpenMS/SIMULATION/IonizationSimulation.h>
 
+#include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/DATASTRUCTURES/Compomer.h>
 
-#include <boost/bind.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/discrete_distribution.hpp>
@@ -44,6 +44,7 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+
 #include <atomic>
 
 namespace OpenMS
@@ -111,9 +112,7 @@ namespace OpenMS
     return *this;
   }
 
-  IonizationSimulation::~IonizationSimulation()
-  {
-  }
+  IonizationSimulation::~IonizationSimulation() = default;
 
   void IonizationSimulation::ionize(SimTypes::FeatureMapSim& features, ConsensusMap& charge_consensus, SimTypes::MSSimExperiment& experiment)
   {
@@ -271,7 +270,7 @@ public:
     std::transform(esi_impurity_probabilities_.begin(),
                    esi_impurity_probabilities_.end(),
                    std::back_inserter(weights),
-                   boost::bind(std::multiplies<double>(), _1, 10));
+                   [](auto && PH1) { return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 10); });
     for (size_t i = 0; i < weights.size(); ++i)
     {
       std::cout << "weights[" << i << "]: " << weights[i] << std::endl;
@@ -547,7 +546,7 @@ public:
     std::transform(maldi_probabilities_.begin(),
                    maldi_probabilities_.end(),
                    std::back_inserter(weights),
-                   boost::bind(std::multiplies<double>(), _1, 10));
+                   [](auto && PH1) { return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 10); });
     boost::random::discrete_distribution<Size, double> ddist(weights.begin(), weights.end());
 
     try
@@ -672,7 +671,7 @@ public:
     } // ! pragma
   }
 
-  bool IonizationSimulation::isFeatureValid_(const Feature& feature)
+  bool IonizationSimulation::isFeatureValid_(const Feature& feature) const
   {
     if (feature.getMZ() > maximal_mz_measurement_limit_ || feature.getMZ() < minimal_mz_measurement_limit_) // remove feature
     {

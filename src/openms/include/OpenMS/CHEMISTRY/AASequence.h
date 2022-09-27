@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2022.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -36,13 +36,13 @@
 
 #include <OpenMS/CHEMISTRY/EmpiricalFormula.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
-#include <OpenMS/DATASTRUCTURES/Map.h>
 #include <OpenMS/CONCEPT/Types.h>
 #include <OpenMS/CHEMISTRY/Residue.h>
 #include <OpenMS/CHEMISTRY/ResidueModification.h>
 
 #include <vector>
 #include <iosfwd>
+#include <map>
 
 namespace OpenMS
 {
@@ -563,7 +563,7 @@ protected:
     AASequence getSubsequence(Size index, UInt number) const;
 
     /// compute frequency table of amino acids
-    void getAAFrequencies(Map<String, Size>& frequency_table) const;
+    void getAAFrequencies(std::map<String, Size>& frequency_table) const;
 
     //@}
 
@@ -665,8 +665,7 @@ protected:
       @param str_it Current position in the string to be parsed
       @param str Full input string
       @param aas Current AASequence object (will be modified with the correct residue added)
-      @param dot_notation Whether "dot notation" is used (e.g. ".PEPTIDE.")
-      @param dot_terminal Whether the previous character was a dot
+      @param specificity Whether the current modification should be interpreted as N- or C-terminal
 
       @return Position at which to continue parsing
     */

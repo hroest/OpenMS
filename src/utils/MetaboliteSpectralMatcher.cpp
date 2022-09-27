@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2022.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -36,6 +36,9 @@
 #include <OpenMS/FORMAT/MzMLFile.h>
 #include <OpenMS/KERNEL/FeatureMap.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
+#include <OpenMS/FORMAT/FileHandler.h>
+#include <OpenMS/FORMAT/MascotGenericFile.h>
+#include <OpenMS/FORMAT/MSPGenericFile.h>
 #include <OpenMS/FORMAT/MzTab.h>
 #include <OpenMS/FORMAT/MzTabFile.h>
 #include <OpenMS/SYSTEM/File.h>
@@ -97,7 +100,7 @@ protected:
     registerInputFile_("in", "<file>", "", "Input spectra.");
     setValidFormats_("in", ListUtils::create<String>("mzML"));
     registerInputFile_("database", "<file>", "", "Default spectral database.", true);
-    setValidFormats_("database", ListUtils::create<String>("mzML"));
+    setValidFormats_("database", {"mzML", "msp", "mgf"});
     registerOutputFile_("out", "<file>", "", "mzTab file");
     setValidFormats_("out", ListUtils::create<String>("mzTab"));
 
@@ -134,7 +137,7 @@ protected:
 
     MzMLFile mz_file;
     mz_file.setLogType(log_type_);
-    std::vector<Int> ms_level(1,2);
+    std::vector<Int> ms_level = {2};
     mz_file.getOptions().setMSLevels(ms_level);
 
     PeakMap ms_peakmap;
@@ -142,7 +145,7 @@ protected:
 
     if (ms_peakmap.empty())
     {
-      OPENMS_LOG_WARN << "The input file does not contain any spectra.";
+      OPENMS_LOG_WARN << "The input file does not contain any MS2/fragment spectra.";
       return INCOMPATIBLE_INPUT_DATA;
     }
 
@@ -153,15 +156,27 @@ protected:
     // get parameters
     //-------------------------------------------------------------
 
-    Param ams_param = getParam_().copy("algorithm:", true);
-    writeDebug_("Parameters passed to MetaboliteSpectralMatcher", ams_param, 3);
+    Param msm_param = getParam_().copy("algorithm:", true);
+    writeDebug_("Parameters passed to MetaboliteSpectralMatcher", msm_param, 3);
 
     //-------------------------------------------------------------
     // load database
     //-------------------------------------------------------------
+    FileTypes::Type database_type = FileHandler::getTypeByFileName(database);
 
     PeakMap spec_db;
-    mz_file.load(spec_db_filename, spec_db);
+    if (database_type == FileTypes::MSP)
+    {
+      MSPGenericFile().load(spec_db_filename, spec_db);
+    }
+    else if (database_type == FileTypes::MZML)
+    {
+      mz_file.load(spec_db_filename, spec_db);
+    }
+    else if (database_type == FileTypes::MGF)
+    {
+      MascotGenericFile().load(spec_db_filename, spec_db);
+    }
 
     if (spec_db.empty())
     {
@@ -172,9 +187,9 @@ protected:
     //-------------------------------------------------------------
     // run spectral library search
     //-------------------------------------------------------------
-    MetaboliteSpectralMatching ams;
-    ams.setParameters(ams_param);
-    ams.run(ms_peakmap, spec_db, mztab_output);
+    MetaboliteSpectralMatching msm;
+    msm.setParameters(msm_param);
+    msm.run(ms_peakmap, spec_db, mztab_output);
 
     //-------------------------------------------------------------
     // store results

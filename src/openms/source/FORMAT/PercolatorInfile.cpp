@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2021.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2022.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -97,6 +97,10 @@ namespace OpenMS
 
     // determine RegEx to extract scan/index number
     boost::regex scan_regex = boost::regex(SpectrumLookup::getRegExFromNativeID(sid));
+
+    // keep track of errors
+    size_t missing_meta_value_count{};
+    set<String> missing_meta_values;
 
     size_t index = 0;
     for (const PeptideIdentification& pep_id : peptide_ids)
@@ -227,12 +231,34 @@ namespace OpenMS
             feats.push_back(hit.getMetaValue(feat).toString());
           }
         }
+        // here: feats (metavalues in peptide hits) and feature_set are equal if they have same size (if no metavalue is missing)
+
         if (feats.size() == feature_set.size())
         { // only if all feats were present add
           txt.addLine(ListUtils::concatenate(feats, '\t'));
+        }        
+        else
+        { // at least one feature is missing in the current peptide hit
+          missing_meta_value_count++;        
+          for (const auto& f : feature_set)
+          {
+            if (std::find(feats.begin(), feats.end(), f) == feats.end()) missing_meta_values.insert(f);
+          }
         }
       }
     }
+
+    // print warnings
+    if (missing_meta_value_count != 0)
+    {
+      OPENMS_LOG_WARN << "There were peptide hits with missing features/meta values. Skipped peptide hits: " << missing_meta_value_count << endl;
+      OPENMS_LOG_WARN << "Names of missing meta values: " << endl;
+      for (const auto& f : missing_meta_values)
+      {
+        OPENMS_LOG_WARN << f << endl;
+      }
+    }
+
     return txt;
   }
 
